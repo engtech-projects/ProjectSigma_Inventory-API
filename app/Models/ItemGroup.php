@@ -16,8 +16,6 @@ class ItemGroup extends Model
         'id',
         'name',
         'sub_groups',
-        'updated_at',
-        'created_at',
     ];
     protected $casts = [
         'sub_groups' => 'array',
