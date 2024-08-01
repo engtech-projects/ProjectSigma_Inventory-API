@@ -1,0 +1,34 @@
+# Deploying to EVENPAR server
+name: EVENPAR - Deploy ProjectSigma_Inventory-API
+
+on:
+  workflow_dispatch:
+env:
+  APP_NAME: "ProjectSigma_Inventory-API"
+
+concurrency:
+  group: "evenpar deployftp ProjectSigma_Inventory-API"
+  cancel-in-progress: true
+
+jobs:
+  deploy-online:
+    runs-on:
+      labels: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ci-pipe-evenpar-online
+      - name: ZeroTier Evenpar
+        uses: zerotier/github-action@v1.0.1
+        with:
+          network_id: ${{ secrets.ZEROTIER_NETWORK_ID }}
+          auth_token: ${{ secrets.ZEROTIER_CENTRAL_TOKEN }}
+      - name: Upload ftp
+        uses : SamKirkland/FTP-Deploy-Action@4.3.2
+        with:
+          server: ${{ vars.FTP_SERVER_EVENPAR }}
+          username: ${{ secrets.FTP_USERNAME_EVENPAR }}
+          password: ${{ secrets.FTP_PASSWORD_EVENPAR }}
+          protocol: ftp
+          port: 6000
+
