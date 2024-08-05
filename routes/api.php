@@ -23,4 +23,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::prefix('item-group')->group(function () {
     Route::resource('resource', ItemGroupController::class);
     Route::get('list', [ItemGroupController::class, 'get']);
+    Route::get('search', [ItemGroupController::class, 'search']);
+
 });

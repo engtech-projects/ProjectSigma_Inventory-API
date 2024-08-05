@@ -18,6 +18,24 @@ class ItemGroupController extends Controller
         $data->data = $itemgroup;
         return response()->json($data);
     }
+
+    public function search(Request $request)
+    {
+        $queryStr = $request->validate([
+            'query' => 'required|string|max:255',
+        ])['query'];
+
+        $query = ItemGroup::select('id', 'name', 'sub_groups')
+            ->whereRaw('LOWER(name) LIKE ?', ["%".strtolower($queryStr)."%"])
+            ->orWhereRaw('LOWER(sub_groups) LIKE ?', ["%".strtolower($queryStr)."%"])
+            ->get();
+
+        return response()->json([
+            'message' => 'Search results',
+            'success' => true,
+            'data' => $query,
+        ]);
+    }
     public function get()
     {
         $main = ItemGroup::get();
