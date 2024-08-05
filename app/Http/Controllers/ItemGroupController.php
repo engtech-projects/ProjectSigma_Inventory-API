@@ -22,7 +22,7 @@ class ItemGroupController extends Controller
     public function search(Request $request)
     {
         $queryStr = $request->validate([
-            'query' => 'required|string|max:255',
+            'query' => 'present|nullable|string|max:255',
         ])['query'];
 
         $query = ItemGroup::select('id', 'name', 'sub_groups')
