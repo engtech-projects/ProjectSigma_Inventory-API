@@ -126,8 +126,7 @@ class UOMController extends Controller
         $data = json_decode('{}');
         if (!is_null($uom)) {
             if ($uom->delete()) {
-                $data->message = "Succes
-                sfully deleted.";
+                $data->message = "Successfully deleted.";
                 $data->success = true;
                 $data->data = $uom;
                 return response()->json($data);
