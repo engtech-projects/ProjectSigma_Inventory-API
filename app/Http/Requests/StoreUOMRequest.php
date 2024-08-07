@@ -26,7 +26,7 @@ class StoreUOMRequest extends FormRequest
             'name' => 'required|string|max:255',
             'symbol' => 'required|string|max:10',
             'conversion' => 'nullable|numeric',
-            'is_standard' => 'boolean|required'
+            'is_standard' => 'boolean'
         ];
     }
 }
