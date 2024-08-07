@@ -3,9 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class UpdateItemGroupRequest extends FormRequest
+class StoreUOMRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,17 +22,11 @@ class UpdateItemGroupRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => [
-                'required',
-                'string',
-                Rule::unique("setup_item_groups", "name")->ignore($this->route("resource"), 'id')->whereNull('deleted_at')
-            ],
-            'sub_groups' => "required|array|min:1",
-            'sub_groups.*' => [
-                'required',
-                'string',
-                'max:255',
-            ],
+            'group_id' => 'exists:setup_uom_group,id',
+            'name' => 'required|string|max:255',
+            'symbol' => 'required|string|max:10',
+            'conversion' => 'nullable|numeric',
+            'is_standard' => 'boolean|required'
         ];
     }
 }
