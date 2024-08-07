@@ -25,6 +25,19 @@ return [
         'token' => env('POSTMARK_TOKEN'),
     ],
 
+    'api' => [
+        'HRSM_URL' => env('HRSM_API')
+    ],
+    'url' => [
+        'hrms_app_url' => env('HRMS_APP_URL'),
+        'hrms_api_url' => env('HRMS_API_URL')
+
+    ],
+
+    'key' =>[
+        'app_key' => env('APP_KEY')
+    ],
+
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),

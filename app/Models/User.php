@@ -4,13 +4,15 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Foundation\Auth\Access\Authorizable;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Model implements AuthenticatableContract
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Authorizable, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -22,6 +24,35 @@ class User extends Authenticatable
         'email',
         'password',
     ];
+    public function getAuthIdentifierName()
+    {
+        return [
+            'user_id' => 'id',
+            'email' => 'email',
+            'name' => 'name',
+            'type' => 'user',
+            'accessibilities' => 'accessibilities'
+        ];
+    }
+    public function getAuthIdentifier()
+    {
+        return $this->getAttributeFromArray('user_id');
+    }
+    public function getAuthPassword()
+    {
+        return null;
+    }
+    public function getRememberToken()
+    {
+        return null;
+    }
+    public function setRememberToken($value)
+    {
+    }
+    public function getRememberTokenName()
+    {
+
+    }
 
     /**
      * The attributes that should be hidden for serialization.
