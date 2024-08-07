@@ -22,16 +22,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-evenpar:
+  build-laravel:
     runs-on: ubuntu-latest
     env:
       APP_ENV: 'local'
       DB_CONNECTION: 'mysql'
-      DB_HOST: '143.95.243.191'
+      DB_HOST: '172.23.133.21'
       DB_PORT: '3306'
-      DB_DATABASE: 'engtechg_projectsigma'
-      DB_USERNAME: 'engtechg_projectsigma'
-      DB_PASSWORD: 'engtechg_projectsigma'
+      DB_DATABASE: 'projectsigma_hrms'
+      DB_USERNAME: 'engtech'
+      DB_PASSWORD: 'tVhjgWzsklpW'
     steps:
       - uses: shivammathur/setup-php@v2
         with:
