@@ -11,7 +11,7 @@ class UpdateUOMRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,11 @@ class UpdateUOMRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'group_id' => 'exists:setup_uom_group,id',
+            'name' => 'required|string|max:255',
+            'symbol' => 'required|string|max:10',
+            'conversion' => 'nullable|numeric',
+            'is_standard' => 'boolean|required'
         ];
     }
 }
