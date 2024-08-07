@@ -28,7 +28,7 @@ class UpdateItemGroupRequest extends FormRequest
                 'string',
                 Rule::unique("setup_item_groups", "name")->ignore($this->route("resource"), 'id')->whereNull('deleted_at')
             ],
-            'sub_groups' => "required|array",
+            'sub_groups' => "required|array|min:1",
             'sub_groups.*' => [
                 'required',
                 'string',
