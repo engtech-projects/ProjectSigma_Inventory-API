@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UOMController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -26,5 +28,7 @@ Route::prefix('item-group')->group(function () {
     Route::resource('resource', ItemGroupController::class);
     Route::get('list', [ItemGroupController::class, 'get']);
     Route::get('search', [ItemGroupController::class, 'search']);
-
+});
+Route::prefix('uom')->group(function () {
+    Route::resource('resource', UOMController::class);
 });
