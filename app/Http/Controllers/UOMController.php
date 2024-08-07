@@ -14,44 +14,7 @@ class UOMController extends Controller
     /**
      * Display a listing of the resource.
      */
-    // public function index(Request $request)
-    // {
-    //     $message = 'UOMs Fetched.';
-    //     $success = true;
-    //     $data = null;
-
-    //     if ($request->has('custom')) {
-    //         $uoms = UOM::where('is_standard', false)->get();
-    //         $message = 'Custom UOMs Fetched.';
-    //     } elseif ($request->has('standard')) {
-    //         $uoms = UOM::where('is_standard', true)->get();
-    //         $message = 'Standard UOMs Fetched.';
-    //     } else {
-    //         $uoms = UOM::all();
-    //     }
-
-    //     $query = UOM::query();
-
-    //     // Filter by 'standard' or 'custom' parameters
-    //     if ($request->has('custom')) {
-    //         $query->where('is_standard', false);
-    //         $message = 'Custom UOMs Fetched.';
-    //     } elseif ($request->has('standard')) {
-    //         $query->where('is_standard', true);
-    //         $message = 'Standard UOMs Fetched.';
-    //     }
-
-    //     $uomResources = UOMResource::collection($uoms);
-
-    //     $paginated = PaginateResourceCollection::paginate(collect($uomResources->toArray(request())));
-
-    //     return new JsonResponse([
-    //         'success' => $success,
-    //         'message' => $message,
-    //         'data' => $paginated
-    //     ]);
-    // }
-
+    
     public function index(Request $request)
     {
         $message = 'UOMs Fetched.';
