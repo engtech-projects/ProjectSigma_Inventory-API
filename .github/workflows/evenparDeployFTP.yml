@@ -3,6 +3,10 @@ name: EVENPAR - Deploy ProjectSigma_Inventory-API
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: EVENPAR - ProjectSigma_Inventory-API Build and Push to evenpar-Pipeline Branch
+    types:
+      - completed
 env:
   APP_NAME: "ProjectSigma_Inventory-API"
 
@@ -17,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: ci-pipe-evenpar-online
+          ref: ci-pipe-evenpar
       - name: ZeroTier Evenpar
         uses: zerotier/github-action@v1.0.1
         with:
@@ -26,9 +30,9 @@ jobs:
       - name: Upload ftp
         uses : SamKirkland/FTP-Deploy-Action@4.3.2
         with:
-          server: ${{ vars.FTP_SERVER_EVENPAR }}
-          username: ${{ secrets.FTP_USERNAME_EVENPAR }}
-          password: ${{ secrets.FTP_PASSWORD_EVENPAR }}
+          server: ${{ vars.EVENPAR_FTP_SERVER }}
+          username: ${{ secrets.EVENPAR_FTP_USERNAME }}
+          password: ${{ secrets.EVENPAR_FTP_PASSWORD }}
+          port: ${{ secrets.EVENPAR_FTP_PORT }}
           protocol: ftp
-          port: 6000
 
