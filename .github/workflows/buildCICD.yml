@@ -1,0 +1,110 @@
+# BUILDING FOR CI CD - LARAVEL with Vue
+name: ProjectSigma_Inventory-API Build and Push to CI-Pipeline Branch
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["staging", "main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+env:
+  APPLICATION_NAME: "ProjectSigma_Inventory-API"
+  GIT_USERNAME: "engtech-projects"
+  REPOSITORY_NAME: "ProjectSigma_Inventory-API"
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "build ProjectSigma_Inventory-API ${{ github.ref  }}"
+  cancel-in-progress: true
+
+jobs:
+
+  build-staging:
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: 'local'
+      DB_CONNECTION: 'mysql'
+      DB_HOST: '143.95.243.191'
+      DB_PORT: '3306'
+      DB_DATABASE: 'engtechg_projectsigma_staging'
+      DB_USERNAME: 'engtechg_projectsigma'
+      DB_PASSWORD: 'engtechg_projectsigma'
+    if: github.ref == 'refs/heads/staging'
+    steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: pdo, pdo_mysql
+      - name: Set output
+        id: vars
+        run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.vars.outputs.short_ref }}
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      - name: Build Laravel
+        run: |
+              composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+              php artisan key:generate
+              php artisan migrate
+              php artisan db:seed
+              rm -rf .env
+              rm -rf .git
+              rm -rf .gitignore
+              git config --global user.email "engtechsolutions2020@gmail.com"
+              git config --global user.name "EngtechDeploy"
+              git init
+              git add -A
+              git commit -m 'deploy to CI-Pipeline'
+              git push -f https://$GIT_USERNAME:${{ secrets.GITHUB_TOKEN }}@github.com/$GIT_USERNAME/$REPOSITORY_NAME.git master:ci-pipe-${{ steps.vars.outputs.short_ref }}
+        shell: bash
+
+  build-main:
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: 'local'
+      DB_CONNECTION: 'mysql'
+      DB_HOST: '143.95.243.191'
+      DB_PORT: '3306'
+      DB_DATABASE: 'engtechg_projectsigma'
+      DB_USERNAME: 'engtechg_projectsigma'
+      DB_PASSWORD: 'engtechg_projectsigma'
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: pdo, pdo_mysql
+      - name: Set output
+        id: vars
+        run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.vars.outputs.short_ref }}
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      - name: Build Laravel
+        run: |
+              composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+              php artisan key:generate
+              php artisan migrate
+              php artisan db:seed
+              rm -rf .env
+              rm -rf .git
+              rm -rf .gitignore
+              git config --global user.email "engtechsolutions2020@gmail.com"
+              git config --global user.name "EngtechDeploy"
+              git init
+              git add -A
+              git commit -m 'deploy to CI-Pipeline'
+              git push -f https://$GIT_USERNAME:${{ secrets.GITHUB_TOKEN }}@github.com/$GIT_USERNAME/$REPOSITORY_NAME.git master:ci-pipe-${{ steps.vars.outputs.short_ref }}
+        shell: bash
