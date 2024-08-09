@@ -14,50 +14,14 @@ class UOMController extends Controller
     /**
      * Display a listing of the resource.
      */
-    
-    public function index(Request $request)
+    public function index()
     {
-        $message = 'UOMs Fetched.';
-        $success = true;
-        $data = null;
-
-        $query = UOM::query();
-
-        // Filter by 'standard' or 'custom' parameters
-        if ($request->has('custom')) {
-            $query->where('is_standard', false);
-            $message = 'Custom UOMs Fetched.';
-        } elseif ($request->has('standard')) {
-            $query->where('is_standard', true);
-            $message = 'Standard UOMs Fetched.';
-        }
-
-        if ($request->has('id')) {
-            $uom = $query->find($request->query('id'));
-
-            if ($uom) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Successfully fetched.',
-                    'data' => new UOMResource($uom)
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No data found.'
-                ], 404);
-            }
-        }
-
-        $uoms = $query->get();
-        $uomResources = UOMResource::collection($uoms);
-        $paginated = PaginateResourceCollection::paginate(collect($uomResources->toArray($request)));
-
-        return new JsonResponse([
-            'success' => $success,
-            'message' => $message,
-            'data' => $paginated
-        ]);
+        $uoms = UOM::paginate(10);
+        $data = json_decode('{}');
+        $data->message = "UOMs fetched.";
+        $data->success = true;
+        $data->data = $uoms;
+        return response()->json($data);
     }
 
 
