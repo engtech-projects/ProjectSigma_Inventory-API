@@ -15,7 +15,7 @@ return new class () extends Migration {
             $table->foreignId('group_id')->nullable()->constrained('setup_uom_group');
             $table->string('name');
             $table->string('symbol');
-            $table->decimal('conversion', 15, 2)->nullable();
+            $table->decimal('conversion', 15, 4)->nullable();
             $table->boolean('is_standard');
             $table->timestamps();
             $table->softDeletes();
