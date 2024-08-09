@@ -9,6 +9,7 @@ use App\Http\Resources\UOMResource;
 use App\Utils\PaginateResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+
 class UOMController extends Controller
 {
     /**
@@ -19,39 +20,21 @@ class UOMController extends Controller
     {
         $message = 'UOMs Fetched.';
         $success = true;
-        $data = null;
 
+        $type = $request->query('filter', false);
         $query = UOM::query();
 
-        // Filter by 'standard' or 'custom' parameters
-        if ($request->has('custom')) {
+        if ($type === 'custom') {
             $query->where('is_standard', false);
             $message = 'Custom UOMs Fetched.';
-        } elseif ($request->has('standard')) {
+        } elseif ($type === 'standard') {
             $query->where('is_standard', true);
             $message = 'Standard UOMs Fetched.';
         }
 
-        if ($request->has('id')) {
-            $uom = $query->find($request->query('id'));
-
-            if ($uom) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Successfully fetched.',
-                    'data' => new UOMResource($uom)
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No data found.'
-                ], 404);
-            }
-        }
-
         $uoms = $query->get();
         $uomResources = UOMResource::collection($uoms);
-        $paginated = PaginateResourceCollection::paginate(collect($uomResources->toArray($request)));
+        $paginated = PaginateResourceCollection::paginate(collect($uomResources->toArray(request())));
 
         return new JsonResponse([
             'success' => $success,

@@ -19,7 +19,7 @@ class PaginateResourceCollection
         return self::paginator($items, $totalPageNumber, $showPerPage, $pageNumber, [
             'path' => Paginator::resolveCurrentPath(),
             'pageName' => 'page',
-        ]);
+        ])->withQueryString();
     }
 
     protected static function paginator($items, $total, $perPage, $currentPage, $options)
