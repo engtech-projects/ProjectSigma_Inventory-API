@@ -5,10 +5,8 @@ namespace App\Guards;
 use App\Models\User;
 use Illuminate\Auth\GuardHelpers;
 use Illuminate\Contracts\Auth\Guard;
-use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Laravel\Sanctum;
 
 class AuthTokenGuard implements Guard
 {

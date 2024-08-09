@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UOMGroup extends Model
-
 {
     use HasFactory;
     use SoftDeletes;
