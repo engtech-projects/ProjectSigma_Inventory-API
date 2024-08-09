@@ -6,9 +6,7 @@ use App\Models\UOM;
 use App\Http\Requests\StoreUOMRequest;
 use App\Http\Requests\UpdateUOMRequest;
 use App\Http\Resources\UOMResource;
-use App\Utils\PaginateResourceCollection;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+
 class UOMController extends Controller
 {
     /**
