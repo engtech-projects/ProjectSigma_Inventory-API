@@ -23,7 +23,7 @@ class StoreUOMRequest extends FormRequest
     {
         return [
             'group_id' => 'exists:setup_uom_group,id',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:setup_uom,name',
             'symbol' => 'required|string|max:10',
             'conversion' => 'nullable|numeric',
             'is_standard' => 'boolean'

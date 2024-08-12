@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateUOMRequest extends FormRequest
 {
@@ -23,7 +24,12 @@ class UpdateUOMRequest extends FormRequest
     {
         return [
             'group_id' => 'exists:setup_uom_group,id',
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique("setup_uom", "name")->ignore($this->route("resource"), 'id')->whereNull('deleted_at'),
+            ],
             'symbol' => 'required|string|max:10',
             'conversion' => 'nullable|numeric',
             'is_standard' => 'boolean'
