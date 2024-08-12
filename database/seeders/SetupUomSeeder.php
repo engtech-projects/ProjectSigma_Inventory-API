@@ -16,6 +16,7 @@ class SetupUomSeeder extends Seeder
         DB::table('setup_uom')->upsert(
             [
                 // Length
+                // base unit: Meter
                 [
 
                     'id' => 1,
@@ -96,6 +97,7 @@ class SetupUomSeeder extends Seeder
                 ],
 
                 // Weight
+                // base unit: Kilogram
                 [
                     'id' => 8,
                     'group_id' => 2,
@@ -153,6 +155,7 @@ class SetupUomSeeder extends Seeder
                 ],
 
                 // Volume
+                // base unit: Liter
                 [
                     'id' => 13,
                     'group_id' => 3,
@@ -199,6 +202,7 @@ class SetupUomSeeder extends Seeder
                 ],
 
                 // Area
+                // base unit: Squre Meter
                 [
                     'id' => 17,
                     'group_id' => 4,
@@ -268,6 +272,7 @@ class SetupUomSeeder extends Seeder
 
 
                 // Force
+                // base unit: Newton
                 [
                     'id' => 23,
                     'group_id' => 5,
@@ -302,7 +307,8 @@ class SetupUomSeeder extends Seeder
                     'updated_at' => Carbon::now(),
                 ],
 
-                //Dimension
+                // Dimension
+                // base unit: Cubic Meter
                 [
                     'id' => 26,
                     'group_id' => 6,
@@ -336,17 +342,6 @@ class SetupUomSeeder extends Seeder
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
                 ],
-                [
-                    'id' => 29,
-                    'group_id' => 6,
-                    'name' => 'Cubic Foot',
-                    'symbol' => 'ft³',
-                    'conversion' => 0.0283168,
-                    'is_standard' => false,
-                    'deleted_at' => null,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                ]
             ],
             [ "group_id" ],
             [ "name", "symbol", "conversion", "updated_at", "deleted_at"]
