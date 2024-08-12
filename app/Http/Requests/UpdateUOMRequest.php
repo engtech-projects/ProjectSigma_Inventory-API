@@ -30,7 +30,7 @@ class UpdateUOMRequest extends FormRequest
                 'max:255',
                 Rule::unique("setup_uom", "name")->ignore($this->route("resource"), 'id')->whereNull('deleted_at'),
             ],
-            'symbol' => 'required|string|max:10',
+            'symbol' => 'required|string|max:10|unique:setup_uom,symbol',
             'conversion' => 'nullable|numeric',
             'is_standard' => 'boolean'
         ];
