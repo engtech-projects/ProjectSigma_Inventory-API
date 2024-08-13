@@ -14,6 +14,13 @@ class UOMResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'group_id' => $this->group_id,
+            'name' => $this->name,
+            'symbol' => $this->symbol,
+            'conversion' => $this->conversion,
+            'is_standard' => $this->is_standard,
+        ];
     }
 }
