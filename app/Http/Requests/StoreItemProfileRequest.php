@@ -1,0 +1,49 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreItemProfileRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            
+            'sku' => 'required|string|max:255|unique:item_profile,sku',
+            'item_description' => 'required|string|max:255|unique:item_profile,item_description',
+            'thickness_val' => 'numeric',
+            'thickness_uom' => 'numeric',
+            'length_val' => 'numeric',
+            'length_uom' => 'numeric',
+            'width_val' => 'numeric',
+            'width_uom' => 'numeric',
+            'height_val' => 'numeric',
+            'height_uom' => 'numeric',
+            'outside_diameter_val' => 'numeric',
+            'outside_diameter_uom' => 'numeric',
+            'inside_diameter_val' => 'numeric',
+            'inside_diameter_uom' => 'numeric',
+            'specification' => 'required|string|max:255',
+            'grade' => 'string|max:255',
+            'color' => 'required|string|max:255',
+            'uom' => 'required|numeric',
+            'inventory_type' => 'required|string',
+            'active_status' => 'required|string',
+            'is_standard' => 'boolean'
+        ];
+    }
+}
