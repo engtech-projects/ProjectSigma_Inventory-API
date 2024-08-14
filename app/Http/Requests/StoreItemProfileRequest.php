@@ -22,7 +22,6 @@ class StoreItemProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            
             'sku' => 'required|string|max:255|unique:item_profile,sku',
             'item_description' => 'required|string|max:255|unique:item_profile,item_description',
             'thickness_val' => 'numeric',
@@ -43,7 +42,7 @@ class StoreItemProfileRequest extends FormRequest
             'uom' => 'required|numeric',
             'inventory_type' => 'required|string',
             'active_status' => 'required|string',
-            'is_standard' => 'boolean'
+            'is_approved' => 'boolean'
         ];
     }
 }
