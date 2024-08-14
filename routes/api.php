@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\UOMController;
+use App\Http\Controllers\ItemProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,4 +30,8 @@ Route::prefix('item-group')->group(function () {
 });
 Route::prefix('uom')->group(function () {
     Route::resource('resource', UOMController::class);
+});
+Route::prefix('item-profile')->group(function () {
+    Route::resource('resource', ItemProfileController::class);
+    Route::get('list', [ItemProfileController::class, 'get']);
 });
