@@ -23,7 +23,7 @@ class StoreItemProfileRequest extends FormRequest
     {
         return [
             'sku' => 'required|string|max:255|unique:item_profile,sku',
-            'item_description' => 'required|string|max:255|unique:item_profile,item_description',
+            'item_description' => 'required|string|max:255',
             'thickness_val' => 'numeric',
             'thickness_uom' => 'numeric',
             'length_val' => 'numeric',
