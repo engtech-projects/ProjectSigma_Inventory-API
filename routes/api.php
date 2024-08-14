@@ -19,8 +19,21 @@ use App\Http\Controllers\ItemProfileController;
 */
 
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:api')->group(function () {
+    // return $request->user();
+
+    // Route::prefix('item-group')->group(function () {
+    //     Route::resource('resource', ItemGroupController::class);
+    //     Route::get('list', [ItemGroupController::class, 'get']);
+    //     Route::get('search', [ItemGroupController::class, 'search']);
+    // });
+    // Route::prefix('uom')->group(function () {
+    //     Route::resource('resource', UOMController::class);
+    // });
+    // Route::prefix('item-profile')->group(function () {
+    //     Route::resource('resource', ItemProfileController::class);
+    //     Route::get('list', [ItemProfileController::class, 'get']);
+    // });
 });
 
 Route::prefix('item-group')->group(function () {

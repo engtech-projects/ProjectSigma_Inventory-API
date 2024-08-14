@@ -42,7 +42,7 @@ class UpdateItemProfileRequest extends FormRequest
             'uom' => 'required|string',
             'inventory_type' => 'string',
             'active_status' => 'string',
-            'is_standard' => 'boolean'
+            'is_approved' => 'boolean'
         ];
     }
 }
