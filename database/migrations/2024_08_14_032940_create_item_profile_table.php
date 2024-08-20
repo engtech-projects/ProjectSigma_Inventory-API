@@ -31,6 +31,8 @@ return new class extends Migration
             $table->string("grade");
             $table->string("color");
             $table->foreignId('uom')->constrained('setup_uom');
+            $table->foreignId('uom_group_id')->constrained('setup_uom_group');
+            $table->float('uom_conversion_value');
             $table->enum('inventory_type',['Inventoriable', 'Non-Inventoriable']);
             $table->enum('active_status',['Active', 'Inactive']);
             $table->boolean('is_approved');

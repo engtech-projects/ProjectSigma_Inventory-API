@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,7 +21,7 @@ use App\Http\Controllers\ItemProfileController;
 
 
 Route::middleware('auth:api')->group(function () {
-    // return $request->user();
+    Route::get('/user', [AuthController::class, 'show']);
 
     // Route::prefix('item-group')->group(function () {
     //     Route::resource('resource', ItemGroupController::class);
@@ -43,8 +44,11 @@ Route::prefix('item-group')->group(function () {
 });
 Route::prefix('uom')->group(function () {
     Route::resource('resource', UOMController::class);
+    Route::get('list', [UOMController::class, 'get']);
+
 });
 Route::prefix('item-profile')->group(function () {
     Route::resource('resource', ItemProfileController::class);
-    Route::get('list', [ItemProfileController::class, 'get']);
+    Route::get('my-request', [ItemProfileController::class, 'myRequests']);
+    Route::get('my-approvals', [ItemProfileController::class, 'myApprovals']);
 });
