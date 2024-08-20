@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('request_itemprofiling', function (Blueprint $table) {
             $table->id();
             $table->json('approvals');
+            $table->string('created_by');
             $table->timestamps();
             $table->softDeletes();
         });

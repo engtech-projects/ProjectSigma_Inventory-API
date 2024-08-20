@@ -20,11 +20,11 @@ class User extends Model implements AuthenticatableContract
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    // protected $fillable = [
+    //     'name',
+    //     'email',
+    //     'password',
+    // ];
     public function getAuthIdentifierName()
     {
         return [
@@ -55,23 +55,42 @@ class User extends Model implements AuthenticatableContract
 
     }
 
+    public function getAccessibilities()
+    {
+        $accessibilities = $this->getAttributeFromArray('accessibilities');
+        $userAcess = [];
+        $accessGroup = 'inventory:';
+        foreach ($accessibilities as $key => $value) {
+            if (str_starts_with($value, $accessGroup)) {
+                array_push($userAcess, $value);
+            }
+        }
+        return $accessibilities;
+
+    }
+
+    public function receiveBroadcastNotification()
+    {
+        return 'users.' . $this->id;
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>
      */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    // protected $hidden = [
+    //     'password',
+    //     'remember_token',
+    // ];
 
     /**
      * The attributes that should be cast.
      *
      * @var array<string, string>
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
+    // protected $casts = [
+    //     'email_verified_at' => 'datetime',
+    //     'password' => 'hashed',
+    // ];
 }

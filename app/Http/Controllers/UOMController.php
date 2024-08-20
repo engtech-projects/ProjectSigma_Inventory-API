@@ -43,6 +43,16 @@ class UOMController extends Controller
         ]);
     }
 
+    public function get()
+    {
+        $main = UOM::get();
+        $data = json_decode('{}');
+        $data->message = "Successfully fetched.";
+        $data->success = true;
+        $data->data = $main;
+        return response()->json($data);
+    }
+
 
     /**
      * Show the form for creating a new resource.

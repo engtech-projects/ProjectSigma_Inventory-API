@@ -6,6 +6,11 @@ use App\Models\ItemProfile;
 use App\Http\Requests\StoreItemProfileRequest;
 use App\Http\Requests\UpdateItemProfileRequest;
 use App\Http\Resources\ItemProfileResource;
+use App\Enums\StringRequestApprovalStatus;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\JsonResponse;
+
+
 
 class ItemProfileController extends Controller
 {
@@ -37,17 +42,26 @@ class ItemProfileController extends Controller
      */
     public function store(StoreItemProfileRequest $request)
     {
-        $itemprofile = new ItemProfile();
-        $itemprofile->fill($request->validated());
-        $itemprofile->is_approved = false;
-        $saved = $itemprofile->save();
-        $response = [
-            'message' => $saved ? 'Successfully saved.' : 'Save failed.',
-            'success' => $saved,
-            'data' => $saved ? new ItemProfileResource($itemprofile) : null,
-        ];
+        $validatedData = $request->validated();
 
-        return response()->json($response, $saved ? 200 : 400);
+        try {
+            DB::transaction(function () use ($validatedData) {
+                foreach ($validatedData['item_profiles'] as $itemprofileData) {
+                    ItemProfile::create($itemprofileData);
+                }
+            });
+
+            return response()->json([
+                'message' => 'Item profiles saved successfully!',
+                'data' => $validatedData['item_profiles'],
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to save item profiles.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -110,4 +124,37 @@ class ItemProfileController extends Controller
         $data->success = false;
         return response()->json($data, 404);
     }
+    public function myRequests()
+    {
+        $myRequest = $this->RequestService->getMyRequest();
+
+        if ($myRequest->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Item Profile Request Fetched.',
+            'data' => ItemProfileResource::collection($myRequest)
+        ]);
+    }
+
+    // public function myApprovals()
+    // {
+    //     $myApproval = $this->RequestService->getMyApprovals();
+    //     if ($myApproval->isEmpty()) {
+    //         return new JsonResponse([
+    //             'success' => false,
+    //             'message' => 'No data found.',
+    //         ], JsonResponse::HTTP_OK);
+    //     }
+    //     return new JsonResponse([
+    //         'success' => true,
+    //         'message' => 'LeaveForm Request fetched.',
+    //         'data' => ItemProfileResource::collection($myApproval)
+    //     ]);
+    // }
+
 }
