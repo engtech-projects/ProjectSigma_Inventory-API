@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -33,8 +32,8 @@ return new class extends Migration
             $table->foreignId('uom')->constrained('setup_uom');
             $table->foreignId('uom_group_id')->constrained('setup_uom_group');
             $table->float('uom_conversion_value');
-            $table->enum('inventory_type',['Inventoriable', 'Non-Inventoriable']);
-            $table->enum('active_status',['Active', 'Inactive']);
+            $table->enum('inventory_type', ['Inventoriable', 'Non-Inventoriable']);
+            $table->enum('active_status', ['Active', 'Inactive']);
             $table->boolean('is_approved');
             $table->timestamps();
             $table->softDeletes();

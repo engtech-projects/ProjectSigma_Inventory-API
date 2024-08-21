@@ -1,12 +1,12 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
+use App\Http\Controllers\RequestItemProfilingItemsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,3 +52,8 @@ Route::prefix('item-profile')->group(function () {
     Route::get('my-request', [ItemProfileController::class, 'myRequests']);
     Route::get('my-approvals', [ItemProfileController::class, 'myApprovals']);
 });
+
+Route::prefix('request-itemprofiling-items')->group(function () {
+    Route::post('/link/{requestId}', [RequestItemprofilingItemsController::class, 'linkToRequest']);
+});
+

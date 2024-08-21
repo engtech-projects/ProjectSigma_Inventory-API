@@ -15,6 +15,7 @@ class ItemProfileResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            ...parent::toArray($request),
             'id' => $this->id,
             'sku' => $this->sku,
             'item_description' => $this->item_description,
@@ -25,6 +26,7 @@ class ItemProfileResource extends JsonResource
             'outside_diameter_val' => $this->outside_diameter_val,
             'inside_diameter_val' => $this->inside_diameter_val,
             'specification' => $this->specification,
+            'volume' => $this->volume,
             'grade' => $this->grade,
             'color' => $this->color,
             'uom' => $this->uom,

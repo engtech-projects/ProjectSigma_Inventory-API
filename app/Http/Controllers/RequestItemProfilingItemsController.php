@@ -5,9 +5,31 @@ namespace App\Http\Controllers;
 use App\Models\RequestItemProfilingItems;
 use App\Http\Requests\StoreRequestItemProfilingItemsRequest;
 use App\Http\Requests\UpdateRequestItemProfilingItemsRequest;
+use App\Models\RequestItemProfiling;
+use Illuminate\Http\Request;
 
 class RequestItemProfilingItemsController extends Controller
 {
+    public function linkToRequest(Request $request, $requestId)
+    {
+        $validated = $request->validate([
+            'item_profile_ids' => 'required|array',
+            'item_profile_ids.*' => 'exists:item_profile,id',
+        ]);
+
+        $requestProfiling = RequestItemProfiling::findOrFail($requestId);
+
+        foreach ($validated['item_profile_ids'] as $itemProfileId) {
+            $requestProfiling->requestItemprofilingItems()->create([
+                'item_profile_id' => $itemProfileId,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Items linked to request successfully',
+        ]);
+    }
     /**
      * Display a listing of the resource.
      */

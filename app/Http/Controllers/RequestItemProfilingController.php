@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\RequestItemProfiling;
 use App\Http\Requests\StoreRequestItemProfilingRequest;
 use App\Http\Requests\UpdateRequestItemProfilingRequest;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class RequestItemProfilingController extends Controller
 {
@@ -27,9 +29,38 @@ class RequestItemProfilingController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreRequestItemProfilingRequest $request)
+    // public function store(StoreRequestItemProfilingRequest $request)
+    // {
+    //     $attributes = $request->validated();
+
+    //     try {
+    //         DB::transaction(function () use ($attributes) {
+    //             $requestProfiling = RequestItemprofiling::create($attributes);
+
+    //             foreach ($attributes['items'] as $item) {
+    //                 $requestProfiling->items()->create($item);
+    //             }
+    //         });
+
+    //         return response()->json(['message' => 'Request successfully created!'], 201);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['message' => 'Failed to create request.', 'error' => $e->getMessage()], 500);
+    //     }
+    // }
+
+    public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'approvals' => 'required|json',
+            'created_by' => 'required|string',
+        ]);
+
+        $requestProfiling = RequestItemprofiling::create($validated);
+
+        return response()->json([
+            'message' => 'Request Item Profiling created successfully!',
+            'data' => $requestProfiling,
+        ], 201);
     }
 
     /**

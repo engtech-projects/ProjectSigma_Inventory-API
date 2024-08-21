@@ -10,16 +10,16 @@ class RequestItemProfiling extends Model
 {
     use HasFactory;
 
-    protected $table = 'request_item_profiling';
+    protected $table = 'request_itemprofiling';
+    protected $fillable = [
+        'approvals',
+        'created_by',
+    ];
 
     protected $casts = [
         'approvals' => 'array',
     ];
 
-    // public function requestItemprofilingItems()
-    // {
-    //     return $this->hasMany(RequestItemprofilingItems::class);
-    // }
     public function requestItemprofiling(): HasManyThrough
     {
         return $this->hasManyThrough(ItemProfile::class, RequestItemProfilingItems::class);
