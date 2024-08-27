@@ -9,6 +9,8 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 
 trait HasApproval
 {
@@ -24,6 +26,11 @@ trait HasApproval
         $this->save();
         $this->refresh();
     }
+    public function created_by_user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, "created_by", "id");
+    }
+
     public function setRequestStatus(?string $newStatus)
     {
     }

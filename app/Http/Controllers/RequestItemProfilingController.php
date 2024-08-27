@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RequestStatusType;
 use App\Models\RequestItemProfiling;
 use App\Http\Requests\StoreRequestItemProfilingRequest;
 use App\Http\Requests\UpdateRequestItemProfilingRequest;
+use App\Models\ItemProfile;
+use App\Models\RequestItemProfilingItems;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
@@ -15,7 +18,12 @@ class RequestItemProfilingController extends Controller
      */
     public function index()
     {
-        //
+        $requests = RequestItemProfiling::with('itemProfiles')->paginate(10);
+        $data = json_decode('{}');
+        $data->message = "Request Item Profiling successfully fetched.";
+        $data->success = true;
+        $data->data = $requests;
+        return response()->json($data);
     }
 
     /**
@@ -29,39 +37,62 @@ class RequestItemProfilingController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
     // public function store(StoreRequestItemProfilingRequest $request)
     // {
-    //     $attributes = $request->validated();
+    //     $requestItemProfiling = DB::transaction(function () use ($request) {
 
-    //     try {
-    //         DB::transaction(function () use ($attributes) {
-    //             $requestProfiling = RequestItemprofiling::create($attributes);
+    //         $requestItemProfiling = RequestItemProfiling::create([
+    //             'approvals' => $request->input('approvals'),
+    //             'created_by' => $request->input('created_by'),
+    //         ]);
 
-    //             foreach ($attributes['items'] as $item) {
-    //                 $requestProfiling->items()->create($item);
-    //             }
-    //         });
+    //         // $requestItemProfiling->itemProfiles()->createMany($request->input('itemProfiles'));
 
-    //         return response()->json(['message' => 'Request successfully created!'], 201);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['message' => 'Failed to create request.', 'error' => $e->getMessage()], 500);
-    //     }
+    //         return $requestItemProfiling;
+    //     });
+
+    //     $requestItemProfiling->load('itemProfiles');
+
+    //     return response()->json([
+    //         'message' => 'Request created successfully.',
+    //         'data' => $requestItemProfiling
+    //     ], 201);
     // }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'approvals' => 'required|json',
-            'created_by' => 'required|string',
+    public function store(StoreRequestItemProfilingRequest $request)
+{
+    $attribute = $request->validated();
+
+    $requestItemProfiling = DB::transaction(function () use ($attribute) {
+
+        $requestItemProfiling = RequestItemProfiling::create([
+            'approvals' => $attribute['approvals'],
+            'created_by' => $attribute['created_by'],
         ]);
 
-        $requestProfiling = RequestItemprofiling::create($validated);
+        $requestItemProfiling->itemProfiles()->createMany($attribute->input('itemProfiles'));
 
-        return response()->json([
-            'message' => 'Request Item Profiling created successfully!',
-            'data' => $requestProfiling,
-        ], 201);
-    }
+        // foreach ($attribute['item_profile_ids'] as $itemProfileId) {
+
+        //     RequestItemProfilingItems::create([
+        //         'request_itemprofiling_id' => $requestItemProfiling->id,
+        //         'item_profile_id' => $itemProfileId,
+        //     ]);
+        // }
+
+        return $requestItemProfiling;
+    });
+
+    $requestItemProfiling->load('itemProfiles');
+
+    return response()->json([
+        'message' => 'Request created successfully.',
+        'data' => $requestItemProfiling
+    ], 201);
+}
+
+
 
     /**
      * Display the specified resource.

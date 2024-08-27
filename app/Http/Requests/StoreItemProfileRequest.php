@@ -42,7 +42,7 @@ class StoreItemProfileRequest extends FormRequest
             'item_profiles.*.sku' => [
                 "required",
                 "string",
-                "max:255",
+                "max:6",
                 "unique:item_profile,sku"
             ],
             'item_profiles.*.item_description' => [
@@ -56,6 +56,7 @@ class StoreItemProfileRequest extends FormRequest
             ],
             'item_profiles.*.thickness_uom' => [
                 "numeric",
+                "nullable",
                 "exists:setup_uom,id"
             ],
             'item_profiles.*.length_val' => [
@@ -64,6 +65,7 @@ class StoreItemProfileRequest extends FormRequest
             ],
             'item_profiles.*.length_uom' => [
                 "numeric",
+                "nullable",
                 "exists:setup_uom,id"
             ],
             'item_profiles.*.width_val' => [
@@ -72,6 +74,7 @@ class StoreItemProfileRequest extends FormRequest
             ],
             'item_profiles.*.width_uom' => [
                 "numeric",
+                "nullable",
                 "exists:setup_uom,id"
             ],
             'item_profiles.*.height_val' => [
@@ -80,6 +83,7 @@ class StoreItemProfileRequest extends FormRequest
             ],
             'item_profiles.*.height_uom' => [
                 "numeric",
+                "nullable",
                 "exists:setup_uom,id"
             ],
             'item_profiles.*.outside_diameter_val' => [
@@ -88,6 +92,7 @@ class StoreItemProfileRequest extends FormRequest
             ],
             'item_profiles.*.outside_diameter_uom' => [
                 "numeric",
+                "nullable",
                 "exists:setup_uom,id"
             ],
             'item_profiles.*.inside_diameter_val' => [
@@ -96,6 +101,7 @@ class StoreItemProfileRequest extends FormRequest
             ],
             'item_profiles.*.inside_diameter_uom' => [
                 "numeric",
+                "nullable",
                 "exists:setup_uom,id"
             ],
             'item_profiles.*.specification' => [
@@ -109,11 +115,12 @@ class StoreItemProfileRequest extends FormRequest
             ],
             'item_profiles.*.grade' => [
                 "string",
+                "nullable",
                 "max:255"
             ],
             'item_profiles.*.color' => [
-                "required",
                 "string",
+                "nullable",
                 "max:255"
             ],
             'item_profiles.*.uom' => [
@@ -121,7 +128,7 @@ class StoreItemProfileRequest extends FormRequest
                 "numeric",
                 "exists:setup_uom,id"
             ],
-            'item_profiles.*.uom_group_id' => [
+            'item_profiles.*.uom_conversion_group_id' => [
                 "numeric",
                 "exists:setup_uom_group,id"
             ],

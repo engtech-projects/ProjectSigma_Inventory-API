@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
+use App\Http\Controllers\RequestItemProfilingController;
 use App\Http\Controllers\RequestItemProfilingItemsController;
 
 /*
@@ -21,7 +21,9 @@ use App\Http\Controllers\RequestItemProfilingItemsController;
 
 
 Route::middleware('auth:api')->group(function () {
-    Route::get('/user', [AuthController::class, 'show']);
+    Route::prefix('auth')->group(function () {
+        Route::get('/user', [AuthController::class, 'show']);
+    });
 
     // Route::prefix('item-group')->group(function () {
     //     Route::resource('resource', ItemGroupController::class);
@@ -45,15 +47,10 @@ Route::prefix('item-group')->group(function () {
 Route::prefix('uom')->group(function () {
     Route::resource('resource', UOMController::class);
     Route::get('list', [UOMController::class, 'get']);
-
 });
 Route::prefix('item-profile')->group(function () {
     Route::resource('resource', ItemProfileController::class);
     Route::get('my-request', [ItemProfileController::class, 'myRequests']);
     Route::get('my-approvals', [ItemProfileController::class, 'myApprovals']);
 });
-
-Route::prefix('request-itemprofiling-items')->group(function () {
-    Route::post('/link/{requestId}', [RequestItemprofilingItemsController::class, 'linkToRequest']);
-});
-
+Route::resource('requests', RequestItemProfilingController::class)->only(['index', 'store']);

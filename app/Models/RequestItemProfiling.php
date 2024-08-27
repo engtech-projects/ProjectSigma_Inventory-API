@@ -20,8 +20,15 @@ class RequestItemProfiling extends Model
         'approvals' => 'array',
     ];
 
-    public function requestItemprofiling(): HasManyThrough
+    public function itemProfiles(): HasManyThrough
     {
-        return $this->hasManyThrough(ItemProfile::class, RequestItemProfilingItems::class);
+        return $this->hasManyThrough(
+            ItemProfile::class,
+            RequestItemProfilingItems::class,
+            'request_itemprofiling_id',
+            'id',
+            'id',
+            'item_profile_id');
     }
+
 }

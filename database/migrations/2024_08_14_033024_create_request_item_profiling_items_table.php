@@ -10,11 +10,12 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create('request_item_profiling_items', function (Blueprint $table) {
+        Schema::create('request_itemprofiling_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('request_itemprofiling_id')->constrained('request_itemprofiling');
             $table->foreignId('item_profile_id')->constrained('item_profile');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
