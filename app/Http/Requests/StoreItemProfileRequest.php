@@ -10,7 +10,7 @@ use Illuminate\Validation\Rules\Enum;
 
 class StoreItemProfileRequest extends FormRequest
 {
-    // use HasApprovalValidation;
+    use HasApprovalValidation;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -149,6 +149,7 @@ class StoreItemProfileRequest extends FormRequest
             'item_profiles.*.is_approved' => [
                 "boolean"
             ],
+            ...$this->storeApprovals(),
         ];
     }
 }
