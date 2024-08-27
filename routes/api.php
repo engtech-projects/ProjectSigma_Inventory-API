@@ -6,7 +6,6 @@ use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
 use App\Http\Controllers\RequestItemProfilingController;
-use App\Http\Controllers\RequestItemProfilingItemsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,32 +24,36 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/user', [AuthController::class, 'show']);
     });
 
-    // Route::prefix('item-group')->group(function () {
-    //     Route::resource('resource', ItemGroupController::class);
-    //     Route::get('list', [ItemGroupController::class, 'get']);
-    //     Route::get('search', [ItemGroupController::class, 'search']);
-    // });
-    // Route::prefix('uom')->group(function () {
-    //     Route::resource('resource', UOMController::class);
-    // });
-    // Route::prefix('item-profile')->group(function () {
-    //     Route::resource('resource', ItemProfileController::class);
-    //     Route::get('list', [ItemProfileController::class, 'get']);
-    // });
+    Route::prefix('item-group')->group(function () {
+        Route::resource('resource', ItemGroupController::class);
+        Route::get('list', [ItemGroupController::class, 'get']);
+        Route::get('search', [ItemGroupController::class, 'search']);
+    });
+    Route::prefix('uom')->group(function () {
+        Route::resource('resource', UOMController::class);
+    });
+    Route::prefix('item-profile')->group(function () {
+        Route::resource('resource', ItemProfileController::class);
+        Route::get('my-request', [ItemProfileController::class, 'myRequests']);
+        Route::get('my-approvals', [ItemProfileController::class, 'myApprovals']);
+        Route::get('list', [ItemProfileController::class, 'get']);
+    });
+    Route::resource('requests', RequestItemProfilingController::class)->only(['index', 'store']);
+
 });
 
-Route::prefix('item-group')->group(function () {
-    Route::resource('resource', ItemGroupController::class);
-    Route::get('list', [ItemGroupController::class, 'get']);
-    Route::get('search', [ItemGroupController::class, 'search']);
-});
-Route::prefix('uom')->group(function () {
-    Route::resource('resource', UOMController::class);
-    Route::get('list', [UOMController::class, 'get']);
-});
-Route::prefix('item-profile')->group(function () {
-    Route::resource('resource', ItemProfileController::class);
-    Route::get('my-request', [ItemProfileController::class, 'myRequests']);
-    Route::get('my-approvals', [ItemProfileController::class, 'myApprovals']);
-});
-Route::resource('requests', RequestItemProfilingController::class)->only(['index', 'store']);
+// Route::prefix('item-group')->group(function () {
+//     Route::resource('resource', ItemGroupController::class);
+//     Route::get('list', [ItemGroupController::class, 'get']);
+//     Route::get('search', [ItemGroupController::class, 'search']);
+// });
+// Route::prefix('uom')->group(function () {
+//     Route::resource('resource', UOMController::class);
+//     Route::get('list', [UOMController::class, 'get']);
+// });
+// Route::prefix('item-profile')->group(function () {
+//     Route::resource('resource', ItemProfileController::class);
+//     Route::get('my-request', [ItemProfileController::class, 'myRequests']);
+//     Route::get('my-approvals', [ItemProfileController::class, 'myApprovals']);
+// });
+// Route::resource('requests', RequestItemProfilingController::class)->only(['index', 'store']);

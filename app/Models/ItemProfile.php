@@ -2,16 +2,19 @@
 
 namespace App\Models;
 
+use App\Enums\RequestStatusType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
+use Illuminate\Database\Eloquent\Builder;
+use App\Traits\HasApproval;
 
 class ItemProfile extends Model
 {
     use HasFactory;
+    use HasApproval;
     use SoftDeletes;
 
     protected $table = 'item_profile';
@@ -40,6 +43,7 @@ class ItemProfile extends Model
         'inventory_type',
         'active_status',
         'is_approved',
+        'approvals',
     ];
     protected $casts = [
         "approvals" => 'array'
@@ -79,11 +83,19 @@ class ItemProfile extends Model
         return $this->belongsTo(UOM::class);
     }
 
-    public function requestItems(): HasMany
+    public function requestItemprofilingItems(): HasMany
     {
         return $this->hasMany(RequestItemprofilingItems::class);
     }
 
+    public function scopeRequestStatusPending(Builder $query): void
+    {
+        $query->where('request_status', RequestStatusType::PENDING);
+    }
 
+    public function scopeRequestStatusApproved(Builder $query): void
+    {
+        $query->where('request_status', RequestStatusType::APPROVED);
+    }
 
 }

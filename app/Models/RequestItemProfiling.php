@@ -28,7 +28,8 @@ class RequestItemProfiling extends Model
             'request_itemprofiling_id',
             'id',
             'id',
-            'item_profile_id');
+            'item_profile_id'
+        );
     }
 
 }

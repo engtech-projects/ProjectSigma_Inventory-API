@@ -23,7 +23,7 @@ class StoreRequestItemProfilingRequest extends FormRequest
     {
         return [
             'approvals' => 'required|json',
-            'created_by' => 'required|string',
+            'created_by' => 'required|string|exists:user,id',
             'item_profile_ids' => 'required|array',
             'item_profile_ids.*' => 'required|integer|exists:item_profile,id',
         ];
