@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\RequestStatusType;
 use App\Models\RequestItemProfiling;
 use App\Http\Requests\StoreRequestItemProfilingRequest;
 use App\Http\Requests\UpdateRequestItemProfilingRequest;
-use App\Models\ItemProfile;
 use App\Models\RequestItemProfilingItems;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -61,36 +59,36 @@ class RequestItemProfilingController extends Controller
     // }
 
     public function store(StoreRequestItemProfilingRequest $request)
-{
-    $attribute = $request->validated();
+    {
+        $attribute = $request->validated();
 
-    $requestItemProfiling = DB::transaction(function () use ($attribute) {
+        $requestItemProfiling = DB::transaction(function () use ($attribute) {
 
-        $requestItemProfiling = RequestItemProfiling::create([
-            'approvals' => $attribute['approvals'],
-            'created_by' => $attribute['created_by'],
-        ]);
+            $requestItemProfiling = RequestItemProfiling::create([
+                'approvals' => $attribute['approvals'],
+                'created_by' => $attribute['created_by'],
+            ]);
 
-        $requestItemProfiling->itemProfiles()->createMany($attribute->input('itemProfiles'));
+            $requestItemProfiling->itemProfiles()->createMany($attribute->input('itemProfiles'));
 
-        // foreach ($attribute['item_profile_ids'] as $itemProfileId) {
+            // foreach ($attribute['item_profile_ids'] as $itemProfileId) {
 
-        //     RequestItemProfilingItems::create([
-        //         'request_itemprofiling_id' => $requestItemProfiling->id,
-        //         'item_profile_id' => $itemProfileId,
-        //     ]);
-        // }
+            //     RequestItemProfilingItems::create([
+            //         'request_itemprofiling_id' => $requestItemProfiling->id,
+            //         'item_profile_id' => $itemProfileId,
+            //     ]);
+            // }
 
-        return $requestItemProfiling;
-    });
+            return $requestItemProfiling;
+        });
 
-    $requestItemProfiling->load('itemProfiles');
+        $requestItemProfiling->load('itemProfiles');
 
-    return response()->json([
-        'message' => 'Request created successfully.',
-        'data' => $requestItemProfiling
-    ], 201);
-}
+        return response()->json([
+            'message' => 'Request created successfully.',
+            'data' => $requestItemProfiling
+        ], 201);
+    }
 
 
 

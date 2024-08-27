@@ -6,7 +6,6 @@ use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
 use App\Http\Controllers\RequestItemProfilingController;
-use App\Http\Controllers\RequestItemProfilingItemsController;
 
 /*
 |--------------------------------------------------------------------------
