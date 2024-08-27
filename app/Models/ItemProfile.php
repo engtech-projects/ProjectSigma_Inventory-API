@@ -35,16 +35,15 @@ class ItemProfile extends Model
         'grade',
         'color',
         'uom',
-        'uom_group_id',
+        'uom_conversion_group_id',
         'uom_conversion_value',
         'inventory_type',
         'active_status',
         'is_approved',
     ];
-    // protected $casts = [
-    //     "approvals" => 'array'
-    // ];
-
+    protected $casts = [
+        "approvals" => 'array'
+    ];
 
     public function thicknessUom(): BelongsTo
     {
@@ -80,7 +79,7 @@ class ItemProfile extends Model
         return $this->belongsTo(UOM::class);
     }
 
-    public function requestItemprofilingItems(): HasMany
+    public function requestItems(): HasMany
     {
         return $this->hasMany(RequestItemprofilingItems::class);
     }

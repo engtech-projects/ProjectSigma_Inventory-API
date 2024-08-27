@@ -11,7 +11,7 @@ class StoreRequestItemProfilingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,11 @@ class StoreRequestItemProfilingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'approvals' => 'required|json',
+            'created_by' => 'required|string',
+            'item_profile_ids' => 'required|array',
+            'item_profile_ids.*' => 'required|integer|exists:item_profile,id',
         ];
     }
+
 }
