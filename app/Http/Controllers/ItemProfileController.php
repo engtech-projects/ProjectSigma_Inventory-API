@@ -3,18 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Enums\RequestStatusType;
+use App\Models\User;
 use App\Models\ItemProfile;
 use App\Models\RequestItemProfiling;
+use App\Models\RequestItemProfilingItems;
 use App\Http\Requests\StoreItemProfileRequest;
 use App\Http\Requests\UpdateItemProfileRequest;
 use App\Http\Resources\ItemProfileResource;
+use App\Http\Services\ItemProfileService;
+use App\Notifications\RequestItemProfilingForApproval;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use App\Models\RequestItemProfilingItems;
 
 class ItemProfileController extends Controller
 {
     protected $itemProfileService;
+    public function __construct(ItemProfileService $itemProfileService)
+    {
+        $this->itemProfileService = $itemProfileService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -43,7 +51,6 @@ class ItemProfileController extends Controller
      */
     public function store(StoreItemProfileRequest $request)
     {
-        // dd(auth()->user()->id);
         $attributes = $request->validated();
         $attributes['request_status'] = RequestStatusType::PENDING->value;
         $attributes['created_by'] = auth()->user()->id;
@@ -53,6 +60,7 @@ class ItemProfileController extends Controller
                 $requestItemProfiling = RequestItemProfiling::create([
                     'approvals' => $attributes['approvals'],
                     'created_by' => $attributes['created_by'],
+                    'request_status' => $attributes['request_status'],
                 ]);
 
                 foreach ($attributes['item_profiles'] as $itemprofileData) {
@@ -64,18 +72,22 @@ class ItemProfileController extends Controller
                         'item_profile_id' => $itemProfile->id,
                         'request_itemprofiling_id' => $requestItemProfiling->id,
                     ]);
-
                 }
-            });
 
-            return response()->json([
-                'message' => 'Item profiles saved successfully.',
-                'data' => $attributes['item_profiles'],
-            ], 201);
+                $requestItemProfiling->refresh();
+                // if ($requestItemProfiling->getNextPendingApproval()) {
+                //     User::find($requestItemProfiling->getNextPendingApproval()['user_id'])->notify(new RequestItemProfilingForApproval($requestItemProfiling));
+                // }
+            });
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Item Profiles Successfully Saved.',
+                // 'data' => $attributes['item_profiles'],
+            ], JsonResponse::HTTP_OK);
 
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Failed to save item profiles.',
+                'message' => 'Failed to save Item Profiles.',
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -169,7 +181,7 @@ class ItemProfileController extends Controller
         }
         return new JsonResponse([
             'success' => true,
-            'message' => 'LeaveForm Request fetched.',
+            'message' => 'Item Profile Request fetched.',
             'data' => ItemProfileResource::collection($myApproval)
         ]);
     }

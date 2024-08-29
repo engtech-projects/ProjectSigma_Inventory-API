@@ -44,6 +44,8 @@ class ItemProfile extends Model
         'active_status',
         'is_approved',
         'approvals',
+        'created_by',
+        'request_status'
     ];
     protected $casts = [
         "approvals" => 'array'
@@ -96,6 +98,11 @@ class ItemProfile extends Model
     public function scopeRequestStatusApproved(Builder $query): void
     {
         $query->where('request_status', RequestStatusType::APPROVED);
+    }
+
+    public function created_by_user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, "created_by", "id");
     }
 
 }
