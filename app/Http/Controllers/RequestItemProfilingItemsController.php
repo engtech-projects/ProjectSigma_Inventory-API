@@ -5,12 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\RequestItemProfilingItems;
 use App\Http\Requests\StoreRequestItemProfilingItemsRequest;
 use App\Http\Requests\UpdateRequestItemProfilingItemsRequest;
-use App\Models\RequestItemProfiling;
-use Illuminate\Http\Request;
 
 class RequestItemProfilingItemsController extends Controller
 {
-    
     /**
      * Display a listing of the resource.
      */

@@ -17,4 +17,8 @@ class UOMGroup extends Model
         'name',
     ];
 
+    public function uoms()
+    {
+        return $this->hasMany(UOM::class, 'group_id');
+    }
 }

@@ -51,6 +51,7 @@ class ItemProfileController extends Controller
      */
     public function store(StoreItemProfileRequest $request)
     {
+        // dd(auth()->user()->id);
         $attributes = $request->validated();
         $attributes['request_status'] = RequestStatusType::PENDING->value;
         $attributes['created_by'] = auth()->user()->id;

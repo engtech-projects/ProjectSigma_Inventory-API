@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreUOMGroupRequest extends FormRequest
+class UOMIndexRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,7 @@ class StoreUOMGroupRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255|unique:setup_uom_group,name'
+            'filter' => 'nullable|in:custom,standard'
         ];
     }
 }

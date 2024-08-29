@@ -4,7 +4,6 @@ namespace App\Http\Services;
 
 use App\Models\ItemProfile;
 use App\Models\RequestItemProfiling;
-use App\Models\RequestItemProfilingItems;
 
 class ItemProfileService
 {
