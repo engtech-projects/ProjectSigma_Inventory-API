@@ -14,6 +14,7 @@ return new class () extends Migration {
             $table->id();
             $table->json('approvals');
             $table->string('created_by');
+            $table->string('request_status');
             $table->timestamps();
             $table->softDeletes();
         });
