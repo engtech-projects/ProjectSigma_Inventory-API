@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\SearchUOM;
 use App\Models\ItemGroup;
 use App\Http\Requests\StoreItemGroupRequest;
 use App\Http\Requests\UpdateItemGroupRequest;
+use App\Http\Resources\ItemGroupResource;
 
 class ItemGroupController extends Controller
 {
     public function index()
     {
-        $itemgroup = ItemGroup::paginate(15);
+        $itemgroup = ItemGroup::paginate(10);
         $data = json_decode('{}');
         $data->message = "Successfully fetched.";
         $data->success = true;
@@ -19,19 +20,17 @@ class ItemGroupController extends Controller
         return response()->json($data);
     }
 
-    public function search(Request $request)
+    public function search(SearchUOM $request)
     {
-        $queryStr = $request->validate([
-            'query' => 'present|nullable|string|max:255',
-        ])['query'];
+        $queryStr = $request->validated()['query'] ?? '';
 
         $query = ItemGroup::select('id', 'name', 'sub_groups')
-            ->whereRaw('LOWER(name) LIKE ?', ["%".strtolower($queryStr)."%"])
-            ->orWhereRaw('LOWER(sub_groups) LIKE ?', ["%".strtolower($queryStr)."%"])
+            ->where('name', 'LIKE', "%{$queryStr}%")
+            ->orWhere('sub_groups', 'LIKE', "%{$queryStr}%")
             ->get();
 
         return response()->json([
-            'message' => 'Search results',
+            'message' => 'Search Results',
             'success' => true,
             'data' => $query,
         ]);
@@ -60,20 +59,25 @@ class ItemGroupController extends Controller
         $data->data = $itemgroup;
         return response()->json($data, 201);
     }
+
     public function show($id)
     {
-        $itemgroup = ItemGroup::find($id);
-        $data = json_decode('{}');
-        if (!is_null($itemgroup)) {
-            $data->message = "Successfully fetched.";
-            $data->success = true;
-            $data->data = $itemgroup;
-            return response()->json($data);
+        $itemGroup = ItemGroup::find($id);
+
+        if ($itemGroup) {
+            return response()->json([
+                'message' => 'Successfully fetched.',
+                'success' => true,
+                'data' => new ItemGroupResource($itemGroup)
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'No data found.',
+                'success' => false,
+            ], 404);
         }
-        $data->message = "No data found.";
-        $data->success = false;
-        return response()->json($data, 404);
     }
+
     public function update(UpdateItemGroupRequest $request, $id)
     {
         $itemgroup = ItemGroup::find($id);

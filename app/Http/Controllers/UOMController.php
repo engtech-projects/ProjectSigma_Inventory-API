@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\UOM;
 use App\Http\Requests\StoreUOMRequest;
+use App\Http\Requests\UOMIndexRequest;
 use App\Http\Requests\UpdateUOMRequest;
 use App\Http\Resources\UOMResource;
 use App\Utils\PaginateResourceCollection;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class UOMController extends Controller
 {
@@ -16,20 +16,20 @@ class UOMController extends Controller
      * Display a listing of the resource.
      */
 
-    public function index(Request $request)
+    public function index(UOMIndexRequest $request)
     {
-        $message = 'UOMs Fetched.';
-        $success = true;
+        $filter = $request->validated()['filter'] ?? '';
 
-        $type = $request->query('filter', false);
         $query = UOM::query();
 
-        if ($type === 'custom') {
+        if ($filter === 'custom') {
             $query->where('is_standard', false);
             $message = 'Custom UOMs Fetched.';
-        } elseif ($type === 'standard') {
+        } elseif ($filter === 'standard') {
             $query->where('is_standard', true);
             $message = 'Standard UOMs Fetched.';
+        } else {
+            $message = 'UOMs Fetched.';
         }
 
         $uoms = $query->get();
@@ -37,7 +37,7 @@ class UOMController extends Controller
         $paginated = PaginateResourceCollection::paginate(collect($uomResources->toArray(request())));
 
         return new JsonResponse([
-            'success' => $success,
+            'success' => true,
             'message' => $message,
             'data' => $paginated
         ]);
@@ -67,36 +67,25 @@ class UOMController extends Controller
      */
     public function store(StoreUOMRequest $request)
     {
-        $uom = new UOM();
-        $uom->fill($request->validated());
-        $uom->is_standard = false;
-        $saved = $uom->save();
+        $uomData = $request->validated();
+        $uomData['is_standard'] = false;
+
+        $uom = UOM::create($uomData);
+
         $response = [
-            'message' => $saved ? 'Successfully saved.' : 'Save failed.',
-            'success' => $saved,
-            'data' => $saved ? new UOMResource($uom) : null,
+            'message' => $uom ? 'Successfully saved.' : 'Save failed.',
+            'success' => (bool) $uom,
+            'data' => $uom ? new UOMResource($uom) : null,
         ];
 
-        return response()->json($response, $saved ? 200 : 400);
+        return response()->json($response, $uom ? 200 : 400);
+
     }
 
     /**
      * Display the specified resource.
      */
-    // public function show($id)
-    // {
-    //     $uom = UOM::find($id);
-    //     $data = json_decode('{}');
-    //     if (!is_null($uom)) {
-    //         $data->message = "Successfully fetched.";
-    //         $data->success = true;
-    //         $data->data = $uom;
-    //         return response()->json($data);
-    //     }
-    //     $data->message = "No data found.";
-    //     $data->success = false;
-    //     return response()->json($data, 404);
-    // }
+
     public function show($id)
     {
         $uom = UOM::find($id);
