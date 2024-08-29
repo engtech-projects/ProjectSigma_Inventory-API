@@ -34,12 +34,10 @@ class ItemProfileService
         $result = RequestItemProfiling::requestStatusPending()
             ->authUserPending()
             ->get();
-        // dd($result);
-        return $result;
 
-        // return $result->filter(function ($item) use ($userId) {
-        //     $nextPendingApproval = $item->getNextPendingApproval();
-        //     return ($nextPendingApproval && $userId === $nextPendingApproval['user_id']);
-        // });
+        return $result->filter(function ($item) use ($userId) {
+            $nextPendingApproval = $item->getNextPendingApproval();
+            return ($nextPendingApproval && $userId === $nextPendingApproval['user_id']);
+        });
     }
 }
