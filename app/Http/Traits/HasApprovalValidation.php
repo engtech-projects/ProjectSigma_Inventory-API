@@ -31,7 +31,7 @@ trait HasApprovalValidation
             'approvals.*.user_id' => [
                 "required",
                 "integer",
-                "exists:users,id",
+                // "exists:users,id",
             ],
             'approvals.*.status' => [
                 "required",
@@ -67,7 +67,7 @@ trait HasApprovalValidation
             'approvals.*.user_id' => [
                 "nullable",
                 "integer",
-                "exists:users,id",
+                // "exists:users,id",
             ],
             'approvals.*.status' => [
                 "nullable",
