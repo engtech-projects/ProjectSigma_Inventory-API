@@ -7,6 +7,9 @@ use Illuminate\Auth\GuardHelpers;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Laravel\Sanctum;
+
 
 class AuthTokenGuard implements Guard
 {
@@ -17,7 +20,7 @@ class AuthTokenGuard implements Guard
 
     public function __construct(Request $request)
     {
-        $this->hrmsApiUrl = config()->get('services.url.hrms_api_url');
+        $this->hrmsApiUrl = config('services.url.hrms_api_url');
         $this->request = $request;
     }
 
@@ -29,7 +32,7 @@ class AuthTokenGuard implements Guard
         $token = $this->request->bearerToken();
         $response = Http::withToken($token)
             ->acceptJson()
-            ->get($this->hrmsApiUrl . '/api/session');
+            ->get("{$this->hrmsApiUrl}/api/session");
         if (!$response->successful()) {
             return null;
         }
