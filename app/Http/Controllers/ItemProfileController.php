@@ -11,7 +11,6 @@ use App\Http\Requests\StoreItemProfileRequest;
 use App\Http\Requests\UpdateItemProfileRequest;
 use App\Http\Resources\ItemProfileResource;
 use App\Http\Services\ItemProfileService;
-use App\Notifications\RequestItemProfilingForApproval;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
@@ -76,9 +75,11 @@ class ItemProfileController extends Controller
                 }
 
                 $requestItemProfiling->refresh();
-                // if ($requestItemProfiling->getNextPendingApproval()) {
-                //     User::find($requestItemProfiling->getNextPendingApproval()['user_id'])->notify(new RequestItemProfilingForApproval($requestItemProfiling));
-                // }
+                if ($nextPendingApproval = $requestItemProfiling->getNextPendingApproval()) {
+                    $userId = $nextPendingApproval['user_id'];
+                    $user = User::find($userId);
+                }
+
             });
             return new JsonResponse([
                 'success' => true,

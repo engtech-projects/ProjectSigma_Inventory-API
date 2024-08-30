@@ -38,8 +38,6 @@ Route::middleware('auth:api')->group(function () {
         Route::get('my-approvals', [ItemProfileController::class, 'myApprovals']);
         Route::get('list', [ItemProfileController::class, 'get']);
     });
-    Route::resource('requests', RequestItemProfilingController::class);
-
 });
 
 // Route::prefix('item-group')->group(function () {
