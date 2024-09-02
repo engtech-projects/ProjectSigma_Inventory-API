@@ -103,7 +103,7 @@ class ItemProfileController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ItemProfile $resource)
+    public function show($id)
     {
         $itemprofile = ItemProfile::find($id);
         $data = json_decode('{}');
