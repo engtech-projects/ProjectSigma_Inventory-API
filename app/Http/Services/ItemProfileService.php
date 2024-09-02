@@ -41,7 +41,8 @@ class ItemProfileService
 
         return $result->filter(function ($item) use ($userId) {
             $nextPendingApproval = $item->getNextPendingApproval();
-;            return ($nextPendingApproval && $userId === $nextPendingApproval['user_id']);
+            ;
+            return ($nextPendingApproval && $userId === $nextPendingApproval['user_id']);
         });
     }
 }

@@ -8,7 +8,6 @@ use App\Enums\RequestApprovalStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DisapproveApprovalRequest;
 use App\Models\User;
-use App\Models\ItemProfile;
 use Carbon\Carbon;
 
 class DisapproveApproval extends Controller

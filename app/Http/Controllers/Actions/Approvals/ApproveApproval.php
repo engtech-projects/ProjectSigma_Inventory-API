@@ -7,7 +7,6 @@ use Illuminate\Http\JsonResponse;
 use App\Enums\RequestApprovalStatus;
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\ItemProfile;
 use Carbon\Carbon;
 
 class ApproveApproval extends Controller
