@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Actions\Approvals\ApproveApproval;
+use App\Http\Controllers\Actions\Approvals\DisapproveApproval;
+use App\Http\Controllers\ApprovalsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ItemGroupController;
@@ -30,13 +33,19 @@ Route::middleware('auth:api')->group(function () {
         Route::get('search', [ItemGroupController::class, 'search']);
     });
     Route::prefix('uom')->group(function () {
-        Route::resource('resource', UOMController::class);
+        Route::resource('resource', UOMController::class)->name("uomresource");
     });
     Route::prefix('item-profile')->group(function () {
         Route::resource('resource', ItemProfileController::class);
+        Route::get('all-request', [ItemProfileController::class, 'allRequests']);
         Route::get('my-request', [ItemProfileController::class, 'myRequests']);
         Route::get('my-approvals', [ItemProfileController::class, 'myApprovals']);
         Route::get('list', [ItemProfileController::class, 'get']);
+    });
+    // Route::resource('approvals', ApprovalsController::class);
+    Route::prefix('approvals')->group(function () {
+        Route::post('approve/{modelName}/{model}', ApproveApproval::class);
+        Route::post('disapprove/{modelName}/{model}', DisapproveApproval::class);
     });
 });
 
