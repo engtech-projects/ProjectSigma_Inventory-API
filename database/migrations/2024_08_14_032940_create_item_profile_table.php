@@ -27,11 +27,12 @@ return new class () extends Migration {
             $table->float('inside_diameter_val')->nullable();
             $table->foreignId('inside_diameter_uom')->nullable()->constrained('setup_uom');
             $table->string("specification")->nullable();
-            $table->string("volume")->nullable();
+            $table->float('volume_val')->nullable();
+            $table->foreignId('volume_uom')->nullable()->constrained('setup_uom');
             $table->string("grade")->nullable();
             $table->string("color")->nullable();
             $table->foreignId('uom')->constrained('setup_uom');
-            $table->foreignId('uom_conversion_group_id')->constrained('setup_uom_group');
+            $table->foreignId('uom_conversion_group_id')->nullable()->constrained('setup_uom_group');
             $table->float('uom_conversion_value')->nullable();
             $table->enum('inventory_type', ['Inventoriable', 'Non-Inventoriable']);
             $table->enum('active_status', ['Active', 'Inactive']);

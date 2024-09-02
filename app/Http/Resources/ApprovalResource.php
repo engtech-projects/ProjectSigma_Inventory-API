@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ItemProfileResource extends JsonResource
+class ApprovalResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,9 +15,10 @@ class ItemProfileResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            ...parent::toArray($request),
-            "approvals" => ApprovalAttributeResource::collection($this->approvals),
-            "next_approval" => $this->getNextPendingApproval(),
+            'id' => $this->id,
+            'form' => $this->form,
+            'module' => $this->module,
+            'approvals' => ApprovalAttributeResource::collection($this->approvals)
         ];
     }
 }
