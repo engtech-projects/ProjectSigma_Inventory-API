@@ -8,7 +8,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
-use App\Http\Controllers\RequestItemProfilingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,15 +27,15 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('item-group')->group(function () {
-        Route::resource('resource', ItemGroupController::class);
+        Route::resource('resource', ItemGroupController::class)->names("itemGroupresource");
         Route::get('list', [ItemGroupController::class, 'get']);
         Route::get('search', [ItemGroupController::class, 'search']);
     });
     Route::prefix('uom')->group(function () {
-        Route::resource('resource', UOMController::class);
+        Route::resource('resource', UOMController::class)->names("uomresource");
     });
     Route::prefix('item-profile')->group(function () {
-        Route::resource('resource', ItemProfileController::class);
+        Route::resource('resource', ItemProfileController::class)->names("itemProfileresource");
         Route::get('all-request', [ItemProfileController::class, 'allRequests']);
         Route::get('my-request', [ItemProfileController::class, 'myRequests']);
         Route::get('my-approvals', [ItemProfileController::class, 'myApprovals']);
@@ -48,19 +47,3 @@ Route::middleware('auth:api')->group(function () {
         Route::post('disapprove/{modelName}/{model}', DisapproveApproval::class);
     });
 });
-
-// Route::prefix('item-group')->group(function () {
-//     Route::resource('resource', ItemGroupController::class);
-//     Route::get('list', [ItemGroupController::class, 'get']);
-//     Route::get('search', [ItemGroupController::class, 'search']);
-// });
-// Route::prefix('uom')->group(function () {
-//     Route::resource('resource', UOMController::class);
-//     Route::get('list', [UOMController::class, 'get']);
-// });
-// Route::prefix('item-profile')->group(function () {
-//     Route::resource('resource', ItemProfileController::class);
-//     Route::get('my-request', [ItemProfileController::class, 'myRequests']);
-//     Route::get('my-approvals', [ItemProfileController::class, 'myApprovals']);
-// });
-// Route::resource('requests', RequestItemProfilingController::class)->only(['index', 'store']);

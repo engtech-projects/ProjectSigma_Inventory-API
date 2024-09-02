@@ -15,7 +15,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Traits\HasApproval;
 
-
 class ItemProfileController extends Controller
 {
     use HasApproval;
