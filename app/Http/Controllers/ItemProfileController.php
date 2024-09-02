@@ -13,9 +13,13 @@ use App\Http\Resources\ItemProfileResource;
 use App\Http\Services\ItemProfileService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use App\Traits\HasApproval;
+
 
 class ItemProfileController extends Controller
 {
+    use HasApproval;
+
     protected $itemProfileService;
     public function __construct(ItemProfileService $itemProfileService)
     {
@@ -91,14 +95,15 @@ class ItemProfileController extends Controller
             return response()->json([
                 'message' => 'Failed to save Item Profiles.',
                 'error' => $e->getMessage(),
-            ], 500);
+            ], 400);
         }
     }
+
 
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(ItemProfile $resource)
     {
         $itemprofile = ItemProfile::find($id);
         $data = json_decode('{}');
@@ -158,6 +163,22 @@ class ItemProfileController extends Controller
     public function myRequests()
     {
         $myRequest = $this->itemProfileService->getMyRequest();
+
+        if ($myRequest->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Item Profile Request Fetched.',
+            'data' => ItemProfileResource::collection($myRequest)
+        ]);
+    }
+    public function allRequests()
+    {
+        $myRequest = $this->itemProfileService->getAllRequest();
 
         if ($myRequest->isEmpty()) {
             return new JsonResponse([
