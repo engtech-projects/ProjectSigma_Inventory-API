@@ -33,7 +33,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('search', [ItemGroupController::class, 'search']);
     });
     Route::prefix('uom')->group(function () {
-        Route::resource('resource', UOMController::class)->name("uomresource");
+        Route::resource('resource', UOMController::class);
     });
     Route::prefix('item-profile')->group(function () {
         Route::resource('resource', ItemProfileController::class);
