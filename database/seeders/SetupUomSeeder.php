@@ -344,7 +344,7 @@ class SetupUomSeeder extends Seeder
                 ],
             ],
             [ "group_id" ],
-            [ "name", "symbol", "conversion", "updated_at", "deleted_at"]
+            [ "name", "symbol", "conversion", "is_standard", "updated_at", "deleted_at"]
         );
     }
 }
