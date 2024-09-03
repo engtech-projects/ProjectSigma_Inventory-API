@@ -22,10 +22,24 @@ class StoreRequestItemProfilingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'approvals' => 'required|json',
-            'created_by' => 'required|string|exists:user,id',
-            'item_profile_ids' => 'required|array',
-            'item_profile_ids.*' => 'required|integer|exists:item_profile,id',
+            'approvals' => [
+                "required",
+                "json"
+            ],
+            'created_by' => [
+                "required",
+                "string",
+                "exists:user,id"
+            ],
+            'item_profile_ids' => [
+                "required",
+                "array"
+            ],
+            'item_profile_ids.*' => [
+                "required",
+                "integer",
+                "exists:item_profile,id"
+            ],
         ];
     }
 

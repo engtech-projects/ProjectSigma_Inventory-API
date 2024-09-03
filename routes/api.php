@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
+use App\Http\Controllers\RequestItemProfilingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,11 +36,15 @@ Route::middleware('auth:api')->group(function () {
         Route::resource('resource', UOMController::class)->names("uomresource");
     });
     Route::prefix('item-profile')->group(function () {
-        Route::resource('resource', ItemProfileController::class)->names("itemProfileresource");
-        Route::get('all-request', [ItemProfileController::class, 'allRequests']);
-        Route::get('my-request', [ItemProfileController::class, 'myRequests']);
-        Route::get('my-approvals', [ItemProfileController::class, 'myApprovals']);
-        Route::get('list', [ItemProfileController::class, 'get']);
+        Route::prefix('new-request')->group(function(){
+            Route::resource('resource', RequestItemProfilingController::class)->names("itemProfilegresource");
+            Route::get('all-request', [RequestItemProfilingController::class, 'allRequests']);
+            Route::get('my-request', [RequestItemProfilingController::class, 'myRequests']);
+            Route::get('my-approvals', [RequestItemProfilingController::class, 'myApprovals']);
+        });
+        Route::get('list', [RequestItemProfilingController::class, 'get']);
+        Route::put('activate/{id}', [ItemProfileController::class, 'activate']);
+        Route::put('deactivate/{id}', [ItemProfileController::class, 'deactivate']);
     });
     // Route::resource('approvals', ApprovalsController::class);
     Route::prefix('approvals')->group(function () {

@@ -29,6 +29,10 @@ class RequestItemProfiling extends Model
         'approvals' => 'array',
     ];
 
+    public $appends = [
+        'items_summary'
+    ];
+
     public function itemProfiles(): HasManyThrough
     {
         return $this->hasManyThrough(
@@ -39,6 +43,11 @@ class RequestItemProfiling extends Model
             'id',
             'item_profile_id'
         );
+    }
+
+    public function getItemsSummaryAttribute()
+    {
+        return implode(", ", $this->itemProfiles()->pluck("item_description")->toArray());
     }
 
     public function scopeRequestStatusPending(Builder $query): void
