@@ -73,39 +73,36 @@ class ItemProfileController extends Controller
 
     public function activate(ItemProfile $resource)
     {
-        $resource->active_status = 'Active';
-
-        if ($resource->save()) {
+        if ($resource->active_status === 'Active') {
             return response()->json([
-                "message" => "Successfully activated.",
-                "success" => true,
-                "data" => $resource->refresh()
-            ]);
+                'message' => 'Item profile is already active.',
+                'item_profile' => $resource
+            ], 200);
         }
+        $resource->active_status = 'Active';
+        $resource->save();
 
         return response()->json([
-            "message" => "Failed to activate.",
-            "success" => false,
-            "data" => $resource
-        ], 400);
+            'message' => 'Item profile activated successfully.',
+            'item_profile' => $resource
+        ]);
     }
+
     public function deactivate(ItemProfile $resource)
     {
-        $resource->active_status = 'Active';
-
-        if ($resource->save()) {
+        if ($resource->active_status === 'Inactive') {
             return response()->json([
-                "message" => "Successfully activated.",
-                "success" => true,
-                "data" => $resource->refresh()
-            ]);
+                'message' => 'Item profile is already inactive.',
+                'item_profile' => $resource
+            ], 200);
         }
+        $resource->active_status = 'Inactive';
+        $resource->save();
 
         return response()->json([
-            "message" => "Failed to activate.",
-            "success" => false,
-            "data" => $resource
-        ], 400);
+            'message' => 'Item profile deactivated successfully.',
+            'item_profile' => $resource
+        ]);
     }
 
 
