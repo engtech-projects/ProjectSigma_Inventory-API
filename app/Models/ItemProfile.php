@@ -42,6 +42,8 @@ class ItemProfile extends Model
         'uom_conversion_group_id',
         'uom_conversion_value',
         'inventory_type',
+        'item_group',
+        'sub_item_group',
         'active_status',
         'is_approved',
         'approvals',

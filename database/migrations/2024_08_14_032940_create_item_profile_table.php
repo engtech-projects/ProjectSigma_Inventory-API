@@ -34,6 +34,8 @@ return new class () extends Migration {
             $table->foreignId('uom')->constrained('setup_uom');
             $table->foreignId('uom_conversion_group_id')->nullable()->constrained('setup_uom_group');
             $table->float('uom_conversion_value')->nullable();
+            $table->string("item_group");
+            $table->string("sub_item_group");
             $table->enum('inventory_type', ['Inventoriable', 'Non-Inventoriable']);
             $table->enum('active_status', ['Active', 'Inactive']);
             $table->boolean('is_approved')->default(false);

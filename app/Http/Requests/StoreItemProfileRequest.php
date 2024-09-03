@@ -42,7 +42,7 @@ class StoreItemProfileRequest extends FormRequest
             'item_profiles.*.sku' => [
                 "required",
                 "string",
-                "max:6",
+                "max:255",
                 "unique:item_profile,sku"
             ],
             'item_profiles.*.item_description' => [
@@ -133,6 +133,16 @@ class StoreItemProfileRequest extends FormRequest
             'item_profiles.*.color' => [
                 "string",
                 "nullable",
+                "max:255"
+            ],
+            'item_profiles.*.item_group' => [
+                "string",
+                "required",
+                "max:255"
+            ],
+            'item_profiles.*.sub_item_group' => [
+                "string",
+                "required",
                 "max:255"
             ],
             'item_profiles.*.uom' => [
