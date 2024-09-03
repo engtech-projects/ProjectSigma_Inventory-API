@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Services;
+
 use App\Models\RequestItemProfiling;
 
 class RequestItemProfilingService
@@ -25,8 +26,8 @@ class RequestItemProfilingService
     }
     public function getAllRequest()
     {
-        return RequestItemProfiling::where("request_status", "Approved")->with(['itemProfiles'])->get();
-        // return RequestItemProfiling::with(['itemProfiles'])->get();
+        // return RequestItemProfiling::where("request_status", "Approved")->with(['itemProfiles'])->get();
+        return RequestItemProfiling::with(['itemProfiles'])->get();
     }
 
     public function getMyApprovals()
