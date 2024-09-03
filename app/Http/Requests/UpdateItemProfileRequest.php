@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ActiveStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class UpdateItemProfileRequest extends FormRequest
 {
@@ -22,6 +24,11 @@ class UpdateItemProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
+            "active_status" => [
+                "required",
+                "string",
+                new Enum(ActiveStatus::class),
+            ]
         ];
     }
 }

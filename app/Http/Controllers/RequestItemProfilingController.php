@@ -2,14 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RequestStatusType;
+use App\Http\Requests\StoreItemProfileRequest;
 use App\Models\RequestItemProfiling;
 use App\Http\Requests\StoreRequestItemProfilingRequest;
 use App\Http\Requests\UpdateRequestItemProfilingRequest;
+use App\Http\Resources\RequestItemProfilingResource;
+use App\Http\Services\RequestItemProfilingService;
 use App\Models\ItemProfile;
+use App\Models\RequestItemProfilingItems;
+use App\Models\User;
+use App\Traits\HasApproval;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class RequestItemProfilingController extends Controller
 {
+    use HasApproval;
+
+    protected $requestItemProfilingService;
+    public function __construct(RequestItemProfilingService $requestItemProfilingService)
+    {
+        $this->requestItemProfilingService = $requestItemProfilingService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -17,7 +33,7 @@ class RequestItemProfilingController extends Controller
     {
         $requests = RequestItemProfiling::with('itemProfiles')->paginate(10);
         $data = json_decode('{}');
-        $data->message = "Request Item Profiling successfully fetched.";
+        $data->message = "Request Item Profiling Successfully Fetched.";
         $data->success = true;
         $data->data = $requests;
         return response()->json($data);
@@ -30,54 +46,76 @@ class RequestItemProfilingController extends Controller
     {
         //
     }
+    public function get()
+    {
+        $main = RequestItemPRofiling::get();
+        $data = json_decode('{}');
+        $data->message = "Successfully fetched.";
+        $data->success = true;
+        $data->data = $main;
+        return response()->json($data);
+    }
 
     /**
      * Store a newly created resource in storage.
      */
 
-    public function store(StoreRequestItemProfilingRequest $request)
+    public function store(StoreItemProfileRequest $request)
     {
         $attributes = $request->validated();
+        $attributes['request_status'] = RequestStatusType::PENDING->value;
         $attributes['created_by'] = auth()->user()->id;
 
         try {
-            $requestItemProfiling = DB::transaction(function () use ($attributes) {
+            DB::transaction(function () use ($attributes) {
                 $requestItemProfiling = RequestItemProfiling::create([
                     'approvals' => $attributes['approvals'],
                     'created_by' => $attributes['created_by'],
+                    'request_status' => $attributes['request_status'],
                 ]);
 
-                if (isset($attributes['item_profiles'])) {
-                    foreach ($attributes['item_profiles'] as $itemProfileData) {
-                        $itemProfileData['request_itemprofiling_id'] = $requestItemProfiling->id;
-                        ItemProfile::create($itemProfileData);
-                    }
+                foreach ($attributes['item_profiles'] as $itemprofileData) {
+                    $itemProfileData['request_itemprofiling_id'] = $requestItemProfiling->id;
+
+                    $itemProfile = ItemProfile::create($itemprofileData);
+
+                    RequestItemProfilingItems::create([
+                        'item_profile_id' => $itemProfile->id,
+                        'request_itemprofiling_id' => $requestItemProfiling->id,
+                    ]);
                 }
 
-                return $requestItemProfiling;
+                $requestItemProfiling->refresh();
+                if ($nextPendingApproval = $requestItemProfiling->getNextPendingApproval()) {
+                    $userId = $nextPendingApproval['user_id'];
+                    $user = User::find($userId);
+                }
+
             });
-
-            $requestItemProfiling->load('itemProfiles');
-
-            return response()->json([
-                'message' => 'Request created successfully.',
-                'data' => $requestItemProfiling,
-            ], 201);
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Item Profiles Successfully Saved.',
+                // 'data' => $attributes['item_profiles'],
+            ], JsonResponse::HTTP_OK);
 
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Failed to create request.',
+                'message' => 'Failed to save Item Profiles.',
                 'error' => $e->getMessage(),
-            ], 500);
+            ], 400);
         }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(RequestItemProfiling $requestItemProfiling)
+    public function show(RequestItemProfiling $resource)
     {
-        //
+        return response()->json([
+            "message" => "Successfully fetched.",
+            "success" => true,
+            "data" => $resource
+        ]);
     }
 
     /**
@@ -91,16 +129,93 @@ class RequestItemProfilingController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRequestItemProfilingRequest $request, RequestItemProfiling $requestItemProfiling)
+    public function update(UpdateRequestItemProfilingRequest $request, RequestItemProfiling $resource)
     {
-        //
+        $resource->fill($request->validated());
+        if ($resource->save()) {
+            return response()->json([
+                "message" => "Successfully updated.",
+                "success" => true,
+                "data" => $resource->refresh()
+            ]);
+        }
+        return response()->json([
+            "message" => "Failed to update.",
+            "success" => false,
+            "data" => $resource
+        ], 400);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(RequestItemProfiling $requestItemProfiling)
+    public function destroy($id)
     {
-        //
+        $requestitemprofile = ItemProfile::find($id);
+        $data = json_decode('{}');
+        if (!is_null($requestitemprofile)) {
+            if ($requestitemprofile->delete()) {
+                $data->message = "Successfully deleted.";
+                $data->success = true;
+                $data->data = $requestitemprofile;
+                return response()->json($data);
+            }
+            $data->message = "Failed to delete.";
+            $data->success = false;
+            return response()->json($data, 404);
+        }
+        $data->message = "Failed to delete.";
+        $data->success = false;
+        return response()->json($data, 404);
     }
+
+    public function myRequests()
+    {
+        $myRequest = $this->requestItemProfilingService->getMyRequest();
+
+        if ($myRequest->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'My Request Fetched.',
+            'data' => RequestItemProfilingResource::collection($myRequest)
+        ]);
+    }
+    public function allRequests()
+    {
+        $myRequest = $this->requestItemProfilingService->getAllRequest();
+
+        if ($myRequest->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'All Request Fetched.',
+            'data' => RequestItemProfilingResource::collection($myRequest)
+        ]);
+    }
+
+    public function myApprovals()
+    {
+        $myApproval = $this->requestItemProfilingService->getMyApprovals();
+        if ($myApproval->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'My Approvals Fetched.',
+            'data' => RequestItemProfilingResource::collection($myApproval)
+        ]);
+    }
+
 }
