@@ -5,9 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ItemProfile;
 use App\Http\Requests\StoreItemProfileRequest;
 use App\Http\Requests\UpdateItemProfileRequest;
-use App\Http\Resources\RequestItemProfilingResource;
 use App\Http\Services\RequestItemProfilingService;
-use Illuminate\Http\JsonResponse;
 use App\Traits\HasApproval;
 
 class ItemProfileController extends Controller
@@ -75,7 +73,7 @@ class ItemProfileController extends Controller
     {
         if ($resource->active_status === 'Active') {
             return response()->json([
-                'message' => 'Item profile is already active.',
+                'message' => "Item profile is already active.",
                 'item_profile' => $resource
             ], 200);
         }

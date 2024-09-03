@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Enums\RequestStatusType;
 use App\Http\Requests\StoreItemProfileRequest;
 use App\Models\RequestItemProfiling;
-use App\Http\Requests\StoreRequestItemProfilingRequest;
 use App\Http\Requests\UpdateRequestItemProfilingRequest;
 use App\Http\Resources\RequestItemProfilingResource;
 use App\Http\Services\RequestItemProfilingService;
@@ -13,6 +12,7 @@ use App\Models\ItemProfile;
 use App\Models\RequestItemProfilingItems;
 use App\Models\User;
 use App\Traits\HasApproval;
+use App\Utils\PaginateResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
@@ -48,12 +48,13 @@ class RequestItemProfilingController extends Controller
     }
     public function get()
     {
-        $main = RequestItemPRofiling::get();
+        $main = RequestItemProfiling::get();
         $data = json_decode('{}');
         $data->message = "Successfully fetched.";
         $data->success = true;
         $data->data = $main;
         return response()->json($data);
+
     }
 
     /**
@@ -109,14 +110,15 @@ class RequestItemProfilingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(RequestItemProfiling $resource)
+    public function show(RequestItemProfiling $requestId)
     {
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,
-            "data" => $resource
+            "data" => new RequestItemProfilingResource($requestId)
         ]);
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -187,7 +189,7 @@ class RequestItemProfilingController extends Controller
     }
     public function allRequests()
     {
-        $myRequest = $this->requestItemProfilingService->getAllRequest();
+        $myRequest = $this->requestItemProfilingService->getAll();
 
         if ($myRequest->isEmpty()) {
             return new JsonResponse([
@@ -201,6 +203,27 @@ class RequestItemProfilingController extends Controller
             'data' => RequestItemProfilingResource::collection($myRequest)
         ]);
     }
+    public function allApprovedRequests()
+    {
+        $myRequest = $this->requestItemProfilingService->getAllRequest();
+
+        if ($myRequest->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+
+        $requestResources = RequestItemProfilingResource::collection($myRequest);
+        $paginated = PaginateResourceCollection::paginate(collect($requestResources->toArray(request())));
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'All Approved Requests Fetched.',
+            'data' => $paginated
+        ]);
+    }
+
 
     public function myApprovals()
     {

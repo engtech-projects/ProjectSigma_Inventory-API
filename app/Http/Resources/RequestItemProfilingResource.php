@@ -16,7 +16,8 @@ class RequestItemProfilingResource extends JsonResource
     {
         return [
             ...parent::toArray($request),
-            "item_summary" => $this->items_summary,
+            "item_profile"  => $this->itemProfiles,
+            "items_summary" => $this->items_summary,
             "approvals" => ApprovalAttributeResource::collection($this->approvals),
             "next_approval" => $this->getNextPendingApproval(),
         ];
