@@ -20,4 +20,17 @@ class RequestItemProfilingItemResource extends JsonResource
             "similar_items" => ItemProfileService::getSimilarItems($this->item_description),
         ];
     }
+
+    // Specific similar items list
+    // private function selectedSimilarItems(): array
+    // {
+    //     $similarItems = ItemProfileService::getSimilarItems($this->item_description);
+
+    //     return $similarItems->map(function ($item) {
+    //         return [
+    //             'sku' => $item->sku,
+    //             'item_description' => $item->item_description,
+    //         ];
+    //     })->toArray();
+    // }
 }

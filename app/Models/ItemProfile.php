@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\RequestStatusType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -93,8 +92,7 @@ class ItemProfile extends Model
 
     public function scopeIsApproved(Builder $query): void
     {
-        $query->where('is_approved', true );
+        $query->where('is_approved', true);
     }
-
 
 }
