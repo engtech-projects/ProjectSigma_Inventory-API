@@ -137,12 +137,12 @@ class StoreItemProfileRequest extends FormRequest
             ],
             'item_profiles.*.item_group' => [
                 "string",
-                "required",
+                "nullable",
                 "max:255"
             ],
             'item_profiles.*.sub_item_group' => [
                 "string",
-                "required",
+                "nullable",
                 "max:255"
             ],
             'item_profiles.*.uom' => [
