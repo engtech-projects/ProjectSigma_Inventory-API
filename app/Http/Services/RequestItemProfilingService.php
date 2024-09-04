@@ -6,13 +6,6 @@ use App\Models\RequestItemProfiling;
 
 class RequestItemProfilingService
 {
-    protected $requestItemProfilingRequest;
-
-    public function __construct(RequestItemProfiling $requestItemProfilingRequest)
-    {
-        $this->requestItemProfilingRequest = $requestItemProfilingRequest;
-    }
-
     public function getAll()
     {
         return RequestItemProfiling::all();
