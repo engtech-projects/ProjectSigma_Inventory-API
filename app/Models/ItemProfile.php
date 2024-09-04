@@ -9,12 +9,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
-use App\Traits\HasApproval;
 
 class ItemProfile extends Model
 {
     use HasFactory;
-    use HasApproval;
     use SoftDeletes;
 
     protected $table = 'item_profile';
@@ -93,19 +91,10 @@ class ItemProfile extends Model
         return $this->hasMany(RequestItemprofilingItems::class);
     }
 
-    public function scopeRequestStatusPending(Builder $query): void
+    public function scopeIsApproved(Builder $query): void
     {
-        $query->where('request_status', RequestStatusType::PENDING);
+        $query->where('is_approved', true );
     }
 
-    public function scopeRequestStatusApproved(Builder $query): void
-    {
-        $query->where('request_status', RequestStatusType::APPROVED);
-    }
-
-    public function created_by_user(): BelongsTo
-    {
-        return $this->belongsTo(User::class, "created_by", "id");
-    }
 
 }
