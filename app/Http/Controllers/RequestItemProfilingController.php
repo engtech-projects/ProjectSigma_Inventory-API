@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ActiveStatus;
 use App\Enums\RequestStatusType;
 use App\Http\Requests\StoreItemProfileRequest;
 use App\Models\RequestItemProfiling;
@@ -77,6 +78,7 @@ class RequestItemProfilingController extends Controller
 
                 foreach ($attributes['item_profiles'] as $itemprofileData) {
                     $itemProfileData['request_itemprofiling_id'] = $requestItemProfiling->id;
+                    $itemProfileData['active_status'] = ActiveStatus::ACTIVE;
 
                     $itemProfile = ItemProfile::create($itemprofileData);
 
@@ -181,10 +183,14 @@ class RequestItemProfilingController extends Controller
                 'message' => 'No data found.',
             ], JsonResponse::HTTP_OK);
         }
+
+        $requestResources = RequestItemProfilingResource::collection($myRequest)->collect();
+        $paginated = PaginateResourceCollection::paginate($requestResources);
+
         return new JsonResponse([
             'success' => true,
             'message' => 'My Request Fetched.',
-            'data' => RequestItemProfilingResource::collection($myRequest)
+            'data' => $paginated
         ]);
     }
     public function allRequests()
@@ -197,10 +203,14 @@ class RequestItemProfilingController extends Controller
                 'message' => 'No data found.',
             ], JsonResponse::HTTP_OK);
         }
+
+        $requestResources = RequestItemProfilingResource::collection($myRequest)->collect();
+        $paginated = PaginateResourceCollection::paginate($requestResources);
+
         return new JsonResponse([
             'success' => true,
             'message' => 'All Request Fetched.',
-            'data' => RequestItemProfilingResource::collection($myRequest)
+            'data' => $paginated
         ]);
     }
     public function allApprovedRequests()
@@ -214,8 +224,8 @@ class RequestItemProfilingController extends Controller
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestItemProfilingResource::collection($myRequest);
-        $paginated = PaginateResourceCollection::paginate(collect($requestResources->toArray(request())));
+        $requestResources = RequestItemProfilingResource::collection($myRequest)->collect();
+        $paginated = PaginateResourceCollection::paginate($requestResources);
 
         return new JsonResponse([
             'success' => true,
@@ -234,10 +244,13 @@ class RequestItemProfilingController extends Controller
                 'message' => 'No data found.',
             ], JsonResponse::HTTP_OK);
         }
+
+        $requestResources = RequestItemProfilingResource::collection($myApproval)->collect();
+        $paginated = PaginateResourceCollection::paginate($requestResources);
         return new JsonResponse([
             'success' => true,
             'message' => 'My Approvals Fetched.',
-            'data' => RequestItemProfilingResource::collection($myApproval)
+            'data' => $paginated
         ]);
     }
 
