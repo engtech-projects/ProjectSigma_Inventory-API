@@ -9,6 +9,7 @@ use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
 use App\Http\Controllers\RequestItemProfilingController;
+use App\Http\Controllers\UOMGroupController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,7 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::prefix('uom')->group(function () {
         Route::resource('resource', UOMController::class)->names("uomresource");
+        Route::get('group', [UOMGroupController::class, 'get']);
     });
     Route::prefix('item-profile')->group(function () {
         Route::prefix('new-request')->group(function () {
@@ -42,12 +44,11 @@ Route::middleware('auth:api')->group(function () {
             Route::get('my-request', [RequestItemProfilingController::class, 'myRequests']);
             Route::get('my-approvals', [RequestItemProfilingController::class, 'myApprovals']);
         });
-        Route::get('list', [RequestItemProfilingController::class, 'allApprovedRequests']);
+        Route::get('list', [ItemProfileController::class, 'get']);
         Route::get('{requestId}', [RequestItemProfilingController::class, 'show']);
         Route::patch('{resource}/activate', [ItemProfileController::class, 'activate']);
         Route::patch('{resource}/deactivate', [ItemProfileController::class, 'deactivate']);
     });
-    // Route::resource('approvals', ApprovalsController::class);
     Route::prefix('approvals')->group(function () {
         Route::post('approve/{modelName}/{model}', ApproveApproval::class);
         Route::post('disapprove/{modelName}/{model}', DisapproveApproval::class);
