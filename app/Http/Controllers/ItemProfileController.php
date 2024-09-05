@@ -5,18 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\ItemProfile;
 use App\Http\Requests\StoreItemProfileRequest;
 use App\Http\Requests\UpdateItemProfileRequest;
-use App\Http\Services\RequestItemProfilingService;
-use App\Traits\HasApproval;
 
 class ItemProfileController extends Controller
 {
-    use HasApproval;
-
-    protected $requestItemProfilingService;
-    public function __construct(RequestItemProfilingService $requestItemProfilingService)
-    {
-        $this->requestItemProfilingService = $requestItemProfilingService;
-    }
 
     /**
      * Display a listing of the resource.

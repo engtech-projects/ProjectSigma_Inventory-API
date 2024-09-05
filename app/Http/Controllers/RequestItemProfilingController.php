@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ActiveStatus;
-use App\Enums\RequestStatusType;
-use App\Http\Requests\StoreItemProfileRequest;
+use App\Enums\ItemProfileActiveStatus;
+use App\Enums\RequestApprovalStatus;
+use App\Http\Requests\StoreRequestItemProfilingRequest;
 use App\Models\RequestItemProfiling;
 use App\Http\Requests\UpdateRequestItemProfilingRequest;
 use App\Http\Resources\RequestItemProfilingResource;
@@ -66,10 +66,10 @@ class RequestItemProfilingController extends Controller
      * Store a newly created resource in storage.
      */
 
-    public function store(StoreItemProfileRequest $request)
+    public function store(StoreRequestItemProfilingRequest $request)
     {
         $attributes = $request->validated();
-        $attributes['request_status'] = RequestStatusType::PENDING->value;
+        $attributes['request_status'] = RequestApprovalStatus::PENDING;
         $attributes['created_by'] = auth()->user()->id;
 
         try {
@@ -82,7 +82,7 @@ class RequestItemProfilingController extends Controller
 
                 foreach ($attributes['item_profiles'] as $itemprofileData) {
                     $itemProfileData['request_itemprofiling_id'] = $requestItemProfiling->id;
-                    $itemProfileData['active_status'] = ActiveStatus::ACTIVE;
+                    $itemProfileData['active_status'] = ItemProfileActiveStatus::ACTIVE;
 
                     $itemProfile = ItemProfile::create($itemprofileData);
 
@@ -116,8 +116,13 @@ class RequestItemProfilingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(RequestItemProfiling $requestId)
+    public function show(RequestItemProfiling $resource)
     {
+
+        $requestResources = RequestItemProfilingResource::collection(([$resource]))->collect();
+
+        $paginated = PaginateResourceCollection::paginate($requestResources);
+
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,

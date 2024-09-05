@@ -6,7 +6,6 @@ use App\Http\Requests\SearchUOM;
 use App\Models\ItemGroup;
 use App\Http\Requests\StoreItemGroupRequest;
 use App\Http\Requests\UpdateItemGroupRequest;
-use App\Http\Resources\ItemGroupResource;
 
 class ItemGroupController extends Controller
 {
@@ -60,22 +59,14 @@ class ItemGroupController extends Controller
         return response()->json($data, 201);
     }
 
-    public function show($id)
+    public function show(ItemGroup $resource)
     {
-        $itemGroup = ItemGroup::find($id);
+        return response()->json([
+            "message" => "Successfully fetched.",
+            "success" => true,
+            "data" => $resource
+        ]);
 
-        if ($itemGroup) {
-            return response()->json([
-                'message' => 'Successfully fetched.',
-                'success' => true,
-                'data' => new ItemGroupResource($itemGroup)
-            ]);
-        } else {
-            return response()->json([
-                'message' => 'No data found.',
-                'success' => false,
-            ], 404);
-        }
     }
 
     public function update(UpdateItemGroupRequest $request, $id)

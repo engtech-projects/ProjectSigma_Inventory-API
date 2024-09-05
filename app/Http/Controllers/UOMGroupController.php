@@ -14,14 +14,13 @@ class UOMGroupController extends Controller
      */
     public function index()
     {
-        $uomgroup = UOMGroup::paginate(10);
+        $uomgroup = UOMGroup::get();
         $data = json_decode('{}');
         $data->message = "Successfully fetched.";
         $data->success = true;
         $data->data = $uomgroup;
         return response()->json($data);
     }
-
 
     /**
      * Show the form for creating a new resource.
@@ -62,22 +61,14 @@ class UOMGroupController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
-    {
-        $uomGroup = UOMGroup::find($id);
 
-        if ($uomGroup) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Successfully fetched.',
-                'data' => new UOMGroupResource($uomGroup)
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'No data found.'
-            ], 404);
-        }
+    public function show(UOMGroup $resource)
+    {
+        return response()->json([
+            "message" => "Successfully fetched.",
+            "success" => true,
+            "data" => $resource
+        ]);
     }
 
     /**

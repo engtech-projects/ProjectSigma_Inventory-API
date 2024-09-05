@@ -86,22 +86,13 @@ class UOMController extends Controller
      * Display the specified resource.
      */
 
-    public function show($id)
+    public function show(UOM $resource)
     {
-        $uom = UOM::find($id);
-
-        if ($uom) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Successfully fetched.',
-                'data' => new UOMResource($uom)
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'No data found.'
-            ], 404);
-        }
+        return response()->json([
+            "message" => "Successfully fetched.",
+            "success" => true,
+            "data" => $resource
+        ]);
     }
 
     /**
