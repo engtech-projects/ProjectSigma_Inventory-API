@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\ItemProfile;
 use App\Http\Requests\StoreItemProfileRequest;
 use App\Http\Requests\UpdateItemProfileRequest;
+use App\Http\Resources\ItemProfileResource;
 use App\Http\Services\RequestItemProfilingService;
 use App\Traits\HasApproval;
+use App\Utils\PaginateResourceCollection;
 
 class ItemProfileController extends Controller
 {
@@ -23,17 +25,26 @@ class ItemProfileController extends Controller
      */
     public function index()
     {
-
+        $main = ItemProfile::get();
+        $paginated = PaginateResourceCollection::paginate($main);
+        $data = json_decode('{}');
+        $data->message = "Request Item Profiling Successfully Fetched.";
+        $data->success = true;
+        $data->data = $paginated;
+        return response()->json($data);
     }
 
     public function get()
     {
-        $main = ItemProfile::get();
-        $data = json_decode('{}');
-        $data->message = "Successfully fetched.";
-        $data->success = true;
-        $data->data = $main;
-        return response()->json($data);
+        $main = ItemProfile::where("is_approved", 1)->get();
+        $requestResources = ItemProfileResource::collection($main)->collect();
+        $paginated = PaginateResourceCollection::paginate($requestResources);
+
+        return response()->json([
+            'message' => 'Successfully fetched.',
+            'success' => true,
+            'data' => $paginated,
+        ]);
     }
 
     /**

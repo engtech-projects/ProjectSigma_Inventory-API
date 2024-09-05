@@ -30,7 +30,7 @@ class RequestItemProfiling extends Model
     ];
 
     public $appends = [
-        'items_summary'
+        'profile_summary'
     ];
 
     public function itemProfiles(): HasManyThrough
@@ -45,7 +45,7 @@ class RequestItemProfiling extends Model
         );
     }
 
-    public function getItemsSummaryAttribute()
+    public function getProfileSummaryAttribute()
     {
         return implode(", ", $this->itemProfiles()->pluck("item_description")->toArray());
     }

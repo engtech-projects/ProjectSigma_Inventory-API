@@ -118,11 +118,23 @@ class RequestItemProfilingController extends Controller
      */
     public function show(RequestItemProfiling $requestId)
     {
+        // return response()->json([
+        //     "message" => "Successfully fetched.",
+        //     "success" => true,
+        //     "data" => new RequestItemProfilingResource($requestId)
+        // ]);
+
+        $requestResources = RequestItemProfilingResource::collection(collect([$requestId]))->collect();
+        
+        $paginated = PaginateResourceCollection::paginate($requestResources);
+
+        // Return the response with the paginated data
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,
-            "data" => new RequestItemProfilingResource($requestId)
+            "data" => $paginated
         ]);
+
     }
 
 
