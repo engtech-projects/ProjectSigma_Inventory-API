@@ -4,7 +4,6 @@ namespace App\Traits;
 
 use Illuminate\Support\Carbon;
 use App\Enums\RequestApprovalStatus;
-use App\Enums\RequestStatusType;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -54,7 +53,7 @@ trait HasApproval
     }
     public function getNextPendingApproval()
     {
-        if($this->request_status != RequestStatusType::PENDING->value) {
+        if($this->request_status != RequestApprovalStatus::PENDING) {
             return null;
         }
         return collect($this->approvals)->where('status', RequestApprovalStatus::PENDING)->first();
@@ -130,5 +129,13 @@ trait HasApproval
             "status_code" => JsonResponse::HTTP_OK,
             "message" => $data['status'] === RequestApprovalStatus::APPROVED ? "Successfully approved." : "Successfully denied.",
         ];
+    }
+
+    public function scopeMyApprovals(Builder $query): void
+    {
+        $userId = auth()->user()->id;
+        $query->where('request_status', RequestApprovalStatus::PENDING)
+              ->whereJsonContains('approvals', ['user_id' => $userId])
+              ->whereJsonContains('approvals', ['status' => RequestApprovalStatus::PENDING]);
     }
 }
