@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\RequestApprovalStatus;
-use App\Enums\RequestStatusType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -30,9 +29,48 @@ class RequestItemProfiling extends Model
     ];
 
     public $appends = [
-        'items_summary'
+        'profile_summary'
     ];
 
+
+    /**
+     * ==================================================
+     * MODEL ATTRIBUTES
+     * ==================================================
+     */
+    public function getProfileSummaryAttribute()
+    {
+        return implode(", ", $this->itemProfiles()->pluck("item_description")->toArray());
+    }
+
+    public function scopeRequestStatusPending(Builder $query): void
+    {
+        $query->where('request_status', RequestApprovalStatus::PENDING);
+    }
+
+    public function scopeAuthUserPending(Builder $query): void
+    {
+        // Assuming authUserPending logic
+        $query->where('created_by', auth()->user()->id);
+    }
+
+    public function completeRequestStatus()
+    {
+        $this->request_status = RequestApprovalStatus::APPROVED;
+        $this->itemProfiles()->update([
+            "is_approved" => 1,
+        ]);
+        $this->save();
+        $this->refresh();
+    }
+
+
+
+    /**
+    * ==================================================
+    * MODEL RELATIONSHIPS
+    * ==================================================
+    */
     public function itemProfiles(): HasManyThrough
     {
         return $this->hasManyThrough(
@@ -45,29 +83,11 @@ class RequestItemProfiling extends Model
         );
     }
 
-    public function getItemsSummaryAttribute()
-    {
-        return implode(", ", $this->itemProfiles()->pluck("item_description")->toArray());
-    }
 
-    public function scopeRequestStatusPending(Builder $query): void
-    {
-        $query->where('request_status', RequestStatusType::PENDING);
-    }
-
-    public function scopeAuthUserPending(Builder $query): void
-    {
-        // Assuming authUserPending logic
-        $query->where('created_by', auth()->user()->id);
-    }
-    public function completeRequestStatus()
-    {
-        $this->request_status = RequestApprovalStatus::APPROVED;
-        $this->itemProfiles()->update([
-            "is_approved" => 1,
-        ]);
-        $this->save();
-        $this->refresh();
-    }
+    /**
+    * ==================================================
+    * DYNAMIC SCOPES
+    * ==================================================
+    */
 
 }

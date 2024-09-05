@@ -51,6 +51,19 @@ class ItemProfile extends Model
         "approvals" => 'array'
     ];
 
+
+    /**
+     * ==================================================
+     * MODEL ATTRIBUTES
+     * ==================================================
+     */
+
+
+    /**
+    * ==================================================
+    * MODEL RELATIONSHIPS
+    * ==================================================
+    */
     public function thicknessUom(): BelongsTo
     {
         return $this->belongsTo(UOM::class, 'thickness_uom');
@@ -90,9 +103,21 @@ class ItemProfile extends Model
         return $this->hasMany(RequestItemprofilingItems::class);
     }
 
+    /**
+    * ==================================================
+    * LOCAL SCOPES
+    * ==================================================
+    */
     public function scopeIsApproved(Builder $query): void
     {
         $query->where('is_approved', true);
     }
+
+
+    /**
+    * ==================================================
+    * DYNAMIC SCOPES
+    * ==================================================
+    */
 
 }
