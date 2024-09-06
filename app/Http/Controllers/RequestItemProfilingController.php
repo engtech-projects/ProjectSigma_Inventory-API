@@ -126,7 +126,7 @@ class RequestItemProfilingController extends Controller
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,
-            "data" => new RequestItemProfilingResource($requestId)
+            "data" => new RequestItemProfilingResource($resource)
         ]);
     }
 
