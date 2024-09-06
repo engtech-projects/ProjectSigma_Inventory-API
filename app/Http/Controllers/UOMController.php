@@ -34,12 +34,12 @@ class UOMController extends Controller
 
         $uoms = $query->get();
         $uomResources = UOMResource::collection($uoms);
-        $paginated = PaginateResourceCollection::paginate(collect($uomResources->toArray(request())));
+        // $paginated = PaginateResourceCollection::paginate(collect($uomResources->toArray(request())));
 
         return new JsonResponse([
             'success' => true,
             'message' => $message,
-            'data' => $paginated
+            'data' => $uomResources
         ]);
     }
 
