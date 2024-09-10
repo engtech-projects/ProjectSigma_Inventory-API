@@ -17,21 +17,22 @@ class RequestItemProfilingItemResource extends JsonResource
     {
         return [
             ...parent::toArray($request),
-            // "similar_items" => ItemProfileService::getSimilarItems($this->item_description),
-            "similar_items"=> $this->selectedSimilarItems(),
+            "similar_items" => ItemProfileService::getSimilarItems($this->item_description),
+            // "similar_items"=> $this->selectedSimilarItems(),
         ];
     }
 
     // Specific similar items list
-    private function selectedSimilarItems(): array
-    {
-        $similarItems = ItemProfileService::getSimilarItems($this->item_description);
+    // private function selectedSimilarItems(): array
+    // {
+    //     $similarItems = ItemProfileService::getSimilarItems($this->item_description);
 
-        return $similarItems->map(function ($item) {
-            return [
-                // 'sku' => $item->sku,
-                'item_description' => $item->item_description,
-            ];
-        })->toArray();
-    }
+    //     return $similarItems->map(function ($item) {
+    //         return [
+    //             'sku' => $item->sku,
+    //             'item_description' => $item->item_description,
+    //             'specification' => $item->specification,
+    //         ];
+    //     })->toArray();
+    // }
 }
