@@ -40,26 +40,16 @@ class RequestItemProfilingController extends Controller
         return response()->json($data);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
     public function get()
     {
         $main = RequestItemProfiling::with('itemProfiles')->get();
-
         $requestResources = RequestItemProfilingResource::collection($main)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
-
         return response()->json([
             'message' => 'Successfully fetched.',
             'success' => true,
             'data' => $paginated,
         ]);
-
     }
 
     /**
@@ -118,25 +108,13 @@ class RequestItemProfilingController extends Controller
      */
     public function show(RequestItemProfiling $resource)
     {
-
         $requestResources = RequestItemProfilingResource::collection(([$resource]))->collect();
-
         $paginated = PaginateResourceCollection::paginate($requestResources);
-
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,
             "data" => new RequestItemProfilingResource($resource)
         ]);
-    }
-
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(RequestItemProfiling $requestItemProfiling)
-    {
-        //
     }
 
     /**

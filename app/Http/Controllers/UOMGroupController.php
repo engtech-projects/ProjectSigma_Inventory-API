@@ -22,13 +22,6 @@ class UOMGroupController extends Controller
         return response()->json($data);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
     public function get()
     {
         $main = UOMGroup::get();
@@ -63,14 +56,6 @@ class UOMGroupController extends Controller
             "success" => true,
             "data" => $resource
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(UOMGroup $uOMGroup)
-    {
-        //
     }
 
     /**

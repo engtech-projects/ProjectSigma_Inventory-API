@@ -19,9 +19,7 @@ class UOMController extends Controller
     public function index(UOMIndexRequest $request)
     {
         $filter = $request->validated()['filter'] ?? '';
-
         $query = UOM::query();
-
         if ($filter === 'custom') {
             $query->where('is_standard', false);
             $message = 'Custom UOMs Fetched.';
@@ -31,7 +29,6 @@ class UOMController extends Controller
         } else {
             $message = 'UOMs Fetched.';
         }
-
         $uoms = $query->get();
         $uomResources = UOMResource::collection($uoms);
         $paginated = PaginateResourceCollection::paginate(collect($uomResources->toArray(request())));
@@ -53,15 +50,6 @@ class UOMController extends Controller
         return response()->json($data);
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -69,15 +57,12 @@ class UOMController extends Controller
     {
         $uomData = $request->validated();
         $uomData['is_standard'] = false;
-
         $uom = UOM::create($uomData);
-
         $response = [
             'message' => $uom ? 'Successfully saved.' : 'Save failed.',
             'success' => (bool) $uom,
             'data' => $uom ? new UOMResource($uom) : null,
         ];
-
         return response()->json($response, $uom ? 200 : 400);
 
     }
@@ -93,14 +78,6 @@ class UOMController extends Controller
             "success" => true,
             "data" => $resource
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(UOM $uOM)
-    {
-        //
     }
 
     /**
