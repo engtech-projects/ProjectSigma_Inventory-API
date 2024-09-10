@@ -46,7 +46,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get('my-request', [RequestItemProfilingController::class, 'myRequests']);
             Route::get('my-approvals', [RequestItemProfilingController::class, 'myApprovals']);
         });
-        Route::get('list', [ItemProfileController::class, 'get']);
+        Route::get('list', [RequestItemProfilingController::class, 'get']);
         Route::patch('{resource}/activate', [ItemProfileController::class, 'activate']);
         Route::patch('{resource}/deactivate', [ItemProfileController::class, 'deactivate']);
     });
