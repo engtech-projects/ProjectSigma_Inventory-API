@@ -26,7 +26,7 @@ class UOMGroupController extends Controller
     {
         $main = UOMGroup::get();
         $data = json_decode('{}');
-        $data->message = "Successfully fetched.";
+        $data->message = "UOM Group Fetched.";
         $data->success = true;
         $data->data = $main;
         return response()->json($data);
