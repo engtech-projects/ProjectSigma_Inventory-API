@@ -25,15 +25,15 @@ class RequestItemProfilingService
     public function getMyApprovals()
     {
         $userId = auth()->user()->id;
-        $result = RequestItemProfiling::with(['itemProfiles'])
-            ->requestStatusPending()
-            ->authUserPending()
-            ->get();
+
+        $result = RequestItemProfiling::myApprovals()
+                    ->with(['itemProfiles'])
+                    ->get();
 
         return $result->filter(function ($item) use ($userId) {
             $nextPendingApproval = $item->getNextPendingApproval();
-            ;
             return ($nextPendingApproval && $userId === $nextPendingApproval['user_id']);
         });
     }
+
 }

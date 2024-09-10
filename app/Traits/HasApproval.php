@@ -4,7 +4,6 @@ namespace App\Traits;
 
 use Illuminate\Support\Carbon;
 use App\Enums\RequestApprovalStatus;
-use App\Enums\RequestStatusType;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +12,54 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 trait HasApproval
 {
+
+/**
+ * ==================================================
+ * MODEL ATTRIBUTES
+ * ==================================================
+ */
+    public function setRequestStatus(?string $newStatus)
+    {
+    }
+    public function requestStatusCompleted(): bool
+    {
+        return false;
+    }
+    public function requestStatusEnded(): bool
+    {
+        return false;
+    }
+
+
+/**
+* ==================================================
+* MODEL RELATIONSHIPS
+* ==================================================
+*/
+    public function created_by_user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, "created_by", "id");
+    }
+
+/**
+* ==================================================
+* LOCAL SCOPES
+* ==================================================
+*/
+    public function scopeMyApprovals(Builder $query): void
+    {
+        $userId = auth()->user()->id;
+        $query->where('request_status', RequestApprovalStatus::PENDING)
+            ->whereJsonContains('approvals', ['user_id' => $userId])
+            ->whereJsonContains('approvals', ['status' => RequestApprovalStatus::PENDING]);
+    }
+
+
+/**
+* ==================================================
+* DYNAMIC SCOPES
+* ==================================================
+*/
     public function completeRequestStatus()
     {
         $this->request_status = RequestApprovalStatus::APPROVED;
@@ -25,27 +72,10 @@ trait HasApproval
         $this->save();
         $this->refresh();
     }
-    public function created_by_user(): BelongsTo
-    {
-        return $this->belongsTo(User::class, "created_by", "id");
-    }
 
-    public function setRequestStatus(?string $newStatus)
-    {
-    }
-    public function requestStatusCompleted(): bool
-    {
-        return false;
-    }
-    public function requestStatusEnded(): bool
-    {
-        return false;
-    }
-    public function scopeAuthUserPending(Builder $query): void
-    {
-        $query->whereJsonLength('approvals', '>', 0)
-            ->whereJsonContains('approvals', ['user_id' => auth()->user()->id, 'status' => RequestApprovalStatus::PENDING]);
-    }
+
+
+
 
     public function getUserPendingApproval($userId)
     {
@@ -54,7 +84,7 @@ trait HasApproval
     }
     public function getNextPendingApproval()
     {
-        if($this->request_status != RequestStatusType::PENDING->value) {
+        if($this->request_status != RequestApprovalStatus::PENDING) {
             return null;
         }
         return collect($this->approvals)->where('status', RequestApprovalStatus::PENDING)->first();
@@ -131,4 +161,5 @@ trait HasApproval
             "message" => $data['status'] === RequestApprovalStatus::APPROVED ? "Successfully approved." : "Successfully denied.",
         ];
     }
+
 }

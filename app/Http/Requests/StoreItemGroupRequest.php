@@ -34,6 +34,7 @@ class StoreItemGroupRequest extends FormRequest
             'name' => [
                 'required',
                 'string',
+                'max:255',
                 Rule::unique("setup_item_groups", "name")->withoutTrashed()
             ],
             'sub_groups' => "required|array",

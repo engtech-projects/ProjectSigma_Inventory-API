@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ActiveStatus;
-use App\Enums\RequestStatusType;
-use App\Http\Requests\StoreItemProfileRequest;
+use App\Enums\ItemProfileActiveStatus;
+use App\Enums\RequestApprovalStatus;
+use App\Http\Requests\StoreRequestItemProfilingRequest;
 use App\Models\RequestItemProfiling;
 use App\Http\Requests\UpdateRequestItemProfilingRequest;
 use App\Http\Resources\RequestItemProfilingResource;
@@ -40,36 +40,26 @@ class RequestItemProfilingController extends Controller
         return response()->json($data);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
     public function get()
     {
         $main = RequestItemProfiling::with('itemProfiles')->get();
-
         $requestResources = RequestItemProfilingResource::collection($main)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
-
         return response()->json([
             'message' => 'Successfully fetched.',
             'success' => true,
             'data' => $paginated,
         ]);
-
     }
 
     /**
      * Store a newly created resource in storage.
      */
 
-    public function store(StoreItemProfileRequest $request)
+    public function store(StoreRequestItemProfilingRequest $request)
     {
         $attributes = $request->validated();
-        $attributes['request_status'] = RequestStatusType::PENDING->value;
+        $attributes['request_status'] = RequestApprovalStatus::PENDING;
         $attributes['created_by'] = auth()->user()->id;
 
         try {
@@ -82,7 +72,7 @@ class RequestItemProfilingController extends Controller
 
                 foreach ($attributes['item_profiles'] as $itemprofileData) {
                     $itemProfileData['request_itemprofiling_id'] = $requestItemProfiling->id;
-                    $itemProfileData['active_status'] = ActiveStatus::ACTIVE;
+                    $itemProfileData['active_status'] = ItemProfileActiveStatus::ACTIVE;
 
                     $itemProfile = ItemProfile::create($itemprofileData);
 
@@ -116,34 +106,15 @@ class RequestItemProfilingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(RequestItemProfiling $requestId)
+    public function show(RequestItemProfiling $resource)
     {
-        // return response()->json([
-        //     "message" => "Successfully fetched.",
-        //     "success" => true,
-        //     "data" => new RequestItemProfilingResource($requestId)
-        // ]);
-
-        $requestResources = RequestItemProfilingResource::collection(collect([$requestId]))->collect();
-        
+        $requestResources = RequestItemProfilingResource::collection(([$resource]))->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
-
-        // Return the response with the paginated data
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,
-            "data" => $paginated
+            "data" => new RequestItemProfilingResource($resource)
         ]);
-
-    }
-
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(RequestItemProfiling $requestItemProfiling)
-    {
-        //
     }
 
     /**
@@ -169,24 +140,25 @@ class RequestItemProfilingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(RequestItemProfiling $resource)
     {
-        $requestitemprofile = ItemProfile::find($id);
-        $data = json_decode('{}');
-        if (!is_null($requestitemprofile)) {
-            if ($requestitemprofile->delete()) {
-                $data->message = "Successfully deleted.";
-                $data->success = true;
-                $data->data = $requestitemprofile;
-                return response()->json($data);
-            }
-            $data->message = "Failed to delete.";
-            $data->success = false;
-            return response()->json($data, 404);
+        if (!$resource) {
+            return response()->json([
+                'message' => 'Item Profile not found.',
+                'success' => false,
+                'data' => null
+            ], 404);
         }
-        $data->message = "Failed to delete.";
-        $data->success = false;
-        return response()->json($data, 404);
+
+        $deleted = $resource->delete();
+
+        $response = [
+            'message' => $deleted ? 'Item Profile successfully deleted.' : 'Failed to delete Item Profile.',
+            'success' => $deleted,
+            'data' => $resource
+        ];
+
+        return response()->json($response, $deleted ? 200 : 400);
     }
 
     public function myRequests()

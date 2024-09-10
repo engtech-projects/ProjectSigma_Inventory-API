@@ -19,9 +19,7 @@ class UOMController extends Controller
     public function index(UOMIndexRequest $request)
     {
         $filter = $request->validated()['filter'] ?? '';
-
         $query = UOM::query();
-
         if ($filter === 'custom') {
             $query->where('is_standard', false);
             $message = 'Custom UOMs Fetched.';
@@ -31,7 +29,6 @@ class UOMController extends Controller
         } else {
             $message = 'UOMs Fetched.';
         }
-
         $uoms = $query->get();
         $uomResources = UOMResource::collection($uoms);
         // $paginated = PaginateResourceCollection::paginate(collect($uomResources->toArray(request())));
@@ -53,15 +50,6 @@ class UOMController extends Controller
         return response()->json($data);
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -69,15 +57,12 @@ class UOMController extends Controller
     {
         $uomData = $request->validated();
         $uomData['is_standard'] = false;
-
         $uom = UOM::create($uomData);
-
         $response = [
             'message' => $uom ? 'Successfully saved.' : 'Save failed.',
             'success' => (bool) $uom,
             'data' => $uom ? new UOMResource($uom) : null,
         ];
-
         return response()->json($response, $uom ? 200 : 400);
 
     }
@@ -86,76 +71,56 @@ class UOMController extends Controller
      * Display the specified resource.
      */
 
-    public function show($id)
+    public function show(UOM $resource)
     {
-        $uom = UOM::find($id);
-
-        if ($uom) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Successfully fetched.',
-                'data' => new UOMResource($uom)
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'No data found.'
-            ], 404);
-        }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(UOM $uOM)
-    {
-        //
+        return response()->json([
+            "message" => "Successfully fetched.",
+            "success" => true,
+            "data" => $resource
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUOMRequest $request, $id)
+    public function update(UpdateUOMRequest $request, UOM $resource)
     {
-        $uom = UOM::find($id);
-        $data = json_decode('{}');
-        if (!is_null($uom)) {
-            $uom->fill($request->validated());
-            if ($uom->save()) {
-                $data->message = "Successfully updated.";
-                $data->success = true;
-                $data->data = $uom;
-                return response()->json($data);
-            }
-            $data->message = "Failed to update.";
-            $data->success = false;
-            return response()->json($data, 400);
+        $resource->fill($request->validated());
+        if ($resource->save()) {
+            return response()->json([
+                "message" => "Successfully updated.",
+                "success" => true,
+                "data" => $resource->refresh()
+            ]);
         }
-        $data->message = "Failed to update.";
-        $data->success = false;
-        return response()->json($data, 404);
+        return response()->json([
+            "message" => "Failed to update.",
+            "success" => false,
+            "data" => $resource
+        ], 400);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(UOM $resource)
     {
-        $uom = UOM::find($id);
-        $data = json_decode('{}');
-        if (!is_null($uom)) {
-            if ($uom->delete()) {
-                $data->message = "Successfully deleted.";
-                $data->success = true;
-                $data->data = $uom;
-                return response()->json($data);
-            }
-            $data->message = "Failed to delete.";
-            $data->success = false;
-            return response()->json($data, 400);
+        if (!$resource) {
+            return response()->json([
+                'message' => 'Item Profile not found.',
+                'success' => false,
+                'data' => null
+            ], 404);
         }
-        $data->message = "Failed to delete.";
-        $data->success = false;
-        return response()->json($data, 404);
+
+        $deleted = $resource->delete();
+
+        $response = [
+            'message' => $deleted ? 'Item Profile successfully deleted.' : 'Failed to delete Item Profile.',
+            'success' => $deleted,
+            'data' => $resource
+        ];
+
+        return response()->json($response, $deleted ? 200 : 400);
     }
 }

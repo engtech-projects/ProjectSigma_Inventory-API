@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Actions\Approvals\ApproveApproval;
 use App\Http\Controllers\Actions\Approvals\DisapproveApproval;
-use App\Http\Controllers\ApprovalsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ItemGroupController;
@@ -36,6 +35,9 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('uom')->group(function () {
         Route::resource('resource', UOMController::class)->names("uomresource");
         Route::get('group', [UOMGroupController::class, 'get']);
+    });
+    Route::prefix('uom-group')->group(function () {
+        Route::resource('resource', UOMGroupController::class)->names("uomGroupresource");
     });
     Route::prefix('item-profile')->group(function () {
         Route::prefix('new-request')->group(function () {

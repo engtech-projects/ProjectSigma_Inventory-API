@@ -15,6 +15,18 @@ class RequestItemProfilingItems extends Model
         'item_profile_id',
     ];
 
+    /**
+     * ==================================================
+     * MODEL ATTRIBUTES
+     * ==================================================
+     */
+
+
+    /**
+    * ==================================================
+    * MODEL RELATIONSHIPS
+    * ==================================================
+    */
     public function requestItemprofiling()
     {
         return $this->belongsTo(RequestItemprofiling::class, 'request_itemprofiling_id');
@@ -24,4 +36,18 @@ class RequestItemProfilingItems extends Model
     {
         return $this->belongsTo(ItemProfile::class, 'item_profile_id');
     }
+
+    /**
+     * ==================================================
+     * LOCAL SCOPES
+     * ==================================================
+     */
+
+
+    /**
+    * ==================================================
+    * DYNAMIC SCOPES
+    * ==================================================
+    */
+
 }
