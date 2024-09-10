@@ -6,6 +6,7 @@ use App\Http\Requests\SearchUOM;
 use App\Models\ItemGroup;
 use App\Http\Requests\StoreItemGroupRequest;
 use App\Http\Requests\UpdateItemGroupRequest;
+use App\Http\Resources\ItemGroupResource;
 
 class ItemGroupController extends Controller
 {
@@ -43,20 +44,15 @@ class ItemGroupController extends Controller
         $data->data = $main;
         return response()->json($data);
     }
-    public function store(StoreItemGroupRequest $request)
+    public function store(StoreItemGroupRequest $request, ItemGroup $resource)
     {
-        $itemgroup = new ItemGroup();
-        $itemgroup->fill($request->validated());
-        $data = json_decode('{}');
-        if (!$itemgroup->save()) {
-            $data->message = "Save failed.";
-            $data->success = false;
-            return response()->json($data, 400);
-        }
-        $data->message = "Successfully save.";
-        $data->success = true;
-        $data->data = $itemgroup;
-        return response()->json($data, 201);
+        $saved = $resource->create($request->validated());
+        return response()->json([
+            'message' => $saved ? 'Item Group Successfully created.' : 'Failed to create Item Group.',
+            'success' => (bool) $saved,
+            'data' => $saved ?? null,
+            'data' => $saved ? new ItemGroupResource($saved) : null,
+        ]);
     }
 
     public function show(ItemGroup $resource)
@@ -69,44 +65,41 @@ class ItemGroupController extends Controller
 
     }
 
-    public function update(UpdateItemGroupRequest $request, $id)
+    public function update(UpdateItemGroupRequest $request, ItemGroup $resource)
     {
-        $itemgroup = ItemGroup::find($id);
-        $data = json_decode('{}');
-        if (!is_null($itemgroup)) {
-            $itemgroup->fill($request->validated());
-            if ($itemgroup->save()) {
-                $data->message = "Successfully updated.";
-                $data->success = true;
-                $data->data = $itemgroup;
-                return response()->json($data);
-            }
-            $data->message = "Failed to update.";
-            $data->success = false;
-            return response()->json($data, 400);
+        $resource->fill($request->validated());
+        if ($resource->save()) {
+            return response()->json([
+                "message" => "Successfully updated.",
+                "success" => true,
+                "data" => $resource->refresh()
+            ]);
         }
-        $data->message = "Failed to update.";
-        $data->success = false;
-        return response()->json($data, 404);
+        return response()->json([
+            "message" => "Failed to update.",
+            "success" => false,
+            "data" => $resource
+        ], 400);
     }
-    public function destroy($id)
+    public function destroy(ItemGroup $resource)
     {
-        $itemgroup = ItemGroup::find($id);
-        $data = json_decode('{}');
-        if (!is_null($itemgroup)) {
-            if ($itemgroup->delete()) {
-                $data->message = "Successfully deleted.";
-                $data->success = true;
-                $data->data = $itemgroup;
-                return response()->json($data);
-            }
-            $data->message = "Failed to delete.";
-            $data->success = false;
-            return response()->json($data, 404);
+        if (!$resource) {
+            return response()->json([
+                'message' => 'Item Group not found.',
+                'success' => false,
+                'data' => null
+            ], 404);
         }
-        $data->message = "Failed to delete.";
-        $data->success = false;
-        return response()->json($data, 404);
+
+        $deleted = $resource->delete();
+
+        $response = [
+            'message' => $deleted ? 'Item Group successfully deleted.' : 'Failed to delete Item Group.',
+            'success' => $deleted,
+            'data' => $resource
+        ];
+
+        return response()->json($response, $deleted ? 200 : 400);
     }
 
 

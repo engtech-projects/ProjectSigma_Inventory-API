@@ -8,7 +8,6 @@ use App\Http\Requests\UpdateItemProfileRequest;
 
 class ItemProfileController extends Controller
 {
-
     /**
      * Display a listing of the resource.
      */
@@ -30,9 +29,15 @@ class ItemProfileController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreItemProfileRequest $request)
+
+    public function store(StoreItemProfileRequest $request, ItemProfile $resource)
     {
-        //
+        $saved = $resource->create($request->validated());
+        return response()->json([
+            'message' => $saved ? 'Item Profile Successfully created.' : 'Failed to create Item Profile.',
+            'success' => (bool) $saved,
+            'data' => $saved ?? null,
+        ]);
     }
 
 
@@ -51,13 +56,41 @@ class ItemProfileController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function update(UpdateItemProfileRequest $request, $id)
+    public function update(UpdateItemProfileRequest $request, ItemProfile $resource)
     {
-        //
+        $resource->fill($request->validated());
+        if ($resource->save()) {
+            return response()->json([
+                "message" => "Successfully updated.",
+                "success" => true,
+                "data" => $resource->refresh()
+            ]);
+        }
+        return response()->json([
+            "message" => "Failed to update.",
+            "success" => false,
+            "data" => $resource
+        ], 400);
     }
-    public function destroy($id)
+    public function destroy(ItemProfile $resource)
     {
-        //
+        if (!$resource) {
+            return response()->json([
+                'message' => 'Item Profile not found.',
+                'success' => false,
+                'data' => null
+            ], 404);
+        }
+
+        $deleted = $resource->delete();
+
+        $response = [
+            'message' => $deleted ? 'Item Profile successfully deleted.' : 'Failed to delete Item Profile.',
+            'success' => $deleted,
+            'data' => $resource
+        ];
+
+        return response()->json($response, $deleted ? 200 : 400);
     }
 
     public function activate(ItemProfile $resource)

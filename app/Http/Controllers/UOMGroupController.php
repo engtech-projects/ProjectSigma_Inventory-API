@@ -42,20 +42,14 @@ class UOMGroupController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUOMGroupRequest $request)
+    public function store(StoreUOMGroupRequest $request, UOMGroup $resource)
     {
-        $uomGroupData = $request->validated();
-        // $uomGroupData['is_standard'] = false;
-
-        $uomGroup = UOMGroup::create($uomGroupData);
-
-        $response = [
-            'message' => $uomGroup ? 'Successfully saved.' : 'Save failed.',
-            'success' => (bool) $uomGroup,
-            'data' => $uomGroup ? new UOMGroupResource($uomGroup) : null,
-        ];
-
-        return response()->json($response, $uomGroup ? 200 : 400);
+        $saved = $resource->create($request->validated());
+        return response()->json([
+            'message' => $saved ? 'UOM Group Successfully created.' : 'Failed to create UOM Group.',
+            'success' => (bool) $saved,
+            'data' => $saved ? new UOMGroupResource($saved) : null,
+        ]);
     }
 
     /**
@@ -82,47 +76,42 @@ class UOMGroupController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUOMGroupRequest $request, $id)
+    public function update(UpdateUOMGroupRequest $request, UOMGroup $resource)
     {
-        $uomGroup = UOMGroup::find($id);
-        $data = json_decode('{}');
-        if (!is_null($uomGroup)) {
-            $uomGroup->fill($request->validated());
-            if ($uomGroup->save()) {
-                $data->message = "Successfully updated.";
-                $data->success = true;
-                $data->data = $uomGroup;
-                return response()->json($data);
-            }
-            $data->message = "Failed to update.";
-            $data->success = false;
-            return response()->json($data, 400);
+        $resource->fill($request->validated());
+        if ($resource->save()) {
+            return response()->json([
+                "message" => "Successfully updated.",
+                "success" => true,
+                "data" => $resource->refresh()
+            ]);
         }
-        $data->message = "Failed to update.";
-        $data->success = false;
-        return response()->json($data, 404);
+        return response()->json([
+            "message" => "Failed to update.",
+            "success" => false,
+            "data" => $resource
+        ], 400);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(UOMGroup $resource)
     {
-        $uomGroup = UOMGroup::find($id);
-        $data = json_decode('{}');
-        if (!is_null($uomGroup)) {
-            if ($uomGroup->delete()) {
-                $data->message = "Successfully deleted.";
-                $data->success = true;
-                $data->data = $uomGroup;
-                return response()->json($data);
-            }
-            $data->message = "Failed to delete.";
-            $data->success = false;
-            return response()->json($data, 400);
+        if (!$resource) {
+            return response()->json([
+                'message' => 'Item Profile not found.',
+                'success' => false,
+                'data' => null
+            ], 404);
         }
-        $data->message = "Failed to delete.";
-        $data->success = false;
-        return response()->json($data, 404);
+
+        $deleted = $resource->delete();
+
+        $response = [
+            'message' => $deleted ? 'Item Profile successfully deleted.' : 'Failed to delete Item Profile.',
+            'success' => $deleted,
+            'data' => $resource
+        ];
     }
 }

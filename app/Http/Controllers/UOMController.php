@@ -106,47 +106,44 @@ class UOMController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUOMRequest $request, $id)
+    public function update(UpdateUOMRequest $request, UOM $resource)
     {
-        $uom = UOM::find($id);
-        $data = json_decode('{}');
-        if (!is_null($uom)) {
-            $uom->fill($request->validated());
-            if ($uom->save()) {
-                $data->message = "Successfully updated.";
-                $data->success = true;
-                $data->data = $uom;
-                return response()->json($data);
-            }
-            $data->message = "Failed to update.";
-            $data->success = false;
-            return response()->json($data, 400);
+        $resource->fill($request->validated());
+        if ($resource->save()) {
+            return response()->json([
+                "message" => "Successfully updated.",
+                "success" => true,
+                "data" => $resource->refresh()
+            ]);
         }
-        $data->message = "Failed to update.";
-        $data->success = false;
-        return response()->json($data, 404);
+        return response()->json([
+            "message" => "Failed to update.",
+            "success" => false,
+            "data" => $resource
+        ], 400);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(UOM $resource)
     {
-        $uom = UOM::find($id);
-        $data = json_decode('{}');
-        if (!is_null($uom)) {
-            if ($uom->delete()) {
-                $data->message = "Successfully deleted.";
-                $data->success = true;
-                $data->data = $uom;
-                return response()->json($data);
-            }
-            $data->message = "Failed to delete.";
-            $data->success = false;
-            return response()->json($data, 400);
+        if (!$resource) {
+            return response()->json([
+                'message' => 'Item Profile not found.',
+                'success' => false,
+                'data' => null
+            ], 404);
         }
-        $data->message = "Failed to delete.";
-        $data->success = false;
-        return response()->json($data, 404);
+
+        $deleted = $resource->delete();
+
+        $response = [
+            'message' => $deleted ? 'Item Profile successfully deleted.' : 'Failed to delete Item Profile.',
+            'success' => $deleted,
+            'data' => $resource
+        ];
+
+        return response()->json($response, $deleted ? 200 : 400);
     }
 }

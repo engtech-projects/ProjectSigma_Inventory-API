@@ -162,24 +162,25 @@ class RequestItemProfilingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(RequestItemProfiling $resource)
     {
-        $requestitemprofile = ItemProfile::find($id);
-        $data = json_decode('{}');
-        if (!is_null($requestitemprofile)) {
-            if ($requestitemprofile->delete()) {
-                $data->message = "Successfully deleted.";
-                $data->success = true;
-                $data->data = $requestitemprofile;
-                return response()->json($data);
-            }
-            $data->message = "Failed to delete.";
-            $data->success = false;
-            return response()->json($data, 404);
+        if (!$resource) {
+            return response()->json([
+                'message' => 'Item Profile not found.',
+                'success' => false,
+                'data' => null
+            ], 404);
         }
-        $data->message = "Failed to delete.";
-        $data->success = false;
-        return response()->json($data, 404);
+
+        $deleted = $resource->delete();
+
+        $response = [
+            'message' => $deleted ? 'Item Profile successfully deleted.' : 'Failed to delete Item Profile.',
+            'success' => $deleted,
+            'data' => $resource
+        ];
+
+        return response()->json($response, $deleted ? 200 : 400);
     }
 
     public function myRequests()
