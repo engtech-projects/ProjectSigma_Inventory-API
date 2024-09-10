@@ -50,7 +50,6 @@ class ItemGroupController extends Controller
         return response()->json([
             'message' => $saved ? 'Item Group Successfully created.' : 'Failed to create Item Group.',
             'success' => (bool) $saved,
-            'data' => $saved ?? null,
             'data' => $saved ? new ItemGroupResource($saved) : null,
         ]);
     }
