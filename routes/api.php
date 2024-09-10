@@ -1,7 +1,14 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Actions\Approvals\ApproveApproval;
+use App\Http\Controllers\Actions\Approvals\DisapproveApproval;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ItemGroupController;
+use App\Http\Controllers\UOMController;
+use App\Http\Controllers\ItemProfileController;
+use App\Http\Controllers\RequestItemProfilingController;
+use App\Http\Controllers\UOMGroupController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +21,38 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+
+Route::middleware('auth:api')->group(function () {
+    Route::prefix('auth')->group(function () {
+        Route::get('/user', [AuthController::class, 'show']);
+    });
+
+    Route::prefix('item-group')->group(function () {
+        Route::resource('resource', ItemGroupController::class)->names("itemGroupresource");
+        Route::get('list', [ItemGroupController::class, 'get']);
+        Route::get('search', [ItemGroupController::class, 'search']);
+    });
+    Route::prefix('uom')->group(function () {
+        Route::resource('resource', UOMController::class)->names("uomresource");
+    });
+    Route::prefix('uom-group')->group(function () {
+        Route::resource('resource', UOMGroupController::class)->names("uomGroupresource");
+    });
+    Route::prefix('item-profile')->group(function () {
+        Route::prefix('new-request')->group(function () {
+            Route::resource('resource', RequestItemProfilingController::class)->names("itemProfilegresource");
+            Route::get('all-request', [RequestItemProfilingController::class, 'allRequests']);
+            Route::get('my-request', [RequestItemProfilingController::class, 'myRequests']);
+            Route::get('my-approvals', [RequestItemProfilingController::class, 'myApprovals']);
+        });
+        Route::get('list', [RequestItemProfilingController::class, 'allApprovedRequests']);
+        Route::get('{requestId}', [RequestItemProfilingController::class, 'show']);
+        Route::patch('{resource}/activate', [ItemProfileController::class, 'activate']);
+        Route::patch('{resource}/deactivate', [ItemProfileController::class, 'deactivate']);
+    });
+    // Route::resource('approvals', ApprovalsController::class);
+    Route::prefix('approvals')->group(function () {
+        Route::post('approve/{modelName}/{model}', ApproveApproval::class);
+        Route::post('disapprove/{modelName}/{model}', DisapproveApproval::class);
+    });
 });

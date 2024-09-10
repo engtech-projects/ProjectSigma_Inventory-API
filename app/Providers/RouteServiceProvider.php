@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Enums\ApprovalModels;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -28,6 +30,13 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        Route::bind('model', function ($value, $route) {
+            $modelName = $route->parameter('modelName');
+            $getModel = $this->getModelClass($modelName);
+            return $getModel::findOrfail($value);
+        });
+
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')
@@ -36,5 +45,15 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });
+    }
+    private function getModelClass($modelName)
+    {
+        $modelHasApprovals = ApprovalModels::toArray();
+        try {
+            array_key_exists($modelName, $modelHasApprovals);
+            return $modelHasApprovals[$modelName];
+        } catch (\Exception $e) {
+            throw new NotFoundHttpException("Resource not found");
+        }
     }
 }
