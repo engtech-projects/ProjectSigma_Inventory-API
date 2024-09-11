@@ -2,19 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ApprovalModels;
 use App\Enums\ItemProfileActiveStatus;
 use App\Enums\RequestApprovalStatus;
 use App\Http\Requests\StoreRequestItemProfilingRequest;
 use App\Models\RequestItemProfiling;
 use App\Http\Requests\UpdateRequestItemProfilingRequest;
 use App\Http\Resources\RequestItemProfilingResource;
-use App\Http\Services\HrmsService;
 use App\Http\Services\RequestItemProfilingService;
 use App\Models\ItemProfile;
 use App\Models\RequestItemProfilingItems;
-use App\Models\User;
-use App\Notifications\RequestItemPRofilingForApprovalNotification;
+use App\Notifications\RequestItemProfilingForApprovalNotification;
 use App\Traits\HasApproval;
 use App\Utils\PaginateResourceCollection;
 use Illuminate\Http\JsonResponse;
@@ -88,7 +85,7 @@ class RequestItemProfilingController extends Controller
                 $requestItemProfiling->refresh();
 
                 if ($requestItemProfiling->getNextPendingApproval()) {
-                    $requestItemProfiling->notify(new RequestItemPRofilingForApprovalNotification($request->bearerToken(), $requestItemProfiling));
+                    $requestItemProfiling->notify(new RequestItemProfilingForApprovalNotification($request->bearerToken(), $requestItemProfiling));
                 }
 
             });

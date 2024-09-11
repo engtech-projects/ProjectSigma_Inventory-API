@@ -12,12 +12,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 trait HasApproval
 {
-
-/**
- * ==================================================
- * MODEL ATTRIBUTES
- * ==================================================
- */
+    /**
+     * ==================================================
+     * MODEL ATTRIBUTES
+     * ==================================================
+     */
     public function setRequestStatus(?string $newStatus)
     {
     }
@@ -31,21 +30,21 @@ trait HasApproval
     }
 
 
-/**
-* ==================================================
-* MODEL RELATIONSHIPS
-* ==================================================
-*/
+    /**
+    * ==================================================
+    * MODEL RELATIONSHIPS
+    * ==================================================
+    */
     public function created_by_user(): BelongsTo
     {
         return $this->belongsTo(User::class, "created_by", "id");
     }
 
-/**
-* ==================================================
-* LOCAL SCOPES
-* ==================================================
-*/
+    /**
+    * ==================================================
+    * LOCAL SCOPES
+    * ==================================================
+    */
     public function scopeMyApprovals(Builder $query): void
     {
         $userId = auth()->user()->id;
@@ -55,11 +54,11 @@ trait HasApproval
     }
 
 
-/**
-* ==================================================
-* DYNAMIC SCOPES
-* ==================================================
-*/
+    /**
+    * ==================================================
+    * DYNAMIC SCOPES
+    * ==================================================
+    */
     public function completeRequestStatus()
     {
         $this->request_status = RequestApprovalStatus::APPROVED;

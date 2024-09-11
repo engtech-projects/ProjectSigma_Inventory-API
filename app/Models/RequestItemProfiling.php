@@ -9,10 +9,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Builder;
 use App\Traits\HasApproval;
+use Illuminate\Notifications\Notifiable;
 
 class RequestItemProfiling extends Model
 {
     use HasFactory;
+    use Notifiable;
     use SoftDeletes;
     use HasApproval;
 
