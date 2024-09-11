@@ -17,7 +17,6 @@ class RequestItemProfilingForApprovalNotification extends Notification
     private $model;
 
     /**
-     * Create a new notification instance.
      */
     public function __construct($token, RequestItemProfiling $model)
     {
