@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ApprovalModels;
 use App\Enums\ItemProfileActiveStatus;
 use App\Enums\RequestApprovalStatus;
 use App\Http\Requests\StoreRequestItemProfilingRequest;
 use App\Models\RequestItemProfiling;
 use App\Http\Requests\UpdateRequestItemProfilingRequest;
 use App\Http\Resources\RequestItemProfilingResource;
+use App\Http\Services\HrmsService;
 use App\Http\Services\RequestItemProfilingService;
 use App\Models\ItemProfile;
 use App\Models\RequestItemProfilingItems;
 use App\Models\User;
+use App\Notifications\RequestItemPRofilingForApprovalNotification;
 use App\Traits\HasApproval;
 use App\Utils\PaginateResourceCollection;
 use Illuminate\Http\JsonResponse;
@@ -63,7 +66,7 @@ class RequestItemProfilingController extends Controller
         $attributes['created_by'] = auth()->user()->id;
 
         try {
-            DB::transaction(function () use ($attributes) {
+            DB::transaction(function () use ($attributes, $request) {
                 $requestItemProfiling = RequestItemProfiling::create([
                     'approvals' => $attributes['approvals'],
                     'created_by' => $attributes['created_by'],
@@ -71,8 +74,8 @@ class RequestItemProfilingController extends Controller
                 ]);
 
                 foreach ($attributes['item_profiles'] as $itemprofileData) {
-                    $itemProfileData['request_itemprofiling_id'] = $requestItemProfiling->id;
-                    $itemProfileData['active_status'] = ItemProfileActiveStatus::ACTIVE;
+                    $itemprofileData['request_itemprofiling_id'] = $requestItemProfiling->id;
+                    $itemprofileData['active_status'] = ItemProfileActiveStatus::ACTIVE;
 
                     $itemProfile = ItemProfile::create($itemprofileData);
 
@@ -83,9 +86,9 @@ class RequestItemProfilingController extends Controller
                 }
 
                 $requestItemProfiling->refresh();
-                if ($nextPendingApproval = $requestItemProfiling->getNextPendingApproval()) {
-                    $userId = $nextPendingApproval['user_id'];
-                    $user = User::find($userId);
+
+                if ($requestItemProfiling->getNextPendingApproval()) {
+                    $requestItemProfiling->notify(new RequestItemPRofilingForApprovalNotification($token, $requestItemProfiling));
                 }
 
             });

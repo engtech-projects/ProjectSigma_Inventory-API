@@ -23,6 +23,7 @@ class ApproveApproval extends Controller
             switch ($modelType) {
                 case ApprovalModels::RequestItemProfiling->name:
                     User::find($nextApprovalUser);
+                    $model->notify();
                     break;
 
             }
