@@ -88,7 +88,7 @@ class RequestItemProfilingController extends Controller
                 $requestItemProfiling->refresh();
 
                 if ($requestItemProfiling->getNextPendingApproval()) {
-                    $requestItemProfiling->notify(new RequestItemPRofilingForApprovalNotification($token, $requestItemProfiling));
+                    $requestItemProfiling->notify(new RequestItemPRofilingForApprovalNotification($request->bearerToken(), $requestItemProfiling));
                 }
 
             });
