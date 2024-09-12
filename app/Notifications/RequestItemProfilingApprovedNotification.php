@@ -17,6 +17,7 @@ class RequestItemProfilingApprovedNotification extends Notification
 
     private $token;
     private $model;
+    public $id;
 
     /**
      */

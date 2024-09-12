@@ -32,7 +32,9 @@ class RequestItemProfilingForApprovalNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return [HrmsNotifyNextApproverChannel::class];
+        return [
+            HrmsNotifyNextApproverChannel::class
+        ];
     }
 
     public function getToken()
