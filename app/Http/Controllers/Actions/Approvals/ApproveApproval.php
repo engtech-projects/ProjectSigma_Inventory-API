@@ -33,11 +33,20 @@ class ApproveApproval extends Controller
         } else {
             switch ($modelType) {
                 // case ApprovalModels::RequestItemProfiling->name:
-                //     User::find($model->created_by); // Notify the requestor
+                //     User::find($model->created_by)->notify(new RequestItemProfilingApprovedNotification($request->bearerToken(), $model)); // Notify the requestor
                 //     break;
 
                 case ApprovalModels::RequestItemProfiling->name:
-                    User::find($model->created_by)->notify(new RequestItemProfilingApprovedNotification( $request->bearerToken(), $model)); // Notify the requestor
+                    $createdByUser = User::find($model->created_by);
+
+                    if ($createdByUser) {
+                        $createdByUser->notify(new RequestItemProfilingApprovedNotification($request->bearerToken(), $model));
+                    } else {
+                        return new JsonResponse([
+                            'success' => false,
+                            'message' => 'Creator of request not found'
+                        ], JsonResponse::HTTP_NOT_FOUND);
+                    }
                     break;
             }
         }
