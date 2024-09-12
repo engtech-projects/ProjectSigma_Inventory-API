@@ -8,7 +8,7 @@ use Notification;
 
 class HrmsNotifyNextApproverChannel
 {
-    public function send($notifiable, RequestItemProfilingForApprovalNotification $notification)
+    public function send($notifiable, Notification $notification)
     {
         $userId = $notifiable->getNextPendingApproval()['user_id'];
         $notif = $notification->toArray($notifiable);
