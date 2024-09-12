@@ -19,7 +19,7 @@ class RequestItemProfilingForApprovalNotification extends Notification
     /**
      */
     public function __construct($token, RequestItemProfiling $model)
-    {
+    { //token model
         $this->token = $token;
         $this->model = $model;
 
