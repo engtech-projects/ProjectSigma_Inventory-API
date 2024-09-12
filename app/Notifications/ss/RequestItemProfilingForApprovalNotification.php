@@ -9,7 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Notification;
 
-class RequestItemPofilingForApprovalNotification extends Notification
+class RequestItemProfilingForApprovalNotification extends Notification
 {
     use Queueable;
 
