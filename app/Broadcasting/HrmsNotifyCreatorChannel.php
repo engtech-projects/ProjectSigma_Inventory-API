@@ -2,23 +2,15 @@
 
 namespace App\Broadcasting;
 
-use App\Models\User;
+use App\Http\Services\HrmsService;
+use Notification;
 
 class HrmsNotifyCreatorChannel
 {
-    /**
-     * Create a new channel instance.
-     */
-    public function __construct()
+    public function send($notifiable, Notification $notification)
     {
-        //
-    }
-
-    /**
-     * Authenticate the user's access to the channel.
-     */
-    public function join(User $user): array|bool
-    {
-        //
+        $userId = $notifiable->created_by;
+        $notif = $notification->toArray($notifiable);
+        HrmsService::setNotification($notification->getToken(), $userId, $notif);
     }
 }

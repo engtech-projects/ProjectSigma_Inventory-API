@@ -8,6 +8,7 @@ use App\Enums\RequestApprovalStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DisapproveApprovalRequest;
 use App\Models\User;
+use App\Notifications\RequestItemProfilingDeniedNotification;
 use Carbon\Carbon;
 
 class DisapproveApproval extends Controller
@@ -19,9 +20,12 @@ class DisapproveApproval extends Controller
     {
         $attribute = $request->validated();
         $result = collect($model->updateApproval(['status' => RequestApprovalStatus::DENIED, 'remarks' => $attribute['remarks'], "date_denied" => Carbon::now()]));
+
+        $token = $request->bearerToken();
+
         switch ($modelType) {
             case ApprovalModels::RequestItemProfiling->name:
-                User::find($model->created_by); // Notify Request Creator Request DENIED (leave & cashadvance)
+                User::find($model->created_by)->notify(new RequestItemProfilingDeniedNotification( $token, $model)); // Notify the requestor
                 break;
 
             default:
