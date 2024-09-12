@@ -19,7 +19,6 @@ class ApproveApproval extends Controller
     public function __invoke($modelType, $model, Request $request)
     {
         $result = $model->updateApproval(['status' => RequestApprovalStatus::APPROVED, "date_approved" => Carbon::now()]);
-
         $nextApproval = $model->getNextPendingApproval();
         if ($nextApproval) {
             $nextApprovalUser = $nextApproval["user_id"];
@@ -32,14 +31,13 @@ class ApproveApproval extends Controller
 
             }
         } else {
-            $token = $request->bearerToken();
             switch ($modelType) {
                 // case ApprovalModels::RequestItemProfiling->name:
                 //     User::find($model->created_by); // Notify the requestor
                 //     break;
 
                 case ApprovalModels::RequestItemProfiling->name:
-                    User::find($model->created_by)->notify(new RequestItemProfilingApprovedNotification( $token, $model)); // Notify the requestor
+                    User::find($model->created_by)->notify(new RequestItemProfilingApprovedNotification( $request->bearerToken(), $model)); // Notify the requestor
                     break;
             }
         }
