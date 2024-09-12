@@ -21,11 +21,9 @@ class DisapproveApproval extends Controller
         $attribute = $request->validated();
         $result = collect($model->updateApproval(['status' => RequestApprovalStatus::DENIED, 'remarks' => $attribute['remarks'], "date_denied" => Carbon::now()]));
 
-        $token = $request->bearerToken();
-
         switch ($modelType) {
             case ApprovalModels::RequestItemProfiling->name:
-                User::find($model->created_by)->notify(new RequestItemProfilingDeniedNotification( $token, $model)); // Notify the requestor
+                User::find($model->created_by)->notify(new RequestItemProfilingDeniedNotification( $request->bearerToken(), $model)); // Notify the requestor
                 break;
 
             default:
