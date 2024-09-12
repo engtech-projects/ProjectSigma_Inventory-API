@@ -9,7 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class RequestItemPRofilingForApprovalNotification extends Notification
+class RequestItemProfilingForApprovalNotification extends Notification
 {
     use Queueable;
 
@@ -20,7 +20,7 @@ class RequestItemPRofilingForApprovalNotification extends Notification
      * Create a new notification instance.
      */
     public function __construct($token, RequestItemProfiling $model)
-    {
+    { //token model
         $this->token = $token;
         $this->model = $model;
 
