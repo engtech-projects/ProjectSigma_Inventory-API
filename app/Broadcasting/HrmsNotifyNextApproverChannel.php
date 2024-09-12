@@ -3,7 +3,6 @@
 namespace App\Broadcasting;
 
 use App\Http\Services\HrmsService;
-use App\Notifications\RequestItemProfilingForApprovalNotification;
 use Notification;
 
 class HrmsNotifyNextApproverChannel
