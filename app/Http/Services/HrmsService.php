@@ -29,7 +29,7 @@ class HrmsService
             ->withQueryParameters(parameters: $approvals)
             ->get(config('services.url.hrms_api_url')."/api/services/format-approvals");
         if (!$response->successful()) {
-            return "Failed to format approvals";
+            return ["Failed to format approvals"];
         }
         return $response->json("data");
     }
