@@ -32,13 +32,13 @@ class ApproveApproval extends Controller
             }
         } else {
             switch ($modelType) {
-                // case ApprovalModels::RequestItemProfiling->name:
-                //     User::find($model->created_by)->notify(new RequestItemProfilingApprovedNotification($request->bearerToken(), $model)); // Notify the requestor
-                //     break;
-
                 case ApprovalModels::RequestItemProfiling->name:
-                    $model->notify(new RequestItemProfilingApprovedNotification($request->bearerToken(), $model));
+                    User::find($model->created_by); // Notify the requestor
                     break;
+
+                    // case ApprovalModels::RequestItemProfiling->name:
+                    //     $model->notify(new RequestItemProfilingApprovedNotification($request->bearerToken(), $model));
+                    //     break;
             }
         }
         return new JsonResponse(["success" => $result["success"], "message" => $result['message']], $result["status_code"]);
