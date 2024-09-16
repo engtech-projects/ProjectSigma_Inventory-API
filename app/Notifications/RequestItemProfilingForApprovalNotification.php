@@ -7,9 +7,10 @@ use App\Enums\ApprovalModels;
 use App\Models\RequestItemProfiling;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Notification as Notifications;
+use Illuminate\Notifications\Notification;
 
-class RequestItemProfilingForApprovalNotification extends Notification
+class RequestItemPRofilingForApprovalNotification extends Notification
 {
     use Queueable;
 

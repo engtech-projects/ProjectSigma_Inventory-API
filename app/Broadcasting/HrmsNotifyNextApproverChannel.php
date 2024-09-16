@@ -3,11 +3,11 @@
 namespace App\Broadcasting;
 
 use App\Http\Services\HrmsService;
-use Notification;
+use App\Notifications\RequestItemProfilingForApprovalNotification;
 
 class HrmsNotifyNextApproverChannel
 {
-    public function send($notifiable, Notification $notification): void
+    public function send($notifiable, RequestItemProfilingForApprovalNotification $notification): void
     {
         $userId = $notifiable->getNextPendingApproval()['user_id'];
         $notif = $notification->toArray($notifiable);
