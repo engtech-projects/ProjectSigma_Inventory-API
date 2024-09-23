@@ -42,9 +42,8 @@ class RequestItemProfilingController extends Controller
 
     public function get()
     {
-        $main = RequestItemProfiling::with('itemProfiles')->get();
-        $requestResources = RequestItemProfilingResource::collection($main)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
+        $main = ItemProfile::IsApproved()->get();
+        $paginated = PaginateResourceCollection::paginate($main);
         return response()->json([
             'message' => 'Successfully fetched.',
             'success' => true,
