@@ -7,7 +7,7 @@ use App\Enums\ApprovalModels;
 use App\Models\RequestItemProfiling;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use Notification;
 
 class RequestItemProfilingForApprovalNotification extends Notification
 {
@@ -15,6 +15,7 @@ class RequestItemProfilingForApprovalNotification extends Notification
 
     private $token;
     private $model;
+    public $id;
 
     /**
      * Create a new notification instance.
@@ -33,7 +34,9 @@ class RequestItemProfilingForApprovalNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return [HrmsNotifyNextApproverChannel::class];
+        return [
+            HrmsNotifyNextApproverChannel::class,
+        ];
     }
 
     public function getToken()

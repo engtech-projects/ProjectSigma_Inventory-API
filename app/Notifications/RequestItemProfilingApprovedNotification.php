@@ -3,13 +3,11 @@
 namespace App\Notifications;
 
 use App\Broadcasting\HrmsNotifyCreatorChannel;
-use App\Broadcasting\HrmsNotifyNextApproverChannel;
 use App\Enums\ApprovalModels;
 use App\Models\RequestItemProfiling;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
-// use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Notification;
+use Notification;
 
 class RequestItemProfilingApprovedNotification extends Notification
 {
@@ -61,7 +59,7 @@ class RequestItemProfilingApprovedNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => "A new item profiling request has been APPROVED.",
+            'message' => "An item profiling request has been APPROVED.",
             'module' => "Inventory",
             'request_type' => ApprovalModels::RequestItemProfiling->name,
             'request_id' => $this->model->id,

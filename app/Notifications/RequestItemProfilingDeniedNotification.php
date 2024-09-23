@@ -3,13 +3,11 @@
 namespace App\Notifications;
 
 use App\Broadcasting\HrmsNotifyCreatorChannel;
-use App\Broadcasting\HrmsNotifyNextApproverChannel;
 use App\Enums\ApprovalModels;
 use App\Models\RequestItemProfiling;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
-// use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Notification;
+use Notification;
 
 class RequestItemProfilingDeniedNotification extends Notification
 {
@@ -17,6 +15,7 @@ class RequestItemProfilingDeniedNotification extends Notification
 
     private $token;
     private $model;
+    public $id;
 
     /**
      */
@@ -61,7 +60,7 @@ class RequestItemProfilingDeniedNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => "A new item profiling request has been DENIED.",
+            'message' => "An item profiling request has been DENIED.",
             'module' => "Inventory",
             'request_type' => ApprovalModels::RequestItemProfiling->name,
             'request_id' => $this->model->id,
