@@ -7,6 +7,7 @@ use App\Enums\RequestApprovalStatus;
 use App\Http\Requests\StoreRequestItemProfilingRequest;
 use App\Models\RequestItemProfiling;
 use App\Http\Requests\UpdateRequestItemProfilingRequest;
+use App\Http\Resources\ItemProfileResource;
 use App\Http\Resources\RequestItemProfilingResource;
 use App\Http\Services\RequestItemProfilingService;
 use App\Models\ItemProfile;
@@ -42,8 +43,8 @@ class RequestItemProfilingController extends Controller
 
     public function get()
     {
-        $main = RequestItemProfiling::with('itemProfiles')->get();
-        $requestResources = RequestItemProfilingResource::collection($main)->collect();
+        $main = ItemProfile::IsApproved()->get();
+        $requestResources = ItemProfileResource::collection($main)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
         return response()->json([
             'message' => 'Successfully fetched.',
