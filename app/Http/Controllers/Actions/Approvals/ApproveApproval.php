@@ -8,6 +8,7 @@ use App\Enums\RequestApprovalStatus;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\RequestItemProfilingApprovedNotification;
+use App\Notifications\RequestItemProfilingForApprovalNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -18,24 +19,23 @@ class ApproveApproval extends Controller
      */
     public function __invoke($modelType, $model, Request $request)
     {
-        $result = $model->updateApproval(['status' => RequestApprovalStatus::APPROVED, "date_approved" => Carbon::now()]);
+        $result = $model->updateApproval([
+            'status' => RequestApprovalStatus::APPROVED,
+            "date_approved" => Carbon::now()
+        ]);
+
         $nextApproval = $model->getNextPendingApproval();
         if ($nextApproval) {
             $nextApprovalUser = $nextApproval["user_id"];
             switch ($modelType) {
 
                 case ApprovalModels::RequestItemProfiling->name:
-                    User::find($nextApprovalUser);
-                    $model->notify();
+                    $model->notify(new RequestItemProfilingApprovedNotification($request->bearerToken(), $model));
                     break;
 
             }
         } else {
             switch ($modelType) {
-                // case ApprovalModels::RequestItemProfiling->name:
-                //     User::find($model->created_by)->notify(new RequestItemProfilingApprovedNotification($request->bearerToken(), $model)); // Notify the requestor
-                //     break;
-
                 case ApprovalModels::RequestItemProfiling->name:
                     $model->notify(new RequestItemProfilingApprovedNotification($request->bearerToken(), $model));
                     break;
