@@ -20,32 +20,24 @@ class ApproveApproval extends Controller
     public function __invoke($modelType, $model, Request $request)
     {
         $result = $model->updateApproval([
-            'status' => RequestApprovalStatus::APPROVED, "date_approved" => Carbon::now()
+            'status' => RequestApprovalStatus::APPROVED,
+            "date_approved" => Carbon::now()
         ]);
 
         $nextApproval = $model->getNextPendingApproval();
         if ($nextApproval) {
+            $nextApprovalUser = $nextApproval["user_id"];
             switch ($modelType) {
 
                 case ApprovalModels::RequestItemProfiling->name:
-                    $model->notify(new RequestItemProfilingForApprovalNotification($request->bearerToken(), $model));
+                    $model->notify(new RequestItemProfilingApprovedNotification($request->bearerToken(), $model));
                     break;
 
             }
         } else {
             switch ($modelType) {
-
                 case ApprovalModels::RequestItemProfiling->name:
-                    $createdByUser = User::find($model->created_by);
-
-                    if ($createdByUser) {
-                        $createdByUser->notify(new RequestItemProfilingApprovedNotification($request->bearerToken(), $model));
-                    } else {
-                        return new JsonResponse([
-                            'success' => false,
-                            'message' => 'Creator of request not found'
-                        ], JsonResponse::HTTP_NOT_FOUND);
-                    }
+                    $model->notify(new RequestItemProfilingApprovedNotification($request->bearerToken(), $model));
                     break;
             }
         }
