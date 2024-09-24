@@ -31,7 +31,7 @@ class ItemProfileResource extends JsonResource
             'specification' => $this->specification,
             'grade' => $this->grade,
             'color' => $this->color,
-            'uom' => $this->uom,
+            'uom' => $this->uomFullName,
             'uom_conversion_group_id' => $this->uom_conversion_group_id,
             'uom_conversion_value' => $this->uom_conversion_value,
             'item_group' => $this->item_group,
