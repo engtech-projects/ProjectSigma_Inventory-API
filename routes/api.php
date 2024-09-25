@@ -47,6 +47,8 @@ Route::middleware('auth:api')->group(function () {
             Route::get('my-approvals', [RequestItemProfilingController::class, 'myApprovals']);
         });
         Route::get('list', [RequestItemProfilingController::class, 'get']);
+        Route::post('bulk-upload', [ItemProfileController::class, 'uploadCsv']);
+
         Route::patch('{resource}/activate', [ItemProfileController::class, 'activate']);
         Route::patch('{resource}/deactivate', [ItemProfileController::class, 'deactivate']);
     });

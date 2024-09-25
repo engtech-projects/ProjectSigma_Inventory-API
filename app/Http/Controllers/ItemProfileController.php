@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BulkUploadItemProfile;
 use App\Models\ItemProfile;
 use App\Http\Requests\StoreItemProfileRequest;
 use App\Http\Requests\UpdateItemProfileRequest;
 use App\Http\Resources\ItemProfileResource;
 use App\Utils\PaginateResourceCollection;
+use Illuminate\Support\Facades\Storage;
 
 class ItemProfileController extends Controller
 {
@@ -138,5 +140,232 @@ class ItemProfileController extends Controller
         ]);
     }
 
+    public function uploadCsv(BulkUploadItemProfile $request)
+    {
+        // Store the uploaded file
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filePath = $file->storeAs('uploads', 'bulk_upload_' . time() . '.' . $file->getClientOriginalExtension());
+
+            list($processed, $duplicates, $unprocessed) = $this->parseCsv($filePath);
+
+            return response()->json([
+                'message' => 'CSV File Uploaded Successfully.',
+                'file_path' => $filePath,
+                'processed' => $processed,
+                'duplicates' => $duplicates,
+                'unprocessed' => $unprocessed
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'No file uploaded.'
+        ], 400);
+    }
+
+
+    // private function parseCsv($filePath)
+    // {
+    //     $file = Storage::get($filePath);
+    //     $rows = array_map('str_getcsv', explode("\n", $file));
+    //     $header = array_shift($rows);
+
+    //     $processed = [];
+    //     $duplicates = [];
+    //     $unprocessed = [];
+
+
+    //     foreach ($rows as $row) {
+    //         if (count($row) == count($header)) {
+    //             $data = array_combine($header, $row);
+
+    //             // Only include the specified fields
+    //             $filteredData = [
+    //                 'item_description' => $data['Item Description'] ?? null,
+    //                 'thickness_val' => $data['Thickness'] ?? null,
+    //                 'thickness_uom' => $data['Thickness UOM'] ?? null,
+    //                 'length_val' => $data['Length'] ?? null,
+    //                 'length_uom' => $data['Length UOM'] ?? null,
+    //                 'width_val' => $data['Width'] ?? null,
+    //                 'width_uom' => $data['Width UOM'] ?? null,
+    //                 'height_val' => $data['Height'] ?? null,
+    //                 'height_uom' => $data['Height UOM'] ?? null,
+    //                 'outside_diameter_val' => $data['Outside Diameter'] ?? null,
+    //                 'outside_diameter_uom' => $data['Outside Diameter UOM'] ?? null,
+    //                 'inside_diameter_val' => $data['Inside Diameter'] ?? null,
+    //                 'inside_diameter_uom' => $data['Inside Diameter UOM'] ?? null,
+    //                 'volume_val' => $data['Volume'] ?? null,
+    //                 'volume_uom' => $data['Volume UOM'] ?? null,
+    //                 'specification' => $data['Specification'] ?? null,
+    //                 'grade' => $data['Grade'] ?? null,
+    //                 'color' => $data['Color'] ?? null,
+    //                 'uom' => $data['UOM'] ?? null,
+    //                 'item_group' => $data['Item Group'] ?? null,
+    //                 'sub_item_group' => $data['Sub Item Group'] ?? null,
+    //                 'inventory_type' => $data['Inventory Type'] ?? null,
+    //             ];
+
+    //             // Check if all required fields are present
+    //             $requiredFields = [
+    //                 'item_description', 'specification', 'grade', 'uom',
+    //                 'item_group', 'sub_item_group', 'inventory_type'
+    //             ];
+
+    //             $numericFields = [
+    //                 'thickness_val', 'length_val', 'width_val', 'height_val', 'outside_diameter_val', 'inside_diameter_val', 'volume_val'
+    //             ];
+
+    //             $isUnprocessed = false;
+
+    //             foreach ($requiredFields as $field) {
+    //                 if (empty($filteredData[$field])) {  // Empty or null means it's invalid for required fields
+    //                     $isUnprocessed = true;
+    //                     break;
+    //                 }
+    //             }
+
+    //             if (!$isUnprocessed) {
+    //                 foreach ($numericFields as $field) {
+
+    //                     if (!empty($filteredData[$field]) && !is_numeric($filteredData[$field])) {
+    //                         $isUnprocessed = true;
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+
+    //             if ($isUnprocessed) {
+    //                 $unprocessed[] = $filteredData;
+    //             } else {
+    //                 // Check for duplicates
+    //                 $existingItem = ItemProfile::where('item_description', $filteredData['item_description'])->first();
+    //                 if ($existingItem) {
+    //                     $duplicates[] = $filteredData;
+    //                 } else {
+    //                     $processed[] = $filteredData;
+    //                 }
+    //             }
+    //         } else {
+
+    //             if (!empty(array_filter($row))) {
+    //                 $unprocessed[] = array_combine($header, array_pad($row, count($header), null));
+    //             }
+    //         }
+    //     }
+
+    //     return [$processed, $duplicates, $unprocessed];
+    // }
+
+
+    private function parseCsv($filePath)
+    {
+        $file = Storage::get($filePath);
+        $rows = array_map('str_getcsv', explode("\n", $file));
+        $header = array_shift($rows);
+
+        $processed = [];
+        $duplicates = [];
+        $unprocessed = [];
+
+        foreach ($rows as $row) {
+            if (count($row) == count($header)) {
+                $data = array_combine($header, $row);
+
+                $filteredData = [
+                    'item_description' => $data['Item Description'] ?? null,
+                    'thickness_val' => $data['Thickness'] ?? null,
+                    'thickness_uom' => $data['Thickness UOM'] ?? null,
+                    'length_val' => $data['Length'] ?? null,
+                    'length_uom' => $data['Length UOM'] ?? null,
+                    'width_val' => $data['Width'] ?? null,
+                    'width_uom' => $data['Width UOM'] ?? null,
+                    'height_val' => $data['Height'] ?? null,
+                    'height_uom' => $data['Height UOM'] ?? null,
+                    'outside_diameter_val' => $data['Outside Diameter'] ?? null,
+                    'outside_diameter_uom' => $data['Outside Diameter UOM'] ?? null,
+                    'inside_diameter_val' => $data['Inside Diameter'] ?? null,
+                    'inside_diameter_uom' => $data['Inside Diameter UOM'] ?? null,
+                    'volume_val' => $data['Volume'] ?? null,
+                    'volume_uom' => $data['Volume UOM'] ?? null,
+                    'specification' => $data['Specification'] ?? null,
+                    'grade' => $data['Grade'] ?? null,
+                    'color' => $data['Color'] ?? null,
+                    'uom' => $data['UOM'] ?? null,
+                    'item_group' => $data['Item Group'] ?? null,
+                    'sub_item_group' => $data['Sub Item Group'] ?? null,
+                    'inventory_type' => $data['Inventory Type'] ?? null,
+                ];
+
+                $requiredFields = [
+                    'item_description', 'uom', 'item_group', 'sub_item_group', 'inventory_type'
+                ];
+
+                // Specification fields: At least one of these should be non-empty
+                $specificationFields = [
+                    'thickness_val', 'length_val', 'width_val', 'height_val',
+                    'outside_diameter_val', 'inside_diameter_val', 'volume_val',
+                    'color', 'grade', 'specification'
+                ];
+
+                $numericFields = [
+                    'thickness_val', 'length_val', 'width_val', 'height_val',
+                    'outside_diameter_val', 'inside_diameter_val', 'volume_val'
+                ];
+
+                $isUnprocessed = false;
+
+                // Check required fields
+                foreach ($requiredFields as $field) {
+                    if (empty($filteredData[$field])) {
+                        $isUnprocessed = true;
+                        break;
+                    }
+                }
+
+                // If all required fields are filled, check that at least one specification field is filled
+                if (!$isUnprocessed) {
+                    $atLeastOneSpecFilled = false;
+                    foreach ($specificationFields as $field) {
+                        if (!empty($filteredData[$field])) {
+                            $atLeastOneSpecFilled = true;
+                            break;
+                        }
+                    }
+
+                    if (!$atLeastOneSpecFilled) {
+                        $isUnprocessed = true;
+                    }
+                }
+
+                // If the row passes required and specification field checks, validate numeric fields
+                if (!$isUnprocessed) {
+                    foreach ($numericFields as $field) {
+                        if (!empty($filteredData[$field]) && !is_numeric($filteredData[$field])) {
+                            $isUnprocessed = true;
+                            break;
+                        }
+                    }
+                }
+
+                if ($isUnprocessed) {
+                    $unprocessed[] = $filteredData;
+                } else {
+                    $existingItem = ItemProfile::where('item_description', $filteredData['item_description'])->first();
+                    if ($existingItem) {
+                        $duplicates[] = $filteredData;
+                    } else {
+                        $processed[] = $filteredData;
+                    }
+                }
+            } else {
+                // Handle mismatched rows
+                if (!empty(array_filter($row))) {
+                    $unprocessed[] = array_combine($header, array_pad($row, count($header), null));
+                }
+            }
+        }
+
+        return [$processed, $duplicates, $unprocessed];
+    }
 
 }
