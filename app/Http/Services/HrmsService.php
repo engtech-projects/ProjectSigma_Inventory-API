@@ -8,7 +8,7 @@ class HrmsService
 {
     public static function setNotification($token, $userid, $notificationData)
     {
-        if(gettype($notificationData) == "array"){
+        if(gettype($notificationData) == "array") {
             $notificationData = json_encode($notificationData);
         }
         $response = Http::withToken(token: $token)
@@ -26,12 +26,13 @@ class HrmsService
     {
         $response = Http::withToken($token)
             ->acceptJson()
-            ->withQueryParameters(parameters: $approvals)
+            ->withQueryParameters($approvals)
             ->get(config('services.url.hrms_api_url')."/api/services/format-approvals");
+
         if (!$response->successful()) {
-            return ["Failed to format approvals"];
+            return $approvals;
         }
-        return $response->json("data");
+        return $response->json();
     }
 
     // public static function createNotificationData($message, $module, $requestType, $requestId, $action)
