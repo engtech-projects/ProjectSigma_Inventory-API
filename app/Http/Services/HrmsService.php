@@ -33,16 +33,4 @@ class HrmsService
         }
         return $response->json("data");
     }
-
-    // public static function createNotificationData($message, $module, $requestType, $requestId, $action)
-    // {
-    //     return [
-    //         'message' => $message,
-    //         'module' => $module,
-    //         'request_type' => $requestType,
-    //         'request_id' => $requestId,
-    //         'action' => $action
-    //     ];
-    // }
-
 }
