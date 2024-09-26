@@ -57,6 +57,78 @@ class ItemProfile extends Model
      * MODEL ATTRIBUTES
      * ==================================================
      */
+    public function getThicknessAttribute()
+    {
+        $value = $this->thickness_val;
+        $uom = $this->thicknessUom ? $this->thicknessUom->name : $this->thickness_uom;
+
+        return [
+            'full' => "{$value} {$uom}",
+            'abbreviated' => "{$value} " . ($this->thicknessUom ? $this->thicknessUom->symbol : $this->thickness_uom)
+        ];
+    }
+    public function getLengthAttribute()
+    {
+        $value = $this->length_val;
+        $uom = $this->lengthUom ? $this->lengthUom->name : $this->length_uom;
+
+        return [
+            'full' => "{$value} {$uom}",
+            'abbreviated' => "{$value} " . ($this->lengthUom ? $this->lengthUom->symbol : $this->length_uom)
+        ];
+    }
+    public function getWidthAttribute()
+    {
+        $value = $this->width_val;
+        $uom = $this->widthUom ? $this->widthUom->name : $this->width_uom;
+
+        return [
+            'full' => "{$value} {$uom}",
+            'abbreviated' => "{$value} " . ($this->widthUom ? $this->widthUom->symbol : $this->width_uom)
+        ];
+    }
+    public function getHeightAttribute()
+    {
+        $value = $this->height_val;
+        $uom = $this->heightUom ? $this->heightUom->name : $this->height_uom;
+
+        return [
+            'full' => "{$value} {$uom}",
+            'abbreviated' => "{$value} " . ($this->heightUom ? $this->heightUom->symbol : $this->height_uom)
+        ];
+    }
+    public function getOutsideDiameterAttribute()
+    {
+        $value = $this->outside_diameter_val;
+        $uom = $this->outsideDiameterUom ? $this->outsideDiameterUom->name : $this->outside_diameter_uom;
+
+        return [
+            'full' => "{$value} {$uom}",
+            'abbreviated' => "{$value} " . ($this->outsideDiameterUom ? $this->outsideDiameterUom->symbol : $this->outside_diameter_uom)
+        ];
+    }
+    public function getInsideDiameterAttribute()
+    {
+        $value = $this->inside_diameter_val;
+        $uom = $this->insideDiameterUom ? $this->insideDiameterUom->name : $this->inside_diameter_uom;
+
+        return [
+            'full' => "{$value} {$uom}",
+            'abbreviated' => "{$value} " . ($this->insideDiameterUom ? $this->insideDiameterUom->symbol : $this->inside_diameter_uom)
+        ];
+    }
+    public function getVolumeAttribute()
+    {
+        $value = $this->volume_val;
+        $uom = $this->volumeUom ? $this->volumeUom->name : $this->volume_uom;
+
+        return [
+            'full' => "{$value} {$uom}",
+            'abbreviated' => "{$value} " . ($this->volumeUom ? $this->volumeUom->symbol : $this->volume_uom)
+        ];
+    }
+
+
 
 
     /**
@@ -81,6 +153,10 @@ class ItemProfile extends Model
     public function heightUom(): BelongsTo
     {
         return $this->belongsTo(UOM::class, 'height_uom');
+    }
+    public function volumeUom(): BelongsTo
+    {
+        return $this->belongsTo(UOM::class, 'volume_uom');
     }
 
     public function outsideDiameterUom(): BelongsTo

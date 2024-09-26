@@ -12,12 +12,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 trait HasApproval
 {
-
-/**
- * ==================================================
- * MODEL ATTRIBUTES
- * ==================================================
- */
+    /**
+     * ==================================================
+     * MODEL ATTRIBUTES
+     * ==================================================
+     */
     public function setRequestStatus(?string $newStatus)
     {
     }
@@ -31,21 +30,21 @@ trait HasApproval
     }
 
 
-/**
-* ==================================================
-* MODEL RELATIONSHIPS
-* ==================================================
-*/
+    /**
+    * ==================================================
+    * MODEL RELATIONSHIPS
+    * ==================================================
+    */
     public function created_by_user(): BelongsTo
     {
         return $this->belongsTo(User::class, "created_by", "id");
     }
 
-/**
-* ==================================================
-* LOCAL SCOPES
-* ==================================================
-*/
+    /**
+    * ==================================================
+    * LOCAL SCOPES
+    * ==================================================
+    */
     public function scopeMyApprovals(Builder $query): void
     {
         $userId = auth()->user()->id;
@@ -54,12 +53,22 @@ trait HasApproval
             ->whereJsonContains('approvals', ['status' => RequestApprovalStatus::PENDING]);
     }
 
+    public function scopeAuthUserPending(Builder $query): void
+    {
+        $query->whereJsonLength('approvals', '>', 0)
+            ->whereJsonContains('approvals', ['user_id' => auth()->user()->id, 'status' => RequestApprovalStatus::PENDING]);
+    }
+    public function scopeIsApproved(Builder $query): void
+    {
+        $query->where('request_status', RequestApprovalStatus::APPROVED);
+    }
 
-/**
-* ==================================================
-* DYNAMIC SCOPES
-* ==================================================
-*/
+
+    /**
+    * ==================================================
+    * DYNAMIC SCOPES
+    * ==================================================
+    */
     public function completeRequestStatus()
     {
         $this->request_status = RequestApprovalStatus::APPROVED;
@@ -109,9 +118,6 @@ trait HasApproval
     }
     public function updateApproval(?array $data)
     {
-        $userApproval = $this->getUserPendingApproval(auth()->user()->id)->first();
-        $nextApproval = $this->getNextPendingApproval();
-
         // CHECK IF MANPOWER REQUEST ALREADY DISAPPROVED AND SET RESPONSE DATA
         if ($this->requestStatusEnded()) {
             return [
@@ -130,8 +136,9 @@ trait HasApproval
                 "message" => "The request was already completed.",
             ];
         }
-        // CHECK IF THE CURRENT USER HAS PENDING APPROVAL AND SET RESPONSE DATA
-        if (!empty($nextApproval) && $nextApproval['user_id'] != auth()->user()->id) {
+        $currentApproval = $this->getNextPendingApproval();
+        // CHECK IF THERE IS A CURRENT APPROVAL AND IF IS FOR THE LOGGED IN USER
+        if (!empty($currentApproval) && $currentApproval['user_id'] != auth()->user()->id) {
             return [
                 "approvals" => $this->approvals,
                 'success' => false,
@@ -140,26 +147,54 @@ trait HasApproval
             ];
         }
         DB::beginTransaction();
-        // SET NEW MAN POWER REQUEST APPROVAL FOR RESOURCE UPDATE
-        $approvalToUpdate = collect($this->approvals)->search($userApproval);
-        $newApproval = $this->setNewApproval($approvalToUpdate, $data);
-        // SAVE NEW RESOURCE FOR MANPOWER REQUEST
-        $this->approvals = $newApproval;
-        $this->save();
-        if (RequestApprovalStatus::DENIED === $data['status']) {
-            $this->denyRequestStatus();
-        }
-        // IF LAST APPROVAL complete Request Status
-        if (collect($newApproval)->last()['status'] === RequestApprovalStatus::APPROVED) {
-            $this->completeRequestStatus();
+        // UPDATE CURRENT APPROVAL TO DENIED/APPROVED
+        if ($data['status'] === RequestApprovalStatus::DENIED) {
+            $this->denyCurrentApproval($data["remarks"]);
+        } else {
+            $this->approveCurrentApproval();
         }
         DB::commit();
         return [
-            "approvals" => $newApproval,
+            "approvals" => $currentApproval,
             'success' => true,
             "status_code" => JsonResponse::HTTP_OK,
             "message" => $data['status'] === RequestApprovalStatus::APPROVED ? "Successfully approved." : "Successfully denied.",
         ];
     }
 
+    public function approveCurrentApproval()
+    {
+        // USE THIS FUNCTION IF SURE TO APPROVE CURRENT APPROVAL AND VERIFIED IF CURRENT APPROVAL IS CURRENT USER
+        $currentApproval = $this->getNextPendingApproval();
+        $currentApprovalIndex = collect($this->approvals)->search($currentApproval);
+        $this->approvals = collect($this->approvals)->map(function ($approval, $index) use($currentApprovalIndex) {
+            if ($index === $currentApprovalIndex) {
+                $approval["status"] = RequestApprovalStatus::APPROVED;
+                $approval["date_approved"] = Carbon::now()->format('F j, Y h:i A');
+            }
+            return $approval;
+        });
+        $this->save();
+        $this->refresh();
+        if (collect($this->approvals)->last()['status'] === RequestApprovalStatus::APPROVED) {
+            $this->completeRequestStatus();
+        }
+    }
+
+    public function denyCurrentApproval($remarks)
+    {
+        // USE THIS FUNCTION IF SURE TO DENY CURRENT APPROVAL AND VERIFIED IF CURRENT APPROVAL IS CURRENT USER
+        $currentApproval = $this->getNextPendingApproval();
+        $currentApprovalIndex = collect($this->approvals)->search($currentApproval);
+        $this->approvals = collect($this->approvals)->map(function ($approval, $index) use($currentApprovalIndex, $remarks) {
+            if ($index === $currentApprovalIndex) {
+                $approval["status"] = RequestApprovalStatus::DENIED;
+                $approval["date_denied"] = Carbon::now()->format('F j, Y h:i A');
+                $approval["remarks"] = $remarks;
+            }
+            return $approval;
+        });
+        $this->save();
+        $this->denyRequestStatus();
+    }
 }

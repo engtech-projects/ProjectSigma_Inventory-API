@@ -7,11 +7,12 @@ use App\Enums\RequestApprovalStatus;
 use App\Http\Requests\StoreRequestItemProfilingRequest;
 use App\Models\RequestItemProfiling;
 use App\Http\Requests\UpdateRequestItemProfilingRequest;
+use App\Http\Resources\ItemProfileResource;
 use App\Http\Resources\RequestItemProfilingResource;
 use App\Http\Services\RequestItemProfilingService;
 use App\Models\ItemProfile;
 use App\Models\RequestItemProfilingItems;
-use App\Models\User;
+use App\Notifications\RequestItemProfilingForApprovalNotification;
 use App\Traits\HasApproval;
 use App\Utils\PaginateResourceCollection;
 use Illuminate\Http\JsonResponse;
@@ -42,8 +43,8 @@ class RequestItemProfilingController extends Controller
 
     public function get()
     {
-        $main = RequestItemProfiling::with('itemProfiles')->get();
-        $requestResources = RequestItemProfilingResource::collection($main)->collect();
+        $main = ItemProfile::IsApproved()->get();
+        $requestResources = ItemProfileResource::collection($main)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
         return response()->json([
             'message' => 'Successfully fetched.',
@@ -63,7 +64,7 @@ class RequestItemProfilingController extends Controller
         $attributes['created_by'] = auth()->user()->id;
 
         try {
-            DB::transaction(function () use ($attributes) {
+            DB::transaction(function () use ($attributes, $request) {
                 $requestItemProfiling = RequestItemProfiling::create([
                     'approvals' => $attributes['approvals'],
                     'created_by' => $attributes['created_by'],
@@ -71,8 +72,8 @@ class RequestItemProfilingController extends Controller
                 ]);
 
                 foreach ($attributes['item_profiles'] as $itemprofileData) {
-                    $itemProfileData['request_itemprofiling_id'] = $requestItemProfiling->id;
-                    $itemProfileData['active_status'] = ItemProfileActiveStatus::ACTIVE;
+                    $itemprofileData['request_itemprofiling_id'] = $requestItemProfiling->id;
+                    $itemprofileData['active_status'] = ItemProfileActiveStatus::ACTIVE;
 
                     $itemProfile = ItemProfile::create($itemprofileData);
 
@@ -83,9 +84,9 @@ class RequestItemProfilingController extends Controller
                 }
 
                 $requestItemProfiling->refresh();
-                if ($nextPendingApproval = $requestItemProfiling->getNextPendingApproval()) {
-                    $userId = $nextPendingApproval['user_id'];
-                    $user = User::find($userId);
+
+                if ($requestItemProfiling->getNextPendingApproval()) {
+                    $requestItemProfiling->notify(new RequestItemProfilingForApprovalNotification($request->bearerToken(), $requestItemProfiling));
                 }
 
             });

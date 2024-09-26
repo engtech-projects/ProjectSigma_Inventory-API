@@ -7,7 +7,7 @@ use Illuminate\Http\JsonResponse;
 use App\Enums\RequestApprovalStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DisapproveApprovalRequest;
-use App\Models\User;
+use App\Notifications\RequestItemProfilingDeniedNotification;
 use Carbon\Carbon;
 
 class DisapproveApproval extends Controller
@@ -18,10 +18,15 @@ class DisapproveApproval extends Controller
     public function __invoke($modelType, $model, DisapproveApprovalRequest $request)
     {
         $attribute = $request->validated();
-        $result = collect($model->updateApproval(['status' => RequestApprovalStatus::DENIED, 'remarks' => $attribute['remarks'], "date_denied" => Carbon::now()]));
+        $result = collect($model->updateApproval([
+            'status' => RequestApprovalStatus::DENIED,
+            'remarks' => $attribute['remarks'],
+            "date_denied" => Carbon::now()
+        ]));
+
         switch ($modelType) {
             case ApprovalModels::RequestItemProfiling->name:
-                User::find($model->created_by); // Notify Request Creator Request DENIED (leave & cashadvance)
+                $model->notify(new RequestItemProfilingDeniedNotification($request->bearerToken(), $model));
                 break;
 
             default:
