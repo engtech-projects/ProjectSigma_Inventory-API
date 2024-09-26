@@ -52,7 +52,8 @@ class StoreRequestItemProfilingRequest extends FormRequest
             ],
             'item_profiles.*.thickness_val' => [
                 "numeric",
-                "nullable"
+                "nullable",
+                "required_without_all:item_profiles.*.length_val,item_profiles.*.width_val,item_profiles.*.height_val,item_profiles.*.outside_diameter_val,item_profiles.*.inside_diameter_val,item_profiles.*.volume_val,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification"
             ],
             'item_profiles.*.thickness_uom' => [
                 "numeric",
@@ -62,7 +63,8 @@ class StoreRequestItemProfilingRequest extends FormRequest
             ],
             'item_profiles.*.length_val' => [
                 "numeric",
-                "nullable"
+                "nullable",
+                "required_without_all:item_profiles.*.thickness_val,item_profiles.*.width_val,item_profiles.*.height_val,item_profiles.*.outside_diameter_val,item_profiles.*.inside_diameter_val,item_profiles.*.volume_val,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification"
             ],
             'item_profiles.*.length_uom' => [
                 "numeric",
@@ -72,7 +74,8 @@ class StoreRequestItemProfilingRequest extends FormRequest
             ],
             'item_profiles.*.width_val' => [
                 "numeric",
-                "nullable"
+                "nullable",
+                "required_without_all:item_profiles.*.length_val,item_profiles.*.thickness_val,item_profiles.*.height_val,item_profiles.*.outside_diameter_val,item_profiles.*.inside_diameter_val,item_profiles.*.volume_val,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification"
             ],
             'item_profiles.*.width_uom' => [
                 "numeric",
@@ -82,7 +85,8 @@ class StoreRequestItemProfilingRequest extends FormRequest
             ],
             'item_profiles.*.height_val' => [
                 "numeric",
-                "nullable"
+                "nullable",
+                "required_without_all:item_profiles.*.length_val,item_profiles.*.thickness_val,item_profiles.*.width_val,item_profiles.*.outside_diameter_val,item_profiles.*.inside_diameter_val,item_profiles.*.volume_val,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification"
             ],
             'item_profiles.*.height_uom' => [
                 "numeric",
@@ -92,7 +96,8 @@ class StoreRequestItemProfilingRequest extends FormRequest
             ],
             'item_profiles.*.outside_diameter_val' => [
                 "numeric",
-                "nullable"
+                "nullable",
+                "required_without_all:item_profiles.*.length_val,item_profiles.*.thickness_val,item_profiles.*.height_val,item_profiles.*.width_val,item_profiles.*.inside_diameter_val,item_profiles.*.volume_val,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification"
             ],
             'item_profiles.*.outside_diameter_uom' => [
                 "numeric",
@@ -102,7 +107,8 @@ class StoreRequestItemProfilingRequest extends FormRequest
             ],
             'item_profiles.*.inside_diameter_val' => [
                 "numeric",
-                "nullable"
+                "nullable",
+                "required_without_all:item_profiles.*.length_val,item_profiles.*.thickness_val,item_profiles.*.height_val,item_profiles.*.width_val,item_profiles.*.outside_diameter_val,item_profiles.*.volume_val,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification"
             ],
             'item_profiles.*.inside_diameter_uom' => [
                 "numeric",
@@ -111,13 +117,14 @@ class StoreRequestItemProfilingRequest extends FormRequest
                 "exists:setup_uom,id"
             ],
             'item_profiles.*.specification' => [
-                "required",
                 "string",
-                "max:255"
+                "max:255",
+                "required_without_all:item_profiles.*.length_val,item_profiles.*.thickness_val,item_profiles.*.height_val,item_profiles.*.width_val,item_profiles.*.inside_diameter_val,item_profiles.*.volume_val,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.outside_diameter_val"
             ],
             'item_profiles.*.volume_val' => [
                 "numeric",
-                "nullable"
+                "nullable",
+                "required_without_all:item_profiles.*.length_val,item_profiles.*.thickness_val,item_profiles.*.height_val,item_profiles.*.width_val,item_profiles.*.inside_diameter_val,item_profiles.*.outside_diameter_val,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification"
             ],
             'item_profiles.*.volume_uom' => [
                 "numeric",
@@ -128,12 +135,15 @@ class StoreRequestItemProfilingRequest extends FormRequest
             'item_profiles.*.grade' => [
                 "string",
                 "nullable",
-                "max:255"
+                "max:255",
+                "required_without_all:item_profiles.*.length_val,item_profiles.*.thickness_val,item_profiles.*.height_val,item_profiles.*.width_val,item_profiles.*.inside_diameter_val,item_profiles.*.volume_val,item_profiles.*.color,item_profiles.*.outside_diameter_val,item_profiles.*.specification"
+
             ],
             'item_profiles.*.color' => [
                 "string",
                 "nullable",
-                "max:255"
+                "max:255",
+                "required_without_all:item_profiles.*.length_val,item_profiles.*.thickness_val,item_profiles.*.height_val,item_profiles.*.width_val,item_profiles.*.inside_diameter_val,item_profiles.*.volume_val,item_profiles.*.outside_diamter_val,item_profiles.*.grade,item_profiles.*.specification"
             ],
             'item_profiles.*.item_group' => [
                 "string",

@@ -127,7 +127,11 @@ class ItemProfile extends Model
             'abbreviated' => "{$value} " . ($this->volumeUom ? $this->volumeUom->symbol : $this->volume_uom)
         ];
     }
-
+    public function getUomFullNameAttribute()
+    {
+        $uom = $this->uomName ? $this->uomName->name : 'null';
+        return $uom;
+    }
 
 
 
@@ -169,9 +173,9 @@ class ItemProfile extends Model
         return $this->belongsTo(UOM::class, 'inside_diameter_uom');
     }
 
-    public function uom(): BelongsTo
+    public function uomName(): BelongsTo
     {
-        return $this->belongsTo(UOM::class);
+        return $this->belongsTo(UOM::class, 'uom');
     }
 
     public function requestItemprofilingItems(): HasMany

@@ -63,7 +63,7 @@ class RequestItemProfilingController extends Controller
         $attributes['request_status'] = RequestApprovalStatus::PENDING;
         $attributes['created_by'] = auth()->user()->id;
 
-        try {
+        // try {
             DB::transaction(function () use ($attributes, $request) {
                 $requestItemProfiling = RequestItemProfiling::create([
                     'approvals' => $attributes['approvals'],
@@ -82,13 +82,9 @@ class RequestItemProfilingController extends Controller
                         'request_itemprofiling_id' => $requestItemProfiling->id,
                     ]);
                 }
-
-                $requestItemProfiling->refresh();
-
                 if ($requestItemProfiling->getNextPendingApproval()) {
                     $requestItemProfiling->notify(new RequestItemProfilingForApprovalNotification($request->bearerToken(), $requestItemProfiling));
                 }
-
             });
             return new JsonResponse([
                 'success' => true,
@@ -96,12 +92,12 @@ class RequestItemProfilingController extends Controller
                 // 'data' => $attributes['item_profiles'],
             ], JsonResponse::HTTP_OK);
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to save Item Profiles.',
-                'error' => $e->getMessage(),
-            ], 400);
-        }
+        // } catch (\Exception $e) {
+        //     return response()->json([
+        //         'message' => 'Failed to save Item Profiles.',
+        //         'error' => $e->getMessage(),
+        //     ], 400);
+        // }
     }
 
     /**

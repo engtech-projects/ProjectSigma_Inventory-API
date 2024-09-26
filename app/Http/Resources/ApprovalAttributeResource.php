@@ -15,6 +15,6 @@ class ApprovalAttributeResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return HrmsService::formatApprovals($request->bearerToken(), $this->all());
+        return HrmsService::formatApprovals($request->bearerToken(), $this->resource);
     }
 }
