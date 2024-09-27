@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\BulkUploadItemProfile;
 use App\Http\Services\ItemProfileBulkUploadService;
+use Illuminate\Http\Request;
 
 class ItemProfileBulkUploadController extends Controller
 {
@@ -19,13 +20,13 @@ class ItemProfileBulkUploadController extends Controller
 
         if ($request->hasFile('file')) {
             $file = $validated['file'];
-            $filePath = $file->storeAs('uploads', 'bulk_upload_' . time() . '.' . $file->getClientOriginalExtension());
+            $fileContent = file_get_contents($file->getRealPath());
+            $rows = array_map('str_getcsv', explode("\n", $fileContent));
 
-            list($processed, $duplicates, $unprocessed) = $this->itemProfileBulkUploadService->parseCsv($filePath);
+            list($processed, $duplicates, $unprocessed) = $this->itemProfileBulkUploadService->parseCsv($rows);
 
             return response()->json([
-                'message' => 'CSV File Uploaded Successfully.',
-                'file_path' => $filePath,
+                'message' => 'CSV File Parsed Successfully.',
                 'processed' => $processed,
                 'duplicates' => $duplicates,
                 'unprocessed' => $unprocessed
@@ -36,4 +37,5 @@ class ItemProfileBulkUploadController extends Controller
             'message' => 'No file uploaded.'
         ], 400);
     }
+
 }

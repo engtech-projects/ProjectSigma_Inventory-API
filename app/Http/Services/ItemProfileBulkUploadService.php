@@ -8,11 +8,15 @@ use Illuminate\Support\Facades\Storage;
 
 class ItemProfileBulkUploadService
 {
-    public function parseCsv($filePath)
+    public function parseCsv(array $rows)
     {
-        $file = Storage::get($filePath);
-        $rows = array_map('str_getcsv', explode("\n", $file));
-        $header = array_shift($rows);
+        $header = [
+            'Item Description', 'Thickness', 'Thickness UOM', 'Length', 'Length UOM',
+            'Width', 'Width UOM', 'Height', 'Height UOM', 'Outside Diameter',
+            'Outside Diameter UOM', 'Inside Diameter', 'Inside Diameter UOM', 'Volume',
+            'Volume UOM', 'Specification', 'Grade', 'Color', 'UOM', 'Item Group',
+            'Sub Item Group', 'Inventory Type'
+        ];
 
         $processed = [];
         $duplicates = [];
@@ -28,7 +32,9 @@ class ItemProfileBulkUploadService
             ->pluck('name')
             ->toArray();
 
-        foreach ($rows as $row) {
+        $dataRows = array_slice($rows, 1);
+
+        foreach ($dataRows as $row) {
             if (count($row) == count($header)) {
                 $data = array_combine($header, $row);
 
@@ -56,8 +62,6 @@ class ItemProfileBulkUploadService
                     'sub_item_group' => $data['Sub Item Group'] ?? null,
                     'inventory_type' => $data['Inventory Type'] ?? null,
                 ];
-
-                // dd($validUOMGroup);
 
                 $requiredFields = [
                     'item_description', 'uom', 'item_group', 'sub_item_group', 'inventory_type'
