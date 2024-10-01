@@ -51,6 +51,7 @@ Route::middleware('auth:api')->group(function () {
         Route::patch('{resource}/activate', [ItemProfileController::class, 'activate']);
         Route::patch('{resource}/deactivate', [ItemProfileController::class, 'deactivate']);
         Route::post('bulk-upload', [ItemProfileBulkUploadController::class, 'bulkUpload']);
+        Route::post('bulk-save', [ItemProfileBulkUploadController::class, 'bulkSave']);
     });
     Route::prefix('approvals')->group(function () {
         Route::post('approve/{modelName}/{model}', ApproveApproval::class);

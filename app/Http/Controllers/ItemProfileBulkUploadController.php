@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BulkItemProfileRequest;
 use App\Http\Requests\BulkUploadItemProfile;
 use App\Http\Services\ItemProfileBulkUploadService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ItemProfileBulkUploadController extends Controller
 {
@@ -36,6 +38,29 @@ class ItemProfileBulkUploadController extends Controller
         return response()->json([
             'message' => 'No file uploaded.'
         ], 400);
+    }
+
+    public function bulkSave(BulkItemProfileRequest $request)
+    {
+        $validatedData = $request->validated();
+        $processedData = $validatedData['processed'];
+
+        if (empty($processedData)) {
+            return response()->json(['message' => 'No processed data to save.'], 400);
+        }
+
+        try {
+            DB::transaction(function () use ($processedData) {
+                $this->itemProfileBulkUploadService->selectedItems($processedData);
+            });
+
+            return response()->json(['message' => 'Data saved successfully!'], 200);
+        } catch (\Throwable $error) {
+            return response()->json([
+                'message' => 'Failed to save item profile data.',
+                'error' => $error->getMessage(),
+            ], 500);
+        }
     }
 
 }

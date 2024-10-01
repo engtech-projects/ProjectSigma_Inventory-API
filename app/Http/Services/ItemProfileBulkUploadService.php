@@ -5,6 +5,7 @@ namespace App\Http\Services;
 use App\Models\ItemProfile;
 use App\Models\UOM;
 use App\Models\UOMGroup;
+use Illuminate\Support\Facades\DB;
 
 class ItemProfileBulkUploadService
 {
@@ -15,11 +16,13 @@ class ItemProfileBulkUploadService
             'Thickness',
             'Thickness UOM',
             'Length',
-            'Length UOM','Width',
+            'Length UOM',
+            'Width',
             'Width UOM',
             'Height',
             'Height UOM',
-            'Outside Diameter','Outside Diameter UOM',
+            'Outside Diameter',
+            'Outside Diameter UOM',
             'Inside Diameter',
             'Inside Diameter UOM',
             'Volume',
@@ -73,23 +76,44 @@ class ItemProfileBulkUploadService
                 ];
 
                 $requiredFields = [
-                    'item_description', 'uom', 'item_group', 'sub_item_group', 'inventory_type'
+                    'item_description',
+                    'uom',
+                    'item_group',
+                    'sub_item_group',
+                    'inventory_type'
                 ];
 
                 $specificationFields = [
-                    'thickness_val', 'length_val', 'width_val', 'height_val',
-                    'outside_diameter_val', 'inside_diameter_val', 'volume_val',
-                    'color', 'grade', 'specification'
+                    'thickness_val',
+                    'length_val',
+                    'width_val',
+                    'height_val',
+                    'outside_diameter_val',
+                    'inside_diameter_val',
+                    'volume_val',
+                    'color',
+                    'grade',
+                    'specification'
                 ];
 
                 $numericFields = [
-                    'thickness_val', 'length_val', 'width_val', 'height_val',
-                    'outside_diameter_val', 'inside_diameter_val', 'volume_val'
+                    'thickness_val',
+                    'length_val',
+                    'width_val',
+                    'height_val',
+                    'outside_diameter_val',
+                    'inside_diameter_val',
+                    'volume_val'
                 ];
 
                 $uomFields = [
-                    'thickness_uom', 'length_uom', 'width_uom', 'height_uom',
-                    'outside_diameter_uom', 'inside_diameter_uom', 'volume_uom'
+                    'thickness_uom',
+                    'length_uom',
+                    'width_uom',
+                    'height_uom',
+                    'outside_diameter_uom',
+                    'inside_diameter_uom',
+                    'volume_uom'
                 ];
 
                 $uomGroups = [
@@ -161,9 +185,8 @@ class ItemProfileBulkUploadService
                     }
                 }
 
-                // $filteredData['sku'] = $this->generateSKU($filteredData);
+                $filteredData['sku'] = $this->generateSKU($filteredData);
 
-                // Add to unprocessed if there are errors, otherwise check for duplicates
                 if ($isUnprocessed) {
                     $unprocessed[] = $filteredData;
                 } else {
@@ -182,6 +205,72 @@ class ItemProfileBulkUploadService
         }
 
         return [$processed, $duplicates, $unprocessed];
+    }
+
+    private function generateSKU(array $filteredData): string
+    {
+        $skuPrefix = strtoupper(substr($filteredData['item_description']['value'] ?? '', 0, 3));
+
+        foreach ([
+            ['thickness_val', 'thickness_uom'],
+            ['length_val', 'length_uom'],
+            ['width_val', 'width_uom'],
+            ['height_val', 'height_uom'],
+            ['outside_diameter_val', 'outside_diameter_uom'],
+            ['inside_diameter_val', 'inside_diameter_uom'],
+            ['volume_val', 'volume_uom']
+        ] as [$valField, $uomField]) {
+            $value = $filteredData[$valField]['value'] ?? null;
+            $uom = $filteredData[$uomField]['value'] ?? null;
+
+            if ($value && $uom) {
+                return $skuPrefix . strtoupper($value . preg_replace('/\s+/', '', $uom));
+            }
+        }
+
+        foreach (['specification', 'grade', 'color'] as $specField) {
+            $specFieldsValue = $filteredData[$specField]['value'] ?? null;
+
+            if ($specFieldsValue) {
+                return $skuPrefix . strtoupper(substr(preg_replace('/\s+/', '', $specFieldsValue), -3));
+            }
+        }
+
+        return $skuPrefix;
+    }
+
+
+    public function selectedItems(array $processed)
+    {
+        $itemsToInsert = array_map(fn($item) => [
+            'sku' => $item['sku'],
+            'item_description' => $item['item_description']['value'],
+            'thickness_val' => $item['thickness_val']['value'] ?? null,
+            'thickness_uom' => $item['thickness_uom']['uom_id'] ?? null,
+            'length_val' => $item['length_val']['value'] ?? null,
+            'length_uom' => $item['length_uom']['uom_id'] ?? null,
+            'width_val' => $item['width_val']['value'] ?? null,
+            'width_uom' => $item['width_uom']['uom_id'] ?? null,
+            'height_val' => $item['height_val']['value'] ?? null,
+            'height_uom' => $item['height_uom']['uom_id'] ?? null,
+            'outside_diameter_val' => $item['outside_diameter_val']['value'] ?? null,
+            'outside_diameter_uom' => $item['outside_diameter_uom']['uom_id'] ?? null,
+            'inside_diameter_val' => $item['inside_diameter_val']['value'] ?? null,
+            'inside_diameter_uom' => $item['inside_diameter_uom']['uom_id'] ?? null,
+            'volume_val' => $item['volume_val']['value'] ?? null,
+            'volume_uom' => $item['volume_uom']['uom_id'] ?? null,
+            'specification' => $item['specification']['value'] ?? null,
+            'grade' => $item['grade']['value'] ?? null,
+            'color' => $item['color']['value'] ?? null,
+            'uom' => $item['uom']['uom_group_id'],
+            'item_group' => $item['item_group']['value'],
+            'sub_item_group' => $item['sub_item_group']['value'],
+            'inventory_type' => $item['inventory_type']['value'],
+            'created_at' => now(),
+            'updated_at' => now(),
+        ], $processed);
+
+        ItemProfile::insert($itemsToInsert);
     }
 
 }
