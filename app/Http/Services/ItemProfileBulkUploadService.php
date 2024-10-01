@@ -35,6 +35,16 @@ class ItemProfileBulkUploadService
             'Sub Item Group',
             'Inventory Type'
         ];
+        $headers = $rows[0] ?? [];
+
+    $missingHeaders = array_diff($header, $headers);
+    $extraHeaders = array_diff($headers, $header);
+
+    if (!empty($missingHeaders) || !empty($extraHeaders)) {
+        return [
+            'error' => 'Incorrect CSV template. Missing Headers: ' . implode(', ', $missingHeaders) . '. Extra headers: ' . implode(', ', $extraHeaders)
+        ];
+    }
 
         $processed = [];
         $duplicates = [];
