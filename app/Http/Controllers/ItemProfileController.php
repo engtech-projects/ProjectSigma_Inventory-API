@@ -29,7 +29,7 @@ class ItemProfileController extends Controller
 
     public function get()
     {
-        $main = ItemProfile::where("is_approved", 1)->get();
+        $main = ItemProfile::isApproved()->get();
         $requestResources = ItemProfileResource::collection($main)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
 
