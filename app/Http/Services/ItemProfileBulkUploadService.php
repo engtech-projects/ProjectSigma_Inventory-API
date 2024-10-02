@@ -266,6 +266,7 @@ class ItemProfileBulkUploadService
             'item_group' => $item['item_group']['value'],
             'sub_item_group' => $item['sub_item_group']['value'],
             'inventory_type' => $item['inventory_type']['value'],
+            'is_approved' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ], $processed);
