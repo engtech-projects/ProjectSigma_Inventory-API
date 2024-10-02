@@ -10,6 +10,7 @@ use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
 use App\Http\Controllers\RequestItemProfilingController;
 use App\Http\Controllers\UOMGroupController;
+use App\Http\Controllers\WarehouseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,5 +56,9 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('approvals')->group(function () {
         Route::post('approve/{modelName}/{model}', ApproveApproval::class);
         Route::post('disapprove/{modelName}/{model}', DisapproveApproval::class);
+    });
+    Route::prefix('warehouse')->group(function () {
+        Route::resource('resource', WarehouseController::class)->names("warehouseresource");
+        Route::get('list', [WarehouseController::class, 'get']);
     });
 });
