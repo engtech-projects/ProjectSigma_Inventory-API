@@ -9,6 +9,7 @@ use App\Models\RequestItemProfiling;
 use App\Http\Requests\UpdateRequestItemProfilingRequest;
 use App\Http\Resources\ItemProfileResource;
 use App\Http\Resources\RequestItemProfilingResource;
+use App\Http\Resources\RequestItemProfilingResourceList;
 use App\Http\Services\RequestItemProfilingService;
 use App\Models\ItemProfile;
 use App\Models\RequestItemProfilingItems;
@@ -105,8 +106,6 @@ class RequestItemProfilingController extends Controller
      */
     public function show(RequestItemProfiling $resource)
     {
-        $requestResources = RequestItemProfilingResource::collection(([$resource]))->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,
@@ -169,7 +168,7 @@ class RequestItemProfilingController extends Controller
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestItemProfilingResource::collection($myRequest)->collect();
+        $requestResources = RequestItemProfilingResourceList::collection($myRequest)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
 
         return new JsonResponse([
@@ -189,7 +188,7 @@ class RequestItemProfilingController extends Controller
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestItemProfilingResource::collection($myRequest)->collect();
+        $requestResources = RequestItemProfilingResourceList::collection($myRequest)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
 
         return new JsonResponse([
@@ -209,7 +208,7 @@ class RequestItemProfilingController extends Controller
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestItemProfilingResource::collection($myRequest)->collect();
+        $requestResources = RequestItemProfilingResourceList::collection($myRequest)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
 
         return new JsonResponse([
@@ -230,7 +229,7 @@ class RequestItemProfilingController extends Controller
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestItemProfilingResource::collection($myApproval)->collect();
+        $requestResources = RequestItemProfilingResourceList::collection($myApproval)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
         return new JsonResponse([
             'success' => true,

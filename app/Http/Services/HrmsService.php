@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class HrmsService
 {
@@ -28,10 +29,9 @@ class HrmsService
             ->acceptJson()
             ->withQueryParameters($approvals)
             ->get(config('services.url.hrms_api_url')."/api/services/format-approvals");
-
         if (!$response->successful()) {
             return $approvals;
         }
-        return $response->json();
+        return $response->json()["data"];
     }
 }
