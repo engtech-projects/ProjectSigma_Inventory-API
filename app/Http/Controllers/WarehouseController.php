@@ -7,10 +7,42 @@ use App\Http\Requests\UpdateWarehouseRequest;
 use App\Models\Warehouse;
 use App\Utils\PaginateResourceCollection;
 
+/**
+ * @OA\Tag(
+ *     name="user",
+ *     description="User related operations"
+ * )
+ * @OA\Info(
+ *     version="1.0",
+ *     title="Example API",
+ *     description="Example info",
+ *     @OA\Contact(name="Swagger API Team")
+ * )
+ * @OA\Server(
+ *     url="https://example.localhost",
+ *     description="API server"
+ * )
+ */
+
 class WarehouseController extends Controller
 {
+
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="warehouse/resource",
+     *     tags={"Warehouse"},
+     *     summary="Get all warehouses",
+     *     description="Retrieves a list of all warehouses",
+     *     @OA\Response(
+     *         response=200,
+     *         description="A list of warehouses",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Warehouse"))
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
+     *     )
+     * )
      */
     public function index()
     {
@@ -33,8 +65,22 @@ class WarehouseController extends Controller
         return response()->json($data);
     }
 
-    /**
-     * Store a newly created resource in storage.
+
+     /**
+     * @OA\Post(
+     *     path="/warehouse/resource",
+     *     tags={"Warehouse"},
+     *     summary="Create a new warehouse",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Warehouse")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Warehouse created",
+     *         @OA\JsonContent(ref="#/components/schemas/Warehouse")
+     *     )
+     * )
      */
     public function store(StoreWarehouseRequest $request, Warehouse $resource)
     {
