@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreWarehousePssRequest;
 use App\Http\Requests\UpdateWarehousePssRequest;
+use App\Http\Resources\WarehousePssResource;
 use App\Http\Services\HrmsService;
 use App\Models\Warehouse;
 use App\Models\WarehousePss;
@@ -30,11 +31,14 @@ class WarehousePssController extends Controller
     public function get()
     {
         $main = WarehousePss::get();
-        $data = json_decode('{}');
-        $data->message = "Successfully fetched.";
-        $data->success = true;
-        $data->data = $main;
-        return response()->json($data);
+        $requestResources = WarehousePssResource::collection($main)->collect();
+        $paginated = PaginateResourceCollection::paginate($requestResources);
+
+        return response()->json([
+            'message' => 'Successfully fetched.',
+            'success' => true,
+            'data' => $paginated,
+        ]);
     }
 
     /**

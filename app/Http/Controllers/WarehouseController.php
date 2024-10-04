@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreWarehouseRequest;
 use App\Http\Requests\UpdateWarehouseRequest;
+use App\Http\Resources\WarehouseResource;
 use App\Models\Warehouse;
 use App\Utils\PaginateResourceCollection;
 
@@ -58,11 +59,14 @@ class WarehouseController extends Controller
     public function get()
     {
         $main = Warehouse::get();
-        $data = json_decode('{}');
-        $data->message = "Successfully fetched.";
-        $data->success = true;
-        $data->data = $main;
-        return response()->json($data);
+        $requestResources = WarehouseResource::collection($main)->collect();
+        $paginated = PaginateResourceCollection::paginate($requestResources);
+
+        return response()->json([
+            'message' => 'Successfully fetched.',
+            'success' => true,
+            'data' => $paginated,
+        ]);
     }
 
 
