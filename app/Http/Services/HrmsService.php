@@ -3,7 +3,6 @@
 namespace App\Http\Services;
 
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class HrmsService
 {

@@ -5,7 +5,6 @@ namespace App\Http\Services;
 use App\Models\ItemProfile;
 use App\Models\UOM;
 use App\Models\UOMGroup;
-use Illuminate\Support\Facades\DB;
 
 class ItemProfileBulkUploadService
 {
@@ -37,14 +36,14 @@ class ItemProfileBulkUploadService
         ];
         $headers = $rows[0] ?? [];
 
-    $missingHeaders = array_diff($header, $headers);
-    $extraHeaders = array_diff($headers, $header);
+        $missingHeaders = array_diff($header, $headers);
+        $extraHeaders = array_diff($headers, $header);
 
-    if (!empty($missingHeaders) || !empty($extraHeaders)) {
-        return [
-            'error' => 'Incorrect CSV template. Missing Headers: ' . implode(', ', $missingHeaders) . '. Extra headers: ' . implode(', ', $extraHeaders)
-        ];
-    }
+        if (!empty($missingHeaders) || !empty($extraHeaders)) {
+            return [
+                'error' => 'Incorrect CSV template. Missing Headers: ' . implode(', ', $missingHeaders) . '. Extra headers: ' . implode(', ', $extraHeaders)
+            ];
+        }
 
         $processed = [];
         $duplicates = [];
@@ -195,7 +194,7 @@ class ItemProfileBulkUploadService
                     }
                 }
 
-                $filteredData['sku'] = $this->generateSKU($filteredData);
+                $filteredData['item_code'] = $this->generateSKU($filteredData);
 
                 if ($isUnprocessed) {
                     $unprocessed[] = $filteredData;
@@ -252,8 +251,8 @@ class ItemProfileBulkUploadService
 
     public function selectedItems(array $processed)
     {
-        $itemsToInsert = array_map(fn($item) => [
-            'sku' => $item['sku'],
+        $itemsToInsert = array_map(fn ($item) => [
+            'item_code' => $item['item_code'],
             'item_description' => $item['item_description']['value'],
             'thickness_val' => $item['thickness_val']['value'] ?? null,
             'thickness_uom' => $item['thickness_uom']['uom_id'] ?? null,

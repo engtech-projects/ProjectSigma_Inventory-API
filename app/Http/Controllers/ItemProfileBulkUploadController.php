@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BulkItemProfileRequest;
 use App\Http\Requests\BulkUploadItemProfile;
 use App\Http\Services\ItemProfileBulkUploadService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ItemProfileBulkUploadController extends Controller
