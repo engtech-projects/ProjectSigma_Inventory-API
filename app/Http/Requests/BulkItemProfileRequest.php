@@ -36,7 +36,7 @@ class BulkItemProfileRequest extends FormRequest
             "processed.*" => 'required|array',
 
             // Required fields
-            "processed.*.sku" => 'required|string|max:10',
+            "processed.*.item_code" => 'required|string|max:10',
             "processed.*.item_description.value" => 'required|string|max:255',
             "processed.*.uom.uom_group_id" => 'required|exists:setup_uom_group,id',
             "processed.*.item_group.value" => 'required|string|max:50',
@@ -67,7 +67,7 @@ class BulkItemProfileRequest extends FormRequest
     {
         return [
             'processed.required' => 'The processed items are required.',
-            'processed.*.sku.required' => 'The SKU is required.',
+            'processed.*.item_code.required' => 'The Item code is required.',
             'processed.*.item_description.value.required' => 'Item description is required.',
             'processed.*.uom.uom_group_id.required' => 'UOM group ID is required.',
             'processed.*.uom.uom_group_id.exists' => 'The selected UOM group ID is invalid.',

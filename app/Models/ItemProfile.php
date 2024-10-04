@@ -16,7 +16,7 @@ class ItemProfile extends Model
 
     protected $table = 'item_profile';
     protected $fillable = [
-        'sku',
+        'item_code',
         'item_description',
         'thickness_val',
         'thickness_uom',
