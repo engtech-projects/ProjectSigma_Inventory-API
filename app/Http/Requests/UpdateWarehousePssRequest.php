@@ -22,8 +22,12 @@ class UpdateWarehousePssRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required',
-            'warehouse_id' => 'required|exists:warehouse,id',
+            'user_ids' => "required|array|min:1",
+            'user_ids.*' => [
+                'required',
+                'numeric',
+            ],
+            'warehouse_id' => 'exists:warehouse,id',
         ];
     }
 }

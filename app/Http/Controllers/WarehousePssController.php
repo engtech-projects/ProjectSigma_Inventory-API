@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreWarehousePssRequest;
 use App\Http\Requests\UpdateWarehousePssRequest;
 use App\Http\Resources\WarehousePssResource;
+use App\Http\Resources\WarehouseResource;
 use App\Http\Services\HrmsService;
 use App\Models\Warehouse;
 use App\Models\WarehousePss;
@@ -69,25 +70,45 @@ class WarehousePssController extends Controller
     /**
      * Update the specified resource in storage.
      */
-   public function update(UpdateWarehousePssRequest $request, WarehousePss $warehousePss)
+
+    public function update(UpdateWarehousePssRequest $request, Warehouse $warehouse_id)
     {
-        $warehousePss->fill($request->validated());
+        $userIds = $request->input('user_ids');
 
-        $warehousePss->user_id = $request->input('id');
+        $currentUserIds = $warehouse_id->warehousePss->pluck('user_id')->toArray();
 
-        if ($warehousePss->save()) {
-            return response()->json([
-                "message" => "PSS Successfully Assigned.",
-                "success" => true,
-                "data" => $warehousePss->refresh()
-            ]);
+        $newUserIds = array_diff($userIds, $currentUserIds);
+        $alreadyAssignedUserIds = array_intersect($userIds, $currentUserIds);
+
+        $responseMessage = "";
+        $success = false;
+
+        if (!empty($newUserIds)) {
+            foreach ($newUserIds as $userId) {
+                $warehouse_id->warehousePss()->create([
+                    'user_id' => $userId,
+                ]);
+            }
+            $responseMessage .= "Successfully assigned new PSS.";
+            $success = true;
+        }
+
+        if (!empty($alreadyAssignedUserIds)) {
+            if (!empty($responseMessage)) {
+                $responseMessage .= " ";
+            }
+            $responseMessage .= "The user(s) are already assigned.";
+        }
+
+        if (empty($newUserIds) && !empty($alreadyAssignedUserIds)) {
+            $success = false;
         }
 
         return response()->json([
-            "message" => "Failed to Assign PSS.",
-            "success" => false,
-            "data" => $warehousePss
-        ], 400);
+            "message" => $responseMessage ?: "No users were assigned.",
+            "success" => $success,
+            "data" => $warehouse_id->load('warehousePss')
+        ]);
     }
 
 

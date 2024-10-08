@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AccessibilityInventory;
 use App\Http\Requests\StoreWarehouseRequest;
 use App\Http\Requests\UpdateWarehouseRequest;
 use App\Http\Resources\WarehouseResource;
+use App\Http\Traits\CheckAccessibility;
 use App\Models\Warehouse;
-use App\Utils\PaginateResourceCollection;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @OA\Tag(
@@ -27,6 +29,7 @@ use App\Utils\PaginateResourceCollection;
 
 class WarehouseController extends Controller
 {
+    use CheckAccessibility;
 
     /**
      * @OA\Get(
@@ -45,47 +48,58 @@ class WarehouseController extends Controller
      *     )
      * )
      */
+
     public function index()
     {
-        $main = Warehouse::get();
-        $paginated = PaginateResourceCollection::paginate($main);
-        $data = json_decode('{}');
-        $data->message = "Request Warehouse Successfully Fetched.";
-        $data->success = true;
-        $data->data = $paginated;
-        return response()->json($data);
+        $user = Auth::user();
+        $userAccessibilitiesNames = $user->accessibilities_name;
+
+        if ($this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value])) {
+            $main = Warehouse::all();
+        } else {
+            $main = Warehouse::whereHas('warehousePss', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->get();
+        }
+
+        $requestResources = WarehouseResource::collection($main)->collect();
+        return response()->json([
+            'message' => 'Successfully fetched.',
+            'success' => true,
+            'data' => $requestResources,
+        ]);
     }
 
     public function get()
     {
         $main = Warehouse::get();
         $requestResources = WarehouseResource::collection($main)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
 
         return response()->json([
             'message' => 'Successfully fetched.',
             'success' => true,
-            'data' => $paginated,
+            'data' => $requestResources,
         ]);
+
     }
 
 
-     /**
-     * @OA\Post(
-     *     path="/warehouse/resource",
-     *     tags={"Warehouse"},
-     *     summary="Create a new warehouse",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/Warehouse")
-     *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="Warehouse created",
-     *         @OA\JsonContent(ref="#/components/schemas/Warehouse")
-     *     )
-     * )
-     */
+    /**
+    * @OA\Post(
+    *     path="/warehouse/resource",
+    *     tags={"Warehouse"},
+    *     summary="Create a new warehouse",
+    *     @OA\RequestBody(
+    *         required=true,
+    *         @OA\JsonContent(ref="#/components/schemas/Warehouse")
+    *     ),
+    *     @OA\Response(
+    *         response=201,
+    *         description="Warehouse created",
+    *         @OA\JsonContent(ref="#/components/schemas/Warehouse")
+    *     )
+    * )
+    */
     public function store(StoreWarehouseRequest $request, Warehouse $resource)
     {
         $saved = $resource->create($request->validated());
@@ -99,14 +113,25 @@ class WarehouseController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Warehouse $resource)
+    public function show(Warehouse $warehouse_id)
     {
+        $user = Auth::user();
+
+        if ($this->checkUserAccess([AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value]) || $warehouse_id->warehousePss->contains('user_id', $user->id)) {
+
+            return response()->json([
+                "message" => "Successfully fetched.",
+                "success" => true,
+                "data" => new WarehouseResource($warehouse_id)
+            ]);
+        }
+
         return response()->json([
-            "message" => "Successfully fetched.",
-            "success" => true,
-            "data" => $resource
-        ]);
+            "message" => "Unauthorized Access.",
+            "success" => false
+        ], 403);
     }
+
 
     /**
      * Update the specified resource in storage.

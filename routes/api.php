@@ -61,8 +61,7 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::prefix('warehouse')->group(function () {
         Route::resource('resource', WarehouseController::class)->names("warehouseresource");
-        Route::get('list', [WarehouseController::class, 'get']);
-
-        Route::patch('set-pss/{warehousePss}', [WarehousePssController::class, 'update']);
+        Route::get('overview/{warehouse_id}', [WarehouseController::class, 'show']);
+        Route::patch('set-pss/{warehouse_id}', [WarehousePssController::class, 'update']);
     });
 });
