@@ -11,6 +11,7 @@ use App\Http\Controllers\ItemProfileController;
 use App\Http\Controllers\RequestItemProfilingController;
 use App\Http\Controllers\UOMGroupController;
 use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\WarehousePssController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,6 +61,7 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::prefix('warehouse')->group(function () {
         Route::resource('resource', WarehouseController::class)->names("warehouseresource");
-        Route::get('list', [WarehouseController::class, 'get']);
+        Route::get('overview/{warehouse_id}', [WarehouseController::class, 'show']);
+        Route::patch('set-pss/{warehouse_id}', [WarehousePssController::class, 'update']);
     });
 });

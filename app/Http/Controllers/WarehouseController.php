@@ -2,40 +2,104 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AccessibilityInventory;
 use App\Http\Requests\StoreWarehouseRequest;
 use App\Http\Requests\UpdateWarehouseRequest;
+use App\Http\Resources\WarehouseResource;
+use App\Http\Traits\CheckAccessibility;
 use App\Models\Warehouse;
-use App\Utils\PaginateResourceCollection;
+use Illuminate\Support\Facades\Auth;
+
+/**
+ * @OA\Tag(
+ *     name="user",
+ *     description="User related operations"
+ * )
+ * @OA\Info(
+ *     version="1.0",
+ *     title="Example API",
+ *     description="Example info",
+ *     @OA\Contact(name="Swagger API Team")
+ * )
+ * @OA\Server(
+ *     url="https://example.localhost",
+ *     description="API server"
+ * )
+ */
 
 class WarehouseController extends Controller
 {
+    use CheckAccessibility;
+
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="warehouse/resource",
+     *     tags={"Warehouse"},
+     *     summary="Get all warehouses",
+     *     description="Retrieves a list of all warehouses",
+     *     @OA\Response(
+     *         response=200,
+     *         description="A list of warehouses",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Warehouse"))
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
+     *     )
+     * )
      */
+
     public function index()
     {
-        $main = Warehouse::get();
-        $paginated = PaginateResourceCollection::paginate($main);
-        $data = json_decode('{}');
-        $data->message = "Request Warehouse Successfully Fetched.";
-        $data->success = true;
-        $data->data = $paginated;
-        return response()->json($data);
+        $user = Auth::user();
+        $userAccessibilitiesNames = $user->accessibilities_name;
+
+        if ($this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value])) {
+            $main = Warehouse::all();
+        } else {
+            $main = Warehouse::whereHas('warehousePss', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->get();
+        }
+
+        $requestResources = WarehouseResource::collection($main)->collect();
+        return response()->json([
+            'message' => 'Successfully fetched.',
+            'success' => true,
+            'data' => $requestResources,
+        ]);
     }
 
     public function get()
     {
         $main = Warehouse::get();
-        $data = json_decode('{}');
-        $data->message = "Successfully fetched.";
-        $data->success = true;
-        $data->data = $main;
-        return response()->json($data);
+        $requestResources = WarehouseResource::collection($main)->collect();
+
+        return response()->json([
+            'message' => 'Successfully fetched.',
+            'success' => true,
+            'data' => $requestResources,
+        ]);
+
     }
 
+
     /**
-     * Store a newly created resource in storage.
-     */
+    * @OA\Post(
+    *     path="/warehouse/resource",
+    *     tags={"Warehouse"},
+    *     summary="Create a new warehouse",
+    *     @OA\RequestBody(
+    *         required=true,
+    *         @OA\JsonContent(ref="#/components/schemas/Warehouse")
+    *     ),
+    *     @OA\Response(
+    *         response=201,
+    *         description="Warehouse created",
+    *         @OA\JsonContent(ref="#/components/schemas/Warehouse")
+    *     )
+    * )
+    */
     public function store(StoreWarehouseRequest $request, Warehouse $resource)
     {
         $saved = $resource->create($request->validated());
@@ -49,14 +113,25 @@ class WarehouseController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Warehouse $resource)
+    public function show(Warehouse $warehouse_id)
     {
+        $user = Auth::user();
+
+        if ($this->checkUserAccess([AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value]) || $warehouse_id->warehousePss->contains('user_id', $user->id)) {
+
+            return response()->json([
+                "message" => "Successfully fetched.",
+                "success" => true,
+                "data" => new WarehouseResource($warehouse_id)
+            ]);
+        }
+
         return response()->json([
-            "message" => "Successfully fetched.",
-            "success" => true,
-            "data" => $resource
-        ]);
+            "message" => "Unauthorized Access.",
+            "success" => false
+        ], 403);
     }
+
 
     /**
      * Update the specified resource in storage.
