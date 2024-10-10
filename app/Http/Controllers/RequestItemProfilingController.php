@@ -65,33 +65,33 @@ class RequestItemProfilingController extends Controller
         $attributes['created_by'] = auth()->user()->id;
 
         // try {
-            DB::transaction(function () use ($attributes, $request) {
-                $requestItemProfiling = RequestItemProfiling::create([
-                    'approvals' => $attributes['approvals'],
-                    'created_by' => $attributes['created_by'],
-                    'request_status' => $attributes['request_status'],
+        DB::transaction(function () use ($attributes, $request) {
+            $requestItemProfiling = RequestItemProfiling::create([
+                'approvals' => $attributes['approvals'],
+                'created_by' => $attributes['created_by'],
+                'request_status' => $attributes['request_status'],
+            ]);
+
+            foreach ($attributes['item_profiles'] as $itemprofileData) {
+                $itemprofileData['request_itemprofiling_id'] = $requestItemProfiling->id;
+                $itemprofileData['active_status'] = ItemProfileActiveStatus::ACTIVE;
+
+                $itemProfile = ItemProfile::create($itemprofileData);
+
+                RequestItemProfilingItems::create([
+                    'item_profile_id' => $itemProfile->id,
+                    'request_itemprofiling_id' => $requestItemProfiling->id,
                 ]);
-
-                foreach ($attributes['item_profiles'] as $itemprofileData) {
-                    $itemprofileData['request_itemprofiling_id'] = $requestItemProfiling->id;
-                    $itemprofileData['active_status'] = ItemProfileActiveStatus::ACTIVE;
-
-                    $itemProfile = ItemProfile::create($itemprofileData);
-
-                    RequestItemProfilingItems::create([
-                        'item_profile_id' => $itemProfile->id,
-                        'request_itemprofiling_id' => $requestItemProfiling->id,
-                    ]);
-                }
-                if ($requestItemProfiling->getNextPendingApproval()) {
-                    $requestItemProfiling->notify(new RequestItemProfilingForApprovalNotification($request->bearerToken(), $requestItemProfiling));
-                }
-            });
-            return new JsonResponse([
-                'success' => true,
-                'message' => 'Item Profiles Successfully Saved.',
-                // 'data' => $attributes['item_profiles'],
-            ], JsonResponse::HTTP_OK);
+            }
+            if ($requestItemProfiling->getNextPendingApproval()) {
+                $requestItemProfiling->notify(new RequestItemProfilingForApprovalNotification($request->bearerToken(), $requestItemProfiling));
+            }
+        });
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Item Profiles Successfully Saved.',
+            // 'data' => $attributes['item_profiles'],
+        ], JsonResponse::HTTP_OK);
 
         // } catch (\Exception $e) {
         //     return response()->json([

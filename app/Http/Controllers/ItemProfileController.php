@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\BulkUploadItemProfile;
 use App\Models\ItemProfile;
 use App\Http\Requests\StoreItemProfileRequest;
 use App\Http\Requests\UpdateItemProfileRequest;
 use App\Http\Resources\ItemProfileResource;
 use App\Utils\PaginateResourceCollection;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ItemProfileController extends Controller
