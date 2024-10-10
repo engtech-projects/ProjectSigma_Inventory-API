@@ -39,11 +39,11 @@ class StoreRequestItemProfilingRequest extends FormRequest
         return [
             'item_profiles' => 'required|array',
             'item_profiles.*' => 'required|array',
-            'item_profiles.*.sku' => [
+            'item_profiles.*.item_code' => [
                 "required",
                 "string",
                 "max:255",
-                "unique:item_profile,sku"
+                "unique:item_profile,item_code"
             ],
             'item_profiles.*.item_description' => [
                 "required",

@@ -29,7 +29,7 @@ class RequestItemProfilingItemResource extends JsonResource
 
     //     return $similarItems->map(function ($item) {
     //         return [
-    //             'sku' => $item->sku,
+    //             'item_code' => $item->item_code,
     //             'item_description' => $item->item_description,
     //             'specification' => $item->specification,
     //         ];

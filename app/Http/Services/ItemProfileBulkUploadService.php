@@ -194,7 +194,7 @@ class ItemProfileBulkUploadService
                     }
                 }
 
-                $filteredData['sku'] = $this->generateSKU($filteredData);
+                $filteredData['item_code'] = $this->generateSKU($filteredData);
 
                 if ($isUnprocessed) {
                     $unprocessed[] = $filteredData;
@@ -252,7 +252,7 @@ class ItemProfileBulkUploadService
     public function selectedItems(array $processed)
     {
         $itemsToInsert = array_map(fn ($item) => [
-            'sku' => $item['sku'],
+            'item_code' => $item['item_code'],
             'item_description' => $item['item_description']['value'],
             'thickness_val' => $item['thickness_val']['value'] ?? null,
             'thickness_uom' => $item['thickness_uom']['uom_id'] ?? null,
