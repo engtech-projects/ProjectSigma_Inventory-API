@@ -17,8 +17,8 @@ class WarehouseSeeder extends Seeder
             [
                 [
                     'id' => 1,
-                    'name' => 'Main',
-                    'location' => null,
+                    'name' => 'Main Warehouse',
+                    'location' => 'Main Office',
                     'deleted_at' => null,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),

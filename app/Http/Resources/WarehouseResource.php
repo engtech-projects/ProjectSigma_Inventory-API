@@ -14,6 +14,10 @@ class WarehouseResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return
+        [
+            ...parent::toArray($request),
+            'warehouse_pss' => WarehousePssResource::collection($this->warehousePss)
+        ];
     }
 }
