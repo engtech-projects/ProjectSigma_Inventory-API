@@ -2,6 +2,7 @@
 
 namespace App\Http\Services;
 
+use App\Enums\InventoryType;
 use App\Models\ItemProfile;
 use App\Models\UOM;
 use App\Models\UOMGroup;
@@ -193,6 +194,14 @@ class ItemProfileBulkUploadService
                         }
                     }
                 }
+
+                $validInventoryValues = array_column(InventoryType::cases(), 'value');
+                $validOptions = implode(', ', $validInventoryValues);
+                if (!in_array($filteredData['inventory_type']['value'], $validInventoryValues)) {
+                    $filteredData['inventory_type']['error'] = "Invalid inventory type: " . $filteredData['inventory_type']['value'] . ". Valid options are: $validOptions.";
+                    $isUnprocessed = true;
+                }
+
 
                 $filteredData['item_code'] = $this->generateSKU($filteredData);
 
