@@ -15,11 +15,15 @@ class RequestItemProfilingService
     {
         return RequestItemProfiling::with(['itemProfiles'])
         ->where("created_by", auth()->user()->id)
+        ->orderBy("created_at", "DESC")
         ->get();
     }
     public function getAllRequest()
     {
-        return RequestItemProfiling::where("request_status", "Approved")->with(['itemProfiles'])->get();
+        return RequestItemProfiling::where("request_status", "Approved")
+        ->with(['itemProfiles'])
+        ->orderBy("created_at", "DESC")
+        ->get();
     }
 
     public function getMyApprovals()
@@ -28,6 +32,7 @@ class RequestItemProfilingService
 
         $result = RequestItemProfiling::myApprovals()
                     ->with(['itemProfiles'])
+                    ->orderBy("created_at", "DESC")
                     ->get();
 
         return $result->filter(function ($item) use ($userId) {

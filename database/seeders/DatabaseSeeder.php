@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             SetupUomGroupSeeder::class,
             SetupUomSeeder::class,
+            WarehouseSeeder::class,
         ]);
     }
 }

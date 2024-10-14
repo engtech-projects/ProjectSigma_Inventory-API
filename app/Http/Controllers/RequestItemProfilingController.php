@@ -9,6 +9,7 @@ use App\Models\RequestItemProfiling;
 use App\Http\Requests\UpdateRequestItemProfilingRequest;
 use App\Http\Resources\ItemProfileResource;
 use App\Http\Resources\RequestItemProfilingResource;
+use App\Http\Resources\RequestItemProfilingResourceList;
 use App\Http\Services\RequestItemProfilingService;
 use App\Models\ItemProfile;
 use App\Models\RequestItemProfilingItems;
@@ -64,33 +65,33 @@ class RequestItemProfilingController extends Controller
         $attributes['created_by'] = auth()->user()->id;
 
         // try {
-            DB::transaction(function () use ($attributes, $request) {
-                $requestItemProfiling = RequestItemProfiling::create([
-                    'approvals' => $attributes['approvals'],
-                    'created_by' => $attributes['created_by'],
-                    'request_status' => $attributes['request_status'],
+        DB::transaction(function () use ($attributes, $request) {
+            $requestItemProfiling = RequestItemProfiling::create([
+                'approvals' => $attributes['approvals'],
+                'created_by' => $attributes['created_by'],
+                'request_status' => $attributes['request_status'],
+            ]);
+
+            foreach ($attributes['item_profiles'] as $itemprofileData) {
+                $itemprofileData['request_itemprofiling_id'] = $requestItemProfiling->id;
+                $itemprofileData['active_status'] = ItemProfileActiveStatus::ACTIVE;
+
+                $itemProfile = ItemProfile::create($itemprofileData);
+
+                RequestItemProfilingItems::create([
+                    'item_profile_id' => $itemProfile->id,
+                    'request_itemprofiling_id' => $requestItemProfiling->id,
                 ]);
-
-                foreach ($attributes['item_profiles'] as $itemprofileData) {
-                    $itemprofileData['request_itemprofiling_id'] = $requestItemProfiling->id;
-                    $itemprofileData['active_status'] = ItemProfileActiveStatus::ACTIVE;
-
-                    $itemProfile = ItemProfile::create($itemprofileData);
-
-                    RequestItemProfilingItems::create([
-                        'item_profile_id' => $itemProfile->id,
-                        'request_itemprofiling_id' => $requestItemProfiling->id,
-                    ]);
-                }
-                if ($requestItemProfiling->getNextPendingApproval()) {
-                    $requestItemProfiling->notify(new RequestItemProfilingForApprovalNotification($request->bearerToken(), $requestItemProfiling));
-                }
-            });
-            return new JsonResponse([
-                'success' => true,
-                'message' => 'Item Profiles Successfully Saved.',
-                // 'data' => $attributes['item_profiles'],
-            ], JsonResponse::HTTP_OK);
+            }
+            if ($requestItemProfiling->getNextPendingApproval()) {
+                $requestItemProfiling->notify(new RequestItemProfilingForApprovalNotification($request->bearerToken(), $requestItemProfiling));
+            }
+        });
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Item Profiles Successfully Saved.',
+            // 'data' => $attributes['item_profiles'],
+        ], JsonResponse::HTTP_OK);
 
         // } catch (\Exception $e) {
         //     return response()->json([
@@ -105,8 +106,6 @@ class RequestItemProfilingController extends Controller
      */
     public function show(RequestItemProfiling $resource)
     {
-        $requestResources = RequestItemProfilingResource::collection(([$resource]))->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,
@@ -169,7 +168,7 @@ class RequestItemProfilingController extends Controller
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestItemProfilingResource::collection($myRequest)->collect();
+        $requestResources = RequestItemProfilingResourceList::collection($myRequest)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
 
         return new JsonResponse([
@@ -189,7 +188,7 @@ class RequestItemProfilingController extends Controller
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestItemProfilingResource::collection($myRequest)->collect();
+        $requestResources = RequestItemProfilingResourceList::collection($myRequest)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
 
         return new JsonResponse([
@@ -209,7 +208,7 @@ class RequestItemProfilingController extends Controller
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestItemProfilingResource::collection($myRequest)->collect();
+        $requestResources = RequestItemProfilingResourceList::collection($myRequest)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
 
         return new JsonResponse([
@@ -230,7 +229,7 @@ class RequestItemProfilingController extends Controller
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestItemProfilingResource::collection($myApproval)->collect();
+        $requestResources = RequestItemProfilingResourceList::collection($myApproval)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
         return new JsonResponse([
             'success' => true,

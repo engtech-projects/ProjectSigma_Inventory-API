@@ -10,6 +10,8 @@ use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
 use App\Http\Controllers\RequestItemProfilingController;
 use App\Http\Controllers\UOMGroupController;
+use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\WarehousePssController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,9 +53,15 @@ Route::middleware('auth:api')->group(function () {
         Route::patch('{resource}/activate', [ItemProfileController::class, 'activate']);
         Route::patch('{resource}/deactivate', [ItemProfileController::class, 'deactivate']);
         Route::post('bulk-upload', [ItemProfileBulkUploadController::class, 'bulkUpload']);
+        Route::post('bulk-save', [ItemProfileBulkUploadController::class, 'bulkSave']);
     });
     Route::prefix('approvals')->group(function () {
         Route::post('approve/{modelName}/{model}', ApproveApproval::class);
         Route::post('disapprove/{modelName}/{model}', DisapproveApproval::class);
+    });
+    Route::prefix('warehouse')->group(function () {
+        Route::resource('resource', WarehouseController::class)->names("warehouseresource");
+        Route::get('overview/{warehouse_id}', [WarehouseController::class, 'show']);
+        Route::patch('set-pss/{warehouse_id}', [WarehousePssController::class, 'update']);
     });
 });
