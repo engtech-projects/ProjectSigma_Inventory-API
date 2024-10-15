@@ -22,8 +22,8 @@ class ItemProfileBulkUploadController extends Controller
         if ($request->hasFile('file')) {
             $file = $validated['file'];
             $fileContent = file_get_contents($file->getRealPath());
+            $fileContent = mb_convert_encoding($fileContent, 'UTF-8');
             $rows = array_map('str_getcsv', explode("\n", $fileContent));
-
             $result = $this->itemProfileBulkUploadService->parseCsv($rows);
             if (isset($result['error'])) {
                 return response()->json([
@@ -31,9 +31,7 @@ class ItemProfileBulkUploadController extends Controller
                     'error' => $result['error']
                 ], 400);
             }
-
             list($processed, $duplicates, $unprocessed) = $this->itemProfileBulkUploadService->parseCsv($rows);
-
             return response()->json([
                 'message' => 'CSV File Parsed Successfully.',
                 'processed' => $processed,

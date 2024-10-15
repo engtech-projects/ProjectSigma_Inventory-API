@@ -2,6 +2,7 @@
 
 namespace App\Http\Services;
 
+use App\Enums\InventoryType;
 use App\Models\ItemProfile;
 use App\Models\UOM;
 use App\Models\UOMGroup;
@@ -49,7 +50,6 @@ class ItemProfileBulkUploadService
         $duplicates = [];
         $unprocessed = [];
 
-        $validUOMGroup = UOMGroup::get();
         $validUOMs = UOM::get();
 
         $dataRows = array_slice($rows, 1); // Skip header row
@@ -122,10 +122,7 @@ class ItemProfileBulkUploadService
                     'height_uom',
                     'outside_diameter_uom',
                     'inside_diameter_uom',
-                    'volume_uom'
-                ];
-
-                $uomGroups = [
+                    'volume_uom',
                     'uom'
                 ];
 
@@ -147,7 +144,7 @@ class ItemProfileBulkUploadService
                     }
                 }
                 if (!$atLeastOneSpecFilled) {
-                    $filteredData['specification']['error'] = "At least one specification field must be filled";
+                    $filteredData['specification']['error'] = "At least one specification field must be filled.";
                     $isUnprocessed = true;
                 }
 
@@ -169,7 +166,7 @@ class ItemProfileBulkUploadService
                         })->first();
 
                         if (is_null($isValid)) {
-                            $filteredData[$uomField]['error'] = "The value: $uomValue is not found in $uomField field.";
+                            $filteredData[$uomField]['error'] = "The value: $uomValue is not a valid unit of measurement. Please check the available UOM options in the setup for valid inputs.";
                             $isUnprocessed = true;
                         } else {
                             $filteredData[$uomField]['uom_id'] = $isValid->id;
@@ -177,22 +174,13 @@ class ItemProfileBulkUploadService
                     }
                 }
 
-                foreach ($uomGroups as $uomGroup) {
-
-                    if (!empty($filteredData[$uomGroup]['value'])) {
-                        $uomValue = $filteredData[$uomGroup]['value'];
-                        $isValid = $validUOMGroup->filter(function ($uom) use ($uomValue) {
-                            return $uom->name == $uomValue;
-                        })->first();
-
-                        if (is_null($isValid)) {
-                            $filteredData[$uomGroup]['error'] = "The value: $uomValue is not found in $uomField field.";
-                            $isUnprocessed = true;
-                        } else {
-                            $filteredData[$uomGroup]['uom_group_id'] = $isValid->id;
-                        }
-                    }
+                $validInventoryValues = array_column(InventoryType::cases(), 'value');
+                $validOptions = implode(', ', $validInventoryValues);
+                if (!in_array($filteredData['inventory_type']['value'], $validInventoryValues)) {
+                    $filteredData['inventory_type']['error'] = "Invalid inventory type: " . $filteredData['inventory_type']['value'] . ". Valid options are: $validOptions.";
+                    $isUnprocessed = true;
                 }
+
 
                 $filteredData['item_code'] = $this->generateSKU($filteredData);
 
