@@ -18,6 +18,7 @@ class StoreRequestItemProfilingRequest extends FormRequest
     {
         return true;
     }
+    
 
     protected function prepareForValidation()
     {

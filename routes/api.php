@@ -12,6 +12,8 @@ use App\Http\Controllers\RequestItemProfilingController;
 use App\Http\Controllers\UOMGroupController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehousePssController;
+use App\Http\Controllers\WarehouseTransactionController;
+use App\Http\Controllers\WarehouseTransactionItemController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,5 +65,14 @@ Route::middleware('auth:api')->group(function () {
         Route::resource('resource', WarehouseController::class)->names("warehouseresource");
         Route::get('overview/{warehouse_id}', [WarehouseController::class, 'show']);
         Route::patch('set-pss/{warehouse_id}', [WarehousePssController::class, 'update']);
+        Route::get('logs/{warehouse_id}', [WarehouseController::class, 'show']);
+
+        Route::resource('transactions', WarehouseTransactionController::class)->names("warehouseTransactionsresource");
+        Route::get('transaction/{resource}', [WarehouseTransactionController::class, 'show']);
+
+        Route::resource('transaction-item', WarehouseTransactionItemController::class)->names("warehouseTransactionItemresource");
+        Route::get('item/{resource}', [WarehouseTransactionItemController::class, 'show']);
+
+
     });
 });

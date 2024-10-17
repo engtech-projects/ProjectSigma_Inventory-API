@@ -1,0 +1,145 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Enums\RequestApprovalStatus;
+use App\Models\WarehouseTransaction;
+use App\Http\Requests\StoreWarehouseTransactionRequest;
+use App\Http\Resources\WarehouseTransactionResource;
+use App\Models\WarehouseTransactionItem;
+use App\Notifications\WarehouseTransactionForApprovalNotification;
+use App\Utils\PaginateResourceCollection;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class WarehouseTransactionController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $transactions = WarehouseTransaction::with('items')->get();
+        $requestResources = WarehouseTransactionResource::collection($transactions)->collect();
+        $paginated = PaginateResourceCollection::paginate($requestResources);
+
+        return response()->json([
+            'message' => 'Successfully fetched.',
+            'success' => true,
+            'data' => $paginated,
+        ]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    // public function store(StoreWarehouseTransactionRequest $request, WarehouseTransaction $resource)
+    // {
+    //     $saved = $resource->create($request->validated());
+    //     dd($saved);
+    //     return response()->json([
+    //         'message' => $saved ? 'Warehouse transaction successfully created.' : 'Failed to create Warehouse transaction.',
+    //         'success' => (bool) $saved,
+    //         'data' => $saved ?? null,
+    //     ]);
+    // }
+
+    public function store(StoreWarehouseTransactionRequest $request)
+    {
+        $attributes = $request->validated();
+        $attributes['request_status'] = RequestApprovalStatus::PENDING;
+        $attributes['created_by'] = auth()->user()->id;
+
+
+        DB::transaction(function () use (&$warehouseTransaction, $attributes, $request) {
+            $warehouseTransaction = WarehouseTransaction::create([
+                'warehouse_id' => $attributes['warehouse_id'],
+                'transaction_type' => $attributes['transaction_type'],
+                'charging_type' => $attributes['charging_type'],
+                'charging_id' => $attributes['charging_id'],
+                'approvals' => $attributes['approvals'],
+                'created_by' => $attributes['created_by'],
+                'request_status' => $attributes['request_status'],
+            ]);
+
+            foreach ($attributes['items'] as $transactionData) {
+                $transactionData['warehouse_transaction_id'] = $warehouseTransaction->id;
+
+                WarehouseTransactionItem::create($transactionData);
+            }
+
+            if ($warehouseTransaction->getNextPendingApproval()) {
+                $warehouseTransaction->notify(new WarehouseTransactionForApprovalNotification($request->bearerToken(), $warehouseTransaction));
+            }
+
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Transaction Successfully Saved.',
+            'data' => [
+                'transaction' => $warehouseTransaction,
+                'items' => $attributes['items'],  // Include the items in the response
+            ]
+        ], JsonResponse::HTTP_OK);
+    }
+
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(WarehouseTransaction $resource)
+    {
+        return response()->json([
+            "message" => "Successfully fetched.",
+            "success" => true,
+            "data" => $resource
+        ]);
+    }
+
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, WarehouseTransaction $resource)
+    {
+        $resource->fill($request->validated());
+        if ($resource->save()) {
+            return response()->json([
+                "message" => "Successfully updated.",
+                "success" => true,
+                "data" => $resource->refresh()
+            ]);
+        }
+        return response()->json([
+            "message" => "Failed to update.",
+            "success" => false,
+            "data" => $resource
+        ], 400);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(WarehouseTransaction $resource)
+    {
+        if (!$resource) {
+            return response()->json([
+                'message' => 'Warehouse transaction not found.',
+                'success' => false,
+                'data' => null
+            ], 404);
+        }
+
+        $deleted = $resource->delete();
+
+        $response = [
+            'message' => $deleted ? 'Warehouse transaction successfully deleted.' : 'Failed to delete Warehouse transaction.',
+            'success' => $deleted,
+            'data' => $resource
+        ];
+
+        return response()->json($response, $deleted ? 200 : 400);
+    }
+}
