@@ -8,7 +8,10 @@ use App\Http\Requests\UpdateWarehouseRequest;
 use App\Http\Resources\WarehouseResource;
 use App\Http\Traits\CheckAccessibility;
 use App\Models\Warehouse;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @OA\Tag(
@@ -133,7 +136,6 @@ class WarehouseController extends Controller
         ], 403);
     }
 
-
     /**
      * Update the specified resource in storage.
      */
@@ -175,6 +177,30 @@ class WarehouseController extends Controller
             'data' => $resource
         ]);
     }
+
+    public function getLogs(Request $request, $warehouse_id)
+    {
+        $date_from = $request->query('date_from');
+        $date_to = $request->query('date_to');
+        $item_id = $request->query('item_id');
+
+        $warehouse = Warehouse::with(['logs' => function ($query) use ($date_from, $date_to, $item_id) {
+            if ($date_from && $date_to) {
+                $dateFrom = Carbon::parse($date_from);
+                $dateTo = Carbon::parse($date_to)->endOfDay();
+                $query->whereBetween('warehouse_transaction_items.created_at', [$dateFrom, $dateTo]);
+            }
+            if ($item_id) {
+                $query->where('warehouse_transaction_items.item_id', $item_id);
+            }
+        }])->findOrFail($warehouse_id);
+
+        return response()->json([
+            'success' => true,
+            'warehouse' => $warehouse,
+        ]);
+    }
+
 
 
 }

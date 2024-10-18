@@ -34,7 +34,7 @@ class StoreWarehouseTransactionRequest extends FormRequest
     {
         return [
             'warehouse_id' => 'required|exists:warehouse,id',
-            'transaction_type' => 'required|in:Receiving,Transfer,Withdraw',
+            'transaction_type' => 'required|in:Receiving,Transfer,Withdraw,Return',
             'charging_type' => 'nullable|string',
             'charging_id' => 'nullable|integer',
             'items' => 'required|array',

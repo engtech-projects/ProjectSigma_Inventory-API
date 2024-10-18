@@ -33,7 +33,9 @@ class ApproveApproval extends Controller
                 case ApprovalModels::RequestItemProfiling->name:
                     $model->notify(new RequestItemProfilingForApprovalNotification($request->bearerToken(), $model));
                     break;
-
+                case ApprovalModels::WarehouseTransaction->name:
+                    $model->notify(new WarehouseTransactionForApprovalNotification($request->bearerToken(), $model));
+                    break;
             }
             switch ($modelType) {
                 case ApprovalModels::WarehouseTransaction->name:
@@ -45,6 +47,9 @@ class ApproveApproval extends Controller
             switch ($modelType) {
                 case ApprovalModels::RequestItemProfiling->name:
                     $model->notify(new RequestItemProfilingApprovedNotification($request->bearerToken(), $model));
+                    break;
+                case ApprovalModels::WarehouseTransaction->name:
+                    $model->notify(new WarehouseTransactionApprovedNotification($request->bearerToken(), $model));
                     break;
             }
             switch ($modelType) {

@@ -61,9 +61,9 @@ class WarehouseTransactionApprovedNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => "An item profiling request has been APPROVED.",
+            'message' => "Warehouse Transaction request has been APPROVED.",
             'module' => "Inventory",
-            'request_type' => ApprovalModels::RequestItemProfiling->name,
+            'request_type' => ApprovalModels::WarehouseTransaction->name,
             'request_id' => $this->model->id,
             'action' => "Approve"
         ];

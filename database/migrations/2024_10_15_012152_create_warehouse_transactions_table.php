@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('warehouse_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('warehouse_id')->constrained('warehouse')->onDelete('cascade');
-            $table->enum('transaction_type', ['Receiving', 'Transfer', 'Withdraw']);
+            $table->enum('transaction_type', ['Receiving', 'Transfer', 'Withdraw', 'Return']);
             $table->nullableMorphs('charging');
             $table->json('approvals');
             $table->string('created_by');

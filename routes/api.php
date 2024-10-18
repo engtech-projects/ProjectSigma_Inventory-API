@@ -65,7 +65,8 @@ Route::middleware('auth:api')->group(function () {
         Route::resource('resource', WarehouseController::class)->names("warehouseresource");
         Route::get('overview/{warehouse_id}', [WarehouseController::class, 'show']);
         Route::patch('set-pss/{warehouse_id}', [WarehousePssController::class, 'update']);
-        Route::get('logs/{warehouse_id}', [WarehouseController::class, 'show']);
+        Route::get('logs/{warehouse_id}', [WarehouseController::class, 'getLogs']);
+
 
         Route::resource('transactions', WarehouseTransactionController::class)->names("warehouseTransactionsresource");
         Route::get('transaction/{resource}', [WarehouseTransactionController::class, 'show']);

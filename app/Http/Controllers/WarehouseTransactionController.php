@@ -8,6 +8,7 @@ use App\Http\Requests\StoreWarehouseTransactionRequest;
 use App\Http\Resources\WarehouseTransactionResource;
 use App\Models\WarehouseTransactionItem;
 use App\Notifications\WarehouseTransactionForApprovalNotification;
+use App\Traits\HasApproval;
 use App\Utils\PaginateResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class WarehouseTransactionController extends Controller
 {
+    use HasApproval;
     /**
      * Display a listing of the resource.
      */
@@ -34,17 +36,6 @@ class WarehouseTransactionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    // public function store(StoreWarehouseTransactionRequest $request, WarehouseTransaction $resource)
-    // {
-    //     $saved = $resource->create($request->validated());
-    //     dd($saved);
-    //     return response()->json([
-    //         'message' => $saved ? 'Warehouse transaction successfully created.' : 'Failed to create Warehouse transaction.',
-    //         'success' => (bool) $saved,
-    //         'data' => $saved ?? null,
-    //     ]);
-    // }
-
     public function store(StoreWarehouseTransactionRequest $request)
     {
         $attributes = $request->validated();

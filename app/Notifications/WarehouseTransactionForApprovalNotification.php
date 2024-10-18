@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use App\Broadcasting\HrmsNotifyNextApproverChannel;
 use App\Enums\ApprovalModels;
-use App\Models\RequestItemProfiling;
 use App\Models\WarehouseTransaction;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -64,9 +63,9 @@ class WarehouseTransactionForApprovalNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => "A new item profiling request needs your approval.",
+            'message' => "A new warehouse transaction request needs your approval.",
             'module' => "Inventory",
-            'request_type' => ApprovalModels::RequestItemProfiling->name,
+            'request_type' => ApprovalModels::WarehouseTransaction->name,
             'request_id' => $this->model->id,
             'action' => "View"
         ];
