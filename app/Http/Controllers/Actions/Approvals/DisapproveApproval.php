@@ -8,6 +8,7 @@ use App\Enums\RequestApprovalStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DisapproveApprovalRequest;
 use App\Notifications\RequestItemProfilingDeniedNotification;
+use App\Notifications\WarehouseTransactionDeniedNotification;
 use Carbon\Carbon;
 
 class DisapproveApproval extends Controller
@@ -27,6 +28,9 @@ class DisapproveApproval extends Controller
         switch ($modelType) {
             case ApprovalModels::RequestItemProfiling->name:
                 $model->notify(new RequestItemProfilingDeniedNotification($request->bearerToken(), $model));
+                break;
+            case ApprovalModels::WarehouseTransaction->name:
+                $model->notify(new WarehouseTransactionDeniedNotification($request->bearerToken(), $model));
                 break;
 
             default:

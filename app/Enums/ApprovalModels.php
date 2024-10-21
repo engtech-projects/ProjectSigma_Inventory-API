@@ -3,10 +3,12 @@
 namespace App\Enums;
 
 use App\Models\RequestItemProfiling;
+use App\Models\WarehouseTransaction;
 
 enum ApprovalModels: string
 {
     case RequestItemProfiling = RequestItemProfiling::class;
+    case WarehouseTransaction = WarehouseTransaction::class;
 
     public static function toArray(): array
     {
