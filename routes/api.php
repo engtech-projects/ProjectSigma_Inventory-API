@@ -13,6 +13,7 @@ use App\Http\Controllers\UOMGroupController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehousePssController;
 use App\Http\Controllers\WarehouseTransactionController;
+use App\Http\Controllers\WarehouseTransactionItemController;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,7 +71,7 @@ Route::middleware('auth:api')->group(function () {
             Route::resource('resource', WarehouseTransactionController::class)->names("warehouseTransactionsresource");
         });
         Route::prefix('transaction-item')->group(function () {
-            Route::resource('resource', WarehouseTransactionController::class)->names("warehouseTransactionItemresource");
+            Route::resource('resource', WarehouseTransactionItemController::class)->names("warehouseTransactionItemresource");
         });
 
 
