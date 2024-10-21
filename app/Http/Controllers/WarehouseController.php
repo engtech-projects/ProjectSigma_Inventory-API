@@ -186,7 +186,7 @@ class WarehouseController extends Controller
         $item_id = $validated['item_id'] ?? null;
         $transaction_type = $validated['transaction_type'] ?? null;
 
-        $warehouse = Warehouse::with(['logs' => function ($query) use ($date_from, $date_to, $item_id, $transaction_type) {
+        $warehouse = Warehouse::with(['transactionItems' => function ($query) use ($date_from, $date_to, $item_id, $transaction_type) {
             if ($date_from) {
                 $query->where('warehouse_transaction_items.created_at', '>=', Carbon::parse($date_from));
             }
