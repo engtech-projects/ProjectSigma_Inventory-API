@@ -21,10 +21,9 @@ class WarehouseTransactionForApprovalNotification extends Notification
      * Create a new notification instance.
      */
     public function __construct($token, WarehouseTransaction $model)
-    { //token model
+    {
         $this->token = $token;
         $this->model = $model;
-
     }
 
     /**

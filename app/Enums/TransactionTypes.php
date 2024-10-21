@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Enums;
+
 enum TransactionTypes: string
 {
     case RECEIVING = "Receiving";

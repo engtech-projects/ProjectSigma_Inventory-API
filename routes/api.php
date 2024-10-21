@@ -13,7 +13,6 @@ use App\Http\Controllers\UOMGroupController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehousePssController;
 use App\Http\Controllers\WarehouseTransactionController;
-use App\Http\Controllers\WarehouseTransactionItemController;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,12 +66,12 @@ Route::middleware('auth:api')->group(function () {
         Route::patch('set-pss/{warehouse_id}', [WarehousePssController::class, 'update']);
         Route::get('logs/{warehouse_id}', [WarehouseController::class, 'getLogs']);
 
-
-        Route::resource('transactions', WarehouseTransactionController::class)->names("warehouseTransactionsresource");
-        Route::get('transaction/{resource}', [WarehouseTransactionController::class, 'show']);
-
-        Route::resource('transaction-item', WarehouseTransactionItemController::class)->names("warehouseTransactionItemresource");
-        Route::get('item/{resource}', [WarehouseTransactionItemController::class, 'show']);
+        Route::prefix('transaction')->group(function () {
+            Route::resource('resource', WarehouseTransactionController::class)->names("warehouseTransactionsresource");
+        });
+        Route::prefix('transaction-item')->group(function () {
+            Route::resource('resource', WarehouseTransactionController::class)->names("warehouseTransactionItemresource");
+        });
 
 
     });

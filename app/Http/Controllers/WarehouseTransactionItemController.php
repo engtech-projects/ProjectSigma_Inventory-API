@@ -7,7 +7,6 @@ use App\Http\Requests\StoreWarehouseTransactionItemRequest;
 use App\Http\Requests\UpdateWarehouseTransactionItemRequest;
 use App\Http\Resources\WarehouseTransactionItemResource;
 use App\Utils\PaginateResourceCollection;
-use Illuminate\Http\Request;
 
 class WarehouseTransactionItemController extends Controller
 {

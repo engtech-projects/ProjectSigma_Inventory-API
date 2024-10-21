@@ -3,15 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AccessibilityInventory;
+use App\Http\Requests\GetLogsRequest;
 use App\Http\Requests\StoreWarehouseRequest;
 use App\Http\Requests\UpdateWarehouseRequest;
 use App\Http\Resources\WarehouseResource;
 use App\Http\Traits\CheckAccessibility;
 use App\Models\Warehouse;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 /**
  * @OA\Tag(
@@ -178,7 +177,7 @@ class WarehouseController extends Controller
         ]);
     }
 
-    public function getLogs(Request $request, $warehouse_id)
+    public function getLogs(GetLogsRequest $request, $warehouse_id)
     {
         $date_from = $request->query('date_from');
         $date_to = $request->query('date_to');

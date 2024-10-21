@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use App\Broadcasting\HrmsNotifyCreatorChannel;
 use App\Enums\ApprovalModels;
-use App\Models\RequestItemProfiling;
 use App\Models\WarehouseTransaction;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -24,7 +23,6 @@ class WarehouseTransactionApprovedNotification extends Notification
     {
         $this->token = $token;
         $this->model = $model;
-
     }
 
     /**

@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\WarehouseTransactionItem;
-use Illuminate\Auth\Access\Response;
 
 class WarehouseTransactionItemPolicy
 {

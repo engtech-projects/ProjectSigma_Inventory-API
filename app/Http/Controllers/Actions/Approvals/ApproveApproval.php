@@ -6,7 +6,6 @@ use App\Enums\ApprovalModels;
 use Illuminate\Http\JsonResponse;
 use App\Enums\RequestApprovalStatus;
 use App\Http\Controllers\Controller;
-use App\Models\WarehouseTransaction;
 use App\Notifications\RequestItemProfilingApprovedNotification;
 use App\Notifications\RequestItemProfilingForApprovalNotification;
 use App\Notifications\WarehouseTransactionApprovedNotification;
