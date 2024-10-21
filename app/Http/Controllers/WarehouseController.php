@@ -179,18 +179,25 @@ class WarehouseController extends Controller
 
     public function getLogs(GetLogsRequest $request, $warehouse_id)
     {
-        $date_from = $request->query('date_from');
-        $date_to = $request->query('date_to');
-        $item_id = $request->query('item_id');
+        $validated = $request->validated();
 
-        $warehouse = Warehouse::with(['logs' => function ($query) use ($date_from, $date_to, $item_id) {
-            if ($date_from && $date_to) {
-                $dateFrom = Carbon::parse($date_from);
-                $dateTo = Carbon::parse($date_to)->endOfDay();
-                $query->whereBetween('warehouse_transaction_items.created_at', [$dateFrom, $dateTo]);
+        $date_from = $validated['date_from'] ?? null;
+        $date_to = $validated['date_to'] ?? null;
+        $item_id = $validated['item_id'] ?? null;
+        $transaction_type = $validated['transaction_type'] ?? null;
+
+        $warehouse = Warehouse::with(['logs' => function ($query) use ($date_from, $date_to, $item_id, $transaction_type) {
+            if ($date_from) {
+                $query->where('warehouse_transaction_items.created_at', '>=', Carbon::parse($date_from));
+            }
+            if ($date_to) {
+                $query->where('warehouse_transaction_items.created_at', '<=', Carbon::parse($date_to)->endOfDay());
             }
             if ($item_id) {
                 $query->where('warehouse_transaction_items.item_id', $item_id);
+            }
+            if ($transaction_type) {
+                $query->where('warehouse_transactions.transaction_type', $transaction_type);
             }
         }])->findOrFail($warehouse_id);
 

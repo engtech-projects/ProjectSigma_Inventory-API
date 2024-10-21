@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\TransactionTypes;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class GetLogsRequest extends FormRequest
 {
@@ -25,6 +27,7 @@ class GetLogsRequest extends FormRequest
             'date_from' => 'nullable|date',
             'date_to' => 'nullable|date|after_or_equal:date_from',
             'item_id' => 'nullable|integer|exists:warehouse_transaction_items,id',
+            'transaction_type' => ['nullable', 'string', new Enum(TransactionTypes::class)],
         ];
     }
 }
