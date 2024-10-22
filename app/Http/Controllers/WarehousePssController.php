@@ -70,51 +70,42 @@ class WarehousePssController extends Controller
 
     public function update(UpdateWarehousePssRequest $request, Warehouse $warehouse_id)
     {
-        try {
-            $userIds = $request->input('user_ids');
-            $currentUserIds = $warehouse_id->warehousePss->pluck('user_id')->toArray();
-            if (!empty($userIds)) {
-                $intUserIds = array_map('intval', $userIds);
-                if ($intUserIds === $currentUserIds) {
-                    return response()->json([
-                        'message' => 'The user(s) are already assigned.',
-                        'success' => false,
-                        "data" => $warehouse_id->load('warehousePss')
-                    ]);
-                }
-                DB::transaction(function () use ($userIds, $warehouse_id) {
-                    WarehousePss::where("warehouse_id",$warehouse_id->id)->whereNotIn('user_id', $userIds)->delete();
-                    foreach ($userIds as $id) {
-                        $exists = WarehousePss::where([
-                            ['warehouse_id', "=", $warehouse_id->id],
-                            ['user_id', "=", $id],
-                        ])->exists();
-                        if (!$exists) {
-                            WarehousePss::create([
-                                'warehouse_id' => $warehouse_id->id,
-                                'user_id' => $id,
-                            ]);
-                        }
-                    }
-                });
+        $userIds = $request->input('user_ids');
+        $currentUserIds = $warehouse_id->warehousePss->pluck('user_id')->toArray();
+        if (!empty($userIds)) {
+            $intUserIds = array_map('intval', $userIds);
+            if ($intUserIds === $currentUserIds) {
                 return response()->json([
-                    'message' => 'Successfully assigned new PSS',
-                    'success' => true,
+                    'message' => 'The user(s) are already assigned.',
+                    'success' => false,
                     "data" => $warehouse_id->load('warehousePss')
                 ]);
             }
+            DB::transaction(function () use ($userIds, $warehouse_id) {
+                WarehousePss::where("warehouse_id",$warehouse_id->id)->whereNotIn('user_id', $userIds)->delete();
+                foreach ($userIds as $id) {
+                    $exists = WarehousePss::where([
+                        ['warehouse_id', "=", $warehouse_id->id],
+                        ['user_id', "=", $id],
+                    ])->exists();
+                    if (!$exists) {
+                        WarehousePss::create([
+                            'warehouse_id' => $warehouse_id->id,
+                            'user_id' => $id,
+                        ]);
+                    }
+                }
+            });
             return response()->json([
-                "message" => "No users were assigned.",
-                "success" => false,
+                'message' => 'Successfully assigned new PSS',
+                'success' => true,
                 "data" => $warehouse_id->load('warehousePss')
             ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                "message" => "Failed to assigned.",
-                "success" => false,
-                "error" => $e,
-            ]);
         }
+        return response()->json([
+            "message" => "Failed to assigned.",
+            "success" => false,
+        ]);
     }
 
 
