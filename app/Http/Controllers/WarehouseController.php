@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AccessibilityInventory;
+use App\Enums\UserTypes;
 use App\Http\Requests\StoreWarehouseRequest;
 use App\Http\Requests\UpdateWarehouseRequest;
 use App\Http\Resources\WarehouseResource;
@@ -53,8 +54,9 @@ class WarehouseController extends Controller
     {
         $user = Auth::user();
         $userAccessibilitiesNames = $user->accessibilities_name;
-
-        if ($this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value])) {
+        if ($this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value])
+            || Auth::user()->type == UserTypes::ADMINISTRATOR->value
+        ) {
             $main = Warehouse::all();
         } else {
             $main = Warehouse::whereHas('warehousePss', function ($query) use ($user) {
@@ -117,7 +119,9 @@ class WarehouseController extends Controller
     {
         $user = Auth::user();
         $userAccessibilitiesNames = $user->accessibilities_name;
-        if ($this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value]) || $warehouse_id->warehousePss->contains('user_id', $user->id)) {
+        if ($this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value]) || $warehouse_id->warehousePss->contains('user_id', $user->id)
+            || Auth::user()->type == UserTypes::ADMINISTRATOR->value
+        ) {
             return response()->json([
                 "message" => "Successfully fetched.",
                 "success" => true,
