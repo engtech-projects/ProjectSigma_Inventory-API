@@ -259,7 +259,7 @@ class ItemProfileBulkUploadService
             'specification' => $item['specification']['value'] ?? null,
             'grade' => $item['grade']['value'] ?? null,
             'color' => $item['color']['value'] ?? null,
-            'uom' => $item['uom']['uom_group_id'],
+            'uom' => $item['uom']['uom_id'],
             'item_group' => $item['item_group']['value'],
             'sub_item_group' => $item['sub_item_group']['value'],
             'inventory_type' => $item['inventory_type']['value'],
