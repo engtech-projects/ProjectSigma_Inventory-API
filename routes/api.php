@@ -4,10 +4,14 @@ use App\Http\Controllers\Actions\Approvals\ApproveApproval;
 use App\Http\Controllers\Actions\Approvals\DisapproveApproval;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DepartmentsController;
+use App\Http\Controllers\DetailsController;
 use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\ItemProfileBulkUploadController;
 use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
+use App\Http\Controllers\ProjectsController;
+use App\Http\Controllers\RequestBOMController;
 use App\Http\Controllers\RequestItemProfilingController;
 use App\Http\Controllers\UOMGroupController;
 use App\Http\Controllers\WarehouseController;
@@ -74,7 +78,33 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('transaction-item')->group(function () {
             Route::resource('resource', WarehouseTransactionItemController::class)->names("warehouseTransactionItemresource");
         });
+    });
+    Route::prefix('bom')->group(function () {
+        Route::resource('resource', RequestBOMController::class)->names("requestBomresource");
 
+        Route::get('current', [RequestBomController::class, 'getCurrentBom']);
+        Route::get('list', [RequestBomController::class, 'getList']);
+        Route::prefix('details')->group(function () {
+            Route::resource('resource', DetailsController::class)->names("bomDetailsresource");
+        });
+    });
+    Route::prefix('setup')->group(function () {
+        // to be used later
+        // Route::prefix('item-group')->group(function () {
+        //     Route::resource('resource', ItemGroupController::class)->names("itemGroupresource");
+        //     Route::get('list', [ItemGroupController::class, 'get']);
+        //     Route::get('search', [ItemGroupController::class, 'search']);
+        // });
+        // Route::prefix('uom')->group(function () {
+        //     Route::resource('resource', UOMController::class)->names("uomresource");
+        //     Route::get('group', [UOMGroupController::class, 'get']);
+        //     Route::get('all', [UOMController::class, 'get']);
+        // });
+        // Route::prefix('uom-group')->group(function () {
+        //     Route::resource('resource', UOMGroupController::class)->names("uomGroupresource");
+        // });
 
+        Route::resource('sync-departments', DepartmentsController::class)->names("syncDepartmentsresource");
+        Route::resource('sync-projects', ProjectsController::class)->names("syncProjectsresource");
     });
 });

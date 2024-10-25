@@ -82,7 +82,7 @@ class WarehousePssController extends Controller
                 ]);
             }
             DB::transaction(function () use ($userIds, $warehouse_id) {
-                WarehousePss::where("warehouse_id",$warehouse_id->id)->whereNotIn('user_id', $userIds)->delete();
+                WarehousePss::where("warehouse_id", $warehouse_id->id)->whereNotIn('user_id', $userIds)->delete();
                 foreach ($userIds as $id) {
                     $exists = WarehousePss::where([
                         ['warehouse_id', "=", $warehouse_id->id],
