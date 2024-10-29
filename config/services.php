@@ -25,11 +25,9 @@ return [
         'token' => env('POSTMARK_TOKEN'),
     ],
 
-    'api' => [
-        'HRSM_URL' => env('HRSM_API')
-    ],
     'url' => [
-        'hrms_api_url' => env('HRMS_API_URL')
+        'hrms_api_url' => env('HRMS_API_URL'),
+        'projects_api' => env('PROJECTS_API_URL')
 
     ],
 

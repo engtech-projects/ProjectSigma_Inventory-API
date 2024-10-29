@@ -30,7 +30,7 @@ class RequestBOM extends Model
 
     protected $casts = [
         'approvals' => 'array',
-        'effectivity' => 'string', 
+        'effectivity' => 'string',
     ];
 
     /**

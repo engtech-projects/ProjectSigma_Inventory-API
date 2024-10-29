@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ValidateToken;
-use App\Http\Services\HrmsService;
+use App\Http\Services\ProjectService;
 use App\Models\Project;
 
 class ProjectsController extends Controller
@@ -12,13 +12,11 @@ class ProjectsController extends Controller
     {
         $request = $request->validated();
         $token = $request['token'] ?? null;
-        $projects = HrmsService::getProjects($token);
-
-        // dd($projects);
+        $projects = ProjectService::getProjects($token);
 
         if ($projects === false) {
             return response()->json([
-                'message' => 'Failed to fetch projects from HRMS API.',
+                'message' => 'Failed to fetch projects from Projects API.',
                 'success' => false,
             ]);
         }

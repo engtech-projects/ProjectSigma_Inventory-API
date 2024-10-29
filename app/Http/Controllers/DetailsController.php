@@ -15,7 +15,7 @@ class DetailsController extends Controller
      */
     public function index()
     {
-        $details = Details::get();
+        $details = Details::with('uom')->get();
         $requestResources = BOMDetailsResource::collection($details)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
 

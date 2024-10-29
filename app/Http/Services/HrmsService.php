@@ -60,23 +60,4 @@ class HrmsService
         return $response->json("data");
     }
 
-    public static function getProjects($token)
-    {
-        $response = Http::withToken($token)
-            ->acceptJson()
-            ->get(
-                config('services.url.hrms_api_url') . '/api/project-monitoring/getlist'
-            );
-
-        if (!$response->successful()) {
-            return false;
-        }
-        $projects = $response->json("data");
-        $filteredProjects = array_map(function($project) {
-            unset($project['project_members']);
-            return $project;
-        }, $projects);
-
-        return $filteredProjects;
-    }
 }

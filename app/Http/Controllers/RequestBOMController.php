@@ -10,7 +10,9 @@ use App\Models\RequestBOM;
 use App\Http\Requests\StoreRequestBOMRequest;
 use App\Http\Requests\UpdateRequestBOMRequest;
 use App\Http\Resources\RequestBOMResource;
+use App\Models\Department;
 use App\Models\Details;
+use App\Models\Project;
 use App\Notifications\RequestBOMForApprovalNotification;
 use App\Traits\HasApproval;
 use App\Utils\PaginateResourceCollection;
@@ -45,13 +47,13 @@ class RequestBOMController extends Controller
         $attributes['request_status'] = RequestApprovalStatus::PENDING;
         $attributes['created_by'] = auth()->user()->id;
 
-        // if ($attributes["assignment_type"] == AssignTypes::DEPARTMENT->value) {
-        //     $attributes["charge_assignment_id"] = $attributes["department_id"];
-        //     $attributes["charge_assignment_type"] = Department::class;
-        // } else {
-        //     $attributes["charge_assignment_id"] = $attributes["project_id"];
-        //     $attributes["charge_assignment_type"] = Project::class;
-        // }
+        if ($attributes["assignment_type"] == AssignTypes::DEPARTMENT->value) {
+            $attributes["charge_assignment_id"] = $attributes["department_id"];
+            $attributes["charge_assignment_type"] = Department::class;
+        } else {
+            $attributes["charge_assignment_id"] = $attributes["project_id"];
+            $attributes["charge_assignment_type"] = Project::class;
+        }
 
         DB::transaction(function () use ($attributes, $request) {
             $requestBOM = RequestBOM::create([
@@ -67,7 +69,6 @@ class RequestBOMController extends Controller
                 $requestData['request_bom_id'] = $requestBOM->id;
 
                 Details::create($requestData);
-
             }
             if ($requestBOM->getNextPendingApproval()) {
                 $requestBOM->notify(new RequestBOMForApprovalNotification($request->bearerToken(), $requestBOM));
@@ -143,9 +144,9 @@ class RequestBOMController extends Controller
         $effectivity = $validated['effectivity'] ?? null;
 
         $requestCurrentBom = RequestBom::with('details')
-        ->where('assignment_type', $assignment_type)
-        ->where('effectivity', $effectivity)
-        ->first();
+            ->where('assignment_type', $assignment_type)
+            ->where('effectivity', $effectivity)
+            ->first();
 
         if (!$requestCurrentBom) {
             return response()->json([
@@ -154,16 +155,17 @@ class RequestBOMController extends Controller
                 'data' => []
             ]);
         }
+        $requestResource = new RequestBOMResource($requestCurrentBom);
 
         return response()->json([
             'message' => 'Current BOM fetched successfully.',
             'success' => true,
-            'data' => $requestCurrentBom,
+            'data' => $requestResource,
         ]);
-
     }
 
-    public function getList(GetListBOM $request) {
+    public function getList(GetListBOM $request)
+    {
         $validated = $request->validated();
         $assignment_type = $validated['assignment_type'] ?? null;
         $effectivity = $validated['effectivity'] ?? null;
@@ -187,5 +189,4 @@ class RequestBOMController extends Controller
             'data' => $filteredBomList,
         ]);
     }
-
 }

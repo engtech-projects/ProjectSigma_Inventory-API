@@ -57,6 +57,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get('my-approvals', [RequestItemProfilingController::class, 'myApprovals']);
         });
         Route::get('list', [RequestItemProfilingController::class, 'get']);
+        Route::get('search', [ItemProfileController::class, 'search']);
         Route::patch('{resource}/activate', [ItemProfileController::class, 'activate']);
         Route::patch('{resource}/deactivate', [ItemProfileController::class, 'deactivate']);
         Route::post('bulk-upload', [ItemProfileBulkUploadController::class, 'bulkUpload']);
@@ -81,9 +82,9 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::prefix('bom')->group(function () {
         Route::resource('resource', RequestBOMController::class)->names("requestBomresource");
-
         Route::get('current', [RequestBomController::class, 'getCurrentBom']);
         Route::get('list', [RequestBomController::class, 'getList']);
+
         Route::prefix('details')->group(function () {
             Route::resource('resource', DetailsController::class)->names("bomDetailsresource");
         });

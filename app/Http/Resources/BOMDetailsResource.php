@@ -14,6 +14,7 @@ class BOMDetailsResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
         return [
             'id' => $this->id,
             'request_bom_id' => $this->request_bom_id,
@@ -21,6 +22,7 @@ class BOMDetailsResource extends JsonResource
             'uom_id' => $this->uom_id,
             'unit_price' => $this->unit_price,
             'quantity' => $this->quantity,
+            'uom' => new UOMResource($this->uom),
         ];
     }
 }
