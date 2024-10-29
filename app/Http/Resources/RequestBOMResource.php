@@ -17,11 +17,10 @@ class RequestBOMResource extends JsonResource
     {
 
         return [
-            // ...parent::toArray($request),
-            // 'details' => BOMDetailsResource::collection($this->details),
-            // "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
-            // "next_approval" => $this->getNextPendingApproval(),
-            'projects' => ProjectService::getProjects($request->bearerToken()),
+            ...parent::toArray($request),
+            'details' => BOMDetailsResource::collection($this->details),
+            "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
+            "next_approval" => $this->getNextPendingApproval(),
         ];
     }
 }
