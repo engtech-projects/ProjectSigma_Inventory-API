@@ -227,63 +227,6 @@ class ItemProfile extends Model
         $query->where('is_approved', true);
     }
 
-    // public function scopeSearch(Builder $query, $searchKey)
-    // {
-
-    //     $fields = [
-    //         'item_description',
-    //         'item_code',
-    //         'thickness_val',
-    //         'thickness_uom',
-    //         'length_val',
-    //         'length_uom',
-    //         'width_val',
-    //         'width_uom',
-    //         'height_val',
-    //         'height_uom',
-    //         'outside_diameter_val',
-    //         'outside_diameter_uom',
-    //         'inside_diameter_val',
-    //         'inside_diameter_uom',
-    //         'volume_val',
-    //         'volume_uom',
-    //         'grade',
-    //         'color',
-    //         'specification'
-    //     ];
-
-
-    //     $query->leftJoin('setup_uom as t_uom', 'item_profile.thickness_uom', '=', 't_uom.id')->leftJoin('setup_uom as l_uom', 'item_profile.length_uom', '=', 'l_uom.id')->leftJoin('setup_uom as w_uom', 'item_profile.width_uom', '=', 'w_uom.id')->leftJoin('setup_uom as h_uom', 'item_profile.height_uom', '=', 'h_uom.id')->leftJoin('setup_uom as od_uom', 'item_profile.outside_diameter_uom', '=', 'od_uom.id')->leftJoin('setup_uom as id_uom', 'item_profile.inside_diameter_uom', '=', 'id_uom.id')->leftJoin('setup_uom as v_uom', 'item_profile.volume_uom', '=', 'v_uom.id');
-
-
-    //     $searchKeyParts = explode(' ', $searchKey);
-
-    //     return $query->where(function ($q) use ($searchKey, $fields, $searchKeyParts) {
-    //         foreach ($fields as $field) {
-    //             $q->orWhere($field, 'LIKE', "%{$searchKey}%");
-    //         }
-
-
-    //         if (count($searchKeyParts) == 2) {
-    //             $q->orWhere(function ($q) use ($searchKeyParts) {
-    //                 $q->whereRaw("CAST(thickness_val AS DECIMAL(10, 2)) = ?", [$searchKeyParts[0]])->where('t_uom.symbol', 'LIKE', $searchKeyParts[1]);
-    //             })->orWhere(function ($q) use ($searchKeyParts) {
-    //                 $q->whereRaw("CAST(length_val AS DECIMAL(10, 2)) = ?", [$searchKeyParts[0]])->where('l_uom.symbol', 'LIKE', $searchKeyParts[1]);
-    //             })->orWhere(function ($q) use ($searchKeyParts) {
-    //                 $q->whereRaw("CAST(width_val AS DECIMAL(10, 2)) = ?", [$searchKeyParts[0]])->where('w_uom.symbol', 'LIKE', $searchKeyParts[1]);
-    //             })->orWhere(function ($q) use ($searchKeyParts) {
-    //                 $q->whereRaw("CAST(height_val AS DECIMAL(10, 2)) = ?", [$searchKeyParts[0]])->where('h_uom.symbol', 'LIKE', $searchKeyParts[1]);
-    //             })->orWhere(function ($q) use ($searchKeyParts) {
-    //                 $q->whereRaw("CAST(outside_diameter_val AS DECIMAL(10, 2)) = ?", [$searchKeyParts[0]])->where('od_uom.symbol', 'LIKE', $searchKeyParts[1]);
-    //             })->orWhere(function ($q) use ($searchKeyParts) {
-    //                 $q->whereRaw("CAST(inside_diameter_val AS DECIMAL(10, 2)) = ?", [$searchKeyParts[0]])->where('id_uom.symbol', 'LIKE', $searchKeyParts[1]);
-    //             })->orWhere(function ($q) use ($searchKeyParts) {
-    //                 $q->whereRaw("CAST(volume_val AS DECIMAL(10, 2)) = ?", [$searchKeyParts[0]])->where('v_uom.symbol', 'LIKE', $searchKeyParts[1]);
-    //             });
-    //         }
-    //     });
-    // }
-
     public function scopeSearch(Builder $query, $searchKey)
     {
         $fields = [
