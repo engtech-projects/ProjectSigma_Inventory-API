@@ -14,12 +14,9 @@ class ProjectService
             ->get(
                 config('services.url.projects_api') . '/api/projects'
             );
-
-        Log::info($response);
         if (!$response->successful()) {
             return false;
         }
-
         return $response->json("data");
     }
 }
