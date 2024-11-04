@@ -2,12 +2,10 @@
 
 namespace App\Http\Services;
 
-use App\Models\Department;
 use Illuminate\Support\Facades\Http;
 
 class ProjectService
 {
-
     public static function getProjects($token)
     {
         $response = Http::withToken($token)

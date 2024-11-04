@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,7 +15,7 @@ return new class extends Migration
             $table->bigInteger('hrms_id')->unique();
             $table->bigInteger('project_monitoring_id');
             $table->string('project_code');
-            $table->enum('status',['ongoing', 'completed']);
+            $table->enum('status', ['ongoing', 'completed']);
             $table->timestamps();
             $table->softDeletes();
         });

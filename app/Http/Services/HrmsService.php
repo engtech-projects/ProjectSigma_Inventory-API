@@ -2,7 +2,6 @@
 
 namespace App\Http\Services;
 
-use App\Models\Department;
 use Illuminate\Support\Facades\Http;
 
 class HrmsService
