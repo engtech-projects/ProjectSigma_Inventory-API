@@ -287,9 +287,6 @@ class ItemProfile extends Model
         });
     }
 
-
-
-
     /**
      * ==================================================
      * DYNAMIC SCOPES

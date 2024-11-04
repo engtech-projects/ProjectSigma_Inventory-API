@@ -55,9 +55,6 @@ class RequestBOM extends Model
         $this->save();
         $this->refresh();
     }
-
-
-
     /**
     * ==================================================
     * MODEL RELATIONSHIPS
@@ -72,7 +69,6 @@ class RequestBOM extends Model
     {
         return $this->hasMany(Details::class, 'request_bom_id');
     }
-
 
     /**
     * ==================================================

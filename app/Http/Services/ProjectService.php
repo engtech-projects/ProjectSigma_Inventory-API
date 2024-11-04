@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ProjectService
 {
@@ -14,16 +15,11 @@ class ProjectService
                 config('services.url.projects_api') . '/api/projects'
             );
 
+        Log::info($response);
         if (!$response->successful()) {
             return false;
         }
-        return $response->json("data");
-        // $projects = $response->json("data");
-        // $filteredProjects = array_map(function($project) {
-        //     unset($project['project_members']);
-        //     return $project;
-        // }, $projects);
 
-        // return $filteredProjects;
+        return $response->json("data");
     }
 }
