@@ -12,7 +12,6 @@ return new class () extends Migration {
     {
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('hrms_id')->unique();
             $table->bigInteger('project_monitoring_id');
             $table->string('project_code');
             $table->enum('status', ['ongoing', 'completed']);
