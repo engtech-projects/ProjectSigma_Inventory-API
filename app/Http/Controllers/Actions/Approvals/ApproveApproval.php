@@ -6,10 +6,10 @@ use App\Enums\ApprovalModels;
 use Illuminate\Http\JsonResponse;
 use App\Enums\RequestApprovalStatus;
 use App\Http\Controllers\Controller;
+use App\Notifications\RequestBOMApprovedNotification;
+use App\Notifications\RequestBOMForApprovalNotification;
 use App\Notifications\RequestItemProfilingApprovedNotification;
 use App\Notifications\RequestItemProfilingForApprovalNotification;
-use App\Notifications\WarehouseTransactionApprovedNotification;
-use App\Notifications\WarehouseTransactionForApprovalNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -32,13 +32,8 @@ class ApproveApproval extends Controller
                 case ApprovalModels::RequestItemProfiling->name:
                     $model->notify(new RequestItemProfilingForApprovalNotification($request->bearerToken(), $model));
                     break;
-                case ApprovalModels::WarehouseTransaction->name:
-                    $model->notify(new WarehouseTransactionForApprovalNotification($request->bearerToken(), $model));
-                    break;
-            }
-            switch ($modelType) {
-                case ApprovalModels::WarehouseTransaction->name:
-                    $model->notify(new WarehouseTransactionForApprovalNotification($request->bearerToken(), $model));
+                case ApprovalModels::RequestBOM->name:
+                    $model->notify(new RequestBOMForApprovalNotification($request->bearerToken(), $model));
                     break;
 
             }
@@ -47,13 +42,8 @@ class ApproveApproval extends Controller
                 case ApprovalModels::RequestItemProfiling->name:
                     $model->notify(new RequestItemProfilingApprovedNotification($request->bearerToken(), $model));
                     break;
-                case ApprovalModels::WarehouseTransaction->name:
-                    $model->notify(new WarehouseTransactionApprovedNotification($request->bearerToken(), $model));
-                    break;
-            }
-            switch ($modelType) {
-                case ApprovalModels::WarehouseTransaction->name:
-                    $model->notify(new WarehouseTransactionApprovedNotification($request->bearerToken(), $model));
+                case ApprovalModels::RequestBOM->name:
+                    $model->notify(new RequestBOMApprovedNotification($request->bearerToken(), $model));
                     break;
             }
         }

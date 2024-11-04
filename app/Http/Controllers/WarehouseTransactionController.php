@@ -82,10 +82,11 @@ class WarehouseTransactionController extends Controller
      */
     public function show(WarehouseTransaction $resource)
     {
+        $resource->load('items');
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,
-            "data" => $resource
+            "data" => new WarehouseTransactionResource($resource)
         ]);
     }
 

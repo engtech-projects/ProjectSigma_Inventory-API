@@ -2,15 +2,13 @@
 
 namespace App\Enums;
 
-use App\Models\RequestBOM;
-use App\Models\RequestItemProfiling;
-use App\Models\WarehouseTransaction;
-
-enum ApprovalModels: string
+enum RequestStatuses: string
 {
-    case RequestItemProfiling = RequestItemProfiling::class;
-    case WarehouseTransaction = WarehouseTransaction::class;
-    case RequestBOM = RequestBOM::class;
+    case APPROVED = 'Approved';
+    case PENDING = "Pending";
+    case DENIED = "Denied";
+    case CANCELLED = "Cancelled";
+    case VOIDED = "Voided";
 
     public static function toArray(): array
     {

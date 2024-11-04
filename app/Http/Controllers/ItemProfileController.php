@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SearchItemProfile;
 use App\Models\ItemProfile;
 use App\Http\Requests\StoreItemProfileRequest;
 use App\Http\Requests\UpdateItemProfileRequest;
 use App\Http\Resources\ItemProfileResource;
+use App\Http\Resources\SearchedItemsResource;
 use App\Utils\PaginateResourceCollection;
 use Illuminate\Support\Facades\Storage;
 
@@ -139,4 +141,21 @@ class ItemProfileController extends Controller
         ]);
     }
 
+    public function search(SearchItemProfile $request)
+    {
+        $searchKey = $request->validated()["key"];
+
+        $main = ItemProfile::search("$searchKey")
+            ->with(['uomName:id,name,symbol,conversion', 'thicknessUom', 'lengthUom', 'widthUom', 'heightUom', 'volumeUom', 'outsideDiameterUom', 'insideDiameterUom'])
+            ->limit(25)
+            ->orderBy('item_description')
+            ->get();
+
+        return response()->json([
+            'message' => "Successfully fetched.",
+            'success' => true,
+            'data' => SearchedItemsResource::collection($main)
+        ]);
+
+    }
 }
