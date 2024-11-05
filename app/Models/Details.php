@@ -21,7 +21,6 @@ class Details extends Model
     ];
 
     public $appends = [
-        'item_summary',
         'unit'
     ];
 
@@ -30,10 +29,6 @@ class Details extends Model
      * MODEL ATTRIBUTES
      * ==================================================
      */
-    public function getItemSummaryAttribute()
-    {
-        return $this->item->item_description;
-    }
 
     public function getUnitAttribute()
     {
@@ -53,7 +48,7 @@ class Details extends Model
     {
         return $this->belongsTo(UOM::class, 'uom_id');
     }
-    public function item()
+    public function items()
     {
         return $this->belongsTo(ItemProfile::class, 'item_id');
     }

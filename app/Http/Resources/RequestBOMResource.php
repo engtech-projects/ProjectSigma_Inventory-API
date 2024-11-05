@@ -16,8 +16,13 @@ class RequestBOMResource extends JsonResource
     {
 
         return [
-            ...parent::toArray($request),
-            'details' => BOMDetailsResource::collection($this->details),
+            'id' => $this->id,
+            'assignment_id' => $this->assignment_id,
+            'assignment_type' => $this->assignment_type,
+            'effectivity' => $this->effectivity,
+            'created_by' => $this->created_by,
+            'request_status' => $this->request_status,
+            'items' => $this->item_summary,
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
         ];

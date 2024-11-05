@@ -84,6 +84,9 @@ Route::middleware('auth:api')->group(function () {
         Route::resource('resource', RequestBOMController::class)->names("requestBomresource");
         Route::get('current', [RequestBomController::class, 'getCurrentBom']);
         Route::get('list', [RequestBomController::class, 'getList']);
+        Route::get('all-request', [RequestBomController::class, 'allRequests']);
+        Route::get('my-request', [RequestBomController::class, 'myRequests']);
+        Route::get('my-approvals', [RequestBomController::class, 'myApprovals']);
 
         Route::prefix('details')->group(function () {
             Route::resource('resource', DetailsController::class)->names("bomDetailsresource");

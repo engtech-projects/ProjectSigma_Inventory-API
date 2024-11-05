@@ -5,9 +5,20 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ValidateToken;
 use App\Http\Services\HrmsService;
 use App\Models\Department;
+use App\Utils\PaginateResourceCollection;
 
 class DepartmentsController extends Controller
 {
+    public function index()
+    {
+        $department = Department::get();
+
+        return response()->json([
+            'message' => 'Departments Successfully Fetched.',
+            'success' => true,
+            'data' => $department,
+        ]);
+    }
     public function store(ValidateToken $request)
     {
         $request = $request->validated();

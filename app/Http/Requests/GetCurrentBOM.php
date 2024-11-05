@@ -29,6 +29,10 @@ class GetCurrentBOM extends FormRequest
                 "string",
                 new Enum(AssignTypes::class)
             ],
+            'assignment_id' => [
+                "nullable",
+                "numeric"
+            ],
             'effectivity' => 'required|string|date_format:Y',
         ];
     }

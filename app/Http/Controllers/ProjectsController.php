@@ -23,8 +23,7 @@ class ProjectsController extends Controller
         foreach ($projects as $proj) {
             Project::updateOrCreate(
                 [
-                    'hrms_id' => $proj['id'],
-                    'project_monitoring_id' => $proj['project_monitoring_id'],
+                    'project_monitoring_id' => $proj['id'],
                     'project_code' => $proj['project_code'],
                     'status' => $proj['status'],
                 ]

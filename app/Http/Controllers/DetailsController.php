@@ -17,12 +17,10 @@ class DetailsController extends Controller
     {
         $details = Details::with('uom')->get();
         $requestResources = BOMDetailsResource::collection($details)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
-
         return response()->json([
             'message' => 'BOM Details Successfully fetched.',
             'success' => true,
-            'data' => $paginated,
+            'data' => $requestResources,
         ]);
     }
 
