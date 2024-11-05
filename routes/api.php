@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Actions\Approvals\ApproveApproval;
+use App\Http\Controllers\Actions\Approvals\CancelApproval;
 use App\Http\Controllers\Actions\Approvals\DisapproveApproval;
+use App\Http\Controllers\Actions\Approvals\VoidApproval;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepartmentsController;
@@ -66,6 +68,8 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('approvals')->group(function () {
         Route::post('approve/{modelName}/{model}', ApproveApproval::class);
         Route::post('disapprove/{modelName}/{model}', DisapproveApproval::class);
+        Route::post('cancel/{modelName}/{model}', CancelApproval::class);
+        Route::post('void/{modelName}/{model}', VoidApproval::class);
     });
     Route::prefix('warehouse')->group(function () {
         Route::resource('resource', WarehouseController::class)->names("warehouseresource");
@@ -88,6 +92,13 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('details')->group(function () {
             Route::resource('resource', DetailsController::class)->names("bomDetailsresource");
         });
+
+        Route::get('all-request', [RequestBOMController::class, 'allRequests']);
+        Route::get('my-request', [RequestBOMController::class, 'myRequests']);
+        Route::get('my-approvals', [RequestBOMController::class, 'myApprovals']);
+    });
+    Route::prefix('departments')->group(function () {
+        Route::resource('resource', DepartmentsController::class)->names("departmentresource");
     });
     Route::prefix('setup')->group(function () {
         // to be used later
