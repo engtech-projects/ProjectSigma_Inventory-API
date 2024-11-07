@@ -2,8 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Models\ItemProfile;
-use App\Models\UOM;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

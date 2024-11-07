@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\RequestApprovalStatus;
-use App\Http\Resources\UOMResource;
 use App\Traits\HasApproval;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

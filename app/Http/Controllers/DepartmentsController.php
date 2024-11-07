@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ValidateToken;
 use App\Http\Services\HrmsService;
 use App\Models\Department;
-use App\Utils\PaginateResourceCollection;
 
 class DepartmentsController extends Controller
 {
