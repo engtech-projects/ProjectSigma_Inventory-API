@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreWarehousePssRequest;
 use App\Http\Requests\UpdateWarehousePssRequest;
 use App\Http\Resources\WarehousePssResource;
+use App\Http\Resources\WarehouseResource;
 use App\Models\Warehouse;
 use App\Models\WarehousePss;
 use App\Utils\PaginateResourceCollection;
@@ -78,7 +79,7 @@ class WarehousePssController extends Controller
                 return response()->json([
                     'message' => 'The user(s) are already assigned.',
                     'success' => false,
-                    "data" => $warehouse_id->load('warehousePss')
+                    "data" => new WarehouseResource($warehouse_id)
                 ]);
             }
             DB::transaction(function () use ($userIds, $warehouse_id) {
@@ -99,7 +100,7 @@ class WarehousePssController extends Controller
             return response()->json([
                 'message' => 'Successfully assigned new PSS',
                 'success' => true,
-                "data" => $warehouse_id->load('warehousePss')
+                "data" => new WarehouseResource($warehouse_id->load('warehousePss'))
             ]);
         }
         return response()->json([
