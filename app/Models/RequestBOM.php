@@ -35,6 +35,10 @@ class RequestBOM extends Model
         'effectivity' => 'string',
     ];
 
+    public $appends = [
+        'item_summary'
+    ];
+
     /**
      * ==================================================
      * MODEL ATTRIBUTES
@@ -61,11 +65,7 @@ class RequestBOM extends Model
     public function getItemSummaryAttribute()
     {
         return $this->items->map(function ($item) {
-            // Eagerly load the UOM model if it's not already loaded
-            $uom = $item->relationLoaded('uom') ? $item->uom : UOM::find($item->uom);
 
-            // Fetch the convertible units in a single query if the UOM is available
-            $convertableUnits = $uom ? UOM::where('group_id', $uom->group_id)->get() : collect();
 
             $attributes = collect([
                 'item_description' => $item->item_description,
@@ -113,17 +113,7 @@ class RequestBOM extends Model
                 'grade' => $item->grade,
                 'color' => $item->color,
                 'uom' => $item->uom,
-                'convertable_units' => UOMResource::collection($convertableUnits),
             ], $attributes->toArray());
-        });
-    }
-
-    public function getConvertableUnitAttribute()
-    {
-        // return $this->uom ? UOM::where('group_id', $this->uom->group_id)->get() : null;
-        return $this->items->map(function ($item) {
-            $uom = is_object($item->uom) ? $item->uom : UOM::find($item->uom);
-            return $uom ? UOM::where('group_id', $uom->group_id)->get() : null;
         });
     }
 

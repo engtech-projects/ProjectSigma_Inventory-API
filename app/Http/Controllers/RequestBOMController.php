@@ -29,6 +29,7 @@ class RequestBOMController extends Controller
     {
         $this->requestBOMService = $requestBOMService;
     }
+
     /**
      * Display a listing of the resource.
      */
@@ -36,10 +37,11 @@ class RequestBOMController extends Controller
     {
         $requests = RequestBOM::with('items')->get();
         $requestResources = RequestBOMResource::collection($requests)->collect();
+        $paginated = PaginateResourceCollection::paginate($requestResources);
         return response()->json([
             'message' => 'BOM Request Successfully fetched.',
             'success' => true,
-            'data' => $requestResources,
+            'data' => $paginated,
         ]);
     }
 
@@ -83,47 +85,6 @@ class RequestBOMController extends Controller
         ], JsonResponse::HTTP_OK);
     }
 
-    // public function store(StoreRequestBOMRequest $request)
-    // {
-    //     $attributes = $request->validated();
-
-    //     $attributes['request_status'] = RequestStatuses::PENDING;
-    //     $attributes['created_by'] = auth()->user()->id;
-
-    //     if ($attributes["assignment_type"] == AssignTypes::DEPARTMENT->value) {
-    //         $attributes["assignment_type"] = class_basename(Department::class);
-    //     } else {
-    //         $attributes["assignment_type"] = Project::class;
-    //     }
-
-    //     DB::transaction(function () use ($attributes, $request) {
-    //         $requestBOM = RequestBOM::create([
-    //             'assignment_id' => $attributes['assignment_id'],
-    //             'assignment_type' => $attributes['assignment_type'],
-    //             'effectivity' => $attributes['effectivity'],
-    //             'approvals' => $attributes['approvals'],
-    //             'created_by' => $attributes['created_by'],
-    //             'request_status' => $attributes['request_status'],
-    //         ]);
-
-    //         foreach ($attributes['details'] as $requestData) {
-    //             $requestData['request_bom_id'] = $requestBOM->id;
-    //             Details::updateOrInsert(
-    //                 ['item_description' => $requestData['item_description']],
-    //                 $requestData
-    //             );
-    //         }
-
-    //         if ($requestBOM->getNextPendingApproval()) {
-    //             $requestBOM->notify(new RequestBOMForApprovalNotification($request->bearerToken(), $requestBOM));
-    //         }
-    //     });
-
-    //     return new JsonResponse([
-    //         'success' => true,
-    //         'message' => 'Request BOM Successfully Saved.',
-    //     ], JsonResponse::HTTP_OK);
-    // }
 
     /**
      * Display the specified resource.

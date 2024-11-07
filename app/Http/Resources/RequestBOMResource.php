@@ -22,7 +22,7 @@ class RequestBOMResource extends JsonResource
             'effectivity' => $this->effectivity,
             'created_by' => $this->created_by,
             'request_status' => $this->request_status,
-            'items' => $this->item_summary,
+            'item_summary' => $this->item_summary,
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
         ];

@@ -21,10 +21,18 @@ class BOMDetailsResource extends JsonResource
             'id' => $this->id,
             'request_bom_id' => $this->request_bom_id,
             'item_id' => $this->item_id,
+            'item_summary' => $this->item_summary,
             'uom_id' => $this->uom_id,
             'unit_price' => $this->unit_price,
             'quantity' => $this->quantity,
-            'unit' => UOMResource::collection($this->unit)
+            'unit' => $this->unit->map(function ($uom) {
+                return [
+                    'id' => $uom->id,
+                    'name' => $uom->name,
+                    'symbol' => $uom->symbol,
+                    'conversion' => $uom->conversion,
+                ];
+            }),
 
         ];
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Services\ItemProfileService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -21,7 +22,8 @@ class Details extends Model
     ];
 
     public $appends = [
-        'unit'
+        'unit',
+        'item_summary',
     ];
 
     /**
@@ -34,6 +36,13 @@ class Details extends Model
     {
         return UOM::where('group_id', $this->uom->group_id)->get();
     }
+    public function getItemSummaryAttribute()
+    {
+        $itemProfileService = new ItemProfileService();
+        $attributes = $itemProfileService->getItemSummary($this->items);
+        return $attributes->implode(' ') ?? '';
+    }
+
 
     /**
      * ==================================================
