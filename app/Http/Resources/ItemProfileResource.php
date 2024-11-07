@@ -14,9 +14,6 @@ class ItemProfileResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // return [
-        //     ...parent::toArray($request),
-        // ];
         return [
             'id' => $this->id,
             'item_code' => $this->item_code,

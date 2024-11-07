@@ -15,10 +15,9 @@ class DetailsController extends Controller
      */
     public function index()
     {
-        $details = Details::with('uom')->get();
+        $details = Details::get();
         $requestResources = BOMDetailsResource::collection($details)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
-
         return response()->json([
             'message' => 'BOM Details Successfully fetched.',
             'success' => true,
@@ -47,7 +46,7 @@ class DetailsController extends Controller
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,
-            "data" => $resource
+            "data" => new BOMDetailsResource($resource)
         ]);
     }
 

@@ -22,20 +22,7 @@ class SearchItemProfile extends FormRequest
     public function rules(): array
     {
         return [
-            'key' =>
-            [
-                "present",
-                "nullable",
-                "string",
-                "max:35",
-            ],
-            // "type" =>
-            // [
-            //     "present",
-            //     "nullable",
-            //     "string",
-            //     "max:35",
-            // ]
+            'query' => 'present|nullable|string|max:255',
         ];
     }
 }
