@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AssignTypes;
-use App\Enums\RequestApprovalStatus;
+use App\Enums\RequestStatuses;
 use App\Http\Requests\GetCurrentBOM;
 use App\Http\Requests\GetListBOM;
 use App\Models\RequestBOM;
 use App\Http\Requests\StoreRequestBOMRequest;
 use App\Http\Requests\UpdateRequestBOMRequest;
 use App\Http\Resources\RequestBOMResource;
+use App\Http\Resources\RequestBOMResourceList;
 use App\Models\Department;
 use App\Models\Details;
 use App\Models\Project;
@@ -18,21 +19,27 @@ use App\Traits\HasApproval;
 use App\Utils\PaginateResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use App\Http\Services\RequestBOMService;
 
 class RequestBOMController extends Controller
 {
     use HasApproval;
+    protected $requestBOMService;
+    public function __construct(RequestBOMService $requestBOMService)
+    {
+        $this->requestBOMService = $requestBOMService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $request = RequestBOM::with('details')->get();
-        $requestResources = RequestBOMResource::collection($request)->collect();
+        $requests = RequestBOM::with('items')->get();
+        $requestResources = RequestBOMResource::collection($requests)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
-
         return response()->json([
-            'message' => 'BOM Request successfully fetched.',
+            'message' => 'BOM Request Successfully fetched.',
             'success' => true,
             'data' => $paginated,
         ]);
@@ -44,15 +51,14 @@ class RequestBOMController extends Controller
     public function store(StoreRequestBOMRequest $request)
     {
         $attributes = $request->validated();
-        $attributes['request_status'] = RequestApprovalStatus::PENDING;
+
+        $attributes['request_status'] = RequestStatuses::PENDING;
         $attributes['created_by'] = auth()->user()->id;
 
         if ($attributes["assignment_type"] == AssignTypes::DEPARTMENT->value) {
-            $attributes["charge_assignment_id"] = $attributes["department_id"];
-            $attributes["charge_assignment_type"] = Department::class;
+            $attributes["assignment_type"] = class_basename(Department::class);
         } else {
-            $attributes["charge_assignment_id"] = $attributes["project_id"];
-            $attributes["charge_assignment_type"] = Project::class;
+            $attributes["assignment_type"] = Project::class;
         }
 
         DB::transaction(function () use ($attributes, $request) {
@@ -67,7 +73,6 @@ class RequestBOMController extends Controller
 
             foreach ($attributes['details'] as $requestData) {
                 $requestData['request_bom_id'] = $requestBOM->id;
-
                 Details::create($requestData);
             }
             if ($requestBOM->getNextPendingApproval()) {
@@ -79,6 +84,7 @@ class RequestBOMController extends Controller
             'message' => 'Request BOM Successfully Saved.',
         ], JsonResponse::HTTP_OK);
     }
+
 
     /**
      * Display the specified resource.
@@ -141,10 +147,12 @@ class RequestBOMController extends Controller
     {
         $validated = $request->validated();
         $assignment_type = $validated['assignment_type'] ?? null;
+        $assignment_id = $validated['assignment_id'] ?? null;
         $effectivity = $validated['effectivity'] ?? null;
 
         $requestCurrentBom = RequestBom::with('details')
             ->where('assignment_type', $assignment_type)
+            ->where('assignment_id', $assignment_id)
             ->where('effectivity', $effectivity)
             ->first();
 
@@ -187,6 +195,66 @@ class RequestBOMController extends Controller
             'message' => 'Filtered BOM list fetched successfully.',
             'success' => true,
             'data' => $filteredBomList,
+        ]);
+    }
+
+    public function myRequests()
+    {
+        $myRequest = $this->requestBOMService->getMyRequest();
+
+        if ($myRequest->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+
+        $requestResources = RequestBOMResourceList::collection($myRequest)->collect();
+        $paginated = PaginateResourceCollection::paginate($requestResources);
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'My Request Fetched.',
+            'data' => $paginated
+        ]);
+    }
+    public function allRequests()
+    {
+        $myRequest = $this->requestBOMService->getAll();
+
+        if ($myRequest->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+
+        $requestResources = RequestBOMResourceList::collection($myRequest)->collect();
+        $paginated = PaginateResourceCollection::paginate($requestResources);
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'All Request Fetched.',
+            'data' => $paginated
+        ]);
+    }
+
+    public function myApprovals()
+    {
+        $myApproval = $this->requestBOMService->getMyApprovals();
+        if ($myApproval->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+
+        $requestResources = RequestBOMResourceList::collection($myApproval)->collect();
+        $paginated = PaginateResourceCollection::paginate($requestResources);
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'My Approvals Fetched.',
+            'data' => $paginated
         ]);
     }
 }

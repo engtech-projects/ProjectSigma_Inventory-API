@@ -17,6 +17,14 @@ class StoreRequestBOMRequest extends FormRequest
     {
         return true;
     }
+    protected function prepareForValidation()
+    {
+        if (gettype($this->details) == "string") {
+            $this->merge([
+                "details" => json_decode($this->details, true)
+            ]);
+        }
+    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -28,18 +36,30 @@ class StoreRequestBOMRequest extends FormRequest
         return [
             'assignment_id' => 'nullable|integer',
             'assignment_type' => [
-                "nullable",
-                "string",
-                new Enum(AssignTypes::class)
+                'nullable',
+                'string',
+                new Enum(AssignTypes::class),
             ],
             'effectivity' => 'required|string',
-            'details' => 'required|array',
-            'details.*' => 'required|array',
-            'details.request_bom_id' => 'required|numeric|exists:request_bom,id',
-            'details.item_id' => 'required|exists:item_profile,id',
-            'details.uom_id' => 'required|exists:setup_uom,id',
-            'details.unit_price' => 'required|numeric',
-            'details.quantity' => 'required|numeric',
+            'details' => [
+                'required',
+                'array',
+                function ($attribute, $value, $fail) {
+                    if (empty($value)) {
+                        return $fail('The ' . $attribute . ' must not be empty.');
+                    }
+
+                    foreach ($value as $item) {
+                        if (empty($item['item_id']) || empty($item['uom_id']) || empty($item['unit_price']) || empty($item['quantity'])) {
+                            return $fail('The ' . $attribute . ' must contain the required fields.');
+                        }
+                    }
+                },
+            ],
+            'details.*.item_id' => 'required|exists:item_profile,id',
+            'details.*.uom_id' => 'required|exists:setup_uom,id',
+            'details.*.unit_price' => 'required|numeric',
+            'details.*.quantity' => 'required|numeric',
             ...$this->storeApprovals(),
         ];
     }

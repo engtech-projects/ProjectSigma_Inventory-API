@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Services\ItemProfileService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -51,43 +52,28 @@ class ItemProfile extends Model
         "approvals" => 'array'
     ];
 
+    public $appends = [
+        'item_summary',
+    ];
+
 
     /**
      * ==================================================
      * MODEL ATTRIBUTES
      * ==================================================
      */
-    public function getThicknessUomSymbolAttribute()
-    {
-        return $this->thicknessUom ? $this->thicknessUom->symbol : $this->thickness_uom;
-    }
 
-    public function getLengthUomSymbolAttribute()
+    public function getUomSymbolsAttribute()
     {
-        return $this->lengthUom ? $this->lengthUom->symbol : $this->length_uom;
-    }
-
-    public function getWidthUomSymbolAttribute()
-    {
-        return $this->widthUom ? $this->widthUom->symbol : $this->width_uom;
-    }
-
-    public function getHeightUomSymbolAttribute()
-    {
-        return $this->heightUom ? $this->heightUom->symbol : $this->height_uom;
-    }
-
-    public function getVolumeUomSymbolAttribute()
-    {
-        return $this->volumeUom ? $this->volumeUom->symbol : $this->volume_uom;
-    }
-    public function getOutsideDiameterUomSymbolAttribute()
-    {
-        return $this->OutsideDiameterUom ? $this->OutsideDiameterUom->symbol : $this->outside_diameter_uom;
-    }
-    public function getInsideDiameterUomSymbolAttribute()
-    {
-        return $this->InsideDiameterUom ? $this->InsideDiameterUom->symbol : $this->inside_diameter_uom;
+        return [
+            'thickness_uom_symbol' => $this->thicknessUom ? $this->thicknessUom->symbol : $this->thickness_uom,
+            'length_uom_symbol' => $this->lengthUom ? $this->lengthUom->symbol : $this->length_uom,
+            'width_uom_symbol' => $this->widthUom ? $this->widthUom->symbol : $this->width_uom,
+            'height_uom_symbol' => $this->heightUom ? $this->heightUom->symbol : $this->height_uom,
+            'outside_diameter_uom_symbol' => $this->outsideDiameterUom ? $this->outsideDiameterUom->symbol : $this->outside_diameter_uom,
+            'inside_diameter_uom_symbol' => $this->insideDiameterUom ? $this->insideDiameterUom->symbol : $this->inside_diameter_uom,
+            'volume_uom_symbol' => $this->volumeUom ? $this->volumeUom->symbol : $this->volume_uom,
+        ];
     }
 
     public function getThicknessAttribute()
@@ -166,7 +152,17 @@ class ItemProfile extends Model
         return $uom;
     }
 
+    public function getItemSummaryAttribute()
+    {
+        $itemProfileService = new ItemProfileService();
+        $attributes = $itemProfileService->getItemSummary($this);
+        return $attributes->implode(' ');
+    }
 
+    public function getConvertableUnitAttribute()
+    {
+        return UOM::where('group_id', $this->uomName->group_id)->get();
+    }
 
     /**
      * ==================================================
@@ -229,10 +225,25 @@ class ItemProfile extends Model
     public function scopeSearch(Builder $query, $searchKey)
     {
         $fields = [
-            'item_description', 'item_code', 'thickness_val', 'thickness_uom', 'length_val',
-            'length_uom', 'width_val', 'width_uom', 'height_val', 'height_uom',
-            'outside_diameter_val', 'outside_diameter_uom', 'inside_diameter_val',
-            'inside_diameter_uom', 'volume_val', 'volume_uom', 'grade', 'color', 'specification'
+            'item_description',
+            'item_code',
+            'thickness_val',
+            'thickness_uom',
+            'length_val',
+            'length_uom',
+            'width_val',
+            'width_uom',
+            'height_val',
+            'height_uom',
+            'outside_diameter_val',
+            'outside_diameter_uom',
+            'inside_diameter_val',
+            'inside_diameter_uom',
+            'volume_val',
+            'volume_uom',
+            'grade',
+            'color',
+            'specification'
         ];
 
         // Join UOM tables once for all *_uom fields
@@ -262,25 +273,25 @@ class ItemProfile extends Model
                 if ($numericValue) {
                     $q->orWhere(function ($q) use ($numericValue, $symbolPart) {
                         $q->whereRaw("CAST(thickness_val AS DECIMAL(10, 2)) = ?", [$numericValue])
-                        ->where('t_uom.symbol', 'LIKE', "%{$symbolPart}%");
+                            ->where('t_uom.symbol', 'LIKE', "%{$symbolPart}%");
                     })->orWhere(function ($q) use ($numericValue, $symbolPart) {
                         $q->whereRaw("CAST(length_val AS DECIMAL(10, 2)) = ?", [$numericValue])
-                        ->where('l_uom.symbol', 'LIKE', "%{$symbolPart}%");
+                            ->where('l_uom.symbol', 'LIKE', "%{$symbolPart}%");
                     })->orWhere(function ($q) use ($numericValue, $symbolPart) {
                         $q->whereRaw("CAST(width_val AS DECIMAL(10, 2)) = ?", [$numericValue])
-                        ->where('w_uom.symbol', 'LIKE', "%{$symbolPart}%");
+                            ->where('w_uom.symbol', 'LIKE', "%{$symbolPart}%");
                     })->orWhere(function ($q) use ($numericValue, $symbolPart) {
                         $q->whereRaw("CAST(height_val AS DECIMAL(10, 2)) = ?", [$numericValue])
-                        ->where('h_uom.symbol', 'LIKE', "%{$symbolPart}%");
+                            ->where('h_uom.symbol', 'LIKE', "%{$symbolPart}%");
                     })->orWhere(function ($q) use ($numericValue, $symbolPart) {
                         $q->whereRaw("CAST(outside_diameter_val AS DECIMAL(10, 2)) = ?", [$numericValue])
-                        ->where('od_uom.symbol', 'LIKE', "%{$symbolPart}%");
+                            ->where('od_uom.symbol', 'LIKE', "%{$symbolPart}%");
                     })->orWhere(function ($q) use ($numericValue, $symbolPart) {
                         $q->whereRaw("CAST(inside_diameter_val AS DECIMAL(10, 2)) = ?", [$numericValue])
-                        ->where('id_uom.symbol', 'LIKE', "%{$symbolPart}%");
+                            ->where('id_uom.symbol', 'LIKE', "%{$symbolPart}%");
                     })->orWhere(function ($q) use ($numericValue, $symbolPart) {
                         $q->whereRaw("CAST(volume_val AS DECIMAL(10, 2)) = ?", [$numericValue])
-                        ->where('v_uom.symbol', 'LIKE', "%{$symbolPart}%");
+                            ->where('v_uom.symbol', 'LIKE', "%{$symbolPart}%");
                     });
                 }
             }

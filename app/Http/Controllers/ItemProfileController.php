@@ -143,19 +143,32 @@ class ItemProfileController extends Controller
 
     public function search(SearchItemProfile $request)
     {
-        $searchKey = $request->validated()["key"];
 
-        $main = ItemProfile::search("$searchKey")
-            ->with(['uomName:id,name,symbol,conversion', 'thicknessUom', 'lengthUom', 'widthUom', 'heightUom', 'volumeUom', 'outsideDiameterUom', 'insideDiameterUom'])
+        $searchKey = $request->validated()['query'] ?? '';
+
+        $query = ItemProfile::where('active_status', 'Active')
+            ->where(function ($q) use ($searchKey) {
+                $q->where('item_description', 'LIKE', "%{$searchKey}%")
+                ->orWhere('thickness_val', 'LIKE', "%{$searchKey}%")
+                ->orWhere('length_val', 'LIKE', "%{$searchKey}%")
+                ->orWhere('width_val', 'LIKE', "%{$searchKey}%")
+                ->orWhere('height_val', 'LIKE', "%{$searchKey}%")
+                ->orWhere('outside_diameter_val', 'LIKE', "%{$searchKey}%")
+                ->orWhere('inside_diameter_val', 'LIKE', "%{$searchKey}%")
+                ->orWhere('specification', 'LIKE', "%{$searchKey}%")
+                ->orWhere('volume_val', 'LIKE', "%{$searchKey}%")
+                ->orWhere('grade', 'LIKE', "%{$searchKey}%")
+                ->orWhere('color', 'LIKE', "%{$searchKey}%");
+            })
             ->limit(25)
             ->orderBy('item_description')
             ->get();
 
         return response()->json([
-            'message' => "Successfully fetched.",
+            'message' => 'Successfully fetched.',
             'success' => true,
-            'data' => SearchedItemsResource::collection($main)
+            'data' => SearchedItemsResource::collection($query)
         ]);
-
     }
+
 }
