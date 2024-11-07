@@ -41,4 +41,57 @@ class RequestBOMService
         });
     }
 
+    public function getItemSummary($requestBOM)
+    {
+        return $requestBOM->items->map(function ($item) {
+            $attributes = collect([
+                'item_description' => $item->item_description,
+                'thickness_val' => $item->thickness_val,
+                'thickness_uom' => $item->thickness_uom_symbol,
+                'length_val' => $item->length_val,
+                'length_uom' => $item->length_uom_symbol,
+                'width_val' => $item->width_val,
+                'width_uom' => $item->width_uom_symbol,
+                'height_val' => $item->height_val,
+                'height_uom' => $item->height_uom_symbol,
+                'outside_diameter_val' => $item->outside_diameter_val,
+                'outside_diameter_uom' => $item->outside_diameter_uom_symbol,
+                'inside_diameter_val' => $item->inside_diameter_val,
+                'inside_diameter_uom' => $item->inside_diameter_uom_symbol,
+                'specification' => $item->specification,
+                'volume_val' => $item->volume_val,
+                'volume_uom' => $item->volume_uom_symbol,
+                'grade' => $item->grade,
+                'color' => $item->color,
+            ])->filter();
+
+            $itemSummary = $attributes->implode(' ');
+
+            return array_merge([
+                'id' => $item->id,
+                'item_code' => $item->item_code,
+                'item_summary' => $itemSummary,
+                'item_description' => $item->item_description,
+                'thickness_val' => $item->thickness_val,
+                'thickness_uom' => $item->thickness_uom_symbol,
+                'length_val' => $item->length_val,
+                'length_uom' => $item->length_uom,
+                'width_val' => $item->width_val,
+                'width_uom' => $item->width_uom,
+                'height_val' => $item->height_val,
+                'height_uom' => $item->height_uom,
+                'outside_diameter_val' => $item->outside_diameter_val,
+                'outside_diameter_uom' => $item->outside_diameter_uom,
+                'inside_diameter_val' => $item->inside_diameter_val,
+                'inside_diameter_uom' => $item->inside_diameter_uom,
+                'specification' => $item->specification,
+                'volume_val' => $item->volume_val,
+                'volume_uom' => $item->volume_uom,
+                'grade' => $item->grade,
+                'color' => $item->color,
+                'uom' => $item->uom,
+            ], $attributes->toArray());
+        });
+    }
+
 }
