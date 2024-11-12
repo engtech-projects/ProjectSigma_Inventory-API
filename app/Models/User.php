@@ -60,8 +60,12 @@ class User extends Model implements AuthenticatableContract
     {
         return null;
     }
-    public function setRememberToken($value) {}
-    public function getRememberTokenName() {}
+    public function setRememberToken($value)
+    {
+    }
+    public function getRememberTokenName()
+    {
+    }
 
     public function getAccessibilities()
     {

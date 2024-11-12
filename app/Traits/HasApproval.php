@@ -17,7 +17,9 @@ trait HasApproval
      * MODEL ATTRIBUTES
      * ==================================================
      */
-    public function setRequestStatus(?string $newStatus) {}
+    public function setRequestStatus(?string $newStatus)
+    {
+    }
     public function requestStatusCompleted(): bool
     {
         return false;
@@ -180,63 +182,6 @@ trait HasApproval
             "message" => $message,
         ];
     }
-    // public function updateApproval(?array $data)
-    // {
-    //     // CHECK IF MANPOWER REQUEST ALREADY DISAPPROVED AND SET RESPONSE DATA
-    //     if ($this->requestStatusEnded()) {
-    //         return [
-    //             "approvals" => $this->approvals,
-    //             'success' => false,
-    //             "status_code" => JsonResponse::HTTP_FORBIDDEN,
-    //             "message" => "The request was already ended.",
-    //         ];
-    //     }
-    //     // CHECK IF MANPOWER REQUEST ALREADY COMPLETED AND SET RESPONSE DATA
-    //     if ($this->requestStatusCompleted()) {
-    //         return [
-    //             "approvals" => $this->approvals,
-    //             'success' => false,
-    //             "status_code" => JsonResponse::HTTP_FORBIDDEN,
-    //             "message" => "The request was already completed.",
-    //         ];
-    //     }
-    //     $currentApproval = $this->getNextPendingApproval();
-    //     // CHECK IF THERE IS A CURRENT APPROVAL AND IF IS FOR THE LOGGED IN USER
-    //     if (!empty($currentApproval) && $currentApproval['user_id'] != auth()->user()->id) {
-    //         return [
-    //             "approvals" => $this->approvals,
-    //             'success' => false,
-    //             "status_code" => JsonResponse::HTTP_FORBIDDEN,
-    //             "message" => "Failed to {$data['status']}. Your approval is for later or already done.",
-    //         ];
-    //     }
-    //     DB::beginTransaction();
-    //     // UPDATE CURRENT APPROVAL TO DENIED/APPROVED/CANCELLED/VOIDED
-    //     switch ($data['status']) {
-    //         case RequestStatuses::DENIED:
-    //             $this->denyCurrentApproval($data["remarks"]);
-    //             $message = "Successfully denied.";
-    //             break;
-    //         case RequestStatuses::CANCELLED:
-    //             $this->cancelCurrentApproval($data["remarks"]);
-    //             $message = "Successfully cancelled.";
-    //             break;
-    //         case RequestStatuses::VOIDED:
-    //             $this->voidCurrentApproval($data["remarks"]);
-    //             $message = "Successfully voided.";
-    //             break;
-    //         default:
-    //             $this->approveCurrentApproval();
-    //             $message = "Successfully approved.";
-    //     }
-    //     DB::commit();
-    //     return [
-    //         "approvals" => $currentApproval,
-    //         'success' => true,
-    //         "status_code" => JsonResponse::HTTP_OK,
-    //         "message" => $message,
-    //     ];
-    // }
 
     public function approveCurrentApproval()
     {

@@ -58,7 +58,7 @@ class RequestBOMController extends Controller
 
         if ($attributes["assignment_type"] == AssignTypes::DEPARTMENT->value) {
             $attributes["assignment_type"] = class_basename(Department::class);
-        } else if ($attributes["assignment_type"] == AssignTypes::PROJECT->value) {
+        } elseif ($attributes["assignment_type"] == AssignTypes::PROJECT->value) {
             $attributes["assignment_type"] = class_basename(Project::class);
         }
 

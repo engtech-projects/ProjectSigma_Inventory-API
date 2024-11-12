@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ValidateToken;
 use App\Http\Services\HrmsService;
 use App\Models\Employee;
-use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
 {
