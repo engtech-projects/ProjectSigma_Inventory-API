@@ -31,6 +31,7 @@ class BOMDetailsResource extends JsonResource
                     'conversion' => $uom->conversion,
                 ];
             }),
+            "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
 
         ];
     }

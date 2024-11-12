@@ -17,9 +17,7 @@ trait HasApproval
      * MODEL ATTRIBUTES
      * ==================================================
      */
-    public function setRequestStatus(?string $newStatus)
-    {
-    }
+    public function setRequestStatus(?string $newStatus) {}
     public function requestStatusCompleted(): bool
     {
         return false;
@@ -31,20 +29,20 @@ trait HasApproval
 
 
     /**
-    * ==================================================
-    * MODEL RELATIONSHIPS
-    * ==================================================
-    */
+     * ==================================================
+     * MODEL RELATIONSHIPS
+     * ==================================================
+     */
     public function created_by_user(): BelongsTo
     {
         return $this->belongsTo(User::class, "created_by", "id");
     }
 
     /**
-    * ==================================================
-    * LOCAL SCOPES
-    * ==================================================
-    */
+     * ==================================================
+     * LOCAL SCOPES
+     * ==================================================
+     */
     public function scopeMyApprovals(Builder $query): void
     {
         $userId = auth()->user()->id;
@@ -65,10 +63,10 @@ trait HasApproval
 
 
     /**
-    * ==================================================
-    * DYNAMIC SCOPES
-    * ==================================================
-    */
+     * ==================================================
+     * DYNAMIC SCOPES
+     * ==================================================
+     */
     public function completeRequestStatus()
     {
         $this->request_status = RequestStatuses::APPROVED;
@@ -101,7 +99,7 @@ trait HasApproval
     }
     public function getNextPendingApproval()
     {
-        if($this->request_status != RequestStatuses::PENDING) {
+        if ($this->request_status != RequestStatuses::PENDING) {
             return null;
         }
         return collect($this->approvals)->where('status', RequestStatuses::PENDING)->first();
@@ -135,7 +133,7 @@ trait HasApproval
                 "message" => "The request was already ended.",
             ];
         }
-        // CHECK IF MANPOWER REQUEST ALREADY COMPLETED AND SET RESPONSE DATA
+        // CHECK IF REQUEST ALREADY COMPLETED AND SET RESPONSE DATA
         if ($this->requestStatusCompleted()) {
             return [
                 "approvals" => $this->approvals,
@@ -277,8 +275,20 @@ trait HasApproval
     }
     public function cancelCurrentApproval($remarks)
     {
-        $currentApproval = $this->getNextPendingApproval();
-        $currentApprovalIndex = collect($this->approvals)->search($currentApproval);
+        // USE THIS FUNCTION IF SURE TO DENY CURRENT APPROVAL AND VERIFIED IF CURRENT APPROVAL IS CURRENT USER
+        $currentApprovalIndex = collect($this->approvals)->search(function ($approval) {
+            return $approval['status'] === RequestStatuses::PENDING;
+        });
+
+        if ($currentApprovalIndex === false) {
+            return [
+                "approvals" => $this->approvals,
+                'success' => false,
+                "status_code" => JsonResponse::HTTP_NOT_FOUND,
+                "message" => "No pending approval found to cancel.",
+            ];
+        }
+
         $this->approvals = collect($this->approvals)->map(function ($approval, $index) use ($currentApprovalIndex, $remarks) {
             if ($index === $currentApprovalIndex) {
                 $approval["status"] = RequestStatuses::CANCELLED;
@@ -287,24 +297,59 @@ trait HasApproval
             }
             return $approval;
         });
+
         $this->save();
         $this->cancelRequestStatus();
     }
-    
-    // public function voidCurrentApproval($remarks)
+    // public function cancelCurrentApproval($remarks)
     // {
-    //     // USE THIS FUNCTION IF SURE TO VOID CURRENT APPROVAL AND VERIFIED IF CURRENT APPROVAL IS CURRENT USER
-    //     $currentApproval = $this->getNextPendingApproval();
-    //     $currentApprovalIndex = collect($this->approvals)->search($currentApproval);
+    //     $currentApprovalIndex = collect($this->approvals)->search(function ($approval) {
+    //         return $approval['status'] === RequestStatuses::PENDING;
+    //     });
+
+    //     if ($currentApprovalIndex === false) {
+    //         return [
+    //             "approvals" => $this->approvals,
+    //             'success' => false,
+    //             "status_code" => JsonResponse::HTTP_NOT_FOUND,
+    //             "message" => "No pending approval found to cancel.",
+    //         ];
+    //     }
+
     //     $this->approvals = collect($this->approvals)->map(function ($approval, $index) use ($currentApprovalIndex, $remarks) {
     //         if ($index === $currentApprovalIndex) {
-    //             $approval["status"] = RequestStatuses::VOIDED;
-    //             $approval["date_voided"] = Carbon::now()->format('F j, Y h:i A');
+    //             $approval["status"] = RequestStatuses::CANCELLED;
+    //             $approval["date_cancelled"] = Carbon::now()->format('F j, Y h:i A');
     //             $approval["remarks"] = $remarks;
     //         }
     //         return $approval;
-    //     })->all();
+    //     });
+
     //     $this->save();
-    //     $this->voidRequestStatus();
+    //     $this->cancelRequestStatus();
+
+    //     return [
+    //         "approvals" => $this->approvals,
+    //         'success' => true,
+    //         "status_code" => JsonResponse::HTTP_OK,
+    //         "message" => "Successfully cancelled.",
+    //     ];
     // }
+
+    public function voidCurrentApproval($remarks)
+    {
+        // USE THIS FUNCTION IF SURE TO VOID CURRENT APPROVAL AND VERIFIED IF CURRENT APPROVAL IS CURRENT USER
+        $currentApproval = $this->getNextPendingApproval();
+        $currentApprovalIndex = collect($this->approvals)->search($currentApproval);
+        $this->approvals = collect($this->approvals)->map(function ($approval, $index) use ($currentApprovalIndex, $remarks) {
+            if ($index === $currentApprovalIndex) {
+                $approval["status"] = RequestStatuses::VOIDED;
+                $approval["date_voided"] = Carbon::now()->format('F j, Y h:i A');
+                $approval["remarks"] = $remarks;
+            }
+            return $approval;
+        })->all();
+        $this->save();
+        $this->voidRequestStatus();
+    }
 }

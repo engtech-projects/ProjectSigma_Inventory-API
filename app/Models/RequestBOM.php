@@ -24,6 +24,7 @@ class RequestBOM extends Model
         'assignment_id',
         'assignment_type',
         'effectivity',
+        'version',
         'approvals',
         'created_by',
         'request_status',

@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\AssignTypes;
-use App\Http\Traits\HasApprovalValidation;
+use App\Http\Traits\HasApprovalValidation; 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 
