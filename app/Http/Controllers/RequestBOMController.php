@@ -65,14 +65,6 @@ class RequestBOMController extends Controller
         $assignmentType = $attributes["assignment_type"];
         $assignmentId = $attributes['assignment_id'];
 
-        $existingRequest = RequestBOM::where('assignment_type', $assignmentType)
-            ->where('assignment_id', $assignmentId)
-            ->where('effectivity', $attributes['effectivity'])
-            ->orderBy('created_at', 'desc')
-            ->first();
-
-        $version = $existingRequest ? $existingRequest->version + 1 : 1;
-
         if ($this->requestBOMService->hasPendingRequest($assignmentType, $assignmentId, $attributes['effectivity'])) {
             return new JsonResponse([
                 'success' => false,
@@ -80,7 +72,7 @@ class RequestBOMController extends Controller
             ], JsonResponse::HTTP_CONFLICT); // 409 Conflict
         }
 
-        DB::transaction(function () use ($attributes, $request, $version) {
+        DB::transaction(function () use ($attributes, $request) {
             $requestBOM = RequestBOM::create([
                 'assignment_id' => $attributes['assignment_id'],
                 'assignment_type' => $attributes['assignment_type'],
@@ -88,7 +80,6 @@ class RequestBOMController extends Controller
                 'approvals' => $attributes['approvals'],
                 'created_by' => $attributes['created_by'],
                 'request_status' => $attributes['request_status'],
-                'version' => $version,
             ]);
 
             foreach ($attributes['details'] as $requestData) {

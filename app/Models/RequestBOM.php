@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\RequestApprovalStatus;
+use App\Enums\RequestStatuses;
 use App\Http\Services\RequestBOMService;
 use App\Traits\HasApproval;
 use Illuminate\Database\Eloquent\Builder;
@@ -47,7 +47,7 @@ class RequestBOM extends Model
      */
     public function scopeRequestStatusPending(Builder $query): void
     {
-        $query->where('request_status', RequestApprovalStatus::PENDING);
+        $query->where('request_status', RequestStatuses::PENDING);
     }
 
     public function scopeAuthUserPending(Builder $query): void
@@ -58,7 +58,18 @@ class RequestBOM extends Model
 
     public function completeRequestStatus()
     {
-        $this->request_status = RequestApprovalStatus::APPROVED;
+        $requestBOM = self::where('assignment_type', $this->assignment_type)
+            ->where('assignment_id', $this->assignment_id)
+            ->where('effectivity', $this->effectivity)
+            ->where('request_status', '!=', RequestStatuses::APPROVED)
+            ->latest('version')
+            ->first();
+
+        if ($requestBOM) {
+            $this->version = $requestBOM->version + 1;
+        }
+
+        $this->request_status = RequestStatuses::APPROVED;
         $this->save();
         $this->refresh();
     }
