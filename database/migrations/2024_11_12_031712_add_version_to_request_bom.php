@@ -11,7 +11,7 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('request_bom', function (Blueprint $table) {
-            $table->integer('version')->default(1)->after('effectivity');
+            $table->integer('version')->nullable()->after('effectivity');
         });
     }
 

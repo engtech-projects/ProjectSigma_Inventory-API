@@ -58,18 +58,13 @@ class RequestBOM extends Model
 
     public function completeRequestStatus()
     {
-        $requestBOM = self::where('assignment_type', $this->assignment_type)
+        $latestVersion = self::where('assignment_type', $this->assignment_type)
             ->where('assignment_id', $this->assignment_id)
             ->where('effectivity', $this->effectivity)
-            ->where('request_status', '!=', RequestStatuses::APPROVED)
-            ->latest('version')
-            ->first();
-
-        if ($requestBOM) {
-            $this->version = $requestBOM->version + 1;
-        }
-
-        $this->request_status = RequestStatuses::APPROVED;
+            ->max('version');
+            
+        $this->version = $latestVersion ? $latestVersion + 1 : 1;
+        $this->request_status = RequestStatuses::APPROVED->value;
         $this->save();
         $this->refresh();
     }
