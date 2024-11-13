@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\UOM;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,6 +22,7 @@ class BOMDetailsResource extends JsonResource
             'item_id' => $this->item_id,
             'item_summary' => $this->item_summary,
             'uom_id' => $this->uom_id,
+            'uom_name' => UOM::find($this->uom_id)->name,
             'unit_price' => $this->unit_price,
             'quantity' => $this->quantity,
             'unit' => $this->unit->map(function ($uom) {
@@ -31,6 +33,7 @@ class BOMDetailsResource extends JsonResource
                     'conversion' => $uom->conversion,
                 ];
             }),
+            "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
 
         ];
     }

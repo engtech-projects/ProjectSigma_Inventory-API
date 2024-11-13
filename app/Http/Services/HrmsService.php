@@ -58,5 +58,26 @@ class HrmsService
         }
         return $response->json("data");
     }
+    public static function getUsers($token)
+    {
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->get(config('services.url.hrms_api_url') . '/api/users');
 
+        if (!$response->successful()) {
+            return false;
+        }
+        return $response->json("data");
+    }
+    public static function getEmployees($token)
+    {
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->get(config('services.url.hrms_api_url') . '/api/employee/resource');
+
+        if (!$response->successful()) {
+            return false;
+        }
+        return $response->json("data");
+    }
 }

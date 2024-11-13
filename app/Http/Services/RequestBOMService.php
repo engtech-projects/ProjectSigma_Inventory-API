@@ -94,4 +94,13 @@ class RequestBOMService
         });
     }
 
+    public function hasPendingRequest(string $assignmentType, int $assignmentId, string $effectivity): bool
+    {
+        return RequestBOM::where('assignment_type', $assignmentType)
+            ->where('assignment_id', $assignmentId)
+            ->where('effectivity', $effectivity)
+            ->where('request_status', 'Pending')
+            ->exists();
+    }
+
 }

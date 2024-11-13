@@ -1,11 +1,14 @@
 <?php
 
 use App\Http\Controllers\Actions\Approvals\ApproveApproval;
+use App\Http\Controllers\Actions\Approvals\CancelApproval;
 use App\Http\Controllers\Actions\Approvals\DisapproveApproval;
+use App\Http\Controllers\Actions\Approvals\VoidApproval;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\DetailsController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\ItemProfileBulkUploadController;
 use App\Http\Controllers\UOMController;
@@ -14,6 +17,7 @@ use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\RequestBOMController;
 use App\Http\Controllers\RequestItemProfilingController;
 use App\Http\Controllers\UOMGroupController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehousePssController;
 use App\Http\Controllers\WarehouseTransactionController;
@@ -67,6 +71,8 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('approvals')->group(function () {
         Route::post('approve/{modelName}/{model}', ApproveApproval::class);
         Route::post('disapprove/{modelName}/{model}', DisapproveApproval::class);
+        Route::post('cancel/{modelName}/{model}', CancelApproval::class);
+        Route::post('void/{modelName}/{model}', VoidApproval::class);
     });
     Route::prefix('warehouse')->group(function () {
         Route::resource('resource', WarehouseController::class)->names("warehouseresource");
@@ -85,13 +91,17 @@ Route::middleware('auth:api')->group(function () {
         Route::resource('resource', RequestBOMController::class)->names("requestBomresource");
         Route::get('current', [RequestBomController::class, 'getCurrentBom']);
         Route::get('list', [RequestBomController::class, 'getList']);
-        Route::get('all-request', [RequestBomController::class, 'allRequests']);
-        Route::get('my-request', [RequestBomController::class, 'myRequests']);
-        Route::get('my-approvals', [RequestBomController::class, 'myApprovals']);
 
         Route::prefix('details')->group(function () {
             Route::resource('resource', DetailsController::class)->names("bomDetailsresource");
         });
+
+        Route::get('all-request', [RequestBOMController::class, 'allRequests']);
+        Route::get('my-request', [RequestBOMController::class, 'myRequests']);
+        Route::get('my-approvals', [RequestBOMController::class, 'myApprovals']);
+    });
+    Route::prefix('departments')->group(function () {
+        Route::resource('resource', DepartmentsController::class)->names("departmentresource");
     });
     Route::prefix('setup')->group(function () {
         // to be used later
@@ -111,5 +121,7 @@ Route::middleware('auth:api')->group(function () {
 
         Route::resource('sync-departments', DepartmentsController::class)->names("syncDepartmentsresource");
         Route::resource('sync-projects', ProjectsController::class)->names("syncProjectsresource");
+        Route::resource('sync-users', UserController::class)->names("syncUserresource");
+        Route::resource('sync-employees', EmployeeController::class)->names("syncEmployeeresource");
     });
 });

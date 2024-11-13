@@ -9,6 +9,7 @@ use App\Http\Requests\GetListBOM;
 use App\Models\RequestBOM;
 use App\Http\Requests\StoreRequestBOMRequest;
 use App\Http\Requests\UpdateRequestBOMRequest;
+use App\Http\Resources\CurrentBOMResource;
 use App\Http\Resources\RequestBOMResource;
 use App\Http\Resources\RequestBOMResourceList;
 use App\Models\Department;
@@ -57,8 +58,18 @@ class RequestBOMController extends Controller
 
         if ($attributes["assignment_type"] == AssignTypes::DEPARTMENT->value) {
             $attributes["assignment_type"] = class_basename(Department::class);
-        } else {
-            $attributes["assignment_type"] = Project::class;
+        } elseif ($attributes["assignment_type"] == AssignTypes::PROJECT->value) {
+            $attributes["assignment_type"] = class_basename(Project::class);
+        }
+
+        $assignmentType = $attributes["assignment_type"];
+        $assignmentId = $attributes['assignment_id'];
+
+        if ($this->requestBOMService->hasPendingRequest($assignmentType, $assignmentId, $attributes['effectivity'])) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'There is already a pending Request BOM for this assignment.',
+            ], JsonResponse::HTTP_CONFLICT); // 409 Conflict
         }
 
         DB::transaction(function () use ($attributes, $request) {
@@ -79,6 +90,7 @@ class RequestBOMController extends Controller
                 $requestBOM->notify(new RequestBOMForApprovalNotification($request->bearerToken(), $requestBOM));
             }
         });
+
         return new JsonResponse([
             'success' => true,
             'message' => 'Request BOM Successfully Saved.',
@@ -154,6 +166,7 @@ class RequestBOMController extends Controller
             ->where('assignment_type', $assignment_type)
             ->where('assignment_id', $assignment_id)
             ->where('effectivity', $effectivity)
+            ->where('request_status', 'Approved')
             ->first();
 
         if (!$requestCurrentBom) {
@@ -163,7 +176,7 @@ class RequestBOMController extends Controller
                 'data' => []
             ]);
         }
-        $requestResource = new RequestBOMResource($requestCurrentBom);
+        $requestResource = new CurrentBOMResource($requestCurrentBom);
 
         return response()->json([
             'message' => 'Current BOM fetched successfully.',
@@ -171,6 +184,8 @@ class RequestBOMController extends Controller
             'data' => $requestResource,
         ]);
     }
+
+
 
     public function getList(GetListBOM $request)
     {

@@ -32,6 +32,9 @@ class DisapproveApproval extends Controller
             case ApprovalModels::WarehouseTransaction->name:
                 $model->notify(new WarehouseTransactionDeniedNotification($request->bearerToken(), $model));
                 break;
+            case ApprovalModels::RequestBOM->name:
+                $model->notify(new WarehouseTransactionDeniedNotification($request->bearerToken(), $model));
+                break;
 
             default:
                 break;

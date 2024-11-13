@@ -17,6 +17,17 @@ class User extends Model implements AuthenticatableContract
     use Authorizable;
     use Notifiable;
 
+    protected $table = 'users';
+
+    protected $fillable = [
+        'hrms_id',
+        'type',
+        'accessibilities',
+        'name',
+        'email',
+        'email_verified_at',
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -54,7 +65,6 @@ class User extends Model implements AuthenticatableContract
     }
     public function getRememberTokenName()
     {
-
     }
 
     public function getAccessibilities()
@@ -68,7 +78,6 @@ class User extends Model implements AuthenticatableContract
             }
         }
         return $accessibilities;
-
     }
 
     public function receiveBroadcastNotification()
