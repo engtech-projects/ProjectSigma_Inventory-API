@@ -99,6 +99,15 @@ trait HasApproval
         $this->save();
         $this->refresh();
     }
+    public function cancelRequestStatus()
+    {
+        if ($this->request_status === RequestStatuses::APPROVED->value) {
+            return;
+        }
+        $this->request_status = RequestStatuses::CANCELLED->value;
+        $this->save();
+        $this->refresh();
+    }
     public function setRequestStatus(?string $newStatus)
     {
     }
@@ -156,6 +165,23 @@ trait HasApproval
         $this->save();
         $this->denyRequestStatus();
     }
+    public function cancelCurrentApproval($remarks)
+    {
+        $lastApproval = collect($this->approvals)->last();
+        if ($lastApproval['status'] === RequestStatuses::PENDING->value) {
+            $lastApproval['status'] = RequestStatuses::CANCELLED->value;
+            $lastApproval['date_cancelled'] = Carbon::now()->format('F j, Y h:i A');
+            $lastApproval['remarks'] = $remarks;
+            $this->approvals = collect($this->approvals)->map(function ($approval) use ($lastApproval) {
+                if (collect($this->approvals)->search($approval) === collect($this->approvals)->count() - 1) {
+                    return $lastApproval;
+                }
+                return $approval;
+            });
+            $this->save();
+            $this->cancelRequestStatus();
+        }
+    }
 
     public function updateApproval(?array $data)
     {
@@ -194,11 +220,27 @@ trait HasApproval
                 $message = "Successfully denied.";
                 break;
             case RequestStatuses::CANCELLED:
+                if ($this->request_status === RequestStatuses::APPROVED->value) {
+                    return [
+                        "approvals" => $this->approvals,
+                        'success' => false,
+                        "status_code" => JsonResponse::HTTP_FORBIDDEN,
+                        "message" => "Cannot cancel the request because it is already approved.",
+                    ];
+                }
                 $this->cancelCurrentApproval($data["remarks"]);
                 $message = "Successfully cancelled.";
                 $data['date_cancelled'] = Carbon::now()->format('F j, Y h:i A');
                 break;
             case RequestStatuses::VOIDED:
+                if ($this->request_status === RequestStatuses::PENDING->value) {
+                    return [
+                        "approvals" => $this->approvals,
+                        'success' => false,
+                        "status_code" => JsonResponse::HTTP_FORBIDDEN,
+                        "message" => "Cannot void the request because it is still pending.",
+                    ];
+                }
                 $this->voidCurrentApproval($data["remarks"]);
                 $message = "Successfully voided.";
                 break;
