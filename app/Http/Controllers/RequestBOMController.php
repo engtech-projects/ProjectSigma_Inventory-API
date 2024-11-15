@@ -103,7 +103,7 @@ class RequestBOMController extends Controller
      */
     public function show(RequestBOM $resource)
     {
-        $resource->load('details');
+        // $resource->load('details');
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,
@@ -166,7 +166,8 @@ class RequestBOMController extends Controller
             ->where('assignment_type', $assignment_type)
             ->where('assignment_id', $assignment_id)
             ->where('effectivity', $effectivity)
-            ->where('request_status', 'Approved')
+            ->LatestVersion()
+            ->isApproved()
             ->first();
 
         if (!$requestCurrentBom) {
