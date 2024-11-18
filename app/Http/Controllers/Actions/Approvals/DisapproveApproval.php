@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use App\Enums\RequestApprovalStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DisapproveApprovalRequest;
+use App\Notifications\RequestBOMDeniedNotification;
 use App\Notifications\RequestItemProfilingDeniedNotification;
 use App\Notifications\WarehouseTransactionDeniedNotification;
 use Carbon\Carbon;
@@ -33,7 +34,7 @@ class DisapproveApproval extends Controller
                 $model->notify(new WarehouseTransactionDeniedNotification($request->bearerToken(), $model));
                 break;
             case ApprovalModels::RequestBOM->name:
-                $model->notify(new WarehouseTransactionDeniedNotification($request->bearerToken(), $model));
+                $model->notify(new RequestBOMDeniedNotification($request->bearerToken(), $model));
                 break;
 
             default:
