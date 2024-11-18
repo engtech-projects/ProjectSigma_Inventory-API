@@ -46,6 +46,7 @@ class RequestBOM extends Model
      * ==================================================
      */
 
+
     public function scopeLatestVersion(Builder $query): Builder
     {
         return $query->orderByDesc('version')->limit(1);
@@ -82,6 +83,12 @@ class RequestBOM extends Model
     {
         return app(RequestBOMService::class)->getItemSummary($this);
     }
+
+    public function getAssignmentType(int $requestBOMId): string
+    {
+        return Self::whereKey($requestBOMId)->value('assignment_type') ?? '';
+    }
+
 
 
     /**
