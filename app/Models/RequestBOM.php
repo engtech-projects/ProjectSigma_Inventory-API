@@ -45,6 +45,15 @@ class RequestBOM extends Model
      * MODEL ATTRIBUTES
      * ==================================================
      */
+
+    public function scopeLatestVersion(Builder $query): Builder
+    {
+        return $query->orderByDesc('version')->limit(1);
+    }
+    public function scopeIsApproved(Builder $query): void
+    {
+        $query->where('request_status', RequestStatuses::APPROVED);
+    }
     public function scopeRequestStatusPending(Builder $query): void
     {
         $query->where('request_status', RequestStatuses::PENDING);
@@ -58,18 +67,13 @@ class RequestBOM extends Model
 
     public function completeRequestStatus()
     {
-        $requestBOM = self::where('assignment_type', $this->assignment_type)
+        $latestVersion = Self::where('assignment_type', $this->assignment_type)
             ->where('assignment_id', $this->assignment_id)
             ->where('effectivity', $this->effectivity)
-            ->where('request_status', '!=', RequestStatuses::APPROVED)
-            ->latest('version')
-            ->first();
+            ->max('version');
 
-        if ($requestBOM) {
-            $this->version = $requestBOM->version + 1;
-        }
-
-        $this->request_status = RequestStatuses::APPROVED;
+        $this->version = $latestVersion ? $latestVersion + 1 : 1;
+        $this->request_status = RequestStatuses::APPROVED->value;
         $this->save();
         $this->refresh();
     }

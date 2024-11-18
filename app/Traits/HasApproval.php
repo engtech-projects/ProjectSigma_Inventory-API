@@ -99,6 +99,7 @@ trait HasApproval
         $this->save();
         $this->refresh();
     }
+
     public function setRequestStatus(?string $newStatus)
     {
     }
@@ -188,30 +189,17 @@ trait HasApproval
             ];
         }
         DB::beginTransaction();
-        switch ($data['status']) {
-            case RequestStatuses::DENIED:
-                $this->denyCurrentApproval($data["remarks"]);
-                $message = "Successfully denied.";
-                break;
-            case RequestStatuses::CANCELLED:
-                $this->cancelCurrentApproval($data["remarks"]);
-                $message = "Successfully cancelled.";
-                $data['date_cancelled'] = Carbon::now()->format('F j, Y h:i A');
-                break;
-            case RequestStatuses::VOIDED:
-                $this->voidCurrentApproval($data["remarks"]);
-                $message = "Successfully voided.";
-                break;
-            default:
-                $this->approveCurrentApproval();
-                $message = "Successfully approved.";
+        if ($data['status'] === RequestStatuses::DENIED->value) {
+            $this->denyCurrentApproval($data["remarks"]);
+        } else {
+            $this->approveCurrentApproval();
         }
         DB::commit();
         return [
             "approvals" => $currentApproval,
             'success' => true,
             "status_code" => JsonResponse::HTTP_OK,
-            "message" => $message,
+            "message" => $data['status'] === RequestStatuses::APPROVED->value ? "Successfully approved." : "Successfully denied.",
         ];
     }
 }

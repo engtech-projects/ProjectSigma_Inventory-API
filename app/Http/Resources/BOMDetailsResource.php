@@ -22,10 +22,11 @@ class BOMDetailsResource extends JsonResource
             'item_id' => $this->item_id,
             'item_summary' => $this->item_summary,
             'uom_id' => $this->uom_id,
-            'uom_name' => UOM::find($this->uom_id)->name,
-            'unit_price' => $this->unit_price,
+            'unit' => UOM::find($this->uom_id)->name,
+            'price' => $this->unit_price,
             'quantity' => $this->quantity,
-            'unit' => $this->unit->map(function ($uom) {
+            'amount' => number_format($this->unit_price * $this->quantity, 2),
+            'convertable_unit' => $this->unit->map(function ($uom) {
                 return [
                     'id' => $uom->id,
                     'name' => $uom->name,
@@ -33,7 +34,7 @@ class BOMDetailsResource extends JsonResource
                     'conversion' => $uom->conversion,
                 ];
             }),
-            "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
+            "approvals" => new ApprovalAttributeResource(["approvals" => $this->requestBom->approvals]),
 
         ];
     }
