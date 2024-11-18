@@ -51,7 +51,7 @@ class Details extends Model
      */
     public function requestBom()
     {
-        return $this->belongsTo(RequestBom::class, 'request_bom_id');
+        return $this->belongsTo(RequestBOM::class, 'request_bom_id');
     }
     public function uom()
     {
