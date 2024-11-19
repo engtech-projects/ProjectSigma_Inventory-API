@@ -28,8 +28,9 @@ class CurrentBOMResource extends JsonResource
                         'item_summary' => $detail->getItemSummaryAttribute(),
                         'uom_id' => $detail->uom_id,
                         'unit' => $detail->uom->name,
-                        'unit_price' => $detail->unit_price,
+                        'price' => $detail->unit_price,
                         'quantity' => $detail->quantity,
+                        'amount' => number_format($detail->unit_price * $detail->quantity, 2),
                     ];
                 })->toArray(),
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
