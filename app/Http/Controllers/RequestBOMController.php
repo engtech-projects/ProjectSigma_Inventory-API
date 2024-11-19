@@ -6,6 +6,7 @@ use App\Enums\AssignTypes;
 use App\Enums\RequestStatuses;
 use App\Http\Requests\GetCurrentBOM;
 use App\Http\Requests\GetListBOM;
+use App\Http\Requests\GetRequestById;
 use App\Models\RequestBOM;
 use App\Http\Requests\StoreRequestBOMRequest;
 use App\Http\Requests\UpdateRequestBOMRequest;
@@ -214,9 +215,13 @@ class RequestBOMController extends Controller
         ]);
     }
 
-    public function myRequests()
+    public function myRequests(GetRequestById $request)
     {
-        $myRequest = $this->requestBOMService->getMyRequest();
+        $validated = $request->validated();
+        $assignment_id = $validated['assignment_id'] ?? null;
+
+        $myRequest = $this->requestBOMService->getMyRequest()
+            ->where('assignment_id', $assignment_id);
 
         if ($myRequest->isEmpty()) {
             return new JsonResponse([
