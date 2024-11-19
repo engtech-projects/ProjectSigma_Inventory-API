@@ -17,6 +17,7 @@ class CurrentBOMResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'assignment_type' => $this->assignment_type,
             'details' => Details::where('request_bom_id', $this->id)
                 ->get(['id', 'request_bom_id', 'item_id', 'uom_id', 'unit_price', 'quantity'])
                 ->map(function ($detail) {
@@ -26,6 +27,7 @@ class CurrentBOMResource extends JsonResource
                         'item_id' => $detail->item_id,
                         'item_summary' => $detail->getItemSummaryAttribute(),
                         'uom_id' => $detail->uom_id,
+                        'unit' => $detail->uom->name,
                         'unit_price' => $detail->unit_price,
                         'quantity' => $detail->quantity,
                     ];

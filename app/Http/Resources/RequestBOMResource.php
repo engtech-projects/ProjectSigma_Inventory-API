@@ -22,7 +22,18 @@ class RequestBOMResource extends JsonResource
             'effectivity' => $this->effectivity,
             'created_by' => $this->created_by,
             'request_status' => $this->request_status,
-            'item_summary' => $this->item_summary,
+            'item_summary' => $this->details->map(function ($detail) {
+                return [
+                    'request_bom_id' => $detail->request_bom_id,
+                    'item_id' => $detail->item_id,
+                    'item_summary' => $detail->item_summary,
+                    'uom_id' => $detail->uom_id,
+                    'unit' => $detail->uom->name,
+                    'price' => $detail->unit_price,
+                    'quantity' => $detail->quantity,
+                    'amount' => number_format($detail->unit_price * $detail->quantity, 2),
+                ];
+            })->toArray(),
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
         ];
