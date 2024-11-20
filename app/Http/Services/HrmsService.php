@@ -51,7 +51,7 @@ class HrmsService
     {
         $response = Http::withToken($token)
             ->acceptJson()
-            ->get(config('services.url.hrms_api_url') . '/api/department/list');
+            ->get(config('services.url.hrms_api_url') . '/api/department/list/v2');
 
         if (!$response->successful()) {
             return false;

@@ -117,6 +117,10 @@ class RequestBOM extends Model
             'item_id'
         );
     }
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'assignment_id');
+    }
 
     /**
      * ==================================================

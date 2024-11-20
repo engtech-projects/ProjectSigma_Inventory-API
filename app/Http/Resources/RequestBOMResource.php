@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,10 +15,12 @@ class RequestBOMResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $department = Department::find($this->assignment_id);
 
         return [
             'id' => $this->id,
             'assignment_id' => $this->assignment_id,
+            'department' => $this->department->department_name ?? null,
             'assignment_type' => $this->assignment_type,
             'effectivity' => $this->effectivity,
             'created_by' => $this->created_by,
