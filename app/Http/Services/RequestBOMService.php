@@ -3,38 +3,35 @@
 namespace App\Http\Services;
 
 use App\Models\RequestBOM;
+use App\Traits\Filters;
 
 class RequestBOMService
 {
+    use Filters;
     public function getAll()
     {
         return RequestBOM::all();
     }
 
-    public function getMyRequest()
+    public function getMyRequest(array $filters = [])
     {
-        return RequestBOM::with(['items'])
-        ->where("created_by", auth()->user()->id)
-        ->orderBy("created_at", "DESC")
-        ->get();
+        $query = RequestBOM::with(['items'])->where('created_by', auth()->user()->id);
+        $query = $this->bomFilters($query, $filters);
+        return $query->orderBy('created_at', 'DESC')->get();
     }
-    public function getAllRequest()
+    public function getAllRequest(array $filters = [])
     {
-        return RequestBOM::where("request_status", "Approved")
-        ->with(['itemProfiles'])
-        ->orderBy("created_at", "DESC")
-        ->get();
+        $query = RequestBOM::query();
+        $query = $this->bomFilters($query, $filters);
+        return $query->orderBy('created_at', 'DESC')->get();
     }
 
-    public function getMyApprovals()
+    public function getMyApprovals(array $filters = [])
     {
         $userId = auth()->user()->id;
-
-        $result = RequestBOM::myApprovals()
-                    ->with(['items'])
-                    ->orderBy("created_at", "DESC")
-                    ->get();
-
+        $query = RequestBOM::myApprovals()->with(['items'])->orderBy('created_at', 'DESC');
+        $query = $this->bomFilters($query, $filters);
+        $result = $query->get();
         return $result->filter(function ($item) use ($userId) {
             $nextPendingApproval = $item->getNextPendingApproval();
             return ($nextPendingApproval && $userId === $nextPendingApproval['user_id']);
@@ -102,5 +99,4 @@ class RequestBOMService
             ->where('request_status', 'Pending')
             ->exists();
     }
-
 }
