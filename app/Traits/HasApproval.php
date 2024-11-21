@@ -93,7 +93,7 @@ trait HasApproval
     }
     public function getNextPendingApproval()
     {
-        if($this->request_status != RequestApprovalStatus::PENDING) {
+        if ($this->request_status != RequestApprovalStatus::PENDING) {
             return null;
         }
         return collect($this->approvals)->where('status', RequestApprovalStatus::PENDING)->first();

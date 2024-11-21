@@ -8,7 +8,7 @@ class HrmsService
 {
     public static function setNotification($token, $userid, $notificationData)
     {
-        if(gettype($notificationData) == "array") {
+        if (gettype($notificationData) == "array") {
             $notificationData = json_encode($notificationData);
         }
         $response = Http::withToken(token: $token)

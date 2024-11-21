@@ -5,7 +5,6 @@ namespace App\Http\Services;
 use App\Enums\InventoryType;
 use App\Models\ItemProfile;
 use App\Models\UOM;
-use App\Models\UOMGroup;
 
 class ItemProfileBulkUploadService
 {

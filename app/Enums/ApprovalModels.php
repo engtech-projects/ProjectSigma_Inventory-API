@@ -3,10 +3,12 @@
 namespace App\Enums;
 
 use App\Models\RequestItemProfiling;
+use App\Models\RequestSupplier;
 
 enum ApprovalModels: string
 {
     case RequestItemProfiling = RequestItemProfiling::class;
+    case RequestSupplier = RequestSupplier::class;
 
     public static function toArray(): array
     {

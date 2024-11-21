@@ -6,8 +6,9 @@ use App\Enums\ApprovalModels;
 use Illuminate\Http\JsonResponse;
 use App\Enums\RequestApprovalStatus;
 use App\Http\Controllers\Controller;
-use App\Notifications\RequestItemProfilingApprovedNotification;
 use App\Notifications\RequestItemProfilingForApprovalNotification;
+use App\Notifications\RequestSupplierApprovedNotification;
+use App\Notifications\RequestSupplierForApprovalNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -30,12 +31,15 @@ class ApproveApproval extends Controller
                 case ApprovalModels::RequestItemProfiling->name:
                     $model->notify(new RequestItemProfilingForApprovalNotification($request->bearerToken(), $model));
                     break;
+                case ApprovalModels::RequestSupplier->name:
+                    $model->notify(new RequestSupplierForApprovalNotification($request->bearerToken(), $model));
+                    break;
 
             }
         } else {
             switch ($modelType) {
                 case ApprovalModels::RequestItemProfiling->name:
-                    $model->notify(new RequestItemProfilingApprovedNotification($request->bearerToken(), $model));
+                    $model->notify(new RequestSupplierApprovedNotification($request->bearerToken(), $model));
                     break;
             }
         }
