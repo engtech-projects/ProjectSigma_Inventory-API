@@ -16,6 +16,7 @@ use App\Http\Controllers\ItemProfileController;
 use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\RequestBOMController;
 use App\Http\Controllers\RequestItemProfilingController;
+use App\Http\Controllers\RequestSupplierController;
 use App\Http\Controllers\UOMGroupController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
@@ -123,5 +124,17 @@ Route::middleware('auth:api')->group(function () {
         Route::resource('sync-projects', ProjectsController::class)->names("syncProjectsresource");
         Route::resource('sync-users', UserController::class)->names("syncUserresource");
         Route::resource('sync-employees', EmployeeController::class)->names("syncEmployeeresource");
+    });
+    Route::prefix('request-supplier')->group(function () {
+        Route::resource('resource', RequestSupplierController::class)->names("requestSupplierresource");
+        Route::put('edit/{resource}', [RequestSupplierController::class, 'update']);
+
+        Route::get('all-request', [RequestSupplierController::class, 'allRequests']);
+        Route::get('my-request', [RequestSupplierController::class, 'myRequests']);
+        Route::get('my-approvals', [RequestSupplierController::class, 'myApprovals']);
+        Route::get('approved-request', [RequestSupplierController::class, 'allApprovedRequests']);
+    });
+    Route::prefix('enum')->group(function () {
+        Route::get('suppliers', [RequestSupplierController::class, 'get']);
     });
 });

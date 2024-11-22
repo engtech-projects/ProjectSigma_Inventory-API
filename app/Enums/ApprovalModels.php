@@ -4,13 +4,12 @@ namespace App\Enums;
 
 use App\Models\RequestBOM;
 use App\Models\RequestItemProfiling;
-use App\Models\WarehouseTransaction;
+use App\Models\RequestSupplier;
 
 enum ApprovalModels: string
 {
     case RequestItemProfiling = RequestItemProfiling::class;
-    case WarehouseTransaction = WarehouseTransaction::class;
-    case RequestBOM = RequestBOM::class;
+    case RequestSupplier = RequestSupplier::class;
 
     public static function toArray(): array
     {
