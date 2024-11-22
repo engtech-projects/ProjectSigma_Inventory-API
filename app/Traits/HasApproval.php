@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Enums\RequestApprovalStatus;
 use Illuminate\Support\Carbon;
 use App\Enums\RequestStatuses;
 use App\Models\User;
