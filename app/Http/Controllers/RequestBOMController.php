@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\AssignTypes;
 use App\Enums\RequestStatuses;
+use App\Http\Requests\FilteredBOMRequest;
 use App\Http\Requests\GetCurrentBOM;
 use App\Http\Requests\GetListBOM;
 use App\Http\Requests\GetRequestById;
@@ -215,22 +216,20 @@ class RequestBOMController extends Controller
         ]);
     }
 
-    public function myRequests(GetRequestById $request)
+    public function myRequests(FilteredBOMRequest $request)
     {
-        $validated = $request->validated();
-        $assignment_id = $validated['assignment_id'] ?? null;
+        $filters = $request->validated();
 
-        $myRequest = $this->requestBOMService->getMyRequest()
-            ->where('assignment_id', $assignment_id);
+        $filteredRequests = $this->requestBOMService->getMyRequest($filters);
 
-        if ($myRequest->isEmpty()) {
+        if ($filteredRequests->isEmpty()) {
             return new JsonResponse([
                 'success' => false,
                 'message' => 'No data found.',
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestBOMResourceList::collection($myRequest)->collect();
+        $requestResources = RequestBOMResourceList::collection($filteredRequests)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
 
         return new JsonResponse([
@@ -239,18 +238,19 @@ class RequestBOMController extends Controller
             'data' => $paginated
         ]);
     }
-    public function allRequests()
+    public function allRequests(FilteredBOMRequest $request)
     {
-        $myRequest = $this->requestBOMService->getAll();
+        $filters = $request->validated();
+        $filteredRequests = $this->requestBOMService->getAllRequest($filters);
 
-        if ($myRequest->isEmpty()) {
+        if ($filteredRequests->isEmpty()) {
             return new JsonResponse([
                 'success' => false,
                 'message' => 'No data found.',
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestBOMResourceList::collection($myRequest)->collect();
+        $requestResources = RequestBOMResourceList::collection($filteredRequests)->collect();
         $paginated = PaginateResourceCollection::paginate($requestResources);
 
         return new JsonResponse([
@@ -260,9 +260,10 @@ class RequestBOMController extends Controller
         ]);
     }
 
-    public function myApprovals()
+    public function myApprovals(FilteredBOMRequest $request)
     {
-        $myApproval = $this->requestBOMService->getMyApprovals();
+        $filters = $request->validated();
+        $myApproval = $this->requestBOMService->getMyApprovals($filters);
         if ($myApproval->isEmpty()) {
             return new JsonResponse([
                 'success' => false,
