@@ -14,25 +14,24 @@ class ItemProfileBulkUploadService
         $header = [
             'Item Description',
             'Thickness',
-            'Thickness UOM',
             'Length',
-            'Length UOM',
             'Width',
-            'Width UOM',
             'Height',
-            'Height UOM',
             'Outside Diameter',
-            'Outside Diameter UOM',
             'Inside Diameter',
-            'Inside Diameter UOM',
+            'Angle',
+            'Size',
             'Volume',
-            'Volume UOM',
-            'Specification',
+            'Weight',
             'Grade',
+            'Volts',
+            'Plates',
+            'Part Number',
             'Color',
+            'Specification',
             'UOM',
-            'Item Group',
             'Sub Item Group',
+            'Item Group',
             'Inventory Type'
         ];
         $headers = $rows[0] ?? [];
@@ -61,26 +60,25 @@ class ItemProfileBulkUploadService
                 // Initialize the data structure for the row
                 $filteredData = [
                     'item_description' => ['value' => $data['Item Description'] ?? null],
-                    'thickness_val' => ['value' => $data['Thickness'] ?? null],
-                    'thickness_uom' => ['value' => $data['Thickness UOM'] ?? null],
-                    'length_val' => ['value' => $data['Length'] ?? null],
-                    'length_uom' => ['value' => $data['Length UOM'] ?? null],
-                    'width_val' => ['value' => $data['Width'] ?? null],
-                    'width_uom' => ['value' => $data['Width UOM'] ?? null],
-                    'height_val' => ['value' => $data['Height'] ?? null],
-                    'height_uom' => ['value' => $data['Height UOM'] ?? null],
-                    'outside_diameter_val' => ['value' => $data['Outside Diameter'] ?? null],
-                    'outside_diameter_uom' => ['value' => $data['Outside Diameter UOM'] ?? null],
-                    'inside_diameter_val' => ['value' => $data['Inside Diameter'] ?? null],
-                    'inside_diameter_uom' => ['value' => $data['Inside Diameter UOM'] ?? null],
-                    'volume_val' => ['value' => $data['Volume'] ?? null],
-                    'volume_uom' => ['value' => $data['Volume UOM'] ?? null],
-                    'specification' => ['value' => $data['Specification'] ?? null],
+                    'thickness' => ['value' => $data['Thickness'] ?? null],
+                    'length' => ['value' => $data['Length'] ?? null],
+                    'width' => ['value' => $data['Width'] ?? null],
+                    'height' => ['value' => $data['Height'] ?? null],
+                    'outside_diameter' => ['value' => $data['Outside Diameter'] ?? null],
+                    'inside_diameter' => ['value' => $data['Inside Diameter'] ?? null],
+                    'angle' => ['value' => $data['Angle'] ?? null],
+                    'size' => ['value' => $data['Size'] ?? null],
+                    'volume' => ['value' => $data['Volume'] ?? null],
+                    'weight' => ['value' => $data['Weight'] ?? null],
                     'grade' => ['value' => $data['Grade'] ?? null],
+                    'volts' => ['value' => $data['Volts'] ?? null],
+                    'plates' => ['value' => $data['Plates'] ?? null],
+                    'part_number' => ['value' => $data['Part Number'] ?? null],
                     'color' => ['value' => $data['Color'] ?? null],
+                    'specification' => ['value' => $data['Specification'] ?? null],
                     'uom' => ['value' => $data['UOM'] ?? null],
-                    'item_group' => ['value' => $data['Item Group'] ?? null],
                     'sub_item_group' => ['value' => $data['Sub Item Group'] ?? null],
+                    'item_group' => ['value' => $data['Item Group'] ?? null],
                     'inventory_type' => ['value' => $data['Inventory Type'] ?? null],
                 ];
 
@@ -93,36 +91,35 @@ class ItemProfileBulkUploadService
                 ];
 
                 $specificationFields = [
-                    'thickness_val',
-                    'length_val',
-                    'width_val',
-                    'height_val',
-                    'outside_diameter_val',
-                    'inside_diameter_val',
-                    'volume_val',
+                    'thickness',
+                    'length',
+                    'width',
+                    'height',
+                    'outside_diameter',
+                    'inside_diameter',
+                    'volume',
                     'color',
                     'grade',
-                    'specification'
+                    'specification',
+                    'weight',
+                    'volts',
+                    'plates',
+                    'part_number',
+                    'angle',
+                    'size'
                 ];
 
-                $numericFields = [
-                    'thickness_val',
-                    'length_val',
-                    'width_val',
-                    'height_val',
-                    'outside_diameter_val',
-                    'inside_diameter_val',
-                    'volume_val'
-                ];
+                // $numericFields = [
+                //     'thickness',
+                //     'length',
+                //     'width',
+                //     'height',
+                //     'outside_diameter',
+                //     'inside_diameter',
+                //     'volume'
+                // ];
 
                 $uomFields = [
-                    'thickness_uom',
-                    'length_uom',
-                    'width_uom',
-                    'height_uom',
-                    'outside_diameter_uom',
-                    'inside_diameter_uom',
-                    'volume_uom',
                     'uom'
                 ];
 
@@ -149,12 +146,12 @@ class ItemProfileBulkUploadService
                 }
 
                 // Validate numeric fields
-                foreach ($numericFields as $field) {
-                    if (!empty($filteredData[$field]['value']) && !is_numeric($filteredData[$field]['value'])) {
-                        $filteredData[$field]['error'] = "Field $field must be numeric";
-                        $isUnprocessed = true;
-                    }
-                }
+                // foreach ($numericFields as $field) {
+                //     if (!empty($filteredData[$field]['value']) && !is_numeric($filteredData[$field]['value'])) {
+                //         $filteredData[$field]['error'] = "Field $field must be numeric";
+                //         $isUnprocessed = true;
+                //     }
+                // }
 
                 // Validate UOM fields
                 foreach ($uomFields as $uomField) {
@@ -182,7 +179,7 @@ class ItemProfileBulkUploadService
                 }
 
 
-                $filteredData['item_code'] = $this->generateSKU($filteredData);
+                $filteredData['item_code'] = $this->generateItemCode($filteredData);
 
                 if ($isUnprocessed) {
                     $unprocessed[] = $filteredData;
@@ -204,24 +201,29 @@ class ItemProfileBulkUploadService
         return [$processed, $duplicates, $unprocessed];
     }
 
-    private function generateSKU(array $filteredData): string
+    private function generateItemCode(array $filteredData): string
     {
         $skuPrefix = strtoupper(substr($filteredData['item_description']['value'] ?? '', 0, 3));
 
         foreach ([
-            ['thickness_val', 'thickness_uom'],
-            ['length_val', 'length_uom'],
-            ['width_val', 'width_uom'],
-            ['height_val', 'height_uom'],
-            ['outside_diameter_val', 'outside_diameter_uom'],
-            ['inside_diameter_val', 'inside_diameter_uom'],
-            ['volume_val', 'volume_uom']
-        ] as [$valField, $uomField]) {
-            $value = $filteredData[$valField]['value'] ?? null;
-            $uom = $filteredData[$uomField]['value'] ?? null;
+            'thickness',
+            'length',
+            'width',
+            'height',
+            'outside_diameter',
+            'inside_diameter',
+            'volume',
+            'weight',
+            'volts',
+            'plates',
+            'part_number',
+            'angle',
+            'size'
+        ] as $field) {
+            $value = $filteredData[$field]['value'] ?? null;
 
-            if ($value && $uom) {
-                return $skuPrefix . strtoupper($value . preg_replace('/\s+/', '', $uom));
+            if ($value) {
+                return $skuPrefix . strtoupper(preg_replace('/\s+/', '', $value));
             }
         }
 
@@ -243,19 +245,12 @@ class ItemProfileBulkUploadService
             'item_code' => $item['item_code'],
             'item_description' => $item['item_description']['value'],
             'thickness_val' => $item['thickness_val']['value'] ?? null,
-            'thickness_uom' => $item['thickness_uom']['uom_id'] ?? null,
             'length_val' => $item['length_val']['value'] ?? null,
-            'length_uom' => $item['length_uom']['uom_id'] ?? null,
             'width_val' => $item['width_val']['value'] ?? null,
-            'width_uom' => $item['width_uom']['uom_id'] ?? null,
             'height_val' => $item['height_val']['value'] ?? null,
-            'height_uom' => $item['height_uom']['uom_id'] ?? null,
             'outside_diameter_val' => $item['outside_diameter_val']['value'] ?? null,
-            'outside_diameter_uom' => $item['outside_diameter_uom']['uom_id'] ?? null,
             'inside_diameter_val' => $item['inside_diameter_val']['value'] ?? null,
-            'inside_diameter_uom' => $item['inside_diameter_uom']['uom_id'] ?? null,
             'volume_val' => $item['volume_val']['value'] ?? null,
-            'volume_uom' => $item['volume_uom']['uom_id'] ?? null,
             'specification' => $item['specification']['value'] ?? null,
             'grade' => $item['grade']['value'] ?? null,
             'color' => $item['color']['value'] ?? null,
@@ -263,6 +258,11 @@ class ItemProfileBulkUploadService
             'item_group' => $item['item_group']['value'],
             'sub_item_group' => $item['sub_item_group']['value'],
             'inventory_type' => $item['inventory_type']['value'],
+            'volts' => $item['volts']['value'] ?? null,
+            'plates' => $item['plates']['value'] ?? null,
+            'part_number' => $item['part_number']['value'] ?? null,
+            'angle' => $item['angle']['value'] ?? null,
+            'size' => $item['size']['value'] ?? null,
             'is_approved' => true,
             'created_at' => now(),
             'updated_at' => now(),
@@ -270,5 +270,4 @@ class ItemProfileBulkUploadService
 
         ItemProfile::insert($itemsToInsert);
     }
-
 }
