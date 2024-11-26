@@ -18,20 +18,20 @@ class ItemProfile extends Model
     protected $fillable = [
         'item_code',
         'item_description',
-        'thickness_val',
-        'thickness_uom',
-        'length_val',
-        'length_uom',
-        'width_val',
-        'width_uom',
-        'height_val',
-        'height_uom',
-        'outside_diameter_val',
-        'outside_diameter_uom',
-        'inside_diameter_val',
-        'inside_diameter_uom',
+        'thickness',
+        'length',
+        'width',
+        'height',
+        'outside_diameter',
+        'inside_diameter',
+        'angle',
+        'size',
+        'weight',
+        'volts',
+        'plates',
+        'part_number',
         'specification',
-        'volume_val',
+        'volume',
         'volume_uom',
         'grade',
         'color',
@@ -45,7 +45,7 @@ class ItemProfile extends Model
         'is_approved',
         'approvals',
         'created_by',
-        'request_status'
+        'request_status',
     ];
     protected $casts = [
         "approvals" => 'array'
@@ -62,9 +62,6 @@ class ItemProfile extends Model
         $uom = $this->uomName ? $this->uomName->name : 'null';
         return $uom;
     }
-
-
-
     /**
     * ==================================================
     * MODEL RELATIONSHIPS
