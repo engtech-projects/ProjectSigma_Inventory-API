@@ -57,20 +57,6 @@ class ItemProfile extends Model
      * MODEL ATTRIBUTES
      * ==================================================
      */
-
-    public function getUomSymbolsAttribute()
-    {
-        return [
-            'thickness_uom_symbol' => $this->thicknessUom ? $this->thicknessUom->symbol : $this->thickness_uom,
-            'length_uom_symbol' => $this->lengthUom ? $this->lengthUom->symbol : $this->length_uom,
-            'width_uom_symbol' => $this->widthUom ? $this->widthUom->symbol : $this->width_uom,
-            'height_uom_symbol' => $this->heightUom ? $this->heightUom->symbol : $this->height_uom,
-            'outside_diameter_uom_symbol' => $this->outsideDiameterUom ? $this->outsideDiameterUom->symbol : $this->outside_diameter_uom,
-            'inside_diameter_uom_symbol' => $this->insideDiameterUom ? $this->insideDiameterUom->symbol : $this->inside_diameter_uom,
-            'volume_uom_symbol' => $this->volumeUom ? $this->volumeUom->symbol : $this->volume_uom,
-        ];
-    }
-
     public function getUomFullNameAttribute()
     {
         $uom = $this->uomName ? $this->uomName->name : 'null';
@@ -84,38 +70,6 @@ class ItemProfile extends Model
     * MODEL RELATIONSHIPS
     * ==================================================
     */
-    public function thicknessUom(): BelongsTo
-    {
-        return $this->belongsTo(UOM::class, 'thickness_uom');
-    }
-    public function lengthUom(): BelongsTo
-    {
-        return $this->belongsTo(UOM::class, 'length_uom');
-    }
-
-    public function widthUom(): BelongsTo
-    {
-        return $this->belongsTo(UOM::class, 'width_uom');
-    }
-
-    public function heightUom(): BelongsTo
-    {
-        return $this->belongsTo(UOM::class, 'height_uom');
-    }
-    public function volumeUom(): BelongsTo
-    {
-        return $this->belongsTo(UOM::class, 'volume_uom');
-    }
-
-    public function outsideDiameterUom(): BelongsTo
-    {
-        return $this->belongsTo(UOM::class, 'outside_diameter_uom');
-    }
-
-    public function insideDiameterUom(): BelongsTo
-    {
-        return $this->belongsTo(UOM::class, 'inside_diameter_uom');
-    }
 
     public function uomName(): BelongsTo
     {
