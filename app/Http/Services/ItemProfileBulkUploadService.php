@@ -109,16 +109,6 @@ class ItemProfileBulkUploadService
                     'size'
                 ];
 
-                // $numericFields = [
-                //     'thickness',
-                //     'length',
-                //     'width',
-                //     'height',
-                //     'outside_diameter',
-                //     'inside_diameter',
-                //     'volume'
-                // ];
-
                 $uomFields = [
                     'uom'
                 ];
@@ -144,14 +134,6 @@ class ItemProfileBulkUploadService
                     $filteredData['specification']['error'] = "At least one specification field must be filled.";
                     $isUnprocessed = true;
                 }
-
-                // Validate numeric fields
-                // foreach ($numericFields as $field) {
-                //     if (!empty($filteredData[$field]['value']) && !is_numeric($filteredData[$field]['value'])) {
-                //         $filteredData[$field]['error'] = "Field $field must be numeric";
-                //         $isUnprocessed = true;
-                //     }
-                // }
 
                 // Validate UOM fields
                 foreach ($uomFields as $uomField) {
@@ -244,13 +226,13 @@ class ItemProfileBulkUploadService
         $itemsToInsert = array_map(fn ($item) => [
             'item_code' => $item['item_code'],
             'item_description' => $item['item_description']['value'],
-            'thickness_val' => $item['thickness_val']['value'] ?? null,
-            'length_val' => $item['length_val']['value'] ?? null,
-            'width_val' => $item['width_val']['value'] ?? null,
-            'height_val' => $item['height_val']['value'] ?? null,
-            'outside_diameter_val' => $item['outside_diameter_val']['value'] ?? null,
-            'inside_diameter_val' => $item['inside_diameter_val']['value'] ?? null,
-            'volume_val' => $item['volume_val']['value'] ?? null,
+            'thickness' => $item['thickness']['value'] ?? null,
+            'length' => $item['length']['value'] ?? null,
+            'width' => $item['width']['value'] ?? null,
+            'height' => $item['height']['value'] ?? null,
+            'outside_diameter' => $item['outside_diameter']['value'] ?? null,
+            'inside_diameter' => $item['inside_diameter']['value'] ?? null,
+            'volume' => $item['volume']['value'] ?? null,
             'specification' => $item['specification']['value'] ?? null,
             'grade' => $item['grade']['value'] ?? null,
             'color' => $item['color']['value'] ?? null,
