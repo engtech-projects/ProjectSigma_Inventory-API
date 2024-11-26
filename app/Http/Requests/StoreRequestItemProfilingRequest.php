@@ -51,100 +51,100 @@ class StoreRequestItemProfilingRequest extends FormRequest
                 "string",
                 "max:255"
             ],
-            'item_profiles.*.thickness_val' => [
-                "numeric",
-                "nullable",
-                "required_without_all:item_profiles.*.length_val,item_profiles.*.width_val,item_profiles.*.height_val,item_profiles.*.outside_diameter_val,item_profiles.*.inside_diameter_val,item_profiles.*.volume_val,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification"
-            ],
-            'item_profiles.*.thickness_uom' => [
-                "numeric",
-                "nullable",
-                "required_with:item_profiles.*.thickness_val",
-                "exists:setup_uom,id"
-            ],
-            'item_profiles.*.length_val' => [
-                "numeric",
-                "nullable",
-                "required_without_all:item_profiles.*.thickness_val,item_profiles.*.width_val,item_profiles.*.height_val,item_profiles.*.outside_diameter_val,item_profiles.*.inside_diameter_val,item_profiles.*.volume_val,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification"
-            ],
-            'item_profiles.*.length_uom' => [
-                "numeric",
-                "nullable",
-                "required_with:item_profiles.*.length_val",
-                "exists:setup_uom,id"
-            ],
-            'item_profiles.*.width_val' => [
-                "numeric",
-                "nullable",
-                "required_without_all:item_profiles.*.length_val,item_profiles.*.thickness_val,item_profiles.*.height_val,item_profiles.*.outside_diameter_val,item_profiles.*.inside_diameter_val,item_profiles.*.volume_val,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification"
-            ],
-            'item_profiles.*.width_uom' => [
-                "numeric",
-                "nullable",
-                "required_with:item_profiles.*.width_val",
-                "exists:setup_uom,id"
-            ],
-            'item_profiles.*.height_val' => [
-                "numeric",
-                "nullable",
-                "required_without_all:item_profiles.*.length_val,item_profiles.*.thickness_val,item_profiles.*.width_val,item_profiles.*.outside_diameter_val,item_profiles.*.inside_diameter_val,item_profiles.*.volume_val,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification"
-            ],
-            'item_profiles.*.height_uom' => [
-                "numeric",
-                "required_with:item_profiles.*.height_val",
-                "nullable",
-                "exists:setup_uom,id"
-            ],
-            'item_profiles.*.outside_diameter_val' => [
-                "numeric",
-                "nullable",
-                "required_without_all:item_profiles.*.length_val,item_profiles.*.thickness_val,item_profiles.*.height_val,item_profiles.*.width_val,item_profiles.*.inside_diameter_val,item_profiles.*.volume_val,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification"
-            ],
-            'item_profiles.*.outside_diameter_uom' => [
-                "numeric",
-                "nullable",
-                "required_with:item_profiles.*.outside_diameter_val",
-                "exists:setup_uom,id"
-            ],
-            'item_profiles.*.inside_diameter_val' => [
-                "numeric",
-                "nullable",
-                "required_without_all:item_profiles.*.length_val,item_profiles.*.thickness_val,item_profiles.*.height_val,item_profiles.*.width_val,item_profiles.*.outside_diameter_val,item_profiles.*.volume_val,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification"
-            ],
-            'item_profiles.*.inside_diameter_uom' => [
-                "numeric",
-                "nullable",
-                "required_with:item_profiles.*.inside_diameter_val",
-                "exists:setup_uom,id"
-            ],
-            'item_profiles.*.specification' => [
+            'item_profiles.*.thickness' => [
                 "string",
+                "nullable",
                 "max:255",
-                "required_without_all:item_profiles.*.length_val,item_profiles.*.thickness_val,item_profiles.*.height_val,item_profiles.*.width_val,item_profiles.*.inside_diameter_val,item_profiles.*.volume_val,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.outside_diameter_val"
+                "required_without_all:item_profiles.*.length,item_profiles.*.width,item_profiles.*.height,item_profiles.*.outside_diameter,item_profiles.*.inside_diameter,item_profiles.*.volume,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification,item_profiles.*.angle,item_profiles.*.size,item_profiles.*.weight,item_profiles.*.volts,item_profiles.*.plates,item_profiles.*.part_number"
             ],
-            'item_profiles.*.volume_val' => [
-                "numeric",
+            'item_profiles.*.length' => [
+                "string",
                 "nullable",
-                "required_without_all:item_profiles.*.length_val,item_profiles.*.thickness_val,item_profiles.*.height_val,item_profiles.*.width_val,item_profiles.*.inside_diameter_val,item_profiles.*.outside_diameter_val,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification"
+                "max:255",
+                "required_without_all:item_profiles.*.thickness,item_profiles.*.width,item_profiles.*.height,item_profiles.*.outside_diameter,item_profiles.*.inside_diameter,item_profiles.*.volume,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification,item_profiles.*.angle,item_profiles.*.size,item_profiles.*.weight,item_profiles.*.volts,item_profiles.*.plates,item_profiles.*.part_number"
             ],
-            'item_profiles.*.volume_uom' => [
-                "numeric",
+            'item_profiles.*.width' => [
+                "string",
                 "nullable",
-                "required_with:item_profiles.*.volume_val",
-                "exists:setup_uom,id"
+                "max:255",
+                "required_without_all:item_profiles.*.length,item_profiles.*.thickness,item_profiles.*.height,item_profiles.*.outside_diameter,item_profiles.*.inside_diameter,item_profiles.*.volume,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification,item_profiles.*.angle,item_profiles.*.size,item_profiles.*.weight,item_profiles.*.volts,item_profiles.*.plates,item_profiles.*.part_number"
+            ],
+            'item_profiles.*.height' => [
+                "string",
+                "nullable",
+                "max:255",
+                "required_without_all:item_profiles.*.length,item_profiles.*.thickness,item_profiles.*.width,item_profiles.*.outside_diameter,item_profiles.*.inside_diameter,item_profiles.*.volume,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification,item_profiles.*.angle,item_profiles.*.size,item_profiles.*.weight,item_profiles.*.volts,item_profiles.*.plates,item_profiles.*.part_number"
+            ],
+            'item_profiles.*.outside_diameter' => [
+                "string",
+                "nullable",
+                "max:255",
+                "required_without_all:item_profiles.*.length,item_profiles.*.thickness,item_profiles.*.height,item_profiles.*.width,item_profiles.*.inside_diameter,item_profiles.*.volume,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification,item_profiles.*.angle,item_profiles.*.size,item_profiles.*.weight,item_profiles.*.volts,item_profiles.*.plates,item_profiles.*.part_number"
+            ],
+            'item_profiles.*.inside_diameter' => [
+                "string",
+                "nullable",
+                "max:255",
+                "required_without_all:item_profiles.*.length,item_profiles.*.thickness,item_profiles.*.height,item_profiles.*.width,item_profiles.*.outside_diameter,item_profiles.*.volume,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification,item_profiles.*.angle,item_profiles.*.size,item_profiles.*.weight,item_profiles.*.volts,item_profiles.*.plates,item_profiles.*.part_number"
+            ],
+            'item_profiles.*.angle' => [
+                "string",
+                "nullable",
+                "max:255",
+                "required_without_all:item_profiles.*.length,item_profiles.*.thickness,item_profiles.*.height,item_profiles.*.width,item_profiles.*.inside_diameter,item_profiles.*.outside_diameter,item_profiles.*.volume,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification,item_profiles.*.size,item_profiles.*.weight,item_profiles.*.volts,item_profiles.*.plates,item_profiles.*.part_number"
+            ],
+            'item_profiles.*.size' => [
+                "string",
+                "nullable",
+                "max:255",
+                "required_without_all:item_profiles.*.length,item_profiles.*.thickness,item_profiles.*.height,item_profiles.*.width,item_profiles.*.inside_diameter,item_profiles.*.outside_diameter,item_profiles.*.volume,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification,item_profiles.*.angle,item_profiles.*.weight,item_profiles.*.volts,item_profiles.*.plates,item_profiles.*.part_number"
+            ],
+            'item_profiles.*.volume' => [
+                "string",
+                "nullable",
+                "max:255",
+                "required_without_all:item_profiles.*.length,item_profiles.*.thickness,item_profiles.*.height,item_profiles.*.width,item_profiles.*.inside_diameter,item_profiles.*.outside_diameter,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification,item_profiles.*.angle,item_profiles.*.size,item_profiles.*.weight,item_profiles.*.volts,item_profiles.*.plates,item_profiles.*.part_number"
+            ],
+            'item_profiles.*.weight' => [
+                "string",
+                "nullable",
+                "max:255",
+                "required_without_all:item_profiles.*.length,item_profiles.*.thickness,item_profiles.*.height,item_profiles.*.width,item_profiles.*.inside_diameter,item_profiles.*.outside_diameter,item_profiles.*.volume,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification,item_profiles.*.angle,item_profiles.*.size,item_profiles.*.volts,item_profiles.*.plates,item_profiles.*.part_number"
             ],
             'item_profiles.*.grade' => [
                 "string",
                 "nullable",
                 "max:255",
-                "required_without_all:item_profiles.*.length_val,item_profiles.*.thickness_val,item_profiles.*.height_val,item_profiles.*.width_val,item_profiles.*.inside_diameter_val,item_profiles.*.volume_val,item_profiles.*.color,item_profiles.*.outside_diameter_val,item_profiles.*.specification"
-
+                "required_without_all:item_profiles.*.length,item_profiles.*.thickness,item_profiles.*.height,item_profiles.*.width,item_profiles.*.inside_diameter,item_profiles.*.volume,item_profiles.*.color,item_profiles.*.outside_diameter,item_profiles.*.specification,item_profiles.*.angle,item_profiles.*.size,item_profiles.*.weight,item_profiles.*.volts,item_profiles.*.plates,item_profiles.*.part_number"
+            ],
+            'item_profiles.*.volts' => [
+                "string",
+                "nullable",
+                "max:255",
+                "required_without_all:item_profiles.*.length,item_profiles.*.thickness,item_profiles.*.height,item_profiles.*.width,item_profiles.*.inside_diameter,item_profiles.*.outside_diameter,item_profiles.*.volume,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification,item_profiles.*.angle,item_profiles.*.size,item_profiles.*.weight,item_profiles.*.plates,item_profiles.*.part_number"
+            ],
+            'item_profiles.*.plates' => [
+                "string",
+                "nullable",
+                "max:255",
+                "required_without_all:item_profiles.*.length,item_profiles.*.thickness,item_profiles.*.height,item_profiles.*.width,item_profiles.*.inside_diameter,item_profiles.*.outside_diameter,item_profiles.*.volume,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification,item_profiles.*.angle,item_profiles.*.size,item_profiles.*.weight,item_profiles.*.volts,item_profiles.*.part_number"
+            ],
+            'item_profiles.*.part_number' => [
+                "string",
+                "nullable",
+                "max:255",
+                "required_without_all:item_profiles.*.length,item_profiles.*.thickness,item_profiles.*.height,item_profiles.*.width,item_profiles.*.inside_diameter,item_profiles.*.outside_diameter,item_profiles.*.volume,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.specification,item_profiles.*.angle,item_profiles.*.size,item_profiles.*.weight,item_profiles.*.volts,item_profiles.*.plates"
+            ],
+            'item_profiles.*.specification' => [
+                "string",
+                "max:255",
+                "required_without_all:item_profiles.*.length,item_profiles.*.thickness,item_profiles.*.height,item_profiles.*.width,item_profiles.*.inside_diameter,item_profiles.*.volume,item_profiles.*.color,item_profiles.*.grade,item_profiles.*.outside_diameter,item_profiles.*.angle,item_profiles.*.size,item_profiles.*.weight,item_profiles.*.volts,item_profiles.*.plates,item_profiles.*.part_number"
             ],
             'item_profiles.*.color' => [
                 "string",
                 "nullable",
                 "max:255",
-                "required_without_all:item_profiles.*.length_val,item_profiles.*.thickness_val,item_profiles.*.height_val,item_profiles.*.width_val,item_profiles.*.inside_diameter_val,item_profiles.*.volume_val,item_profiles.*.outside_diamter_val,item_profiles.*.grade,item_profiles.*.specification"
+                "required_without_all:item_profiles.*.length,item_profiles.*.thickness,item_profiles.*.height,item_profiles.*.width,item_profiles.*.inside_diameter,item_profiles.*.volume,item_profiles.*.outside_diameter,item_profiles.*.grade,item_profiles.*.specification,item_profiles.*.angle,item_profiles.*.size,item_profiles.*.weight,item_profiles.*.volts,item_profiles.*.plates,item_profiles.*.part_number"
             ],
             'item_profiles.*.item_group' => [
                 "string",
@@ -159,16 +159,8 @@ class StoreRequestItemProfilingRequest extends FormRequest
             'item_profiles.*.uom' => [
                 "required",
                 "numeric",
+                "max:255",
                 "exists:setup_uom,id"
-            ],
-            'item_profiles.*.uom_conversion_group_id' => [
-                "numeric",
-                "nullable",
-                "exists:setup_uom_group,id"
-            ],
-            'item_profiles.*.uom_conversion_value' => [
-                "numeric",
-                "nullable"
             ],
             'item_profiles.*.inventory_type' => [
                 "required",
@@ -188,5 +180,4 @@ class StoreRequestItemProfilingRequest extends FormRequest
             ...$this->storeApprovals(),
         ];
     }
-
 }
