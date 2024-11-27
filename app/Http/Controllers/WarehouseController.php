@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AccessibilityInventory;
+use App\Enums\UserTypes;
+use App\Http\Requests\GetLogsRequest;
 use App\Http\Requests\StoreWarehouseRequest;
 use App\Http\Requests\UpdateWarehouseRequest;
 use App\Http\Resources\WarehouseResource;
 use App\Http\Traits\CheckAccessibility;
 use App\Models\Warehouse;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -53,8 +56,9 @@ class WarehouseController extends Controller
     {
         $user = Auth::user();
         $userAccessibilitiesNames = $user->accessibilities_name;
-
-        if ($this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value])) {
+        if ($this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value])
+            || Auth::user()->type == UserTypes::ADMINISTRATOR->value
+        ) {
             $main = Warehouse::all();
         } else {
             $main = Warehouse::whereHas('warehousePss', function ($query) use ($user) {
@@ -117,9 +121,9 @@ class WarehouseController extends Controller
     {
         $user = Auth::user();
         $userAccessibilitiesNames = $user->accessibilities_name;
-
-        if ($this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value]) || $warehouse_id->warehousePss->contains('user_ids', $user->id)) {
-
+        if ($this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value]) || $warehouse_id->warehousePss->contains('user_id', $user->id)
+            || Auth::user()->type == UserTypes::ADMINISTRATOR->value
+        ) {
             return response()->json([
                 "message" => "Successfully fetched.",
                 "success" => true,
@@ -132,7 +136,6 @@ class WarehouseController extends Controller
             "success" => false
         ], 403);
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -175,6 +178,37 @@ class WarehouseController extends Controller
             'data' => $resource
         ]);
     }
+
+    public function getLogs(GetLogsRequest $request, $warehouse_id)
+    {
+        $validated = $request->validated();
+
+        $date_from = $validated['date_from'] ?? null;
+        $date_to = $validated['date_to'] ?? null;
+        $item_id = $validated['item_id'] ?? null;
+        $transaction_type = $validated['transaction_type'] ?? null;
+
+        $warehouse = Warehouse::with(['transactionItems' => function ($query) use ($date_from, $date_to, $item_id, $transaction_type) {
+            if ($date_from) {
+                $query->where('warehouse_transaction_items.created_at', '>=', Carbon::parse($date_from));
+            }
+            if ($date_to) {
+                $query->where('warehouse_transaction_items.created_at', '<=', Carbon::parse($date_to)->endOfDay());
+            }
+            if ($item_id) {
+                $query->where('warehouse_transaction_items.item_id', $item_id);
+            }
+            if ($transaction_type) {
+                $query->where('warehouse_transactions.transaction_type', $transaction_type);
+            }
+        }])->findOrFail($warehouse_id);
+
+        return response()->json([
+            'success' => true,
+            'warehouse' => $warehouse,
+        ]);
+    }
+
 
 
 }

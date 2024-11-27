@@ -8,13 +8,13 @@ class HrmsService
 {
     public static function setNotification($token, $userid, $notificationData)
     {
-        if(gettype($notificationData) == "array") {
+        if (gettype($notificationData) == "array") {
             $notificationData = json_encode($notificationData);
         }
         $response = Http::withToken(token: $token)
             ->acceptJson()
             ->withBody($notificationData)
-            ->post(config('services.url.hrms_api_url')."/api/notifications/services-notify/{$userid}");
+            ->post(config('services.url.hrms_api_url') . "/api/notifications/services-notify/{$userid}");
         if (!$response->successful()) {
             return false;
         }
@@ -27,7 +27,7 @@ class HrmsService
         $response = Http::withToken($token)
             ->acceptJson()
             ->withQueryParameters($approvals)
-            ->get(config('services.url.hrms_api_url')."/api/services/format-approvals");
+            ->get(config('services.url.hrms_api_url') . "/api/services/format-approvals");
         if (!$response->successful()) {
             return $approvals;
         }
@@ -47,5 +47,37 @@ class HrmsService
 
         return $response->json("data");
     }
+    public static function getDepartments($token)
+    {
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->get(config('services.url.hrms_api_url') . '/api/department/list/v2');
 
+        if (!$response->successful()) {
+            return false;
+        }
+        return $response->json("data");
+    }
+    public static function getUsers($token)
+    {
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->get(config('services.url.hrms_api_url') . '/api/users');
+
+        if (!$response->successful()) {
+            return false;
+        }
+        return $response->json("data");
+    }
+    public static function getEmployees($token)
+    {
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->get(config('services.url.hrms_api_url') . '/api/employee/resource');
+
+        if (!$response->successful()) {
+            return false;
+        }
+        return $response->json("data");
+    }
 }

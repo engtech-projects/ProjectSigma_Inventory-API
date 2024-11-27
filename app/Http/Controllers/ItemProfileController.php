@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SearchItemProfile;
 use App\Models\ItemProfile;
 use App\Http\Requests\StoreItemProfileRequest;
 use App\Http\Requests\UpdateItemProfileRequest;
 use App\Http\Resources\ItemProfileResource;
+use App\Http\Resources\SearchedItemsResource;
 use App\Utils\PaginateResourceCollection;
 use Illuminate\Support\Facades\Storage;
 
@@ -136,6 +138,42 @@ class ItemProfileController extends Controller
         return response()->json([
             'message' => 'Item profile deactivated successfully.',
             'item_profile' => $resource
+        ]);
+    }
+
+    public function search(SearchItemProfile $request)
+    {
+
+        $searchKey = $request->validated()['query'] ?? '';
+
+        $query = ItemProfile::where('active_status', 'Active')
+            ->where(function ($q) use ($searchKey) {
+                $q->where('item_description', 'LIKE', "%{$searchKey}%")
+                ->orWhere('thickness', 'LIKE', "%{$searchKey}%")
+                ->orWhere('length', 'LIKE', "%{$searchKey}%")
+                ->orWhere('width', 'LIKE', "%{$searchKey}%")
+                ->orWhere('height', 'LIKE', "%{$searchKey}%")
+                ->orWhere('outside_diameter', 'LIKE', "%{$searchKey}%")
+                ->orWhere('inside_diameter', 'LIKE', "%{$searchKey}%")
+                ->orWhere('angle', 'LIKE', "%{$searchKey}%")
+                ->orWhere('size', 'LIKE', "%{$searchKey}%")
+                ->orWhere('weight', 'LIKE', "%{$searchKey}%")
+                ->orWhere('volts', 'LIKE', "%{$searchKey}%")
+                ->orWhere('plates', 'LIKE', "%{$searchKey}%")
+                ->orWhere('part_number', 'LIKE', "%{$searchKey}%")
+                ->orWhere('specification', 'LIKE', "%{$searchKey}%")
+                ->orWhere('volume', 'LIKE', "%{$searchKey}%")
+                ->orWhere('grade', 'LIKE', "%{$searchKey}%")
+                ->orWhere('color', 'LIKE', "%{$searchKey}%");
+            })
+            ->limit(25)
+            ->orderBy('item_description')
+            ->get();
+
+        return response()->json([
+            'message' => 'Successfully fetched.',
+            'success' => true,
+            'data' => SearchedItemsResource::collection($query)
         ]);
     }
 
