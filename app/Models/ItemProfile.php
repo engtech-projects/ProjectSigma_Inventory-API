@@ -67,6 +67,16 @@ class ItemProfile extends Model
         $uom = $this->uomName ? $this->uomName->name : 'null';
         return $uom;
     }
+    public function getItemSummaryAttribute()
+    {
+        $itemProfileService = new ItemProfileService();
+        $attributes = $itemProfileService->getItemSummary($this);
+        return $attributes->implode(' ');
+    }
+    public function getConvertableUnitAttribute()
+    {
+        return UOM::where('group_id', $this->uomName->group_id)->get();
+    }
     /**
     * ==================================================
     * MODEL RELATIONSHIPS
@@ -96,25 +106,25 @@ class ItemProfile extends Model
     public function scopeSearch(Builder $query, $searchKey)
     {
         $fields = [
-            'item_description',
             'item_code',
-            'thickness_val',
-            'thickness_uom',
-            'length_val',
-            'length_uom',
-            'width_val',
-            'width_uom',
-            'height_val',
-            'height_uom',
-            'outside_diameter_val',
-            'outside_diameter_uom',
-            'inside_diameter_val',
-            'inside_diameter_uom',
-            'volume_val',
+            'item_description',
+            'thickness',
+            'length',
+            'width',
+            'height',
+            'outside_diameter',
+            'inside_diameter',
+            'angle',
+            'size',
+            'weight',
+            'volts',
+            'plates',
+            'part_number',
+            'specification',
+            'volume',
             'volume_uom',
             'grade',
             'color',
-            'specification'
         ];
 
         // Join UOM tables once for all *_uom fields
