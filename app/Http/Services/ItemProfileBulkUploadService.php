@@ -39,9 +39,18 @@ class ItemProfileBulkUploadService
         $missingHeaders = array_diff($header, $headers);
         $extraHeaders = array_diff($headers, $header);
 
-        if (!empty($missingHeaders) || !empty($extraHeaders)) {
+        if (!empty($missingHeaders)) {
             return [
-                'error' => 'Incorrect CSV template. Missing Headers: ' . implode(', ', $missingHeaders) . '. Extra headers: ' . implode(', ', $extraHeaders)
+                'error' => 'Incorrect CSV template. Missing Headers: "' . implode('", "', $missingHeaders) . '"'
+            ];
+        }
+
+        if (is_null($extraHeaders)) {
+            $extraHeaders = 'blank';
+        }
+        if (!empty($extraHeaders)) {
+            return [
+                'error' => 'Incorrect CSV template. Extra headers: "' . implode('", "', $extraHeaders) . '" '
             ];
         }
 
@@ -187,21 +196,23 @@ class ItemProfileBulkUploadService
     {
         $skuPrefix = strtoupper(substr($filteredData['item_description']['value'] ?? '', 0, 3));
 
-        foreach ([
-            'thickness',
-            'length',
-            'width',
-            'height',
-            'outside_diameter',
-            'inside_diameter',
-            'volume',
-            'weight',
-            'volts',
-            'plates',
-            'part_number',
-            'angle',
-            'size'
-        ] as $field) {
+        foreach (
+            [
+                'thickness',
+                'length',
+                'width',
+                'height',
+                'outside_diameter',
+                'inside_diameter',
+                'volume',
+                'weight',
+                'volts',
+                'plates',
+                'part_number',
+                'angle',
+                'size'
+            ] as $field
+        ) {
             $value = $filteredData[$field]['value'] ?? null;
 
             if ($value) {
@@ -223,7 +234,7 @@ class ItemProfileBulkUploadService
 
     public function selectedItems(array $processed)
     {
-        $itemsToInsert = array_map(fn ($item) => [
+        $itemsToInsert = array_map(fn($item) => [
             'item_code' => $item['item_code'],
             'item_description' => $item['item_description']['value'],
             'thickness' => $item['thickness']['value'] ?? null,
