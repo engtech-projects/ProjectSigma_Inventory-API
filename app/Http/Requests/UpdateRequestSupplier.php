@@ -25,7 +25,7 @@ class UpdateRequestSupplier extends FormRequest
             'supplier_code' => 'sometimes|string|max:255|unique:request_supplier,supplier_code',
             'company_name' => 'sometimes|string|max:255|unique:request_supplier,company_name',
             'company_address' => 'sometimes|string|max:255',
-            'company_contact_number' => 'sometimes|string|max:20',
+            'company_contact_number' => 'sometimes|numeric|max:20',
             'company_email' => 'sometimes|string|email|max:255|unique:request_supplier,company_email',
             'contact_person_name' => 'sometimes|string|max:255',
             'contact_person_number' => 'sometimes|string|max:20',

@@ -23,6 +23,8 @@ use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehousePssController;
 use App\Http\Controllers\WarehouseTransactionController;
 use App\Http\Controllers\WarehouseTransactionItemController;
+use Illuminate\Support\Facades\Artisan;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -137,4 +139,21 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('enum')->group(function () {
         Route::get('suppliers', [RequestSupplierController::class, 'get']);
     });
+
+    if (config()->get('app.artisan') == 'true') {
+        Route::prefix('artisan')->group(function () {
+            Route::get('storage', function () {
+                Artisan::call("storage:link");
+                return "success";
+            });
+            Route::get('optimize', function () {
+                Artisan::call("optimize");
+                return "success";
+            });
+            Route::get('optimize-clear', function () {
+                Artisan::call("optimize:clear");
+                return "success";
+            });
+        });
+    }
 });

@@ -8,16 +8,16 @@ use Illuminate\Support\Facades\Storage;
 trait UploadFileTrait
 {
     protected $fileTypeDirectories = [
-        'BANK DETAILS' => 'public/supplier/uploads/bank_details/',
-        'CERTIFICATE OF REGISTRATION WITH SEC/DTI REGISTRATION' => 'public/supplier/uploads/registration/',
-        'CITY/MUNICIPAL PERMIT' => 'public/supplier/uploads/permits/',
-        'BIR 2303 CERTIFICATE OF REGISTRATION' => 'public/supplier/uploads/bir_certificates/',
-        'CERTIFICATE OF PRODUCT/MSDS' => 'public/supplier/uploads/msds/',
-        'CERTIFICATE OF DELEARSHIP/DISTRIBUTORSHIP' => 'public/supplier/uploads/dealership/',
-        'DENR PERMITS' => 'public/supplier/uploads/denr_permits/',
-        'TRADE TEST RESULTS' => 'public/supplier/uploads/trade_test/',
-        'PRICE LIST/QUOTATION' => 'public/supplier/uploads/quotation/',
-        'OTHERS' => 'public/supplier/uploads/others/',
+        'BANK DETAILS' => 'supplier/uploads/bank_details/',
+        'CERTIFICATE OF REGISTRATION WITH SEC/DTI REGISTRATION' => 'supplier/uploads/registration/',
+        'CITY/MUNICIPAL PERMIT' => 'supplier/uploads/permits/',
+        'BIR 2303 CERTIFICATE OF REGISTRATION' => 'supplier/uploads/bir_certificates/',
+        'CERTIFICATE OF PRODUCT/MSDS' => 'supplier/uploads/msds/',
+        'CERTIFICATE OF DELEARSHIP/DISTRIBUTORSHIP' => 'supplier/uploads/dealership/',
+        'DENR PERMITS' => 'supplier/uploads/denr_permits/',
+        'TRADE TEST RESULTS' => 'supplier/uploads/trade_test/',
+        'PRICE LIST/QUOTATION' => 'supplier/uploads/quotation/',
+        'OTHERS' => 'supplier/uploads/others/',
     ];
 
     private function generateHashName()
@@ -28,7 +28,7 @@ trait UploadFileTrait
 
     private function getFileLocation($fileType)
     {
-        return $this->fileTypeDirectories[$fileType] ?? 'public/supplier/uploads/others/';
+        return $this->fileTypeDirectories[$fileType] ?? 'supplier/uploads/others/';
     }
 
     public function uploadFile($file, $fileType, $newName = null)
