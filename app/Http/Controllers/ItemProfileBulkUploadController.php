@@ -27,8 +27,7 @@ class ItemProfileBulkUploadController extends Controller
             $result = $this->itemProfileBulkUploadService->parseCsv($rows);
             if (isset($result['error'])) {
                 return response()->json([
-                    'message' => 'Failed to parse CSV.',
-                    'error' => $result['error']
+                    'message' => $result['error']
                 ], 400);
             }
             list($processed, $duplicates, $unprocessed) = $this->itemProfileBulkUploadService->parseCsv($rows);
