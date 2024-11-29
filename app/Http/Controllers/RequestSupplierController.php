@@ -42,7 +42,48 @@ class RequestSupplierController extends Controller
             "data" => PaginateResourceCollection::paginate($collection, 10)
         ], JsonResponse::HTTP_OK);
     }
+    public function getCompanyName(SupplierRequestFilter $request)
+    {
+        $filters = $request->validated();
+        $main = RequestSupplier::select('company_name')
+            ->where('company_name', 'LIKE', "%{$filters['key']}%")
+            ->distinct()
+            ->get();
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Company Name Successfully Fetched.",
+            "data" => $main->pluck('company_name')
+        ], JsonResponse::HTTP_OK);
+    }
 
+    public function getSupplierCode(SupplierRequestFilter $request)
+    {
+        $filters = $request->validated();
+        $main = RequestSupplier::select('supplier_code')
+            ->where('supplier_code', 'LIKE', "%{$filters['key']}%")
+            ->distinct()
+            ->get();
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Supplier Code Successfully Fetched.",
+            "data" => $main->pluck('supplier_code')
+        ], JsonResponse::HTTP_OK);
+
+    }
+
+    public function getContactPersonName(SupplierRequestFilter $request)
+    {
+        $filters = $request->validated();
+        $main = RequestSupplier::select('contact_person_name')
+            ->where('contact_person_name', 'LIKE', "%{$filters['key']}%")
+            ->distinct()
+            ->get();
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Contact Person Name Successfully Fetched.",
+            "data" => $main->pluck('contact_person_name')
+        ], JsonResponse::HTTP_OK);
+    }
     public function get(SupplierRequestFilter $request)
     {
         $filters = $request->validated();

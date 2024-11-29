@@ -131,6 +131,10 @@ Route::middleware('auth:api')->group(function () {
         Route::resource('resource', RequestSupplierController::class)->names("requestSupplierresource");
         Route::put('edit/{resource}', [RequestSupplierController::class, 'update']);
 
+        Route::get('company-name', [RequestSupplierController::class, 'getCompanyName']);
+        Route::get('contact-person', [RequestSupplierController::class, 'getContactPersonName']);
+        Route::get('supplier-code', [RequestSupplierController::class, 'getSupplierCode']);
+
         Route::get('all-request', [RequestSupplierController::class, 'allRequests']);
         Route::get('my-request', [RequestSupplierController::class, 'myRequests']);
         Route::get('my-approvals', [RequestSupplierController::class, 'myApprovals']);
