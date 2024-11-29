@@ -52,7 +52,7 @@ class RequestSupplierController extends Controller
         return new JsonResponse([
             "success" => true,
             "message" => "Company Name Successfully Fetched.",
-            "data" => $main->pluck('company_name')
+            "data" => $main
         ], JsonResponse::HTTP_OK);
     }
 
@@ -66,9 +66,8 @@ class RequestSupplierController extends Controller
         return new JsonResponse([
             "success" => true,
             "message" => "Supplier Code Successfully Fetched.",
-            "data" => $main->pluck('supplier_code')
+            "data" => $main
         ], JsonResponse::HTTP_OK);
-
     }
 
     public function getContactPersonName(SupplierRequestFilter $request)
@@ -81,7 +80,7 @@ class RequestSupplierController extends Controller
         return new JsonResponse([
             "success" => true,
             "message" => "Contact Person Name Successfully Fetched.",
-            "data" => $main->pluck('contact_person_name')
+            "data" => $main
         ], JsonResponse::HTTP_OK);
     }
     public function get(SupplierRequestFilter $request)
@@ -106,40 +105,27 @@ class RequestSupplierController extends Controller
         $validated = $request->validated();
         $validated['request_status'] = RequestApprovalStatus::PENDING;
         $validated['created_by'] = auth()->user()->id;
-        $validated['approvals'] = $convertedData = collect($validated['approvals'])->map(function ($item) {
+
+        // Convert user_id to integers in the approvals array
+        $validated['approvals'] = collect($validated['approvals'])->map(function ($item) {
             $item['user_id'] = (int) $item['user_id'];
             return $item;
         });
-        $attachmentNames = array_column($validated['attachments'] ?? [], 'attachment_name');
-        if (count($attachmentNames) !== count(array_unique($attachmentNames))) {
-            return new JsonResponse(['success' => false, 'message' => 'Duplicate attachment names are not allowed.',], JsonResponse::HTTP_BAD_REQUEST);
-        }
 
         DB::transaction(function () use ($validated, $request) {
-            $requestSupplier = RequestSupplier::create(
-                $validated
-            );
-
-            foreach ($validated['attachments'] ?? [] as $attachmentData) {
-                $filePath = $this->uploadFile(
-                    $attachmentData['file'],
-                    $attachmentData['attachment_name']
-                );
-                $requestSupplier->uploads()->create([
-                    'attachment_name' => $attachmentData['attachment_name'],
-                    'file_location' => $filePath,
-                ]);
-            }
+            $requestSupplier = RequestSupplier::create($validated);
 
             if ($requestSupplier->getNextPendingApproval()) {
                 $requestSupplier->notify(new RequestSupplierForApprovalNotification($request->bearerToken(), $requestSupplier));
             }
         });
+
         return new JsonResponse([
             'success' => true,
             'message' => 'Supplier request successfully saved.',
         ], JsonResponse::HTTP_OK);
     }
+
 
     /**
      * Display the specified resource.
@@ -158,8 +144,6 @@ class RequestSupplierController extends Controller
      */
     public function update(UpdateRequestSupplier $request, RequestSupplier $resource)
     {
-        $updated = false;
-
         if ($resource->request_status !== RequestApprovalStatus::APPROVED) {
             return response()->json([
                 "message" => "Only approved requests can be edited.",
@@ -167,25 +151,17 @@ class RequestSupplierController extends Controller
             ], 403);
         }
 
-        DB::transaction(function () use ($request, $resource, &$updated) {
-            $resource->fill($request->validated());
-            $updated = $resource->save();
-        });
+        $resource->fill($request->validated());
 
-        if ($updated) {
+        if ($resource->save()) {
             return response()->json([
-                "message" => "Successfully updated.",
+                "message" => "Supplier Information successfully updated.",
                 "success" => true,
                 "data" => $resource->refresh()
             ]);
         }
-
-        return response()->json([
-            "message" => "Failed to update.",
-            "success" => false,
-            "data" => $resource
-        ], 400);
     }
+
 
     /**
      * Remove the specified resource from storage.
