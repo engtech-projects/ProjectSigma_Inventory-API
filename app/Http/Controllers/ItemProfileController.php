@@ -146,7 +146,8 @@ class ItemProfileController extends Controller
 
         $searchKey = $request->validated()['query'] ?? '';
 
-        $query = ItemProfile::where('active_status', 'Active')
+        $query = ItemProfile::IsApproved()
+            ->where('active_status', 'Active')
             ->where(function ($q) use ($searchKey) {
                 $q->where('item_description', 'LIKE', "%{$searchKey}%")
                 ->orWhere('thickness_val', 'LIKE', "%{$searchKey}%")
@@ -161,7 +162,7 @@ class ItemProfileController extends Controller
                 ->orWhere('color', 'LIKE', "%{$searchKey}%");
             })
             ->limit(25)
-            ->orderBy('item_description')
+            ->orderBy('item_description', 'desc')
             ->get();
 
         return response()->json([
