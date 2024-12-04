@@ -107,10 +107,10 @@ class RequestSupplierController extends Controller
         $validated['created_by'] = auth()->user()->id;
 
         // Convert user_id to integers in the approvals array
-        // $validated['approvals'] = collect($validated['approvals'])->map(function ($item) {
-        //     $item['user_id'] = (int) $item['user_id'];
-        //     return $item;
-        // });
+        $validated['approvals'] = collect($validated['approvals'])->map(function ($item) {
+            $item['user_id'] = (int) $item['user_id'];
+            return $item;
+        });
 
         DB::transaction(function () use ($validated, $request) {
             $requestSupplier = RequestSupplier::create($validated);
