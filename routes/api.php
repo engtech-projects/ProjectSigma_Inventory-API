@@ -17,6 +17,7 @@ use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\RequestBOMController;
 use App\Http\Controllers\RequestItemProfilingController;
 use App\Http\Controllers\RequestSupplierController;
+use App\Http\Controllers\RequestSupplierUploadController;
 use App\Http\Controllers\UOMGroupController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
@@ -129,7 +130,7 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::prefix('request-supplier')->group(function () {
         Route::resource('resource', RequestSupplierController::class)->names("requestSupplierresource");
-        Route::put('edit/{resource}', [RequestSupplierController::class, 'update']);
+        Route::resource('uploads', RequestSupplierUploadController::class)->names("supplierUploadresource");
 
         Route::get('company-name', [RequestSupplierController::class, 'getCompanyName']);
         Route::get('contact-person', [RequestSupplierController::class, 'getContactPersonName']);

@@ -107,10 +107,10 @@ class RequestSupplierController extends Controller
         $validated['created_by'] = auth()->user()->id;
 
         // Convert user_id to integers in the approvals array
-        $validated['approvals'] = collect($validated['approvals'])->map(function ($item) {
-            $item['user_id'] = (int) $item['user_id'];
-            return $item;
-        });
+        // $validated['approvals'] = collect($validated['approvals'])->map(function ($item) {
+        //     $item['user_id'] = (int) $item['user_id'];
+        //     return $item;
+        // });
 
         DB::transaction(function () use ($validated, $request) {
             $requestSupplier = RequestSupplier::create($validated);
@@ -144,18 +144,10 @@ class RequestSupplierController extends Controller
      */
     public function update(UpdateRequestSupplier $request, RequestSupplier $resource)
     {
-        if ($resource->request_status !== RequestApprovalStatus::APPROVED) {
-            return response()->json([
-                "message" => "Only approved requests can be edited.",
-                "success" => false
-            ], 403);
-        }
-
         $resource->fill($request->validated());
-
         if ($resource->save()) {
             return response()->json([
-                "message" => "Supplier Information successfully updated.",
+                "message" => "Supplier {$resource->company_name} Successfully Updated.",
                 "success" => true,
                 "data" => $resource->refresh()
             ]);
