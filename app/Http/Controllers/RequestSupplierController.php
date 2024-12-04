@@ -106,14 +106,12 @@ class RequestSupplierController extends Controller
         $validated['request_status'] = RequestApprovalStatus::PENDING;
         $validated['created_by'] = auth()->user()->id;
 
-        // Convert user_id to integers in the approvals array
-        $validated['approvals'] = collect($validated['approvals'])->map(function ($item) {
-            $item['user_id'] = (int) $item['user_id'];
-            return $item;
-        });
-
         DB::transaction(function () use ($validated, $request) {
-            $requestSupplier = RequestSupplier::create($validated);
+            $requestSupplier = RequestSupplier::create([
+                'approvals' => $validated['approvals'],
+                'created_by' => $validated['created_by'],
+                'request_status' => $validated['request_status'],
+            ]);
 
             if ($requestSupplier->getNextPendingApproval()) {
                 $requestSupplier->notify(new RequestSupplierForApprovalNotification($request->bearerToken(), $requestSupplier));
