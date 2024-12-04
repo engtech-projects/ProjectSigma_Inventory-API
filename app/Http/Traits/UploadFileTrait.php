@@ -12,9 +12,10 @@ trait UploadFileTrait
         $hashmake = Hash::make('secret');
         $hashname = substr(hash('sha256', $hashmake), 0, 20);
         $originalName = $newName ?? $file->getClientOriginalName();
-        $file->storePubliclyAs($fileLocation . $originalName, 'public');
+        $file->storePubliclyAs($fileLocation . $hashname . "/", $originalName, 'public');
         return $fileLocation . $hashname . "/" . $originalName;
     }
+
 
     public function replaceUploadFile($oldFile, $file, $fileLocation)
     {

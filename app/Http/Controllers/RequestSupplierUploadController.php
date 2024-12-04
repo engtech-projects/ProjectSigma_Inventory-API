@@ -3,53 +3,42 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreRequestSupplierUpload;
-use App\Http\Requests\UpdateRequestSupplierUpload;
 use App\Http\Resources\RequestSupplierUploadResource;
 use App\Http\Traits\UploadFileTrait;
 use App\Models\RequestSupplierUpload;
-use App\Utils\PaginateResourceCollection;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class RequestSupplierUploadController extends Controller
 {
     use UploadFileTrait;
-    public const EMPLOYEEDIR = "supplier_folder/";
 
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $main = RequestSupplierUpload::get();
-        // $paginated = PaginateResourceCollection::paginate($main);
-        $data = json_decode('{}');
-        $data->message = "Supplier Documents Successfully Fetched.";
-        $data->success = true;
-        $data->data = $main;
-        return response()->json($data);
+        $main = RequestSupplierUpload::paginate(10);
+        $collection = RequestSupplierUploadResource::collection($main)->response()->getData(true);
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Suppliers Successfully Fetched.",
+            "data" => $collection,
+        ], JsonResponse::HTTP_OK);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function get()
     {
         $main = RequestSupplierUpload::isApproved()->get();
-        $requestResources = RequestSupplierUploadResource::collection($main)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
-        return response()->json([
-            'message' => 'Successfully fetched.',
-            'success' => true,
-            'data' => $paginated,
-        ]);
+        $collection = RequestSupplierUploadResource::collection($main)->response()->getData(true);
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Suppliers Successfully Fetched.",
+            "data" => $collection,
+        ], JsonResponse::HTTP_OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreRequestSupplierUpload $request)
     {
         $validated = $request->validated();
@@ -57,38 +46,29 @@ class RequestSupplierUploadController extends Controller
         DB::beginTransaction();
 
         try {
-            $attachments = $validated['attachments'];
-            $supplierId = $validated['request_supplier_id'];
+            $fileLocation = $this->uploadFile(
+                $validated['file'],
+                RequestSupplierUpload::SUPPLIER_ATTACHMENTS_DIR
+            );
 
-            $savedAttachments = [];
-
-            foreach ($attachments as $attachment) {
-                $fileLocation = $this->uploadFile(
-                    $attachment['file'],
-                    RequestSupplierUpload::SUPPLIER_ATTACHMENTS_DIR
-                );
-
-                $upload = new RequestSupplierUpload();
-                $upload->request_supplier_id = $supplierId;
-                $upload->attachment_name = $attachment['attachment_name'];
-                $upload->file_location = $fileLocation;
-                $upload->save();
-
-                $savedAttachments[] = $upload;
-            }
+            $upload = new RequestSupplierUpload();
+            $upload->request_supplier_id = $validated['request_supplier_id'];
+            $upload->attachment_name = $validated['attachment_name'];
+            $upload->file_location = $fileLocation;
+            $upload->save();
 
             DB::commit();
 
             return response()->json([
-                "message" => "Successfully uploaded files.",
+                "message" => "Successfully uploaded file.",
                 "success" => true,
-                "data" => $savedAttachments,
+                "data" => $upload,
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
-                "message" => "Failed to upload files. " . $e->getMessage(),
+                "message" => "Failed to upload file. " . $e->getMessage(),
                 "success" => false,
             ], 500);
         }
@@ -115,77 +95,29 @@ class RequestSupplierUploadController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     */
-    // public function update(UpdateRequestSupplierUpload $request, RequestSupplierUpload $upload)
-    // {
-    //     $upload->fill($request->validated());
-    //     if ($upload->save()) {
-    //         return response()->json([
-    //             "message" => "Successfully updated.",
-    //             "success" => true,
-    //             "data" => $upload->refresh()
-    //         ]);
-    //     }
-    //     return response()->json([
-    //         "message" => "Failed to update.",
-    //         "success" => false,
-    //         "data" => $upload
-    //     ], 400);
-    // }
-
-    public function update(UpdateRequestSupplierUpload $request, RequestSupplierUpload $upload)
-{
-    // Fill the model with all request data
-    $update = $upload->fill($request->all());
-    if ($update->save()) {
-        // Handling file uploads if any file is provided
-        if ($request->hasFile('attachments.0.file')) {
-            $file = $request->file('attachments.0.file');
-            $originalName = $file->getClientOriginalName();
-
-            // Replace the old file with the new file
-            $upload->file_location = $this->replaceUploadFile($upload->file_location, $file, RequestSupplierUpload::SUPPLIER_ATTACHMENTS_DIR);
-
-            // Update the file location in the model
-            $upload->save();
-        }
-
-        return response()->json([
-            'message' => 'Successfully updated.',
-            'success' => true,
-            'data' => $upload->refresh(),
-        ]);
-    }
-
-    return response()->json([
-        'message' => 'Failed to update.',
-        'success' => false,
-        'data' => $upload,
-    ], 400);
-}
-
-
-    /**
      * Remove the specified resource from storage.
      */
     public function destroy(RequestSupplierUpload $upload)
     {
-        if (!$upload) {
-            return response()->json([
-                'message' => 'Supplier Attachment not found.',
-                'success' => false,
-                'data' => null
-            ], 404);
+        if (Storage::disk('public')->exists($upload->file_location)) {
+            Storage::disk('public')->delete($upload->file_location);
+
+            $directoryPath = dirname($upload->file_location);
+            if (Storage::disk('public')->directories($directoryPath) == [] && Storage::disk('public')->files($directoryPath) == []) {
+                Storage::disk('public')->deleteDirectory($directoryPath);
+            }
         }
 
         $deleted = $upload->delete();
 
-        $response = [
-            'message' => $deleted ? 'Supplier Attachment successfully deleted.' : 'Failed to delete Supplier Attachment.',
+        return response()->json([
+            'message' => $deleted ? 'Supplier Attachment and file successfully deleted.' : 'Failed to delete Supplier Attachment.',
             'success' => $deleted,
-            'data' => $upload
-        ];
-        return response()->json($response, $deleted ? 200 : 400);
+            'data' => $upload,
+        ], $deleted ? 200 : 400);
     }
+
+
+
+
 }

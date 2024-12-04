@@ -27,20 +27,16 @@ class StoreRequestSupplierUpload extends FormRequest
                 'integer',
                 'exists:request_supplier,id'
             ],
-            'attachments' => [
-                'required',
-                'array',
-            ],
-            'attachments.*.attachment_name' => [
+            'attachment_name' => [
                 'required',
                 'string',
-                'max:255',
+                'max:255'
             ],
-            'attachments.*.file' => [
-                'required',
-                'file',
-                'max:10000',
-                'mimes:pdf,doc,docx,jpg,png,jpeg',
+            'file' => [
+                "required",
+                "file",
+                "max:10000",
+                "mimes:pdf,doc,docx,jpg,png,jpeg",
             ],
         ];
     }

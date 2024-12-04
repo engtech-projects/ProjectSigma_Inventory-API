@@ -19,6 +19,7 @@ use App\Notifications\RequestSupplierForApprovalNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Traits\HasApproval;
+use Illuminate\Http\Request;
 
 class RequestSupplierController extends Controller
 {
@@ -33,61 +34,38 @@ class RequestSupplierController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    //
+    public function index(Request $request)
     {
-        $main = RequestSupplier::isApproved()->with('uploads')->get();
-        $collection = collect(SupplierResource::collection($main));
+        $filters = [
+            'company_name' => 'like',
+            'type_of_ownership' => '=',
+            'contact_person_name' => 'like',
+            'supplier_code' => 'like',
+        ];
+
+        $query = RequestSupplier::isApproved()
+            ->with('uploads')
+            ->where('company_name', 'like', "%{$request->input('company_name')}%")
+            ->where('type_of_ownership', 'like', "%{$request->input('type_of_ownership')}%")
+            ->where('contact_person_name', 'like', "%{$request->input('contact_person_name')}%")
+            ->where('supplier_code', 'like', "%{$request->input('supplier_code')}%");
+
+        $main = $query->paginate(10);
+        $collection = SupplierResource::collection($main)->response()->getData(true);
+
         return new JsonResponse([
             "success" => true,
             "message" => "Suppliers Successfully Fetched.",
-            "data" => PaginateResourceCollection::paginate($collection, 10)
-        ], JsonResponse::HTTP_OK);
-    }
-    public function getCompanyName(SupplierRequestFilter $request)
-    {
-        $filters = $request->validated();
-        $main = RequestSupplier::select('company_name')
-            ->where('company_name', 'LIKE', "%{$filters['key']}%")
-            ->distinct()
-            ->get();
-        return new JsonResponse([
-            "success" => true,
-            "message" => "Company Name Successfully Fetched.",
-            "data" => $main
+            "data" => $collection,
         ], JsonResponse::HTTP_OK);
     }
 
-    public function getSupplierCode(SupplierRequestFilter $request)
-    {
-        $filters = $request->validated();
-        $main = RequestSupplier::select('supplier_code')
-            ->where('supplier_code', 'LIKE', "%{$filters['key']}%")
-            ->distinct()
-            ->get();
-        return new JsonResponse([
-            "success" => true,
-            "message" => "Supplier Code Successfully Fetched.",
-            "data" => $main
-        ], JsonResponse::HTTP_OK);
-    }
 
-    public function getContactPersonName(SupplierRequestFilter $request)
+
+    public function get()
     {
-        $filters = $request->validated();
-        $main = RequestSupplier::select('contact_person_name')
-            ->where('contact_person_name', 'LIKE', "%{$filters['key']}%")
-            ->distinct()
-            ->get();
-        return new JsonResponse([
-            "success" => true,
-            "message" => "Contact Person Name Successfully Fetched.",
-            "data" => $main
-        ], JsonResponse::HTTP_OK);
-    }
-    public function get(SupplierRequestFilter $request)
-    {
-        $filters = $request->validated();
-        $filteredRequests = $this->requestSupplierService->getAll($filters);
+        $filteredRequests = $this->requestSupplierService->getAll();
         if ($filteredRequests->isEmpty()) {
             return new JsonResponse([
                 'success' => false,
@@ -125,10 +103,6 @@ class RequestSupplierController extends Controller
         ], JsonResponse::HTTP_OK);
     }
 
-
-    /**
-     * Display the specified resource.
-     */
     public function show(RequestSupplier $resource)
     {
         return response()->json([
@@ -138,9 +112,6 @@ class RequestSupplierController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateRequestSupplier $request, RequestSupplier $resource)
     {
         $resource->fill($request->validated());
@@ -148,15 +119,11 @@ class RequestSupplierController extends Controller
             return response()->json([
                 "message" => "Supplier {$resource->company_name} Successfully Updated.",
                 "success" => true,
-                "data" => $resource->refresh()
+                "data" => $resource->load('uploads')->refresh()
             ]);
         }
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(RequestSupplier $resource)
     {
         if (!$resource) {
@@ -188,39 +155,16 @@ class RequestSupplierController extends Controller
                 'message' => 'No data found.',
             ], JsonResponse::HTTP_OK);
         }
-
-        $requestResources = RequestSupplierResourceList::collection($myRequest)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
+        $requestResources = RequestSupplierResourceList::collection($myRequest)->response()->getData(true);
 
         return new JsonResponse([
-            'success' => true,
             'message' => 'My Request Fetched.',
-            'data' => $paginated
+            'success' => true,
+            'data' => $requestResources
         ]);
     }
 
     public function allRequests()
-    {
-        $myRequest = $this->requestSupplierService->getAll();
-
-        if ($myRequest->isEmpty()) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'No data found.',
-            ], JsonResponse::HTTP_OK);
-        }
-
-        $requestResources = RequestSupplierResourceList::collection($myRequest)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
-
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'All Request Fetched.',
-            'data' => $paginated
-        ]);
-    }
-
-    public function allApprovedRequests()
     {
         $myRequest = $this->requestSupplierService->getAllRequest();
 
@@ -231,31 +175,52 @@ class RequestSupplierController extends Controller
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestSupplierResourceList::collection($myRequest)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
+        $requestResources = RequestSupplierResourceList::collection($myRequest)->response()->getData(true);
 
         return new JsonResponse([
+            'message' => 'All Request Fetched.',
             'success' => true,
+            'data' => $requestResources
+        ]);
+    }
+
+    public function allApprovedRequests()
+    {
+        $myRequest = $this->requestSupplierService->getAllApprovedRequest();
+
+        if ($myRequest->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+
+        $requestResources = RequestSupplierResourceList::collection($myRequest)->response()->getData(true);
+
+        return new JsonResponse([
             'message' => 'All Approved Requests Fetched.',
-            'data' => $paginated
+            'success' => true,
+            'data' => $requestResources
         ]);
     }
 
     public function myApprovals()
     {
         $myApproval = $this->requestSupplierService->getMyApprovals();
+
         if ($myApproval->isEmpty()) {
             return new JsonResponse([
                 'success' => false,
                 'message' => 'No data found.',
             ], JsonResponse::HTTP_OK);
         }
-        $requestResources = RequestSupplierResourceList::collection($myApproval)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
+
+        $requestResources = RequestSupplierResourceList::collection($myApproval)->response()->getData(true);
+
         return new JsonResponse([
-            'success' => true,
             'message' => 'My Approvals Fetched.',
-            'data' => $paginated
+            'success' => true,
+            'data' => $requestResources
         ]);
     }
 }
