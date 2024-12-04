@@ -9,6 +9,7 @@ use App\Http\Resources\RequestSupplierResource;
 use App\Models\RequestSupplier;
 use App\Utils\PaginateResourceCollection;
 use App\Http\Requests\SupplierRequestFilter;
+use App\Http\Resources\RequestBOMResource;
 use App\Http\Resources\RequestItemProfilingResourceList;
 use App\Http\Resources\RequestSupplierResourceList;
 use App\Http\Resources\SupplierResource;
@@ -133,7 +134,7 @@ class RequestSupplierController extends Controller
         return response()->json([
             "message" => "Successfully Fetched Supplier {$resource->company_name}.",
             "success" => true,
-            "data" => $resource->load('uploads')
+            "data" =>  new RequestSupplierResource($resource)
         ]);
     }
 
