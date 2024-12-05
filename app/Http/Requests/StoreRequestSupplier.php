@@ -43,9 +43,6 @@ class StoreRequestSupplier extends FormRequest
             'filled_date' => 'required|date_format:Y-m-d',
             'requirements_complete' => 'required|string|in:Yes,No',
             'remarks' => 'nullable|string',
-            'attachments' => 'nullable|array',
-            'attachments.*.attachment_name' => 'required|string|max:255',
-            'attachments.*.file' => 'required|file|mimes:pdf,doc,docx,jpg,png,jpeg',
             ...$this->storeApprovals(),
         ];
     }

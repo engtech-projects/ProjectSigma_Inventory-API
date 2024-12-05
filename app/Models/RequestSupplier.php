@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RequestApprovalStatus;
 use App\Traits\HasApproval;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -61,6 +62,7 @@ class RequestSupplier extends Model
         return $this->hasMany(RequestSupplierUpload::class);
     }
 
+
     /**
      * ==================================================
      * LOCAL SCOPES
@@ -69,6 +71,21 @@ class RequestSupplier extends Model
     public function scopeIsApproved(Builder $query): void
     {
         $query->where('request_status', "Approved");
+    }
+    public function scopeRequestStatusPending(Builder $query): void
+    {
+        $query->where('request_status', RequestApprovalStatus::PENDING);
+    }
+    public function scopeAuthUserPending(Builder $query): void
+    {
+        // Assuming authUserPending logic
+        $query->where('created_by', auth()->user()->id);
+    }
+    public function completeRequestStatus()
+    {
+        $this->request_status = RequestApprovalStatus::APPROVED;
+        $this->save();
+        $this->refresh();
     }
 
 

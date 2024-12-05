@@ -22,9 +22,22 @@ class StoreRequestSupplierUpload extends FormRequest
     public function rules(): array
     {
         return [
-            'request_supplier_id' => 'required|exists:request_suppliers,id',
-            'attachment_name' => 'required|string|max:255',
-            'file_location' => 'required|string|max:255'
+            'request_supplier_id' => [
+                'required',
+                'integer',
+                'exists:request_supplier,id'
+            ],
+            'attachment_name' => [
+                'required',
+                'string',
+                'max:255'
+            ],
+            'file' => [
+                "required",
+                "file",
+                "max:10000",
+                "mimes:pdf,doc,docx,jpg,png,jpeg",
+            ],
         ];
     }
 }

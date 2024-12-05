@@ -17,12 +17,15 @@ use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\RequestBOMController;
 use App\Http\Controllers\RequestItemProfilingController;
 use App\Http\Controllers\RequestSupplierController;
+use App\Http\Controllers\RequestSupplierUploadController;
 use App\Http\Controllers\UOMGroupController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehousePssController;
 use App\Http\Controllers\WarehouseTransactionController;
 use App\Http\Controllers\WarehouseTransactionItemController;
+use Illuminate\Support\Facades\Artisan;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -127,7 +130,7 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::prefix('request-supplier')->group(function () {
         Route::resource('resource', RequestSupplierController::class)->names("requestSupplierresource");
-        Route::put('edit/{resource}', [RequestSupplierController::class, 'update']);
+        Route::resource('uploads', RequestSupplierUploadController::class)->names("supplierUploadresource");
 
         Route::get('all-request', [RequestSupplierController::class, 'allRequests']);
         Route::get('my-request', [RequestSupplierController::class, 'myRequests']);
@@ -137,4 +140,21 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('enum')->group(function () {
         Route::get('suppliers', [RequestSupplierController::class, 'get']);
     });
+
+    if (config()->get('app.artisan') == 'true') {
+        Route::prefix('artisan')->group(function () {
+            Route::get('storage', function () {
+                Artisan::call("storage:link");
+                return "success";
+            });
+            Route::get('optimize', function () {
+                Artisan::call("optimize");
+                return "success";
+            });
+            Route::get('optimize-clear', function () {
+                Artisan::call("optimize:clear");
+                return "success";
+            });
+        });
+    }
 });
