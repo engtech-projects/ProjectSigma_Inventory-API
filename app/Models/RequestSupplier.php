@@ -61,7 +61,7 @@ class RequestSupplier extends Model
     {
         return $this->hasMany(RequestSupplierUpload::class);
     }
-    
+
 
     /**
      * ==================================================
@@ -84,9 +84,6 @@ class RequestSupplier extends Model
     public function completeRequestStatus()
     {
         $this->request_status = RequestApprovalStatus::APPROVED;
-        // $this->itemProfiles()->update([
-        //     "is_approved" => 1,
-        // ]);
         $this->save();
         $this->refresh();
     }

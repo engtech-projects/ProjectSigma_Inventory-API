@@ -52,19 +52,6 @@ class RequestSupplierService
 
     public function getMyApprovals()
     {
-        // $userId = auth()->user()->id;
-
-        // $result = RequestSupplier::myApprovals()
-        //     ->with(['uploads'])
-        //     ->orderBy("created_at", "DESC")
-        //     ->get();
-
-        // return $result->filter(function ($item) use ($userId) {
-        //     $nextPendingApproval = $item->getNextPendingApproval();
-
-        //     return ($nextPendingApproval && $userId === (int)$nextPendingApproval['user_id']);
-        // });
-
         $userId = auth()->user()->id;
         $query = RequestSupplier::myApprovals()->with(['uploads'])->orderBy('created_at', 'DESC');
         $query = $this->applyFilters($query);
