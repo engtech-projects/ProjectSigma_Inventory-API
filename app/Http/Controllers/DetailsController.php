@@ -6,7 +6,7 @@ use App\Models\Details;
 use App\Http\Requests\StoreDetailsRequest;
 use App\Http\Requests\UpdateDetailsRequest;
 use App\Http\Resources\BOMDetailsResource;
-use App\Utils\PaginateResourceCollection;
+use Illuminate\Http\JsonResponse;
 
 class DetailsController extends Controller
 {
@@ -15,14 +15,14 @@ class DetailsController extends Controller
      */
     public function index()
     {
-        $details = Details::get();
-        $requestResources = BOMDetailsResource::collection($details)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
-        return response()->json([
-            'message' => 'BOM Details Successfully fetched.',
-            'success' => true,
-            'data' => $paginated,
-        ]);
+        $main = Details::paginate(10);
+        $collection = BOMDetailsResource::collection($main)->response()->getData(true);
+
+        return new JsonResponse([
+            "success" => true,
+            "message" => "BOM Details Successfully fetched.",
+            "data" => $collection,
+        ], JsonResponse::HTTP_OK);
     }
 
     /**

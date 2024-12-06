@@ -7,7 +7,6 @@ use App\Http\Requests\StoreUOMRequest;
 use App\Http\Requests\UOMIndexRequest;
 use App\Http\Requests\UpdateUOMRequest;
 use App\Http\Resources\UOMResource;
-use App\Utils\PaginateResourceCollection;
 use Illuminate\Http\JsonResponse;
 
 class UOMController extends Controller
@@ -29,14 +28,14 @@ class UOMController extends Controller
         } else {
             $message = 'UOMs Fetched.';
         }
-        $uoms = $query->get();
-        $uomResources = UOMResource::collection($uoms);
-        $paginated = PaginateResourceCollection::paginate(collect($uomResources->toArray(request())));
+
+        $uoms = $query->paginate(10);
+        $collection = UOMResource::collection($uoms)->response()->getData(true);
 
         return new JsonResponse([
             'success' => true,
             'message' => $message,
-            'data' => $paginated
+            'data' => $collection
         ]);
     }
 

@@ -7,35 +7,54 @@ use App\Traits\Filters;
 
 class RequestBOMService
 {
-    use Filters;
+    public function applyFilters($query)
+    {
+        if (request()->has('assignment_id')) {
+            $query->where('assignment_id', request()->input('assignment_id'));
+        }
+        if (request()->has('effectivity')) {
+            $query->where('effectivity', request()->input('effectivity'));
+        }
+        return $query;
+    }
     public function getAll()
     {
-        return RequestBOM::all();
-    }
-
-    public function getMyRequest(array $filters = [])
-    {
-        $query = RequestBOM::with(['items'])->where('created_by', auth()->user()->id);
-        $query = $this->bomFilters($query, $filters);
-        return $query->orderBy('created_at', 'DESC')->get();
-    }
-    public function getAllRequest(array $filters = [])
-    {
+        // return RequestBOM::all();
         $query = RequestBOM::query();
-        $query = $this->bomFilters($query, $filters);
-        return $query->orderBy('created_at', 'DESC')->get();
+        $query = $this->applyFilters($query);
+        return $query->get();
     }
 
-    public function getMyApprovals(array $filters = [])
+    public function getMyRequest()
+    {
+        $query = RequestBOM::with(['items'])->where('created_by', auth()->user()->id)->orderBy('created_at', 'DESC');
+        $query = $this->applyFilters($query);
+        return $query->paginate(10);
+    }
+    public function getAllRequest()
+    {
+        $query = RequestBOM::orderBy('created_at', 'DESC');
+        $query = $this->applyFilters($query);
+        return $query->paginate(10);
+    }
+
+    public function getMyApprovals()
     {
         $userId = auth()->user()->id;
+
         $query = RequestBOM::myApprovals()->with(['items'])->orderBy('created_at', 'DESC');
-        $query = $this->bomFilters($query, $filters);
-        $result = $query->get();
-        return $result->filter(function ($item) use ($userId) {
+        $query = $this->applyFilters($query);
+
+        $paginatedResults = $query->paginate(10);
+
+        $filteredResults = $paginatedResults->getCollection()->filter(function ($item) use ($userId) {
             $nextPendingApproval = $item->getNextPendingApproval();
-            return ($nextPendingApproval && $userId === $nextPendingApproval['user_id']);
+            return ($nextPendingApproval && $userId === (int)$nextPendingApproval['user_id']);
         });
+
+        $paginatedResults->setCollection($filteredResults);
+
+        return $paginatedResults;
     }
 
     public function getItemSummary($requestBOM)

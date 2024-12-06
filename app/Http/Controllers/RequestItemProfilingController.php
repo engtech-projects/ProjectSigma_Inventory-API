@@ -15,7 +15,6 @@ use App\Models\ItemProfile;
 use App\Models\RequestItemProfilingItems;
 use App\Notifications\RequestItemProfilingForApprovalNotification;
 use App\Traits\HasApproval;
-use App\Utils\PaginateResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
@@ -34,24 +33,27 @@ class RequestItemProfilingController extends Controller
      */
     public function index()
     {
-        $requests = RequestItemProfiling::with('itemProfiles')->paginate(10);
-        $data = json_decode('{}');
-        $data->message = "Request Item Profiling Successfully Fetched.";
-        $data->success = true;
-        $data->data = $requests;
-        return response()->json($data);
+
+        $main = RequestItemProfiling::with('itemProfiles')->paginate(10);
+        $collection = RequestItemProfilingResource::collection($main)->response()->getData(true);
+
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Request Item Profiling Successfully Fetched.",
+            "data" => $collection,
+        ], JsonResponse::HTTP_OK);
     }
 
     public function get()
     {
-        $main = ItemProfile::IsApproved()->get();
-        $requestResources = ItemProfileResource::collection($main)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
-        return response()->json([
-            'message' => 'Successfully fetched.',
-            'success' => true,
-            'data' => $paginated,
-        ]);
+        $main = ItemProfile::IsApproved()->paginate(10);
+        $collection = ItemProfileResource::collection($main)->response()->getData(true);
+
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Successfully fetched.",
+            "data" => $collection,
+        ], JsonResponse::HTTP_OK);
     }
 
     /**
@@ -168,13 +170,12 @@ class RequestItemProfilingController extends Controller
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestItemProfilingResourceList::collection($myRequest)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
+        $requestResources = RequestItemProfilingResourceList::collection($myRequest)->response()->getData(true);
 
         return new JsonResponse([
             'success' => true,
-            'message' => 'My Request Fetched.',
-            'data' => $paginated
+            'message' => 'My Request Fetched.asdf',
+            'data' => $requestResources
         ]);
     }
     public function allRequests()
@@ -188,18 +189,17 @@ class RequestItemProfilingController extends Controller
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestItemProfilingResourceList::collection($myRequest)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
+        $requestResources = RequestItemProfilingResourceList::collection($myRequest)->response()->getData(true);
 
         return new JsonResponse([
             'success' => true,
             'message' => 'All Request Fetched.',
-            'data' => $paginated
+            'data' => $requestResources
         ]);
     }
     public function allApprovedRequests()
     {
-        $myRequest = $this->requestItemProfilingService->getAllRequest();
+        $myRequest = $this->requestItemProfilingService->getAllApprovedRequest();
 
         if ($myRequest->isEmpty()) {
             return new JsonResponse([
@@ -208,13 +208,12 @@ class RequestItemProfilingController extends Controller
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestItemProfilingResourceList::collection($myRequest)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
+        $requestResources = RequestItemProfilingResourceList::collection($myRequest)->response()->getData(true);
 
         return new JsonResponse([
             'success' => true,
             'message' => 'All Approved Requests Fetched.',
-            'data' => $paginated
+            'data' => $requestResources
         ]);
     }
 
@@ -222,6 +221,7 @@ class RequestItemProfilingController extends Controller
     public function myApprovals()
     {
         $myApproval = $this->requestItemProfilingService->getMyApprovals();
+
         if ($myApproval->isEmpty()) {
             return new JsonResponse([
                 'success' => false,
@@ -229,12 +229,12 @@ class RequestItemProfilingController extends Controller
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestItemProfilingResourceList::collection($myApproval)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
+        $requestResources = RequestItemProfilingResourceList::collection($myApproval)->response()->getData(true);
+
         return new JsonResponse([
+            'message' => 'My Approvals Fetched.asdf',
             'success' => true,
-            'message' => 'My Approvals Fetched.',
-            'data' => $paginated
+            'data' => $requestResources
         ]);
     }
 

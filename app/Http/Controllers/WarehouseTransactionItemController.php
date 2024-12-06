@@ -6,7 +6,7 @@ use App\Models\WarehouseTransactionItem;
 use App\Http\Requests\StoreWarehouseTransactionItemRequest;
 use App\Http\Requests\UpdateWarehouseTransactionItemRequest;
 use App\Http\Resources\WarehouseTransactionItemResource;
-use App\Utils\PaginateResourceCollection;
+use Illuminate\Http\JsonResponse;
 
 class WarehouseTransactionItemController extends Controller
 {
@@ -15,15 +15,14 @@ class WarehouseTransactionItemController extends Controller
      */
     public function index()
     {
-        $items = WarehouseTransactionItem::get();
-        $requestResources = WarehouseTransactionItemResource::collection($items)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
+        $main = WarehouseTransactionItem::paginate(10);
+        $collection = WarehouseTransactionItemResource::collection($main)->response()->getData(true);
 
-        return response()->json([
-            'message' => 'Successfully fetched.',
-            'success' => true,
-            'data' => $paginated,
-        ]);
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Successfully fetched.",
+            "data" => $collection,
+        ], JsonResponse::HTTP_OK);
     }
 
     /**

@@ -9,7 +9,6 @@ use App\Http\Resources\WarehouseTransactionResource;
 use App\Models\WarehouseTransactionItem;
 use App\Notifications\WarehouseTransactionForApprovalNotification;
 use App\Traits\HasApproval;
-use App\Utils\PaginateResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,15 +21,14 @@ class WarehouseTransactionController extends Controller
      */
     public function index()
     {
-        $transactions = WarehouseTransaction::with('items')->get();
-        $requestResources = WarehouseTransactionResource::collection($transactions)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
+        $main = WarehouseTransaction::with('items')->paginate(10);
+        $collection = WarehouseTransactionResource::collection($main)->response()->getData(true);
 
-        return response()->json([
-            'message' => 'Successfully fetched.',
-            'success' => true,
-            'data' => $paginated,
-        ]);
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Successfully fetched.",
+            "data" => $collection,
+        ], JsonResponse::HTTP_OK);
     }
 
     /**

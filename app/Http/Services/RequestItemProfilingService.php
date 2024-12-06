@@ -8,7 +8,7 @@ class RequestItemProfilingService
 {
     public function getAll()
     {
-        return RequestItemProfiling::all();
+        return RequestItemProfiling::paginate(10);
     }
 
     public function getMyRequest()
@@ -16,14 +16,14 @@ class RequestItemProfilingService
         return RequestItemProfiling::with(['itemProfiles'])
         ->where("created_by", auth()->user()->id)
         ->orderBy("created_at", "DESC")
-        ->get();
+        ->paginate(10);
     }
-    public function getAllRequest()
+    public function getAllApprovedRequest()
     {
         return RequestItemProfiling::where("request_status", "Approved")
         ->with(['itemProfiles'])
         ->orderBy("created_at", "DESC")
-        ->get();
+        ->paginate(10);
     }
 
     public function getMyApprovals()
@@ -33,7 +33,7 @@ class RequestItemProfilingService
         $result = RequestItemProfiling::myApprovals()
                     ->with(['itemProfiles'])
                     ->orderBy("created_at", "DESC")
-                    ->get();
+                    ->paginate(10);
 
         return $result->filter(function ($item) use ($userId) {
             $nextPendingApproval = $item->getNextPendingApproval();

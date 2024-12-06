@@ -7,7 +7,6 @@ use App\Http\Requests\StoreRequestSupplier;
 use App\Http\Requests\UpdateRequestSupplier;
 use App\Http\Resources\RequestSupplierResource;
 use App\Models\RequestSupplier;
-use App\Utils\PaginateResourceCollection;
 use App\Http\Requests\SupplierRequestFilter;
 use App\Http\Resources\RequestBOMResource;
 use App\Http\Resources\RequestItemProfilingResourceList;
@@ -218,7 +217,7 @@ class RequestSupplierController extends Controller
         $requestResources = RequestSupplierResourceList::collection($myApproval)->response()->getData(true);
 
         return new JsonResponse([
-            'message' => 'My Approvals Fetched.',
+            'message' => 'My Approvals Fetched.asdf',
             'success' => true,
             'data' => $requestResources
         ]);
