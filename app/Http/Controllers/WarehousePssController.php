@@ -8,7 +8,7 @@ use App\Http\Resources\WarehousePssResource;
 use App\Http\Resources\WarehouseResource;
 use App\Models\Warehouse;
 use App\Models\WarehousePss;
-use App\Utils\PaginateResourceCollection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class WarehousePssController extends Controller
@@ -18,26 +18,26 @@ class WarehousePssController extends Controller
      */
     public function index()
     {
-        $main = WarehousePss::get();
-        $paginated = PaginateResourceCollection::paginate($main);
-        $data = json_decode('{}');
-        $data->message = "Request Warehouse PSS Successfully Fetched.";
-        $data->success = true;
-        $data->data = $paginated;
-        return response()->json($data);
+        $main = WarehousePss::paginate(10);
+        $collection = WarehousePssResource::collection($main)->response()->getData(true);
+
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Successfully fetched.",
+            "data" => $collection,
+        ], JsonResponse::HTTP_OK);
     }
 
     public function get()
     {
         $main = WarehousePss::get();
-        $requestResources = WarehousePssResource::collection($main)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
+        $collection = WarehousePssResource::collection($main)->response()->getData(true);
 
-        return response()->json([
-            'message' => 'Successfully fetched.',
-            'success' => true,
-            'data' => $paginated,
-        ]);
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Successfully fetched.",
+            "data" => $collection,
+        ], JsonResponse::HTTP_OK);
     }
 
     /**

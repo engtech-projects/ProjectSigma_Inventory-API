@@ -19,7 +19,6 @@ use App\Models\Details;
 use App\Models\Project;
 use App\Notifications\RequestBOMForApprovalNotification;
 use App\Traits\HasApproval;
-use App\Utils\PaginateResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Services\RequestBOMService;
@@ -38,14 +37,14 @@ class RequestBOMController extends Controller
      */
     public function index()
     {
-        $requests = RequestBOM::with('items')->get();
-        $requestResources = RequestBOMResource::collection($requests)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
-        return response()->json([
-            'message' => 'BOM Request Successfully fetched.',
-            'success' => true,
-            'data' => $paginated,
-        ]);
+        $main = RequestBOM::with('items')->paginate(10);
+        $collection = RequestBOMResource::collection($main)->response()->getData(true);
+
+        return new JsonResponse([
+            "success" => true,
+            "message" => "BOM Request Successfully fetched.",
+            "data" => $collection,
+        ], JsonResponse::HTTP_OK);
     }
 
     /**
@@ -216,54 +215,48 @@ class RequestBOMController extends Controller
         ]);
     }
 
-    public function myRequests(FilteredBOMRequest $request)
+    public function myRequests()
     {
-        $filters = $request->validated();
+        $myRequest = $this->requestBOMService->getMyRequest();
 
-        $filteredRequests = $this->requestBOMService->getMyRequest($filters);
-
-        if ($filteredRequests->isEmpty()) {
+        if ($myRequest->isEmpty()) {
             return new JsonResponse([
                 'success' => false,
                 'message' => 'No data found.',
             ], JsonResponse::HTTP_OK);
         }
-
-        $requestResources = RequestBOMResourceList::collection($filteredRequests)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
+        $requestResources = RequestBOMResourceList::collection($myRequest)->response()->getData(true);
 
         return new JsonResponse([
-            'success' => true,
             'message' => 'My Request Fetched.',
-            'data' => $paginated
+            'success' => true,
+            'data' => $requestResources
         ]);
     }
-    public function allRequests(FilteredBOMRequest $request)
+    public function allRequests()
     {
-        $filters = $request->validated();
-        $filteredRequests = $this->requestBOMService->getAllRequest($filters);
+        $myRequest = $this->requestBOMService->getAllRequest();
 
-        if ($filteredRequests->isEmpty()) {
+        if ($myRequest->isEmpty()) {
             return new JsonResponse([
                 'success' => false,
                 'message' => 'No data found.',
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestBOMResourceList::collection($filteredRequests)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
+        $requestResources = RequestBOMResourceList::collection($myRequest)->response()->getData(true);
 
         return new JsonResponse([
-            'success' => true,
             'message' => 'All Request Fetched.',
-            'data' => $paginated
+            'success' => true,
+            'data' => $requestResources
         ]);
     }
 
     public function myApprovals(FilteredBOMRequest $request)
     {
-        $filters = $request->validated();
-        $myApproval = $this->requestBOMService->getMyApprovals($filters);
+        $myApproval = $this->requestBOMService->getMyApprovals();
+
         if ($myApproval->isEmpty()) {
             return new JsonResponse([
                 'success' => false,
@@ -271,12 +264,12 @@ class RequestBOMController extends Controller
             ], JsonResponse::HTTP_OK);
         }
 
-        $requestResources = RequestBOMResourceList::collection($myApproval)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
+        $requestResources = RequestBOMResourceList::collection($myApproval)->response()->getData(true);
+
         return new JsonResponse([
+            'message' => 'My Approvals Fetched.asdf',
             'success' => true,
-            'message' => 'My Approvals Fetched.',
-            'data' => $paginated
+            'data' => $requestResources
         ]);
     }
 }

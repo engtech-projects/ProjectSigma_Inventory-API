@@ -8,8 +8,7 @@ use App\Http\Requests\StoreItemProfileRequest;
 use App\Http\Requests\UpdateItemProfileRequest;
 use App\Http\Resources\ItemProfileResource;
 use App\Http\Resources\SearchedItemsResource;
-use App\Utils\PaginateResourceCollection;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\JsonResponse;
 
 class ItemProfileController extends Controller
 {
@@ -18,26 +17,26 @@ class ItemProfileController extends Controller
      */
     public function index()
     {
-        $main = ItemProfile::get();
-        $paginated = PaginateResourceCollection::paginate($main);
-        $data = json_decode('{}');
-        $data->message = "Request Item Profiling Successfully Fetched.";
-        $data->success = true;
-        $data->data = $paginated;
-        return response()->json($data);
+        $main = ItemProfile::paginate(10);
+        $collection = ItemProfileResource::collection($main)->response()->getData(true);
+
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Request Item Profiling Successfully Fetched.",
+            "data" => $collection,
+        ], JsonResponse::HTTP_OK);
     }
 
     public function get()
     {
-        $main = ItemProfile::isApproved()->get();
-        $requestResources = ItemProfileResource::collection($main)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
+        $main = ItemProfile::isApproved()->paginate(10);
+        $collection = ItemProfileResource::collection($main)->response()->getData(true);
 
-        return response()->json([
-            'message' => 'Successfully fetched.',
-            'success' => true,
-            'data' => $paginated,
-        ]);
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Suppliers Successfully Fetched.asdf",
+            "data" => $collection,
+        ], JsonResponse::HTTP_OK);
     }
 
     /**
