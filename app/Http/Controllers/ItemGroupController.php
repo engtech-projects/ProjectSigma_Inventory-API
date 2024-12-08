@@ -7,21 +7,20 @@ use App\Models\ItemGroup;
 use App\Http\Requests\StoreItemGroupRequest;
 use App\Http\Requests\UpdateItemGroupRequest;
 use App\Http\Resources\ItemGroupResource;
-use App\Utils\PaginateResourceCollection;
+use Illuminate\Http\JsonResponse;
 
 class ItemGroupController extends Controller
 {
     public function index()
     {
-        $itemgroup = ItemGroup::all();
-        $requestResources = ItemGroupResource::collection($itemgroup)->collect();
-        $paginated = PaginateResourceCollection::paginate($requestResources);
+        $main = ItemGroup::paginate(10);
+        $collection = ItemGroupResource::collection($main)->response()->getData(true);
 
-        return response()->json([
-            'message' => 'Successfully fetched.',
-            'success' => true,
-            'data' => $paginated,
-        ]);
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Successfully Fetched.",
+            "data" => $collection,
+        ], JsonResponse::HTTP_OK);
     }
 
     public function search(SearchUOM $request)

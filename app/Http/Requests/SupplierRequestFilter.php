@@ -25,28 +25,7 @@ class SupplierRequestFilter extends FormRequest
     public function rules(): array
     {
         return [
-            'company_name' => [
-                "nullable",
-                "string"
-            ],
-            'type_of_ownership' => [
-                "nullable",
-                "string",
-                new Enum(OwnershipType::class)
-            ],
-            'contact_person_name' => [
-                "nullable",
-                "string"
-            ],
-            'supplier_code' => [
-                "nullable",
-                "string"
-            ],
-            'request_status' => [
-                "nullable",
-                "string",
-                new Enum(RequestStatus::class)
-            ],
+            'key' => 'nullable|string'
         ];
     }
 }

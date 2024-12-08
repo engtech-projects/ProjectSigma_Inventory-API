@@ -6,95 +6,66 @@ use App\Models\RequestSupplier;
 
 class RequestSupplierService
 {
-    public function getAll(array $filters = [])
+    public function applyFilters($query)
     {
-        $query = RequestSupplier::with('uploads');
-        foreach ($filters as $key => $value) {
-            if ($value) {
-                if ($key === 'type_of_ownership') {
-                    $query->whereIn($key, array_map('ucfirst', explode(',', $value)));
-                } else {
-                    $query->where($key, 'LIKE', "%{$value}%");
-                }
-            }
+        if (request()->has('company_name')) {
+            $query->where('company_name', 'like', '%' . request()->input('company_name') . '%');
         }
+        if (request()->has('type_of_ownership')) {
+            $query->where('type_of_ownership', request()->input('type_of_ownership'));
+        }
+        if (request()->has('contact_person_name')) {
+            $query->where('contact_person_name', 'like', '%' . request()->input('contact_person_name') . '%');
+        }
+        if (request()->has('supplier_code')) {
+            $query->where('supplier_code', 'like', '%' . request()->input('supplier_code') . '%');
+        }
+        return $query;
+    }
+
+    public function getAll()
+    {
+        $query = RequestSupplier::query();
+        $query = $this->applyFilters($query);
         return $query->get();
     }
 
-    public function getMyRequest(array $filters = [])
+    public function getMyRequest()
     {
-        $query = RequestSupplier::with(['uploads'])
-            ->where("created_by", auth()->user()->id);
-        foreach ($filters as $key => $value) {
-            if ($value) {
-                if ($key === 'type_of_ownership') {
-                    $query->whereIn($key, array_map('ucfirst', explode(',', $value)));
-                } else {
-                    $query->where($key, 'LIKE', "%{$value}%");
-                }
-            }
-        }
-        return $query->orderBy('created_at', 'DESC')->get();
-    }
-    public function getAllApprovedRequest(array $filters = [])
-    {
-        $query = RequestSupplier::where("request_status", "Approved")
-            ->with(['uploads']);
-        foreach ($filters as $key => $value) {
-            if ($value) {
-                if ($key === 'type_of_ownership') {
-                    $query->whereIn($key, array_map('ucfirst', explode(',', $value)));
-                } else {
-                    $query->where($key, 'LIKE', "%{$value}%");
-                }
-            }
-        }
-        return $query->orderBy('created_at', 'DESC')->get();
+        $query = RequestSupplier::with(['uploads'])->where('created_by', auth()->user()->id)->orderBy('created_at', 'DESC');
+        $query = $this->applyFilters($query);
+        return $query->paginate(10);
     }
 
-    public function getAllRequests(array $filters = [])
+    public function getAllRequest()
     {
-        $query = RequestSupplier::with(['uploads']);
-        foreach ($filters as $key => $value) {
-            if ($value) {
-                if ($key === 'type_of_ownership') {
-                    $query->whereIn($key, array_map('ucfirst', explode(',', $value)));
-                } else {
-                    $query->where($key, 'LIKE', "%{$value}%");
-                }
-            }
-        }
-        return $query->orderBy('created_at', 'DESC')->get();
+        $query = RequestSupplier::with(['uploads'])->orderBy('created_at', 'DESC');
+        $query = $this->applyFilters($query);
+        return $query->paginate(10);
+    }
+    public function getAllApprovedRequest()
+    {
+        $query = RequestSupplier::where('request_status', 'Approved')->with(['uploads'])->orderBy('created_at', 'DESC');
+        $query = $this->applyFilters($query);
+        return $query->paginate(10);
     }
 
-    public function getMyApprovals(array $filters = [])
+    public function getMyApprovals()
     {
         $userId = auth()->user()->id;
 
-        $result = RequestSupplier::myApprovals()
-            ->with(['uploads'])
-            ->orderBy("created_at", "DESC")
-            ->get();
+        $query = RequestSupplier::myApprovals()->with(['uploads'])->orderBy('created_at', 'DESC');
+        $query = $this->applyFilters($query);
 
-        $result = $result->filter(function ($item) use ($userId, $filters) {
+        $paginatedResults = $query->paginate(10);
+
+        $filteredResults = $paginatedResults->getCollection()->filter(function ($item) use ($userId) {
             $nextPendingApproval = $item->getNextPendingApproval();
-            if ($nextPendingApproval && $userId !== $nextPendingApproval['user_id']) {
-                return false;
-            }
-            foreach ($filters as $key => $value) {
-                if ($value) {
-                    if ($key === 'type_of_ownership') {
-                        if (!in_array(ucfirst($item->$key), array_map('ucfirst', explode(',', $value)))) {
-                            return false;
-                        }
-                    } elseif (strpos($item->$key, $value) === false) {
-                        return false;
-                    }
-                }
-            }
-            return true;
+            return ($nextPendingApproval && $userId === (int)$nextPendingApproval['user_id']);
         });
 
-        return $result;
+        $paginatedResults->setCollection($filteredResults);
+
+        return $paginatedResults;
     }
 }
