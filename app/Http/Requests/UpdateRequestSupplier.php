@@ -91,7 +91,7 @@ class UpdateRequestSupplier extends FormRequest
                 'nullable',
                 'string',
                 'max:15',
-                Rule::unique("request_supplier", "tin")->ignore(request()->route("resource"), 'id')->whereNull('deleted_at'),
+                Rule::unique("request_supplier", "tin")->ignore(request()->route("resource"), 'id'),
             ],
             'terms_and_conditions' => [
                 'nullable',
