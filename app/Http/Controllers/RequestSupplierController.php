@@ -85,30 +85,8 @@ class RequestSupplierController extends Controller
         $validated['created_by'] = auth()->user()->id;
 
         DB::transaction(function () use ($validated, $request) {
-            $requestSupplier = RequestSupplier::create([
-                'approvals' => $validated['approvals'],
-                'created_by' => $validated['created_by'],
-                'request_status' => $validated['request_status'],
-                'supplier_code' => $validated['supplier_code'],
-                'company_name' => $validated['company_name'],
-                'company_address' => $validated['company_address'],
-                'company_contact_number' => $validated['company_contact_number'],
-                'company_email' => $validated['company_email'],
-                'contact_person_name' => $validated['contact_person_name'],
-                'contact_person_number' => $validated['contact_person_number'],
-                'contact_person_designation' => $validated['contact_person_designation'],
-                'type_of_ownership' => $validated['type_of_ownership'],
-                'nature_of_business' => $validated['nature_of_business'],
-                'products_services' => $validated['products_services'],
-                'classification' => $validated['classification'],
-                'tin' => $validated['tin'],
-                'terms_and_conditions' => $validated['terms_and_conditions'],
-                'filled_by' => $validated['filled_by'],
-                'filled_designation' => $validated['filled_designation'],
-                'filled_date' => $validated['filled_date'],
-                'requirements_complete' => $validated['requirements_complete'],
-                'remarks' => $validated['remarks'],
-            ]);
+            $requestSupplier = RequestSupplier::create($validated
+            );
 
             if ($requestSupplier->getNextPendingApproval()) {
                 $requestSupplier->notify(new RequestSupplierForApprovalNotification($request->bearerToken(), $requestSupplier));
