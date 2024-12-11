@@ -8,6 +8,7 @@ use App\Http\Requests\StoreItemProfileRequest;
 use App\Http\Requests\UpdateItemProfileRequest;
 use App\Http\Resources\ItemProfileResource;
 use App\Http\Resources\SearchedItemsResource;
+use App\Http\Resources\SyncItemProfilesResource;
 use Illuminate\Http\JsonResponse;
 
 class ItemProfileController extends Controller
@@ -29,14 +30,19 @@ class ItemProfileController extends Controller
 
     public function get()
     {
-        $main = ItemProfile::isApproved()->paginate(10);
-        $collection = ItemProfileResource::collection($main)->response()->getData(true);
-
+        $fetch = ItemProfile::isApproved()->get();
+        if ($fetch->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+        $requestResources = SyncItemProfilesResource::collection($fetch);
         return new JsonResponse([
-            "success" => true,
-            "message" => "Suppliers Successfully Fetched.asdf",
-            "data" => $collection,
-        ], JsonResponse::HTTP_OK);
+            'success' => true,
+            'message' => 'Suppliers Successfully Fetched.',
+            'data' => $requestResources
+        ]);
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Enums\RequestApprovalStatus;
 use App\Http\Requests\StoreRequestSupplier;
 use App\Http\Requests\UpdateRequestSupplier;
 use App\Http\Resources\RequestSupplierResource;
+use App\Http\Resources\SyncSuppliersResource;
 use App\Models\RequestSupplier;
 use App\Http\Requests\SupplierRequestFilter;
 use App\Http\Resources\RequestBOMResource;
@@ -64,19 +65,21 @@ class RequestSupplierController extends Controller
 
     public function get()
     {
-        $filteredRequests = $this->requestSupplierService->getAll();
-        if ($filteredRequests->isEmpty()) {
+        $fetch = $this->requestSupplierService->getAll();
+        if ($fetch->isEmpty()) {
             return new JsonResponse([
                 'success' => false,
                 'message' => 'No data found.',
             ], JsonResponse::HTTP_OK);
         }
+        $requestResources = SyncSuppliersResource::collection($fetch);
         return new JsonResponse([
             'success' => true,
-            'message' => 'My Request Fetched.',
-            'data' => $filteredRequests
+            'message' => 'Suppliers Successfully Fetched.',
+            'data' => $requestResources
         ]);
     }
+
 
     public function store(StoreRequestSupplier $request)
     {
