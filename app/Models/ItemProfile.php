@@ -31,11 +31,11 @@ class ItemProfile extends Model
         'volts',
         'plates',
         'part_number',
-        'specification',
         'volume',
         'volume_uom',
         'grade',
         'color',
+        'specification',
         'uom',
         'uom_conversion_group_id',
         'uom_conversion_value',
@@ -67,6 +67,32 @@ class ItemProfile extends Model
         $uom = $this->uomName ? $this->uomName->name : 'null';
         return $uom;
     }
+
+
+    public function getNameSummaryAttribute()
+    {
+        return implode(' ', array_values(array_filter([
+            $this->item_description,
+            $this->thickness,
+            $this->length,
+            $this->width,
+            $this->height,
+            $this->outside_diameter,
+            $this->inside_diameter,
+            $this->angle,
+            $this->size,
+            $this->weight,
+            $this->volts,
+            $this->plates,
+            $this->part_number,
+            $this->volume,
+            $this->volume_uom,
+            $this->grade,
+            $this->color,
+            $this->specification,
+        ])));
+    }
+
     public function getItemSummaryAttribute()
     {
         $itemProfileService = new ItemProfileService();
@@ -78,10 +104,10 @@ class ItemProfile extends Model
         return UOM::where('group_id', $this->uomName->group_id)->get();
     }
     /**
-    * ==================================================
-    * MODEL RELATIONSHIPS
-    * ==================================================
-    */
+     * ==================================================
+     * MODEL RELATIONSHIPS
+     * ==================================================
+     */
 
     public function uomName(): BelongsTo
     {

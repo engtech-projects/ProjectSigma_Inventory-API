@@ -16,6 +16,7 @@ class ItemProfileResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'item_summary' => $this->name_summary,
             'item_code' => $this->item_code,
             'item_description' => $this->item_description,
             'thickness' => $this->thickness,

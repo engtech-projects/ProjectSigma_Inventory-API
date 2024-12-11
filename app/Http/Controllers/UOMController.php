@@ -6,6 +6,7 @@ use App\Models\UOM;
 use App\Http\Requests\StoreUOMRequest;
 use App\Http\Requests\UOMIndexRequest;
 use App\Http\Requests\UpdateUOMRequest;
+use App\Http\Resources\SyncUOMResource;
 use App\Http\Resources\UOMResource;
 use Illuminate\Http\JsonResponse;
 
@@ -41,12 +42,19 @@ class UOMController extends Controller
 
     public function get()
     {
-        $main = UOM::get();
-        $data = json_decode('{}');
-        $data->message = "Successfully fetched.";
-        $data->success = true;
-        $data->data = $main;
-        return response()->json($data);
+        $fetch = UOM::get();
+        if ($fetch->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+        $requestResources = SyncUOMResource::collection($fetch);
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'UOMs Successfully Fetched.',
+            'data' => $requestResources
+        ]);
     }
 
     /**

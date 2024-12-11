@@ -25,7 +25,7 @@ class RequestSupplierService
 
     public function getAll()
     {
-        $query = RequestSupplier::query();
+        $query = RequestSupplier::where('request_status', 'Approved')->with(['uploads'])->orderBy('created_at', 'DESC');
         $query = $this->applyFilters($query);
         return $query->get();
     }

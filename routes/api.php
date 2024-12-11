@@ -38,6 +38,20 @@ use Illuminate\Support\Facades\Artisan;
 |
 */
 
+// SECRET API KEY ROUTES
+Route::middleware("secret_api")->group(function () {
+    // SIGMA SERVICES ROUTES
+    Route::prefix('sigma')->group(function () {
+        Route::resource('sync-departments', DepartmentsController::class)->names("syncDepartmentsresource");
+        Route::resource('sync-projects', ProjectsController::class)->names("syncProjectsresource");
+        Route::resource('sync-users', UserController::class)->names("syncUserresource");
+        Route::resource('sync-employees', EmployeeController::class)->names("syncEmployeeresource");
+        Route::get('suppliers', [RequestSupplierController::class, 'get']);
+        Route::get('item-profiles', [ItemProfileController::class, 'get']);
+        Route::get('uoms', [UOMController::class, 'get']);
+    });
+});
+
 
 Route::middleware('auth:api')->group(function () {
     Route::prefix('auth')->group(function () {
@@ -66,6 +80,7 @@ Route::middleware('auth:api')->group(function () {
         });
         Route::get('list', [RequestItemProfilingController::class, 'get']);
         Route::resource('resource', ItemProfileController::class)->names("itemProfileresource");
+
         Route::get('search', [ItemProfileController::class, 'search']);
         Route::patch('{resource}/activate', [ItemProfileController::class, 'activate']);
         Route::patch('{resource}/deactivate', [ItemProfileController::class, 'deactivate']);
@@ -84,6 +99,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('overview/{warehouse_id}', [WarehouseController::class, 'show']);
         Route::patch('set-pss/{warehouse_id}', [WarehousePssController::class, 'update']);
         Route::get('logs/{warehouse_id}', [WarehouseController::class, 'getLogs']);
+        Route::get('stocks/{warehouse_id}', [WarehouseController::class, 'getStocks']);
 
         Route::prefix('transaction')->group(function () {
             Route::resource('resource', WarehouseTransactionController::class)->names("warehouseTransactionsresource");
@@ -123,11 +139,8 @@ Route::middleware('auth:api')->group(function () {
         // Route::prefix('uom-group')->group(function () {
         //     Route::resource('resource', UOMGroupController::class)->names("uomGroupresource");
         // });
+        //DATA SYNC
 
-        Route::resource('sync-departments', DepartmentsController::class)->names("syncDepartmentsresource");
-        Route::resource('sync-projects', ProjectsController::class)->names("syncProjectsresource");
-        Route::resource('sync-users', UserController::class)->names("syncUserresource");
-        Route::resource('sync-employees', EmployeeController::class)->names("syncEmployeeresource");
     });
     Route::prefix('request-supplier')->group(function () {
         Route::resource('resource', RequestSupplierController::class)->names("requestSupplierresource");
