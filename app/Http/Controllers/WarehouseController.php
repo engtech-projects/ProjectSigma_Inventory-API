@@ -8,9 +8,12 @@ use App\Http\Requests\GetLogsRequest;
 use App\Http\Requests\StoreWarehouseRequest;
 use App\Http\Requests\UpdateWarehouseRequest;
 use App\Http\Resources\WarehouseResource;
+use App\Http\Resources\WarehouseStocksResource;
+use App\Http\Resources\WarehouseTransactionResource;
 use App\Http\Traits\CheckAccessibility;
 use App\Models\Warehouse;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -205,10 +208,29 @@ class WarehouseController extends Controller
 
         return response()->json([
             'success' => true,
+            'message' => 'Successfully Fetched.',
             'warehouse' => $warehouse,
         ]);
     }
 
+    public function getStocks($warehouse_id)
+    {
+        $main = Warehouse::find($warehouse_id);
 
+        if (!$main) {
+            return response()->json([
+                'message' => 'No data found.',
+                'success' => false,
+            ]);
+        }
+
+        $requestResources = WarehouseStocksResource::collection(collect([$main]))->collect();
+        return response()->json([
+            'message' => '' . $main->name . ' Warehouse Stocks Successfully fetched.',
+            'success' => true,
+            'data' => $requestResources,
+        ]);
+
+    }
 
 }
