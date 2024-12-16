@@ -215,20 +215,21 @@ class WarehouseController extends Controller
 
     public function getStocks($warehouse_id)
     {
-        $main = Warehouse::find($warehouse_id);
+        $warehouse = Warehouse::find($warehouse_id);
 
-        if (!$main) {
+        if (!$warehouse) {
             return response()->json([
                 'message' => 'No data found.',
                 'success' => false,
             ]);
         }
 
-        $requestResources = WarehouseStocksResource::collection(collect([$main]))->collect();
+        $transactionItems = $warehouse->transactionItems()->with('item')->paginate(10);
+
         return response()->json([
-            'message' => '' . $main->name . ' Warehouse Stocks Successfully fetched.',
+            'message' => '' . $warehouse->name . ' Warehouse Stocks Successfully fetched.',
             'success' => true,
-            'data' => $requestResources,
+            'data' => WarehouseStocksResource::collection($transactionItems)->response()->getData(true),
         ]);
 
     }

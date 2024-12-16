@@ -103,6 +103,11 @@ class ItemProfile extends Model
     {
         return UOM::where('group_id', $this->uomName->group_id)->get();
     }
+    public function getCodeNameAttribute()
+    {
+        return '[' . $this->item_code . '] ' . $this->item_description;
+    }
+    
     /**
      * ==================================================
      * MODEL RELATIONSHIPS

@@ -18,22 +18,15 @@ class WarehouseStocksResource extends JsonResource
         // return parent::toArray($request);
 
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'location' => $this->location,
-            'owner_id' => $this->owner_id,
-            'owner_type' => $this->owner_type,
-            'items' => $this->transactionItems->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'item_id' => $item->item_id,
-                    'item_code' => $item->item->item_code,
-                    'item_name' => $item->item->item_description,
-                    'item_summary' => $item->item->name_summary,
-                    'quantity' => $item->quantity . ' ' . $item->item->uom_full_name,
-
-                ];
-            }),
+            'id'=> $this->id,
+            'item_id'=> $this-> item_id,
+            'item_codename' => $this->item->code_name,
+            'item_code' => $this->item->item_code,
+            'item_name' => $this->item->item_description,
+            'item_summary' => $this->item->name_summary,
+            'quantity' => $this->quantity . ' ' . $this->item->uom_full_name,
+            'warehouse_transaction_id'=> $this-> warehouse_transaction_id,
+            'parent_id'=> $this-> parent_id,
 
         ];
     }
