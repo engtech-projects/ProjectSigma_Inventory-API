@@ -14,14 +14,14 @@ return new class extends Migration
         Schema::create('request_stocks_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('request_stock_id')->constrained()->onDelete('cascade');
+            $table->float('quantity');
+            $table->string('unit');
             $table->foreignId('item_id')->constrained('item_profile')->onDelete('cascade');
-            $table->float('qty');
-            $table->string('uom');
-            $table->string('item_description')->nullable();
             $table->string('specification')->nullable();
             $table->string('preferred_brand')->nullable();
             $table->text('reason')->nullable();
             $table->string('location')->nullable();
+            $table->float('location_qty')->nullable();
             $table->boolean('is_approved')->default(false);
             $table->string('type_of_request')->nullable();
             $table->integer('contact_no')->nullable();

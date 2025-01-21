@@ -18,15 +18,14 @@ class RequestStock extends Model
     protected $table = 'request_stocks';
 
     protected $fillable = [
+        'reference_no',
         'request_for',
-        'requestor',
-        'requestor_address',
-        'delivered_to',
+        'office_project',
+        'office_project_address',
         'warehouse_id',
-        'request_no',
-        'equipment_no',
         'date_prepared',
         'date_needed',
+        'equipment_no',
         'created_by',
         'approvals',
         'request_status'

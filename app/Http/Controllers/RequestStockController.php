@@ -4,60 +4,173 @@ namespace App\Http\Controllers;
 
 use App\Enums\RequestStatuses;
 use App\Http\Requests\StoreRequestStockRequest;
+use App\Http\Resources\RequestStockResourceList;
 use App\Models\RequestStock;
 use App\Models\RequestStockItem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Services\RequestStockService;
+use App\Notifications\RequestStockForApprovalNotification;
+use App\Traits\HasApproval;
+use App\Http\Resources\RequestStockResource;
 
 class RequestStockController extends Controller
 {
-    public function store(StoreRequestStockRequest $request, $warehouse_id)
-{
-    $attributes = $request->validated();
+    use HasApproval;
+    protected $requestStockService;
+    public function __construct(RequestStockService $requestStockService)
+    {
+        $this->requestStockService = $requestStockService;
+    }
 
-    $attributes['request_no'] = 'RS-' . date('Ymd') . '-' . strtoupper(str_pad((string) RequestStock::whereDate('created_at', date('Y-m-d'))->count() + 1, 4, '0', STR_PAD_LEFT));
-    $attributes['request_status'] = RequestStatuses::PENDING;
-    $attributes['created_by'] = auth()->user()->id;
-    $attributes['warehouse_id'] = $warehouse_id;
+    public function index()
+    {
+        $main = RequestStock::paginate(10);
+        $collection = RequestStockResource::collection($main)->response()->getData(true);
 
-    DB::transaction(function () use ($attributes) {
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Request Stocks Successfully Fetched.",
+            "data" => $collection,
+        ], JsonResponse::HTTP_OK);
+    }
 
-        $requestStock = RequestStock::create($attributes
-        );
+    public function store(StoreRequestStockRequest $request)
+    {
+        $attributes = $request->validated();
 
-        foreach ($attributes['items'] as $item) {
-            RequestStockItem::create([
-                'request_stock_id' => $requestStock->id,
-                'item_id' => $item['item_id'],
-                'qty' => $item['qty'],
-                'uom' => $item['uom'],
-                'item_description' => $item['item_description'],
-                'specification' => $item['specification'],
-                'preferred_brand' => $item['preferred_brand'],
-                'reason' => $item['reason'],
-                'location' => $item['location'],
-                'is_approved' => $item['is_approved'],
-                'type_of_request' => $item['type_of_request'],
-                'contact_no' => $item['contact_no'],
-                'remarks' => $item['remarks'],
-                'current_smr' => $item['current_smr'],
-                'previous_smr' => $item['previous_smr'],
-                'unused_smr' => $item['unused_smr'],
-                'next_smr' => $item['next_smr'],
-            ]);
+        $attributes['reference_no'] = 'RS-' . date('Ymd') . '-' . strtoupper(str_pad((string) RequestStock::whereDate('created_at', date('Y-m-d'))->count() + 1, 4, '0', STR_PAD_LEFT));
+        $attributes['request_status'] = RequestStatuses::PENDING;
+        $attributes['created_by'] = auth()->user()->id;
+
+        DB::transaction(function () use ($attributes, $request) {
+
+            $requestStock = RequestStock::create($attributes
+            );
+
+            foreach ($attributes['items'] as $item) {
+                RequestStockItem::create([
+                    'request_stock_id' => $requestStock->id,
+                    'quantity' => $item['quantity'],
+                    'unit' => $item['unit'],
+                    'item_id' => $item['item_id'],
+                    'specification' => $item['specification'],
+                    'preferred_brand' => $item['preferred_brand'],
+                    'reason' => $item['reason'],
+                    'location' => $item['location'],
+                    'location_qty' => $item['location_qty'],
+                    'is_approved' => $item['is_approved'],
+                    'type_of_request' => $item['type_of_request'],
+                    'contact_no' => $item['contact_no'],
+                    'remarks' => $item['remarks'],
+                    'current_smr' => $item['current_smr'],
+                    'previous_smr' => $item['previous_smr'],
+                    'unused_smr' => $item['unused_smr'],
+                    'next_smr' => $item['next_smr'],
+                ]);
+            }
+
+            if ($requestStock->getNextPendingApproval()) {
+                $requestStock->notify(new RequestStockForApprovalNotification($request->bearerToken(), $requestStock));
+            }
+
+        });
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Request Stock Successfull.',
+        ], JsonResponse::HTTP_OK);
+    }
+
+    public function show(RequestStock $resource)
+    {
+        return response()->json([
+            "message" => "Successfully fetched.",
+            "success" => true,
+            "data" => $resource
+        ]);
+    }
+
+    
+    public function destroy(RequestStock $resource)
+    {
+        if (!$resource) {
+            return response()->json([
+                'message' => 'Request Stock not found.',
+                'success' => false,
+                'data' => null
+            ], 404);
         }
 
-        // if ($requestStock->approvals) {
-        //     // Notify users about the stock request if required
-        //     // Example: NotifyApprovalService::notify($requestStock);
-        // }
-    });
+        $deleted = $resource->delete();
 
-    return new JsonResponse([
-        'success' => true,
-        'message' => 'Request Stock Successfull.',
-    ], JsonResponse::HTTP_OK);
-}
+        $response = [
+            'message' => $deleted ? 'Request Stock successfully deleted.' : 'Failed to delete Request Stock.',
+            'success' => $deleted,
+            'data' => $resource
+        ];
+
+        return response()->json($response, $deleted ? 200 : 400);
+    }
+
+    public function myRequests()
+    {
+        $myRequest = $this->requestStockService->getMyRequest();
+
+        if ($myRequest->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+        $requestResources = RequestStockResourceList::collection($myRequest)->response()->getData(true);
+
+        return new JsonResponse([
+            'message' => 'My Request Fetched.',
+            'success' => true,
+            'data' => $requestResources
+        ]);
+    }
+
+    public function allRequests()
+    {
+        $myRequest = $this->requestStockService->getAllRequest();
+
+        if ($myRequest->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+
+        $requestResources = RequestStockResourceList::collection($myRequest)->response()->getData(true);
+
+        return new JsonResponse([
+            'message' => 'All Request Fetched.',
+            'success' => true,
+            'data' => $requestResources
+        ]);
+    }
+
+    public function myApprovals()
+    {
+        $myApproval = $this->requestStockService->getMyApprovals();
+
+        if ($myApproval->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+
+        $requestResources = RequestStockResourceList::collection($myApproval)->response()->getData(true);
+
+        return new JsonResponse([
+            'message' => 'My Approvals Fetched.',
+            'success' => true,
+            'data' => $requestResources
+        ]);
+    }
 
 }

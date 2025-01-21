@@ -40,7 +40,7 @@ use Illuminate\Support\Facades\Artisan;
 */
 
 // SECRET API KEY ROUTES
-Route::middleware("secret_api")->group(function () {
+Route::middleware("sync")->group(function () {
     // SIGMA SERVICES ROUTES
     Route::prefix('sigma')->group(function () {
         Route::resource('sync-departments', DepartmentsController::class)->names("syncDepartmentsresource");
@@ -102,17 +102,23 @@ Route::middleware('auth:api')->group(function () {
         Route::get('logs/{warehouse_id}', [WarehouseController::class, 'getLogs']);
         Route::get('stocks/{warehouse_id}', [WarehouseController::class, 'getStocks']);
 
-        Route::resource('stocks/{warehouse_id}', RequestStockController::class)->names("stockresource");
-
-        Route::resource('stocks/{warehouse_id}', RequestStockController::class)->names("stockresource");
-
         Route::prefix('transaction')->group(function () {
             Route::resource('resource', WarehouseTransactionController::class)->names("warehouseTransactionsresource");
         });
         Route::prefix('transaction-item')->group(function () {
             Route::resource('resource', WarehouseTransactionItemController::class)->names("warehouseTransactionItemresource");
         });
+
+        // Route::resource('stocks/{warehouse_id}', [RequestStockController::class, 'store']);
     });
+
+    Route::prefix('request-stock')->group(function () {
+        Route::resource('resource', RequestStockController::class)->names("requestStockresource");
+        Route::get('all-request', [RequestStockController::class, 'allRequests']);
+        Route::get('my-request', [RequestStockController::class, 'myRequests']);
+        Route::get('my-approvals', [RequestStockController::class, 'myApprovals']);
+    });
+
     Route::prefix('bom')->group(function () {
         Route::resource('resource', RequestBOMController::class)->names("requestBomresource");
         Route::get('current', [RequestBomController::class, 'getCurrentBom']);

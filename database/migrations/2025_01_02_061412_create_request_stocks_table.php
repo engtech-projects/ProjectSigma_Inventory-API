@@ -13,12 +13,11 @@ return new class extends Migration
     {
         Schema::create('request_stocks', function (Blueprint $table) {
             $table->id();
-            $table->string('request_no')->unique();
-            $table->foreignId('warehouse_id')->constrained('warehouse')->onDelete('cascade');
+            $table->string('reference_no')->unique();
             $table->string('request_for');
-            $table->string('requestor');
-            $table->string('requestor_address');
-            $table->string('delivered_to');
+            $table->foreignId('warehouse_id')->constrained('warehouse')->onDelete('cascade');
+            $table->foreignId('office_project')->constrained('projects');
+            $table->string('office_project_address');
             $table->date('date_prepared');
             $table->date('date_needed');
             $table->string('equipment_no')->unique();

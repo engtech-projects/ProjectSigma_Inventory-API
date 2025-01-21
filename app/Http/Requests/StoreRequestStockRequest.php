@@ -25,21 +25,21 @@ class StoreRequestStockRequest extends FormRequest
     {
         return [
             'request_for' => 'required|string|max:255',
-            'requestor' => 'required|string|max:255',
-            'requestor_address' => 'required|string|max:255',
-            'delivered_to' => 'required|string|max:255',
+            'warehouse_id' => 'required|numeric|exists:warehouse,id',
+            'office_project' => 'required|numeric|exists:projects,id',
+            'office_project_address' => 'required|string|max:255',
             'date_prepared' => 'required|date',
             'date_needed' => 'required|date',
             'equipment_no' => 'required|string|max:255|unique:request_stocks,equipment_no',
             'items' => 'required|array',
+            'items.*.quantity' => 'required|numeric|min:1',
+            'items.*.unit' => 'required|integer|exists:setup_uom,id',
             'items.*.item_id' => 'required|exists:item_profile,id',
-            'items.*.qty' => 'required|numeric|min:1',
-            'items.*.uom' => 'required|integer|exists:setup_uom,id',
-            'items.*.item_description' => 'nullable|string',
             'items.*.specification' => 'nullable|string',
             'items.*.preferred_brand' => 'nullable|string',
             'items.*.reason' => 'nullable|string',
             'items.*.location' => 'nullable|string',
+            'items.*.location_qty' => 'nullable|numeric|min:1',
             'items.*.is_approved' => 'boolean',
             'items.*.type_of_request' => 'nullable|string',
             'items.*.contact_no' => 'nullable|string',
@@ -58,7 +58,7 @@ class StoreRequestStockRequest extends FormRequest
             'date_needed.required' => 'The date when the stock is needed is required.',
             'items.required' => 'At least one item must be specified.',
             'items.*.item_id.exists' => 'The selected item does not exist.',
-            'items.*.qty.min' => 'The quantity must be at least 1.',
+            'items.*.quantity.min' => 'The quantity must be at least 1.',
         ];
     }
 }

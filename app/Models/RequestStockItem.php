@@ -13,14 +13,14 @@ class RequestStockItem extends Model
 
     protected $fillable = [
         'request_stock_id',
+        'quantity',
+        'unit',
         'item_id',
-        'qty',
-        'uom',
-        'item_description',
         'specification',
         'preferred_brand',
         'reason',
         'location',
+        'location_qty',
         'is_approved',
         'type_of_request',
         'contact_no',
@@ -35,4 +35,5 @@ class RequestStockItem extends Model
     {
         return $this->belongsTo(RequestStock::class);
     }
+    
 }
