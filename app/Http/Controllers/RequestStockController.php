@@ -60,14 +60,7 @@ class RequestStockController extends Controller
                     'reason' => $item['reason'],
                     'location' => $item['location'],
                     'location_qty' => $item['location_qty'],
-                    'is_approved' => $item['is_approved'],
-                    'type_of_request' => $item['type_of_request'],
-                    'contact_no' => $item['contact_no'],
-                    'remarks' => $item['remarks'],
-                    'current_smr' => $item['current_smr'],
-                    'previous_smr' => $item['previous_smr'],
-                    'unused_smr' => $item['unused_smr'],
-                    'next_smr' => $item['next_smr'],
+                    // 'is_approved' => $item['is_approved'],
                 ]);
             }
 
@@ -92,7 +85,7 @@ class RequestStockController extends Controller
         ]);
     }
 
-    
+
     public function destroy(RequestStock $resource)
     {
         if (!$resource) {

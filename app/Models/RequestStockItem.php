@@ -22,18 +22,11 @@ class RequestStockItem extends Model
         'location',
         'location_qty',
         'is_approved',
-        'type_of_request',
-        'contact_no',
-        'remarks',
-        'current_smr',
-        'previous_smr',
-        'unused_smr',
-        'next_smr',
     ];
 
     public function requestStock()
     {
         return $this->belongsTo(RequestStock::class);
     }
-    
+
 }

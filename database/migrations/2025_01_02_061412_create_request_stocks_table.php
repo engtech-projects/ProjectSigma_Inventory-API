@@ -21,6 +21,13 @@ return new class extends Migration
             $table->date('date_prepared');
             $table->date('date_needed');
             $table->string('equipment_no')->unique();
+            $table->string('type_of_request')->nullable();
+            $table->integer('contact_no')->nullable();
+            $table->string('remarks')->nullable();
+            $table->string('current_smr')->nullable();
+            $table->string('previous_smr')->nullable();
+            $table->string('unused_smr')->nullable();
+            $table->string('next_smr')->nullable();
             $table->json('approvals');
             $table->string('created_by');
             $table->string('request_status');

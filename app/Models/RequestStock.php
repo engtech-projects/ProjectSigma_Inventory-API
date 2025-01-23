@@ -26,6 +26,13 @@ class RequestStock extends Model
         'date_prepared',
         'date_needed',
         'equipment_no',
+        'type_of_request',
+        'contact_no',
+        'remarks',
+        'current_smr',
+        'previous_smr',
+        'unused_smr',
+        'next_smr',
         'created_by',
         'approvals',
         'request_status'

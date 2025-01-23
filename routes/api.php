@@ -40,7 +40,7 @@ use Illuminate\Support\Facades\Artisan;
 */
 
 // SECRET API KEY ROUTES
-Route::middleware("sync")->group(function () {
+Route::middleware("secret_api")->group(function () {
     // SIGMA SERVICES ROUTES
     Route::prefix('sigma')->group(function () {
         Route::resource('sync-departments', DepartmentsController::class)->names("syncDepartmentsresource");

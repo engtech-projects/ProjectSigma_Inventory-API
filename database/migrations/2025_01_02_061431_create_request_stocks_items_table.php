@@ -23,13 +23,6 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->float('location_qty')->nullable();
             $table->boolean('is_approved')->default(false);
-            $table->string('type_of_request')->nullable();
-            $table->integer('contact_no')->nullable();
-            $table->string('remarks')->nullable();
-            $table->string('current_smr')->nullable();
-            $table->string('previous_smr')->nullable();
-            $table->string('unused_smr')->nullable();
-            $table->string('next_smr')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
