@@ -8,6 +8,17 @@ use App\Models\Project;
 
 class ProjectsController extends Controller
 {
+    public function index()
+    {
+        $proj = Project::get();
+
+        return response()->json([
+            'message' => 'Projects Successfully Fetched.',
+            'success' => true,
+            'data' => $proj,
+        ]);
+    }
+
     public function store(ValidateToken $request)
     {
         $request = $request->validated();
