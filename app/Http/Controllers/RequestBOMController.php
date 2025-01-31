@@ -53,7 +53,6 @@ class RequestBOMController extends Controller
     public function store(StoreRequestBOMRequest $request)
     {
         $attributes = $request->validated();
-        dd($attributes);
         $attributes['request_status'] = RequestStatuses::PENDING;
         $attributes['created_by'] = auth()->user()->id;
 
