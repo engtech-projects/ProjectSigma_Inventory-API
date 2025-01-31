@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('request_stock_id')->constrained()->onDelete('cascade');
             $table->float('quantity');
-            $table->string('unit');
+            $table->foreignId('unit')->constrained('setup_uom')->onDelete('cascade');
             $table->foreignId('item_id')->constrained('item_profile')->onDelete('cascade');
             $table->string('specification')->nullable();
             $table->string('preferred_brand')->nullable();

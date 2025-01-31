@@ -8,12 +8,14 @@ class RequestStockService
 {
     public function getAllRequest()
     {
-        return RequestStock::paginate(10);
+        return RequestStock::with('project')
+        ->orderBy("created_at", "DESC")
+        ->paginate(10);
     }
 
     public function getMyRequest()
     {
-        return RequestStock::with(['items'])
+        return RequestStock::with(['items', 'project', 'itemProfiles'])
         ->where("created_by", auth()->user()->id)
         ->orderBy("created_at", "DESC")
         ->paginate(10);
@@ -21,7 +23,7 @@ class RequestStockService
     public function getAllApprovedRequest()
     {
         return RequestStock::where("request_status", "Approved")
-        ->with(['items'])
+        ->with(['items', 'project'])
         ->orderBy("created_at", "DESC")
         ->paginate(10);
     }
@@ -31,7 +33,7 @@ class RequestStockService
         $userId = auth()->user()->id;
 
         $result = RequestStock::myApprovals()
-                    ->with(['items'])
+                    ->with(['items', 'project'])
                     ->orderBy("created_at", "DESC")
                     ->paginate(10);
 

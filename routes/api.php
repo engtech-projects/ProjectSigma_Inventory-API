@@ -165,6 +165,10 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('enum')->group(function () {
         Route::get('suppliers', [RequestSupplierController::class, 'get']);
     });
+    Route::prefix('project')->group(function () {
+        Route::resource('resource', ProjectsController::class)->names("projectsResource");
+    });
+
 
     if (config()->get('app.artisan') == 'true') {
         Route::prefix('artisan')->group(function () {

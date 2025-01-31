@@ -48,8 +48,8 @@ class RequestStock extends Model
      * MODEL ATTRIBUTES
      * ==================================================
      */
-
-
+    
+    
 
     /**
      * ==================================================
@@ -59,6 +59,21 @@ class RequestStock extends Model
     public function items()
     {
         return $this->hasMany(RequestStockItem::class);
+    }
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'office_project', 'id');
+    }
+    public function itemProfiles()
+    {
+        return $this->hasManyThrough(
+            ItemProfile::class,
+            RequestStockItem::class,
+            'request_stock_id',
+            'id',
+            'id',
+            'item_id'
+        );
     }
 
 

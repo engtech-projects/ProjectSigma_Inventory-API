@@ -14,6 +14,8 @@ use App\Http\Services\RequestStockService;
 use App\Notifications\RequestStockForApprovalNotification;
 use App\Traits\HasApproval;
 use App\Http\Resources\RequestStockResource;
+use App\Http\Resources\RequestStocksResource;
+use App\Models\Project;
 
 class RequestStockController extends Controller
 {
@@ -26,7 +28,7 @@ class RequestStockController extends Controller
 
     public function index()
     {
-        $main = RequestStock::paginate(10);
+        $main = RequestStock::with(['project'])->paginate(10);
         $collection = RequestStockResource::collection($main)->response()->getData(true);
 
         return new JsonResponse([
@@ -39,13 +41,13 @@ class RequestStockController extends Controller
     public function store(StoreRequestStockRequest $request)
     {
         $attributes = $request->validated();
-
-        $attributes['reference_no'] = 'RS-' . date('Ymd') . '-' . strtoupper(str_pad((string) RequestStock::whereDate('created_at', date('Y-m-d'))->count() + 1, 4, '0', STR_PAD_LEFT));
+        $officeProject = $request->input('office_project');
+        $projectCode = Project::findOrFail($officeProject)->project_code;
+        $attributes['reference_no'] = 'RS' . $projectCode;
         $attributes['request_status'] = RequestStatuses::PENDING;
         $attributes['created_by'] = auth()->user()->id;
 
         DB::transaction(function () use ($attributes, $request) {
-
             $requestStock = RequestStock::create($attributes
             );
 
@@ -81,7 +83,7 @@ class RequestStockController extends Controller
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,
-            "data" => $resource
+            "data" => new RequestStocksResource($resource)
         ]);
     }
 
