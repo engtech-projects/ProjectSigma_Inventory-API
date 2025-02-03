@@ -16,6 +16,7 @@ use App\Http\Controllers\ItemProfileController;
 use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\RequestBOMController;
 use App\Http\Controllers\RequestItemProfilingController;
+use App\Http\Controllers\RequestStockController;
 use App\Http\Controllers\RequestSupplierController;
 use App\Http\Controllers\RequestSupplierUploadController;
 use App\Http\Controllers\UOMGroupController;
@@ -107,7 +108,17 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('transaction-item')->group(function () {
             Route::resource('resource', WarehouseTransactionItemController::class)->names("warehouseTransactionItemresource");
         });
+
+        // Route::resource('stocks/{warehouse_id}', [RequestStockController::class, 'store']);
     });
+
+    Route::prefix('request-stock')->group(function () {
+        Route::resource('resource', RequestStockController::class)->names("requestStockresource");
+        Route::get('all-request', [RequestStockController::class, 'allRequests']);
+        Route::get('my-request', [RequestStockController::class, 'myRequests']);
+        Route::get('my-approvals', [RequestStockController::class, 'myApprovals']);
+    });
+
     Route::prefix('bom')->group(function () {
         Route::resource('resource', RequestBOMController::class)->names("requestBomresource");
         Route::get('current', [RequestBomController::class, 'getCurrentBom']);
@@ -154,6 +165,10 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('enum')->group(function () {
         Route::get('suppliers', [RequestSupplierController::class, 'get']);
     });
+    Route::prefix('project')->group(function () {
+        Route::resource('resource', ProjectsController::class)->names("projectsResource");
+    });
+
 
     if (config()->get('app.artisan') == 'true') {
         Route::prefix('artisan')->group(function () {

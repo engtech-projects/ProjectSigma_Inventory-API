@@ -11,7 +11,7 @@ class ProjectService
         $response = Http::withToken($token)
             ->acceptJson()
             ->get(
-                config('services.url.projects_api') . '/api/projects'
+                config('services.url.project_api') . '/api/projects'
             );
         if (!$response->successful()) {
             return false;
