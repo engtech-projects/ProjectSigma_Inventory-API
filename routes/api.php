@@ -4,6 +4,7 @@ use App\Http\Controllers\Actions\Approvals\ApproveApproval;
 use App\Http\Controllers\Actions\Approvals\CancelApproval;
 use App\Http\Controllers\Actions\Approvals\DisapproveApproval;
 use App\Http\Controllers\Actions\Approvals\VoidApproval;
+use App\Http\Controllers\MaterialsReceivingController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepartmentsController;
@@ -164,6 +165,9 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::prefix('enum')->group(function () {
         Route::get('suppliers', [RequestSupplierController::class, 'get']);
+    });
+    Route::prefix('material-receiving')->group(function () {
+        Route::resource('resource', MaterialsReceivingController::class)->names("materialReceivingresource");
     });
     Route::prefix('project')->group(function () {
         Route::resource('resource', ProjectsController::class)->names("projectsResource");
