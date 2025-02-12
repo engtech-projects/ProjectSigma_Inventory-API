@@ -56,6 +56,16 @@ class Warehouse extends Model
     {
         return $this->hasManyThrough(WarehouseTransactionItem::class, WarehouseTransaction::class);
     }
+    public function materialsReceivingItems()
+    {
+        return $this->hasMany(MaterialsReceivingItem::class);
+    }
+
+    public function materialsReceiving()
+    {
+        return $this->hasMany(MaterialsReceiving::class);
+    }
+
 
 
     /**

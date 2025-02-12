@@ -46,4 +46,38 @@ class MaterialsReceivingItemController extends Controller
     {
         //
     }
+
+    public function accept(MaterialsReceivingItem $resource)
+    {
+        if ($resource->status === 'Accepted') {
+            return response()->json([
+                'message' => "". $resource->item_profile_data['item_description'] . " has already been accepted.",
+                'data' => $resource
+            ], 200);
+        }
+        $resource->status = 'Accepted';
+        $resource->save();
+
+        return response()->json([
+            'message' => "". $resource->item_profile_data['item_description'] . " has been successfully accepted.",
+            'data' => $resource
+        ]);
+    }
+
+    public function reject(MaterialsReceivingItem $resource)
+    {
+        if ($resource->status === 'Rejected') {
+            return response()->json([
+                'message' => "". $resource->item_profile_data['item_description'] . " has already been rejected.",
+                'data' => $resource
+            ], 200);
+        }
+        $resource->status = 'Rejected';
+        $resource->save();
+
+        return response()->json([
+            'message' => "". $resource->item_profile_data['item_description'] . " has been sucessfully rejected.",
+            'data' => $resource
+        ]);
+    }
 }

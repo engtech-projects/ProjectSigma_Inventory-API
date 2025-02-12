@@ -3,12 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\MaterialsReceivingResource;
+use App\Http\Resources\MaterialsReceivingResourceList;
+use App\Http\Services\MaterialsReceivingService;
 use App\Models\MaterialsReceiving;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MaterialsReceivingController extends Controller
 {
+    protected $materialsReceivingService;
+    public function __construct(MaterialsReceivingService $materialsReceivingService)
+    {
+        $this->materialsReceivingService = $materialsReceivingService;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -18,8 +25,8 @@ class MaterialsReceivingController extends Controller
         $collection = MaterialsReceivingResource::collection($main)->response()->getData(true);
 
         return new JsonResponse([
-            "success" => true,
             "message" => "Materials Receiving Successfully Fetched.",
+            "success" => true,
             "data" => $collection,
         ], JsonResponse::HTTP_OK);
     }
@@ -37,7 +44,7 @@ class MaterialsReceivingController extends Controller
      */
     public function show(MaterialsReceiving $resource)
     {
-        $resource->load('items');
+        $resource->load('items', 'warehouse', 'supplier', 'project');
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,
@@ -59,5 +66,25 @@ class MaterialsReceivingController extends Controller
     public function destroy(MaterialsReceiving $materialsReceiving)
     {
         //
+    }
+
+    public function allRequests()
+    {
+        $myRequest = $this->materialsReceivingService->getAllRequest();
+
+        if ($myRequest->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+
+        $requestResources = MaterialsReceivingResourceList::collection($myRequest)->response()->getData(true);
+
+        return new JsonResponse([
+            'message' => 'All Request Fetched.',
+            'success' => true,
+            'data' => $requestResources
+        ]);
     }
 }

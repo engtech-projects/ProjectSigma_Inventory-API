@@ -103,6 +103,8 @@ Route::middleware('auth:api')->group(function () {
         Route::get('logs/{warehouse_id}', [WarehouseController::class, 'getLogs']);
         Route::get('stocks/{warehouse_id}', [WarehouseController::class, 'getStocks']);
 
+        Route::get('materials-receiving/{warehouse_id}', [WarehouseController::class, 'withMaterialsReceiving']);
+
         Route::prefix('transaction')->group(function () {
             Route::resource('resource', WarehouseTransactionController::class)->names("warehouseTransactionsresource");
         });
@@ -166,8 +168,15 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('enum')->group(function () {
         Route::get('suppliers', [RequestSupplierController::class, 'get']);
     });
+    // Route::prefix('material-receiving')->group(function () {
+    //     Route::resource('resource', MaterialsReceivingController::class)->names("materialReceivingresource");
+    // });
     Route::prefix('material-receiving')->group(function () {
         Route::resource('resource', MaterialsReceivingController::class)->names("materialReceivingresource");
+        Route::patch('{resource}/accept', [MaterialsReceivingController::class, 'accept']);
+        Route::patch('{resource}/reject', [MaterialsReceivingController::class, 'reject']);
+
+        Route::get('all-request', [MaterialsReceivingController::class, 'allRequests']);
     });
     Route::prefix('project')->group(function () {
         Route::resource('resource', ProjectsController::class)->names("projectsResource");

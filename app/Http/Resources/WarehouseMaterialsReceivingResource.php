@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class WarehouseResource extends JsonResource
+class WarehouseMaterialsReceivingResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,9 +16,11 @@ class WarehouseResource extends JsonResource
     {
         return
         [
-            ...parent::toArray($request),
-            'warehouse_pss' => WarehousePssResource::collection($this->warehousePss),
-            'logs' => WarehouseTransactionItemResource::collection($this->transactionItems),
+            // ...parent::toArray($request),
+            "id"=> $this->id,
+            "name" => $this->name,
+            "location" => $this->location,
+            "owner_type" =>$this->owner_type,
             'materials_receiving' => MaterialsReceivingResource::collection($this->materialsReceiving->load('items')),
         ];
     }

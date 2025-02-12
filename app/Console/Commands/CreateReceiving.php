@@ -29,14 +29,16 @@ class CreateReceiving extends Command
     {
         // Create Materials Receiving Entry
         $materialsReceiving = MaterialsReceiving::create([
-            'warehouse_id' => 1,
-            'reference_no' => 'REF1',
-            'supplier_id' => 2,
-            'reference_code' => 'RC1',
+            'warehouse_id' => 2,
+            'reference_no' => 'REF4',
+            'supplier_id' => 1,
+            'reference_code' => 'RC4',
             'terms_of_payment' => 'Monthly',
+            'particulars' => 'Lorem Ipsum',
             'transaction_date' => now(),
-            'project_id' => 3,
-            'equipment_no' => 'EQ1',
+            'project_id' => 1,
+            'equipment_no' => 'EQ4',
+            'source_po' => 'PO-123',
             'total_net_of_vat_cost' => 1000.00,
             'total_input_vat' => 120.00,
             'grand_total' => 1120.00
@@ -46,7 +48,7 @@ class CreateReceiving extends Command
         $items = [
             [
                 'item_code' => 'ITEM001',
-                'item_profile_id' => 1,
+                'item_profile_id' => 76,
                 'specification' => 'Spec A',
                 'actual_brand' => 'Brand A',
                 'qty' => 10,
@@ -58,7 +60,7 @@ class CreateReceiving extends Command
             ],
             [
                 'item_code' => 'ITEM002',
-                'item_profile_id' => 2,
+                'item_profile_id' => 77,
                 'specification' => 'Spec B',
                 'actual_brand' => 'Brand B',
                 'qty' => 20,
