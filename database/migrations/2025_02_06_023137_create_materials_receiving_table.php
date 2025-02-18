@@ -14,16 +14,21 @@ return new class extends Migration
         Schema::create('materials_receiving', function (Blueprint $table) {
             $table->id();
             $table->foreignId('warehouse_id')->constrained('warehouse')->onDelete('cascade');
+            $table->foreignId('supplier_id')->constrained('request_supplier')->onDelete('cascade');
             $table->string('reference_no')->unique();
-            $table->string('supplier_id')->constrained('request_supplier')->onDelete('cascade');
             $table->string('reference_code');
             $table->string('terms_of_payment');
+            $table->string('particulars');
             $table->date('transaction_date');
             $table->foreignId('project_id')->constrained('projects');
-            $table->string('equipment_no')->unique();
+            $table->string('equipment_no');
+            $table->string('source_po');
             $table->float('total_net_of_vat_cost');
             $table->float('total_input_vat');
             $table->float('grand_total');
+            $table->json('approvals');
+            $table->string('created_by');
+            $table->string('request_status');
             $table->timestamps();
             $table->softDeletes();
         });

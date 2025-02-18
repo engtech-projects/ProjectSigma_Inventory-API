@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('specification');
             $table->string('actual_brand');
             $table->float('qty');
-            $table->foreignId('uom_id')->constrained('setup_uoms')->onDelete('cascade');
+            $table->foreignId('uom_id')->constrained('setup_uom')->onDelete('cascade');
             $table->float('unit_price');
             $table->float('ext_price');
             $table->string('status');

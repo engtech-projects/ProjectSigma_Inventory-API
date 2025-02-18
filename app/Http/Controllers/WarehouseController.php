@@ -7,10 +7,12 @@ use App\Enums\UserTypes;
 use App\Http\Requests\GetLogsRequest;
 use App\Http\Requests\StoreWarehouseRequest;
 use App\Http\Requests\UpdateWarehouseRequest;
+use App\Http\Resources\WarehouseMaterialsReceivingResource;
 use App\Http\Resources\WarehouseResource;
 use App\Http\Resources\WarehouseStocksResource;
 use App\Http\Resources\WarehouseTransactionResource;
 use App\Http\Traits\CheckAccessibility;
+use App\Models\MaterialsReceivingItem;
 use App\Models\Warehouse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -59,7 +61,8 @@ class WarehouseController extends Controller
     {
         $user = Auth::user();
         $userAccessibilitiesNames = $user->accessibilities_name;
-        if ($this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value])
+        if (
+            $this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value])
             || Auth::user()->type == UserTypes::ADMINISTRATOR->value
         ) {
             $main = Warehouse::all();
@@ -87,26 +90,25 @@ class WarehouseController extends Controller
             'success' => true,
             'data' => $requestResources,
         ]);
-
     }
 
 
     /**
-    * @OA\Post(
-    *     path="/warehouse/resource",
-    *     tags={"Warehouse"},
-    *     summary="Create a new warehouse",
-    *     @OA\RequestBody(
-    *         required=true,
-    *         @OA\JsonContent(ref="#/components/schemas/Warehouse")
-    *     ),
-    *     @OA\Response(
-    *         response=201,
-    *         description="Warehouse created",
-    *         @OA\JsonContent(ref="#/components/schemas/Warehouse")
-    *     )
-    * )
-    */
+     * @OA\Post(
+     *     path="/warehouse/resource",
+     *     tags={"Warehouse"},
+     *     summary="Create a new warehouse",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Warehouse")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Warehouse created",
+     *         @OA\JsonContent(ref="#/components/schemas/Warehouse")
+     *     )
+     * )
+     */
     public function store(StoreWarehouseRequest $request, Warehouse $resource)
     {
         $saved = $resource->create($request->validated());
@@ -124,7 +126,8 @@ class WarehouseController extends Controller
     {
         $user = Auth::user();
         $userAccessibilitiesNames = $user->accessibilities_name;
-        if ($this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value]) || $warehouse_id->warehousePss->contains('user_id', $user->id)
+        if (
+            $this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value]) || $warehouse_id->warehousePss->contains('user_id', $user->id)
             || Auth::user()->type == UserTypes::ADMINISTRATOR->value
         ) {
             return response()->json([
@@ -138,6 +141,14 @@ class WarehouseController extends Controller
             "message" => "Unauthorized Access.",
             "success" => false
         ], 403);
+    }
+    public function withMaterialsReceiving(Warehouse $warehouse_id)
+    {
+        return response()->json([
+            "message" => "Materials Receiving under " . $warehouse_id->name . " Warehouse successfully fetched.",
+            "success" => true,
+            "warehouse" => new WarehouseMaterialsReceivingResource($warehouse_id)
+        ]);
     }
 
     /**
@@ -231,7 +242,6 @@ class WarehouseController extends Controller
             'success' => true,
             'data' => WarehouseStocksResource::collection($transactionItems)->response()->getData(true),
         ]);
-
     }
 
 }

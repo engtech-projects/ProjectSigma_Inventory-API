@@ -91,7 +91,7 @@ class RequestStockController extends Controller
     public function destroy(RequestStock $resource)
     {
         if (!$resource) {
-            return response()->json([
+            return response()->json(data: [
                 'message' => 'Request Stock not found.',
                 'success' => false,
                 'data' => null
