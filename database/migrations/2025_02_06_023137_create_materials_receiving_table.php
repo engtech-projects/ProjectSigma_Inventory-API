@@ -26,6 +26,9 @@ return new class extends Migration
             $table->float('total_net_of_vat_cost');
             $table->float('total_input_vat');
             $table->float('grand_total');
+            $table->json('approvals');
+            $table->string('created_by');
+            $table->string('request_status');
             $table->timestamps();
             $table->softDeletes();
         });
