@@ -6,10 +6,11 @@ use App\Traits\HasApproval;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
 
 class MaterialsReceiving extends Model
 {
-    use HasFactory, SoftDeletes, HasApproval;
+    use HasFactory, SoftDeletes, HasApproval, Notifiable;
 
     protected $table = 'materials_receiving';
     protected $fillable = [
@@ -26,6 +27,9 @@ class MaterialsReceiving extends Model
         'total_net_of_vat_cost',
         'total_input_vat',
         'grand_total',
+        'created_by',
+        'approvals',
+        'request_status'
     ];
 
     protected $casts = [

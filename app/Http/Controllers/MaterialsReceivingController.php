@@ -6,11 +6,14 @@ use App\Http\Resources\MaterialsReceivingResource;
 use App\Http\Resources\MaterialsReceivingResourceList;
 use App\Http\Services\MaterialsReceivingService;
 use App\Models\MaterialsReceiving;
+use App\Models\Warehouse;
+use App\Traits\HasApproval;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MaterialsReceivingController extends Controller
 {
+    use HasApproval;
     protected $materialsReceivingService;
     public function __construct(MaterialsReceivingService $materialsReceivingService)
     {
@@ -31,6 +34,32 @@ class MaterialsReceivingController extends Controller
         ], JsonResponse::HTTP_OK);
     }
 
+
+    /**
+     * Display the specified resource.
+     */
+    public function getMaterialsReceivingByWarehouse($warehouse_id)
+    {
+        $main = MaterialsReceiving::with(['items', 'supplier', 'project'])
+            ->where('warehouse_id', $warehouse_id)
+            ->paginate(10);
+
+        $collection = MaterialsReceivingResource::collection($main)->response()->getData(true);
+
+        if ($collection['data']) {
+            return response()->json([
+                "message" => "Materials Receiving Successfully Fetched.",
+                "success" => true,
+                "data" => $collection['data']
+            ]);
+        } else {
+            return response()->json([
+                "message" => "No data found.",
+                "success" => false,
+                "data" => []
+            ]);
+        }
+    }
     /**
      * Store a newly created resource in storage.
      */
@@ -44,7 +73,7 @@ class MaterialsReceivingController extends Controller
      */
     public function show(MaterialsReceiving $resource)
     {
-        $resource->load('items', 'warehouse', 'supplier', 'project');
+        $resource->load('items');
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,
@@ -83,6 +112,26 @@ class MaterialsReceivingController extends Controller
 
         return new JsonResponse([
             'message' => 'All Request Fetched.',
+            'success' => true,
+            'data' => $requestResources
+        ]);
+    }
+
+    public function myApprovals()
+    {
+        $myApproval = $this->materialsReceivingService->getMyApprovals();
+
+        if ($myApproval->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+
+        $requestResources = MaterialsReceivingResourceList::collection($myApproval)->response()->getData(true);
+
+        return new JsonResponse([
+            'message' => 'My Approvals Fetched.',
             'success' => true,
             'data' => $requestResources
         ]);

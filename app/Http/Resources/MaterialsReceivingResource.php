@@ -27,9 +27,11 @@ class MaterialsReceivingResource extends JsonResource
             'total_input_vat' => $this->total_input_vat,
             'grand_total' => $this->grand_total,
             'items' => MaterialsReceivingItemResource::collection($this->whenLoaded('items')),
-            'warehouse' => $this->warehouse->only(['id', 'name', 'location', 'owner_type']),
+            'warehouse' =>$this->warehouse->only(['id', 'name', 'location']),
             'supplier' =>$this->supplier->only(['id', 'supplier_code', 'company_name', 'company_address', 'company_email']),
             'project' => $this->project->only(['id', 'project_code', 'status']),
+            "approvals" => $this->approvals,
+            "next_approval" => $this->getNextPendingApproval(),
         ];
     }
 }
