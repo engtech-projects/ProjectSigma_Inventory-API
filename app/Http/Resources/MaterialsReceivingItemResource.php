@@ -22,8 +22,10 @@ class MaterialsReceivingItemResource extends JsonResource
             'actual_brand' => $this->actual_brand,
             'qty' => $this->qty,
             'uom' => $this->uom_name,
-            'unit_price' => number_format($this->unit_price, 2),
-            'ext_price' => number_format($this->ext_price, 2),
+            'unit_price' => $this->unit_price,
+            'ext_price' => $this->ext_price,
+            'unit_price_formatted' => number_format($this->unit_price, 2),
+            'ext_price_formatted' => number_format($this->ext_price, 2),
             'status' => $this->status,
             'remarks' => $this->remarks,
         ];

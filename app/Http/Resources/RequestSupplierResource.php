@@ -37,7 +37,7 @@ class RequestSupplierResource extends JsonResource
             "remarks" => $this->remarks,
             "created_by" => $this->created_by,
             "uploads" => $this->uploads,
-            "approvalssdfasdf" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
+            "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
         ];
     }
