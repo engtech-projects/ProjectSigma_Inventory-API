@@ -14,6 +14,8 @@ class MaterialsReceiving extends Model
 
     protected $table = 'materials_receiving';
     protected $fillable = [
+        'parent_id',
+        'parent_type',
         'warehouse_id',
         'reference_no',
         'supplier_id',

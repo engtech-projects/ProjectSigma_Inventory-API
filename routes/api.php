@@ -14,6 +14,7 @@ use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\ItemProfileBulkUploadController;
 use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
+use App\Http\Controllers\MaterialsReceivingItemController;
 use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\RequestBOMController;
 use App\Http\Controllers\RequestItemProfilingController;
@@ -172,11 +173,14 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('material-receiving')->group(function () {
         Route::resource('resource', MaterialsReceivingController::class)->names("materialReceivingresource");
         Route::get('warehouse/{warehouse_id}', [MaterialsReceivingController::class, 'getMaterialsReceivingByWarehouse']);
-        Route::patch('{resource}/accept', [MaterialsReceivingController::class, 'accept']);
-        Route::patch('{resource}/reject', [MaterialsReceivingController::class, 'reject']);
 
         Route::get('all-request', [MaterialsReceivingController::class, 'allRequests']);
-        Route::get('all-request', [MaterialsReceivingController::class, 'allRequests']);
+        Route::prefix('item')->group(function () {
+            Route::resource('resource', MaterialsReceivingItemController::class)->names("materialsReceivingItemresource");
+            Route::patch('{resource}/acceptAll', [MaterialsReceivingItemController::class, 'acceptAll']);
+            Route::patch('{resource}/acceptWithDetails', [MaterialsReceivingItemController::class, 'acceptWithDetails']);
+            Route::patch('{resource}/reject', [MaterialsReceivingItemController::class, 'reject']);
+        });
     });
 
     Route::prefix('project')->group(function () {

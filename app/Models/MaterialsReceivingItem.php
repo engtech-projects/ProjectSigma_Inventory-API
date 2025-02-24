@@ -18,6 +18,7 @@ class MaterialsReceivingItem extends Model
         'specification',
         'actual_brand',
         'qty',
+        'acceptedQty',
         'uom_id',
         'unit_price',
         'ext_price',
@@ -25,7 +26,7 @@ class MaterialsReceivingItem extends Model
         'remarks',
     ];
 
-     /**
+    /**
     * ==================================================
     * MODEL ATTRIBUTES
     * ==================================================
