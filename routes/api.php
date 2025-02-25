@@ -177,8 +177,8 @@ Route::middleware('auth:api')->group(function () {
         Route::get('all-request', [MaterialsReceivingController::class, 'allRequests']);
         Route::prefix('item')->group(function () {
             Route::resource('resource', MaterialsReceivingItemController::class)->names("materialsReceivingItemresource");
-            Route::patch('{resource}/acceptAll', [MaterialsReceivingItemController::class, 'acceptAll']);
-            Route::patch('{resource}/acceptWithDetails', [MaterialsReceivingItemController::class, 'acceptWithDetails']);
+            Route::patch('{resource}/accept-all', [MaterialsReceivingItemController::class, 'acceptAll']);
+            Route::patch('{resource}/accept-with-details', [MaterialsReceivingItemController::class, 'acceptWithDetails']);
             Route::patch('{resource}/reject', [MaterialsReceivingItemController::class, 'reject']);
         });
     });

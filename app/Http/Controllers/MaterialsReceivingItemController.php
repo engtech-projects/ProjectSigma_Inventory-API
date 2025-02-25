@@ -64,7 +64,7 @@ class MaterialsReceivingItemController extends Controller
     {
         if ($resource->status === 'Accepted') {
             $resource->update([
-                'acceptedQty' => max($resource->qty, $resource->acceptedQty),
+                'accepted_qty' => max($resource->qty, $resource->accepted_qty),
                 'remarks' => 'Accepted',
             ]);
 
@@ -77,7 +77,7 @@ class MaterialsReceivingItemController extends Controller
         $resource->update([
             'status' => 'Accepted',
             'remarks' => 'Accepted',
-            'acceptedQty' => max($resource->qty, $resource->acceptedQty),
+            'accepted_qty' => max($resource->qty, $resource->accepted_qty),
         ]);
 
         return response()->json([
@@ -90,9 +90,9 @@ class MaterialsReceivingItemController extends Controller
     {
         if ($resource->status === 'Accepted') {
             $remarks = $request->input('remarks');
-            $acceptedQty = $request->input('acceptedQty');
+            $accepted_qty = $request->input('accepted_qty');
             $resource->update([
-                'acceptedQty' => $acceptedQty,
+                'accepted_qty' => $accepted_qty,
                 'remarks' => $remarks
             ]);
 
@@ -103,11 +103,11 @@ class MaterialsReceivingItemController extends Controller
         }
 
         $remarks = $request->input('remarks');
-        $acceptedQty = $request->input('acceptedQty');
+        $accepted_qty = $request->input('accepted_qty');
         $resource->update([
             'status' => 'Accepted',
             'remarks' => $remarks,
-            'acceptedQty' => $acceptedQty,
+            'accepted_qty' => $accepted_qty,
         ]);
 
         return response()->json([

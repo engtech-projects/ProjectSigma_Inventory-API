@@ -21,7 +21,7 @@ class MaterialsReceivingItemResource extends JsonResource
             'specification' => $this->item_profile_data['specification'],
             'actual_brand' => $this->actual_brand,
             'qty' => $this->qty,
-            'acceptedQty' => $this->acceptedQty,
+            'accepted_qty' => $this->accepted_qty,
             'uom' => $this->uom_name,
             'unit_price' => $this->unit_price,
             'ext_price' => $this->ext_price,
