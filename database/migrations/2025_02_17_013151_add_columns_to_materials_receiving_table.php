@@ -23,8 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('materials_receiving', function (Blueprint $table) {
-            $table->dropColumn('parent_type');
-            $table->dropColumn('parent_id');
+            $table->integer('parent_id')->after('id');
+            $table->enum('parent_type', ['receiving', 'transfer', 'withdrawal'])->after('parent_id');
         });
     }
 };

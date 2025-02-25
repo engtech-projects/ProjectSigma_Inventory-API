@@ -6,14 +6,11 @@ use App\Http\Resources\MaterialsReceivingResource;
 use App\Http\Resources\MaterialsReceivingResourceList;
 use App\Http\Services\MaterialsReceivingService;
 use App\Models\MaterialsReceiving;
-use App\Models\Warehouse;
-use App\Traits\HasApproval;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MaterialsReceivingController extends Controller
 {
-    use HasApproval;
     protected $materialsReceivingService;
     public function __construct(MaterialsReceivingService $materialsReceivingService)
     {
@@ -67,6 +64,7 @@ class MaterialsReceivingController extends Controller
     {
         //
     }
+    
 
     /**
      * Display the specified resource.
@@ -92,9 +90,25 @@ class MaterialsReceivingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MaterialsReceiving $materialsReceiving)
+    public function destroy(MaterialsReceiving $resource)
     {
-        //
+        if (!$resource) {
+            return response()->json([
+                'message' => 'Materials Receiving not found.',
+                'success' => false,
+                'data' => null
+            ], 404);
+        }
+
+        $deleted = $resource->delete();
+
+        $response = [
+            'message' => $deleted ? 'Materials Receiving successfully deleted.' : 'Failed to delete a Materials Receiving.',
+            'success' => $deleted,
+            'data' => $resource
+        ];
+
+        return response()->json($response, $deleted ? 200 : 400);
     }
 
     public function allRequests()
