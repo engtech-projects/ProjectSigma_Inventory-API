@@ -4,6 +4,7 @@ use App\Http\Controllers\Actions\Approvals\ApproveApproval;
 use App\Http\Controllers\Actions\Approvals\CancelApproval;
 use App\Http\Controllers\Actions\Approvals\DisapproveApproval;
 use App\Http\Controllers\Actions\Approvals\VoidApproval;
+use App\Http\Controllers\MaterialsReceivingController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepartmentsController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\ItemProfileBulkUploadController;
 use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
+use App\Http\Controllers\MaterialsReceivingItemController;
 use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\RequestBOMController;
 use App\Http\Controllers\RequestItemProfilingController;
@@ -102,6 +104,8 @@ Route::middleware('auth:api')->group(function () {
         Route::get('logs/{warehouse_id}', [WarehouseController::class, 'getLogs']);
         Route::get('stocks/{warehouse_id}', [WarehouseController::class, 'getStocks']);
 
+        Route::get('materials-receiving/{warehouse_id}', [WarehouseController::class, 'withMaterialsReceiving']);
+
         Route::prefix('transaction')->group(function () {
             Route::resource('resource', WarehouseTransactionController::class)->names("warehouseTransactionsresource");
         });
@@ -165,6 +169,20 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('enum')->group(function () {
         Route::get('suppliers', [RequestSupplierController::class, 'get']);
     });
+
+    Route::prefix('material-receiving')->group(function () {
+        Route::resource('resource', MaterialsReceivingController::class)->names("materialReceivingresource");
+        Route::get('warehouse/{warehouse_id}', [MaterialsReceivingController::class, 'getMaterialsReceivingByWarehouse']);
+
+        Route::get('all-request', [MaterialsReceivingController::class, 'allRequests']);
+        Route::prefix('item')->group(function () {
+            Route::resource('resource', MaterialsReceivingItemController::class)->names("materialsReceivingItemresource");
+            Route::patch('{resource}/accept-all', [MaterialsReceivingItemController::class, 'acceptAll']);
+            Route::patch('{resource}/accept-with-details', [MaterialsReceivingItemController::class, 'acceptWithDetails']);
+            Route::patch('{resource}/reject', [MaterialsReceivingItemController::class, 'reject']);
+        });
+    });
+
     Route::prefix('project')->group(function () {
         Route::resource('resource', ProjectsController::class)->names("projectsResource");
     });
