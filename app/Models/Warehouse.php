@@ -66,6 +66,12 @@ class Warehouse extends Model
         return $this->hasMany(MaterialsReceiving::class);
     }
 
+    public function requestStocks()
+    {
+        return $this->hasMany(RequestStock::class);
+    }
+
+
 
 
     /**

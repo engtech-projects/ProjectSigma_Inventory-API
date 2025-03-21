@@ -38,6 +38,7 @@ class ItemProfileResource extends JsonResource
             'uom' => $this->uomFullName,
             'uom_conversion_group_id' => $this->uom_conversion_group_id,
             'uom_conversion_value' => $this->uom_conversion_value,
+            'convertable_units' => $this->convertable_units,
             'item_group' => $this->item_group,
             'sub_item_group' => $this->sub_item_group,
             'inventory_type' => $this->inventory_type,

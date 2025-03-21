@@ -23,33 +23,45 @@ class RequestStockItem extends Model
         'location_qty',
         'is_approved',
     ];
+
+    /**
+     * ==================================================
+     * MODEL ATTRIBUTES
+     * ==================================================
+     */
     protected $appends = ['item_description', 'uom_name'];
 
-    public function requestStock()
+    public function getUomNameAttribute()
     {
-        return $this->belongsTo(RequestStock::class);
+        return UOM::find($this->unit)?->name;
+    }
+    public function getItemDescriptionAttribute()
+    {
+        return $this->itemProfile ? $this->itemProfile->item_description : null;
     }
 
+    /**
+     * ==================================================
+     * MODEL RELATIONSHIPS
+     * ==================================================
+     */
     public function uom()
     {
         return $this->belongsTo(UOM::class);
     }
-    public function getUomNameAttribute()
+    public function requestStock()
     {
-        return UOM::find($this->unit)?->name;
+        return $this->belongsTo(RequestStock::class);
     }
     public function itemProfile()
     {
         return $this->belongsTo(ItemProfile::class, 'item_id', 'id');
     }
 
-    public function getItemDescriptionAttribute()
+    public function section()
     {
-        return $this->itemProfile ? $this->itemProfile->item_description : null;
+        return $this->morphTo();
     }
-
-    
-
 
 
 }

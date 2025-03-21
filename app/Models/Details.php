@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Http\Services\ItemProfileService;
+use App\Http\Traits\HasConversionUnit;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,6 +12,7 @@ class Details extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use HasConversionUnit;
 
     protected $table = 'details';
     protected $fillable = [
@@ -24,6 +26,7 @@ class Details extends Model
     public $appends = [
         'unit',
         'item_summary',
+        'convertable_units',
     ];
 
     /**
@@ -42,6 +45,24 @@ class Details extends Model
         $attributes = $itemProfileService->getItemSummary($this->items);
         return $attributes->implode(' ') ?? '';
     }
+    // public function getConvertableUnitsAttribute()
+    // {
+    //     if (!$this->uom || !$this->uom->group_id) {
+    //         return [];
+    //     }
+
+    //     return UOM::where('group_id', $this->uom->group_id)
+    //         ->get()
+    //         ->map(function ($uom) {
+    //             return [
+    //                 'id' => $uom->id,
+    //                 'name' => $uom->name,
+    //                 'symbol' => $uom->symbol,
+    //                 'conversion' => $uom->conversion,
+    //             ];
+    //         })
+    //         ->toArray();
+    // }
 
 
     /**
@@ -55,7 +76,7 @@ class Details extends Model
     }
     public function uom()
     {
-        return $this->belongsTo(UOM::class, 'uom_id');
+        return $this->belongsTo(UOM::class, 'uom_id')->withDefault();
     }
     public function items()
     {

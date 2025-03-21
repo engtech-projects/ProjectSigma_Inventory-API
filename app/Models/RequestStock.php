@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RequestStatuses;
 use App\Traits\HasApproval;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,9 +21,10 @@ class RequestStock extends Model
     protected $fillable = [
         'reference_no',
         'request_for',
-        'office_project',
-        'office_project_address',
         'warehouse_id',
+        'section_id',
+        'section_type',
+        'office_project_address',
         'date_prepared',
         'date_needed',
         'equipment_no',
@@ -48,8 +50,15 @@ class RequestStock extends Model
      * MODEL ATTRIBUTES
      * ==================================================
      */
-    
-    
+    public function getConvertableUnitsAttribute()
+    {
+        return $this->items->map(function ($item) {
+            return $item->itemProfile->convertable_units ?? [];
+        })->collapse()->unique('id')->values();
+    }
+
+
+
 
     /**
      * ==================================================
@@ -64,6 +73,17 @@ class RequestStock extends Model
     {
         return $this->belongsTo(Project::class, 'office_project', 'id');
     }
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'office_project_address', 'id');
+    }
+    public function currentBom()
+    {
+        return $this->hasMany(RequestBOM::class, 'assignment_id', 'section_id')
+            ->where('request_status', RequestStatuses::APPROVED)
+            ->latest("version");
+    }
+
     public function itemProfiles()
     {
         return $this->hasManyThrough(
@@ -75,6 +95,12 @@ class RequestStock extends Model
             'item_id'
         );
     }
+
+    public function section()
+    {
+        return $this->morphTo();
+    }
+
 
 
     /**
