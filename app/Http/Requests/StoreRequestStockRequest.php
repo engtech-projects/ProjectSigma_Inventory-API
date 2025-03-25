@@ -67,6 +67,8 @@ class StoreRequestStockRequest extends FormRequest
             'items.required' => 'At least one item must be specified.',
             'items.*.item_id.exists' => 'The selected item does not exist.',
             'items.*.quantity.min' => 'The quantity must be at least 1.',
+            'reference_no.unique' => 'The reference number has already been taken.',
+            'equipment_no.unique' => 'The equipment number has already been taken.',
         ];
     }
 }

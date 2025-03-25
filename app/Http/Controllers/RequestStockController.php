@@ -43,9 +43,14 @@ class RequestStockController extends Controller
     public function store(StoreRequestStockRequest $request)
     {
         $attributes = $request->validated();
-        $sectionId = $request->input(key: 'section_id');
-        $projectCode = Project::findOrFail($sectionId)->project_code;
-        $attributes['reference_no'] = 'RS' . $projectCode;
+        $sectionId = $attributes['section_id'];
+        if ($attributes["section_type"] == class_basename(Department::class)) {
+            $departmentCode = strtoupper(implode('-', array_map('ucwords', explode(' ', Department::findOrFail($sectionId)->department_name))));
+            $attributes['reference_no'] = "RS" . $departmentCode;
+        } else {
+            $projectCode = Project::findOrFail($sectionId)->project_code;
+            $attributes['reference_no'] = "RS" . $projectCode;
+        }
         $attributes['request_status'] = RequestStatuses::PENDING;
         $attributes['created_by'] = auth()->user()->id;
 
@@ -53,6 +58,19 @@ class RequestStockController extends Controller
             $attributes["section_type"] = class_basename(Department::class);
         } elseif ($attributes["section_type"] == AssignTypes::PROJECT->value) {
             $attributes["section_type"] = class_basename(Project::class);
+        }
+
+        $duplicatedAttr = RequestStock::where('reference_no', $attributes['reference_no'])
+            ->orWhere('equipment_no', $attributes['equipment_no'])
+            ->first();
+
+        if ($duplicatedAttr) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => $duplicatedAttr->reference_no == $attributes['reference_no']
+                    ? 'The reference number has already been taken.'
+                    : 'The equipment number has already been taken.',
+            ], JsonResponse::HTTP_CONFLICT);
         }
 
         DB::transaction(function () use ($attributes, $request) {

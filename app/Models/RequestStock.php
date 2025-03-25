@@ -58,8 +58,6 @@ class RequestStock extends Model
     }
 
 
-
-
     /**
      * ==================================================
      * MODEL RELATIONSHIPS
