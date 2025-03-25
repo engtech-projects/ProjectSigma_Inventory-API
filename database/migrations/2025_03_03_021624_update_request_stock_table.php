@@ -12,11 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('request_stocks', function (Blueprint $table) {
-
             $table->dropForeign(['office_project']);
-
             $table->dropColumn(['office_project']);
-
             $table->unsignedBigInteger('section_id')->after('warehouse_id');
             $table->string('section_type')->after('section_id');
             $table->string('section_address')->nullable()->after('section_type');

@@ -68,9 +68,6 @@ class RequestStockController extends Controller
                     'specification' => $item['specification'],
                     'preferred_brand' => $item['preferred_brand'],
                     'reason' => $item['reason'],
-                    // 'location' => $item['location'],
-                    // 'location_qty' => $item['location_qty'],
-                    // 'is_approved' => $item['is_approved'],
                 ]);
             }
 

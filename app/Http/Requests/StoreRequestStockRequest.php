@@ -48,8 +48,6 @@ class StoreRequestStockRequest extends FormRequest
             'items.*.specification' => 'nullable|string',
             'items.*.preferred_brand' => 'nullable|string',
             'items.*.reason' => 'nullable|string',
-            // 'items.*.location' => 'nullable|string',
-            // 'items.*.location_qty' => 'nullable|numeric|min:1',
             'items.*.is_approved' => 'boolean',
             'items.*.type_of_request' => 'nullable|string',
             'items.*.contact_no' => 'nullable|string',

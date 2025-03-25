@@ -45,24 +45,6 @@ class Details extends Model
         $attributes = $itemProfileService->getItemSummary($this->items);
         return $attributes->implode(' ') ?? '';
     }
-    // public function getConvertableUnitsAttribute()
-    // {
-    //     if (!$this->uom || !$this->uom->group_id) {
-    //         return [];
-    //     }
-
-    //     return UOM::where('group_id', $this->uom->group_id)
-    //         ->get()
-    //         ->map(function ($uom) {
-    //             return [
-    //                 'id' => $uom->id,
-    //                 'name' => $uom->name,
-    //                 'symbol' => $uom->symbol,
-    //                 'conversion' => $uom->conversion,
-    //             ];
-    //         })
-    //         ->toArray();
-    // }
 
 
     /**
