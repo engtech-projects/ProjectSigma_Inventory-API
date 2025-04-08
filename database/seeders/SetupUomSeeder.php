@@ -194,7 +194,7 @@ class SetupUomSeeder extends Seeder
                     'group_id' => 3,
                     'name' => 'Cubic Foot',
                     'symbol' => 'ft³',
-                    'conversion' => 0.0283168,
+                    'conversion' => 28.3168,
                     'is_standard' => true,
                     'deleted_at' => null,
                     'created_at' => Carbon::now(),

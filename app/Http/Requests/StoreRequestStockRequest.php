@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\AssignTypes;
 use App\Http\Traits\HasApprovalValidation;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class StoreRequestStockRequest extends FormRequest
 {
@@ -16,17 +18,25 @@ class StoreRequestStockRequest extends FormRequest
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
+    protected function prepareForValidation()
+    {
+        if (gettype($this->items) == "string") {
+            $this->merge([
+                "items" => json_decode($this->items, true)
+            ]);
+        }
+    }
     public function rules(): array
     {
         return [
             'request_for' => 'required|string|max:255',
             'warehouse_id' => 'required|numeric|exists:warehouse,id',
-            'office_project' => 'required|numeric|exists:projects,id',
+            'section_id' => 'required|integer',
+            'section_type' => [
+                'nullable',
+                'string',
+                new Enum(AssignTypes::class),
+            ],
             'office_project_address' => 'required|string|max:255',
             'date_prepared' => 'required|date',
             'date_needed' => 'required|date',
@@ -38,8 +48,6 @@ class StoreRequestStockRequest extends FormRequest
             'items.*.specification' => 'nullable|string',
             'items.*.preferred_brand' => 'nullable|string',
             'items.*.reason' => 'nullable|string',
-            'items.*.location' => 'nullable|string',
-            'items.*.location_qty' => 'nullable|numeric|min:1',
             'items.*.is_approved' => 'boolean',
             'items.*.type_of_request' => 'nullable|string',
             'items.*.contact_no' => 'nullable|string',
@@ -59,6 +67,8 @@ class StoreRequestStockRequest extends FormRequest
             'items.required' => 'At least one item must be specified.',
             'items.*.item_id.exists' => 'The selected item does not exist.',
             'items.*.quantity.min' => 'The quantity must be at least 1.',
+            'reference_no.unique' => 'The reference number has already been taken.',
+            'equipment_no.unique' => 'The equipment number has already been taken.',
         ];
     }
 }

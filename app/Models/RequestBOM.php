@@ -122,6 +122,16 @@ class RequestBOM extends Model
         return $this->belongsTo(Department::class, 'assignment_id');
     }
 
+    public function projects()
+    {
+        return $this->belongsTo(Project::class,'id','assignment_id');
+    }
+    public function requestStock()
+    {
+        return $this->belongsTo(RequestStock::class);
+    }
+
+
     /**
      * ==================================================
      * DYNAMIC SCOPES

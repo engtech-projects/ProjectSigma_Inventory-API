@@ -24,12 +24,14 @@ class CurrentBOMResource extends JsonResource
                     return [
                         'id' => $detail->id,
                         'request_bom_id' => $detail->request_bom_id,
+                        'item_code' => $detail->items->item_code,
                         'item_id' => $detail->item_id,
                         'item_summary' => $detail->getItemSummaryAttribute(),
                         'uom_id' => $detail->uom_id,
                         'unit' => $detail->uom->name,
                         'price' => $detail->unit_price,
                         'quantity' => $detail->quantity,
+                        'convertable_units' => $detail->convertable_units,
                         'amount' => number_format($detail->unit_price * $detail->quantity, 2),
                     ];
                 })->toArray(),

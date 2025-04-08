@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Http\Services\ItemProfileService;
+use App\Http\Traits\HasConversionUnit;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,6 +15,7 @@ class ItemProfile extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use HasConversionUnit;
 
     protected $table = 'item_profile';
     protected $fillable = [
@@ -54,6 +56,7 @@ class ItemProfile extends Model
 
     public $appends = [
         'item_summary',
+        'convertable_units'
     ];
 
 
@@ -99,15 +102,11 @@ class ItemProfile extends Model
         $attributes = $itemProfileService->getItemSummary($this);
         return $attributes->implode(' ');
     }
-    public function getConvertableUnitAttribute()
-    {
-        return UOM::where('group_id', $this->uomName->group_id)->get();
-    }
     public function getCodeNameAttribute()
     {
         return '[' . $this->item_code . '] ' . $this->item_description;
     }
-    
+
     /**
      * ==================================================
      * MODEL RELATIONSHIPS
