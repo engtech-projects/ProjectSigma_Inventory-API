@@ -2,8 +2,10 @@
 
 namespace App\Http\Resources;
 
+use App\Models\RequestBOM;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Enums\RequestStatuses;
 
 class RequestStocksResource extends JsonResource
 {
@@ -16,6 +18,13 @@ class RequestStocksResource extends JsonResource
     {
         return [
             ...parent::toArray($request),
+            'current_bom' => new CurrentBOMResource(
+                RequestBOM::where('assignment_type', $this->section_type)
+                    ->where('assignment_id', $this->section_id)
+                    ->where('request_status', RequestStatuses::APPROVED)
+                    ->latest('version')
+                    ->first()
+            ),
 
             'items' => $this->items->map(function ($item) {
                 return [
@@ -23,6 +32,7 @@ class RequestStocksResource extends JsonResource
                     'quantity' => $item->quantity,
                     'unit' => $item->unit,
                     'uom_name' => $item->uom_name,
+                    'convertable_units' => $item->convertable_units,
                     'item_id' => $item->item_id,
                     'item_description' => $item->item_description,
                     'specification' => $item->specification,

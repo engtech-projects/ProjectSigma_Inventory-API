@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AssignTypes;
 use App\Enums\RequestStatuses;
 use App\Http\Requests\StoreRequestStockRequest;
 use App\Http\Resources\RequestStockResourceList;
@@ -15,6 +16,7 @@ use App\Notifications\RequestStockForApprovalNotification;
 use App\Traits\HasApproval;
 use App\Http\Resources\RequestStockResource;
 use App\Http\Resources\RequestStocksResource;
+use App\Models\Department;
 use App\Models\Project;
 
 class RequestStockController extends Controller
@@ -28,8 +30,8 @@ class RequestStockController extends Controller
 
     public function index()
     {
-        $main = RequestStock::with(['project'])->paginate(10);
-        $collection = RequestStockResource::collection($main)->response()->getData(true);
+        $main = RequestStock::with(['project', 'items', 'currentBom'])->paginate(10);
+        $collection = RequestStocksResource::collection($main)->response()->getData(true);
 
         return new JsonResponse([
             "success" => true,
@@ -41,11 +43,35 @@ class RequestStockController extends Controller
     public function store(StoreRequestStockRequest $request)
     {
         $attributes = $request->validated();
-        $officeProject = $request->input('office_project');
-        $projectCode = Project::findOrFail($officeProject)->project_code;
-        $attributes['reference_no'] = 'RS' . $projectCode;
+        $sectionId = $attributes['section_id'];
+        if ($attributes["section_type"] == class_basename(Department::class)) {
+            $departmentCode = strtoupper(implode('-', array_map('ucwords', explode(' ', Department::findOrFail($sectionId)->department_name))));
+            $attributes['reference_no'] = "RS" . $departmentCode;
+        } else {
+            $projectCode = Project::findOrFail($sectionId)->project_code;
+            $attributes['reference_no'] = "RS" . $projectCode;
+        }
         $attributes['request_status'] = RequestStatuses::PENDING;
         $attributes['created_by'] = auth()->user()->id;
+
+        if ($attributes["section_type"] == AssignTypes::DEPARTMENT->value) {
+            $attributes["section_type"] = class_basename(Department::class);
+        } elseif ($attributes["section_type"] == AssignTypes::PROJECT->value) {
+            $attributes["section_type"] = class_basename(Project::class);
+        }
+
+        $duplicatedAttr = RequestStock::where('reference_no', $attributes['reference_no'])
+            ->orWhere('equipment_no', $attributes['equipment_no'])
+            ->first();
+
+        if ($duplicatedAttr) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => $duplicatedAttr->reference_no == $attributes['reference_no']
+                    ? 'The reference number has already been taken.'
+                    : 'The equipment number has already been taken.',
+            ], JsonResponse::HTTP_CONFLICT);
+        }
 
         DB::transaction(function () use ($attributes, $request) {
             $requestStock = RequestStock::create($attributes
@@ -60,9 +86,6 @@ class RequestStockController extends Controller
                     'specification' => $item['specification'],
                     'preferred_brand' => $item['preferred_brand'],
                     'reason' => $item['reason'],
-                    'location' => $item['location'],
-                    'location_qty' => $item['location_qty'],
-                    // 'is_approved' => $item['is_approved'],
                 ]);
             }
 
@@ -91,7 +114,7 @@ class RequestStockController extends Controller
     public function destroy(RequestStock $resource)
     {
         if (!$resource) {
-            return response()->json(data: [
+            return response()->json( [
                 'message' => 'Request Stock not found.',
                 'success' => false,
                 'data' => null
