@@ -9,12 +9,10 @@ use App\Http\Resources\RequestStockResourceList;
 use App\Models\RequestStock;
 use App\Models\RequestStockItem;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Services\RequestStockService;
 use App\Notifications\RequestStockForApprovalNotification;
 use App\Traits\HasApproval;
-use App\Http\Resources\RequestStockResource;
 use App\Http\Resources\RequestStocksResource;
 use App\Models\Department;
 use App\Models\Project;
@@ -74,7 +72,8 @@ class RequestStockController extends Controller
         }
 
         DB::transaction(function () use ($attributes, $request) {
-            $requestStock = RequestStock::create($attributes
+            $requestStock = RequestStock::create(
+                $attributes
             );
 
             foreach ($attributes['items'] as $item) {
@@ -114,7 +113,7 @@ class RequestStockController extends Controller
     public function destroy(RequestStock $resource)
     {
         if (!$resource) {
-            return response()->json( [
+            return response()->json([
                 'message' => 'Request Stock not found.',
                 'success' => false,
                 'data' => null

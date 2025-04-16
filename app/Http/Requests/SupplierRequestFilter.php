@@ -2,10 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\OwnershipType;
-use App\Enums\RequestStatus;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
 
 class SupplierRequestFilter extends FormRequest
 {

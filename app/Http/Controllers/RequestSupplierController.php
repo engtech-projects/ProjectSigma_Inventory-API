@@ -8,9 +8,6 @@ use App\Http\Requests\UpdateRequestSupplier;
 use App\Http\Resources\RequestSupplierResource;
 use App\Http\Resources\SyncSuppliersResource;
 use App\Models\RequestSupplier;
-use App\Http\Requests\SupplierRequestFilter;
-use App\Http\Resources\RequestBOMResource;
-use App\Http\Resources\RequestItemProfilingResourceList;
 use App\Http\Resources\RequestSupplierResourceList;
 use App\Http\Resources\SupplierResource;
 use App\Http\Services\RequestSupplierService;
@@ -88,7 +85,8 @@ class RequestSupplierController extends Controller
         $validated['created_by'] = auth()->user()->id;
 
         DB::transaction(function () use ($validated, $request) {
-            $requestSupplier = RequestSupplier::create($validated
+            $requestSupplier = RequestSupplier::create(
+                $validated
             );
 
             if ($requestSupplier->getNextPendingApproval()) {

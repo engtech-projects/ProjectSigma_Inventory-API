@@ -29,7 +29,6 @@ use App\Http\Controllers\WarehouseTransactionController;
 use App\Http\Controllers\WarehouseTransactionItemController;
 use Illuminate\Support\Facades\Artisan;
 
-
 /*
 |--------------------------------------------------------------------------
 | API Routes

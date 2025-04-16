@@ -2,7 +2,6 @@
 
 namespace App\Enums;
 
-use App\Models\RequestBOM;
 use App\Models\RequestItemProfiling;
 use App\Models\RequestStock;
 use App\Models\RequestSupplier;

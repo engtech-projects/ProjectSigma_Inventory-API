@@ -64,7 +64,7 @@ class MaterialsReceivingController extends Controller
     {
         //
     }
-    
+
 
     /**
      * Display the specified resource.

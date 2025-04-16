@@ -10,7 +10,10 @@ use Illuminate\Notifications\Notifiable;
 
 class MaterialsReceiving extends Model
 {
-    use HasFactory, SoftDeletes, HasApproval, Notifiable;
+    use HasFactory;
+    use SoftDeletes;
+    use HasApproval;
+    use Notifiable;
 
     protected $table = 'materials_receiving';
     protected $fillable = [

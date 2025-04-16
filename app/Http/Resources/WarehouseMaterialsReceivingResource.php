@@ -17,10 +17,10 @@ class WarehouseMaterialsReceivingResource extends JsonResource
         return
         [
             // ...parent::toArray($request),
-            "id"=> $this->id,
+            "id" => $this->id,
             "name" => $this->name,
             "location" => $this->location,
-            "owner_type" =>$this->owner_type,
+            "owner_type" => $this->owner_type,
             'materials_receiving' => MaterialsReceivingResource::collection($this->materialsReceiving->load('items')),
         ];
     }
