@@ -29,14 +29,14 @@ class ProjectMonitoringService
     public function syncProjects()
     {
         $projects = $this->getAllProjects();
-        $warehouses = array_map(fn($project) => [
+        $warehouses = array_map(fn ($project) => [
             "name" => $project['code'],
             "location" => $project['code'],
             "owner_id" => $project['id'],
             "owner_type" => OwnerType::PROJECT,
         ], $projects);
 
-        $projects = array_map(fn($project) => [
+        $projects = array_map(fn ($project) => [
             "id" => $project['id'],
             "project_monitoring_id" => $project['id'],
             "project_code" => $project['code'],

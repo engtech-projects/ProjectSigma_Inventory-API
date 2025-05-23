@@ -111,7 +111,7 @@ class HrmsService
     public function syncEmployees()
     {
         $employees = $this->getAllEmployees();
-        $employees = array_map(fn($employee) => [
+        $employees = array_map(fn ($employee) => [
             "hrms_id" => $employee['id'],
             "first_name" => $employee['first_name'],
             "middle_name" => $employee['middle_name'],
@@ -165,7 +165,7 @@ class HrmsService
     public function syncUsers()
     {
         $users = $this->getAllUsers();
-        $users = array_map(fn($user) => [
+        $users = array_map(fn ($user) => [
             "hrms_id" => $user['id'],
             "type" => $user['type'],
             "accessibilities" => $user['accessibilities'],
@@ -196,7 +196,7 @@ class HrmsService
     public function syncDepartments()
     {
         $departments = $this->getAllDepartments();
-        $departments = array_map(fn($department) => [
+        $departments = array_map(fn ($department) => [
             "hrms_id" => $department['id'],
             "department_name" => $department['department_name'],
         ], $departments);
