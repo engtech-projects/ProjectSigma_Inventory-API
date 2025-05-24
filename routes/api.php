@@ -7,6 +7,7 @@ use App\Http\Controllers\Actions\Approvals\VoidApproval;
 use App\Http\Controllers\MaterialsReceivingController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ApiSyncController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\DetailsController;
 use App\Http\Controllers\EmployeeController;
@@ -186,6 +187,19 @@ Route::middleware('auth:api')->group(function () {
         Route::resource('resource', ProjectsController::class)->names("projectsResource");
     });
 
+    Route::prefix('sync')->group(function () {
+        Route::post('/all', [ApiSyncController::class, 'syncAll']);
+        Route::prefix('project')->group(function () {
+            Route::post('/all', [ApiSyncController::class, 'syncAllProjectMonitoring']);
+            Route::post('/projects', [ApiSyncController::class, 'syncProjects']);
+        });
+        Route::prefix('hrms')->group(function () {
+            Route::post('/all', [ApiSyncController::class, 'syncAllProjectMonitoring']);
+            Route::post('/employees', [ApiSyncController::class, 'syncEmployees']);
+            Route::post('/users', [ApiSyncController::class, 'syncUsers']);
+            Route::post('/departments', [ApiSyncController::class, 'syncDepartments']);
+        });
+    });
 
     if (config()->get('app.artisan') == 'true') {
         Route::prefix('artisan')->group(function () {

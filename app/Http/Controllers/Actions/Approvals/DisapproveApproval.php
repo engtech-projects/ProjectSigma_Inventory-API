@@ -9,7 +9,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\DisapproveApprovalRequest;
 use App\Notifications\RequestBOMDeniedNotification;
 use App\Notifications\RequestItemProfilingDeniedNotification;
-use App\Notifications\WarehouseTransactionDeniedNotification;
 use Carbon\Carbon;
 
 class DisapproveApproval extends Controller
