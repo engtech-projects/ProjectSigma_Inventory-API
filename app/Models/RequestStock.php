@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\RequestApprovalStatus;
 use App\Enums\RequestStatuses;
+use App\Enums\RSRemarksEnums;
+use App\Enums\TransactionTypes;
 use App\Traits\HasApproval;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -55,6 +58,37 @@ class RequestStock extends Model
         return $this->items->map(function ($item) {
             return $item->itemProfile->convertable_units ?? [];
         })->collapse()->unique('id')->values();
+    }
+
+    public function completeRequestStatus()
+    {
+        $this->request_status = RequestApprovalStatus::APPROVED;
+        if ($this->remarks == RSRemarksEnums::PETTYCASH->value) {
+            $this->createPettyCashMMR();
+        }
+        $this->save();
+        $this->refresh();
+
+    }
+
+    public function createPettyCashMMR()
+    {
+        WarehouseTransaction::create([
+            'warehouse_id' => $this->warehouse_id,
+            'transaction_type' => TransactionTypes::RECEIVING,
+            'charging_id' => $this->id,
+            'approvals' => [],
+                'metadata' => [
+                    'supplier_id' => $this->supplier_id,
+                    'rs_id' => $this->rs_id,
+                    'terms_of_payment' => $this->term_of_payment,
+                    'equipment_no' => $this->equipment_no,
+                    'particulars' => $this->particulars,
+                    'po_id' => $this->po_id,
+                ],
+            'created_by' => auth()->user()->id,
+            'request_status' => RequestApprovalStatus::PENDING,
+        ]);
     }
 
 

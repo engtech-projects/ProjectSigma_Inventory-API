@@ -18,6 +18,9 @@ class WarehouseTransactionItem extends Model
         'quantity',
         'uom',
     ];
+    protected $casts = [
+        'metadata' => 'array',
+    ];
 
     /**
     * ==================================================

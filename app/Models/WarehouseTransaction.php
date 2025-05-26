@@ -33,6 +33,7 @@ class WarehouseTransaction extends Model
     protected $casts = [
         'approvals' => 'array',
         'transaction_type' => TransactionTypes::class,
+        'metadata' => 'array',
     ];
 
 
