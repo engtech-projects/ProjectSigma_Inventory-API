@@ -37,7 +37,7 @@ class WarehouseTransactionController extends Controller
     public function store(StoreWarehouseTransactionRequest $request)
     {
         $attributes = $request->validated();
-        $attributes['request_status'] = RequestApprovalStatus::PENDING;
+        $attributes['request_status'] = $attributes['request_status'] ?? RequestApprovalStatus::PENDING;
         $attributes['created_by'] = auth()->user()->id;
 
 
@@ -48,13 +48,23 @@ class WarehouseTransactionController extends Controller
                 'charging_type' => $attributes['charging_type'],
                 'charging_id' => $attributes['charging_id'],
                 'approvals' => $attributes['approvals'],
+                'metadata' => $attributes['metadata'] ?? [],
                 'created_by' => $attributes['created_by'],
                 'request_status' => $attributes['request_status'],
             ]);
 
             foreach ($attributes['items'] as $transactionData) {
                 $transactionData['warehouse_transaction_id'] = $warehouseTransaction->id;
-
+                $transactionData['metadata'] = array_merge(
+                    $attributes['metadata'] ?? [],
+                    [
+                        'specification' => $transactionData['specification'] ?? null,
+                        'actual_brand_purchased' => $transactionData['actual_brand_purchased'] ?? null,
+                        'unit_price' => $transactionData['unit_price'] ?? 0,
+                        'status' => $transactionData['status'] ?? null,
+                        'remarks' => $transactionData['remarks'] ?? null,
+                    ]
+                );
                 WarehouseTransactionItem::create($transactionData);
             }
 

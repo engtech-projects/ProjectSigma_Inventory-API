@@ -45,6 +45,7 @@ class RequestStock extends Model
 
     protected $casts = [
         'approvals' => 'array',
+        'metadata' => 'array'
     ];
 
 
@@ -64,33 +65,127 @@ class RequestStock extends Model
     {
         $this->request_status = RequestApprovalStatus::APPROVED;
         if ($this->remarks == RSRemarksEnums::PETTYCASH->value) {
-            $this->createPettyCashMMR();
+            $this->createPettyCashMRR();
         }
         $this->save();
         $this->refresh();
-
     }
 
-    public function createPettyCashMMR()
+    //create MRR
+    public function createPettyCashMRR()
     {
-        WarehouseTransaction::create([
+        $mrrReferenceNo = $this->generateMRRReferenceNumber();
+
+        $mrr = WarehouseTransaction::create([
+            'reference_no' => $mrrReferenceNo,
             'warehouse_id' => $this->warehouse_id,
             'transaction_type' => TransactionTypes::RECEIVING,
+            'transaction_date' => now()->format('Y-m-d'),
             'charging_id' => $this->id,
+            'charging_type' => null,
             'approvals' => [],
-                'metadata' => [
-                    'supplier_id' => $this->supplier_id,
-                    'rs_id' => $this->rs_id,
-                    'terms_of_payment' => $this->term_of_payment,
-                    'equipment_no' => $this->equipment_no,
-                    'particulars' => $this->particulars,
-                    'po_id' => $this->po_id,
-                ],
+            'metadata' => [
+                'rs_id' => $this->id,
+                'rs_reference_no' => $this->reference_no,
+                'equipment_no' => $this->equipment_no,
+                'transaction_date' => now()->format('Y-m-d'),
+                'project_code' => $this->project_code(),
+                'supplier_id' => null,
+                'terms_of_payment' => $this->terms_of_payment,
+                'particulars' => 'MRR created from Request Stock - Petty Cash',
+                'po_id' => null,
+                'is_petty_cash' => true,
+            ],
             'created_by' => auth()->user()->id,
             'request_status' => RequestApprovalStatus::PENDING,
         ]);
+
+        // $this->storeItems($mrr);
+
+        // return $mrr;
     }
 
+    private function generateMRRReferenceNumber()
+    {
+        $year = now()->year;
+        $lastMRR = WarehouseTransaction::where('transaction_type', TransactionTypes::RECEIVING)
+            ->whereYear('created_at', $year)
+            ->where('reference_no', 'like', "MRR-{$year}-%")
+            ->orderBy('reference_no', 'desc')
+            ->first();
+
+        if ($lastMRR) {
+            $lastNumber = (int) substr($lastMRR->reference_no, -4);
+            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        } else {
+            $newNumber = '0001';
+        }
+
+        return "MRR-{$year}-CENTRAL-{$newNumber}";
+    }
+
+    private function getProjectCode()
+    {
+        // Get project code based on section relationship
+        if ($this->section_type === 'App\\Models\\Project') {
+            return $this->section->code ?? 'N/A';
+        } elseif ($this->section_type === 'App\\Models\\Department') {
+            return $this->section->code ?? 'ADMIN';
+        }
+        return 'N/A';
+    }
+
+    // private function storeItems($mrr)
+    // {
+    //     foreach ($this->items as $requestItem) {
+    //         $metadata = array_merge(
+    //             $requestItem->metadata ?? [],
+    //             [
+    //                 'specification' => $requestItem->specification ?? null,
+    //                 'actual_brand_purchased' => $requestItem->actual_brand_purchased ?? null,
+    //                 'unit_price' => $requestItem->unit_price ?? null,
+    //                 'status' => $requestItem->status ?? null,
+    //                 'remarks' => $requestItem->remarks ?? null,
+    //             ]
+    //         );
+
+    //         WarehouseTransactionItem::create([
+    //             'warehouse_transaction_id' => $mrr->id,
+    //             'item_id' => $requestItem->item_id,
+    //             'parent_id' => $requestItem->parent_id,
+    //             'quantity' => $requestItem->quantity,
+    //             'uom' => $requestItem->uom,
+    //             'metadata' => $metadata,
+    //             'metadata' => [
+    //                 'specification' => null,
+    //                 'actual_brand_purchase' => null,
+    //                 'unit_price' => null,
+    //                 'status' => null,
+    //                 'remarks' => null,
+    //             ],
+    //         ]);
+    //     }
+    // }
+
+    // private function storeItems($mrr)
+    // {
+    //     foreach ($this->items as $requestItem) {
+    //         WarehouseTransactionItem::create([
+    //             'warehouse_transaction_id' => $mrr->id,
+    //             'item_id' => $requestItem->item_id,
+    //             'parent_id' => $requestItem->parent_id,
+    //             'quantity' => $requestItem->quantity,
+    //             'uom' => $requestItem->uom,
+    //             'metadata' => [
+    //                 'specification' => null,
+    //                 'actual_brand_purchase' => null,
+    //                 'unit_price' => null,
+    //                 'status' => null,
+    //                 'remarks' => null,
+    //             ],
+    //         ]);
+    //     }
+    // }
 
     /**
      * ==================================================
@@ -131,6 +226,13 @@ class RequestStock extends Model
     public function section()
     {
         return $this->morphTo();
+    }
+
+    public function mrr()
+    {
+        return $this->hasOne(WarehouseTransaction::class, 'charging_id')
+            ->where('charging_type', self::class)
+            ->where('transaction_type', TransactionTypes::RECEIVING);
     }
 
 

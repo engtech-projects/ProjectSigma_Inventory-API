@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('warehouse_transactions', function (Blueprint $table) {
             $table->date('transaction_date')->nullable()->after('transaction_type');
-            $table->json('metadata')->after('transaction_date');
+            $table->json('metadata')->after('transaction_date')->nullable();
             $table->string('reference_no')->after('warehouse_id');
 
         });

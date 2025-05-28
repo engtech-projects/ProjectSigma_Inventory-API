@@ -5,6 +5,7 @@ use App\Http\Controllers\Actions\Approvals\CancelApproval;
 use App\Http\Controllers\Actions\Approvals\DisapproveApproval;
 use App\Http\Controllers\Actions\Approvals\VoidApproval;
 use App\Http\Controllers\MaterialsReceivingController;
+use App\Http\Controllers\MRRController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepartmentsController;
@@ -180,6 +181,13 @@ Route::middleware('auth:api')->group(function () {
             Route::patch('{resource}/accept-with-details', [MaterialsReceivingItemController::class, 'acceptWithDetails']);
             Route::patch('{resource}/reject', [MaterialsReceivingItemController::class, 'reject']);
         });
+    });
+
+    Route::prefix('mrr')->group(function () {
+        Route::resource('resource', MRRController::class)->names("materialReceivingReportresource");
+        Route::get('/{id}', [MRRController::class, 'show']);
+        Route::put('/{id}', [MRRController::class, 'update']);
+        Route::get('/suppliers/list', [MRRController::class, 'getSuppliers']);
     });
 
     Route::prefix('project')->group(function () {

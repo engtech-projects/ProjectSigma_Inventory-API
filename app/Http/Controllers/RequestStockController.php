@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Enums\AssignTypes;
 use App\Enums\RequestStatuses;
+use App\Enums\RSRemarksEnums;
+use App\Enums\TransactionTypes;
 use App\Http\Requests\StoreRequestStockRequest;
 use App\Http\Resources\RequestStockResourceList;
 use App\Models\RequestStock;
@@ -57,7 +59,7 @@ class RequestStockController extends Controller
         } elseif ($attributes["section_type"] == AssignTypes::PROJECT->value) {
             $attributes["section_type"] = class_basename(Project::class);
         }
-
+        
         $duplicatedAttr = RequestStock::where('reference_no', $attributes['reference_no'])
             ->orWhere('equipment_no', $attributes['equipment_no'])
             ->first();
@@ -98,10 +100,10 @@ class RequestStockController extends Controller
             'success' => true,
             'message' => 'Request Stock Successfull.',
         ], JsonResponse::HTTP_OK);
-    }
+        }
 
     public function show(RequestStock $resource)
-    {
+    { 
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,

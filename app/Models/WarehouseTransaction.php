@@ -21,10 +21,13 @@ class WarehouseTransaction extends Model
     protected $table = 'warehouse_transactions';
 
     protected $fillable = [
+        'reference_no',
         'warehouse_id',
+        'transaction_date',
+        'metadata',
         'transaction_type',
-        'charging_id',
         'charging_type',
+        'charging_id',
         'approvals',
         'created_by',
         'request_status',
@@ -53,7 +56,6 @@ class WarehouseTransaction extends Model
         // Assuming authUserPending logic
         $query->where('created_by', auth()->user()->id);
     }
-
     public function completeRequestStatus()
     {
         $this->request_status = RequestApprovalStatus::APPROVED;
@@ -79,6 +81,16 @@ class WarehouseTransaction extends Model
     {
         return $this->hasManyThrough(WarehouseTransactionItem::class, WarehouseTransaction::class);
     }
+    public function requestStock()
+    {
+        return $this->belongsTo(RequestStock::class, 'charging_id')
+            ->where('charging_type', RequestStock::class);
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(RequestSupplier::class, 'metadata->supplier_id');
+    }
 
 
     /**
@@ -86,6 +98,11 @@ class WarehouseTransaction extends Model
     * LOCAL SCOPES
     * ==================================================
     */
+    public function scopePettyCashMRR($query)
+    {
+        return $query->where('transaction_type', TransactionTypes::RECEIVING)
+            ->whereJsonContains('metadata->is_petty_cash', true);
+    }
 
 
     /**
@@ -93,5 +110,21 @@ class WarehouseTransaction extends Model
     * DYNAMIC SCOPES
     * ==================================================
     */
+    public function getTotalNetVatAttribute()
+    {
+        return $this->items->sum(function ($item) {
+            return $item->quantity_received * $item->unit_price;
+        });
+    }
+
+    public function getTotalInputVatAttribute()
+    {
+        return $this->total_net_vat * 0.12; // 12% VAT
+    }
+
+    public function getGrandTotalAttribute()
+    {
+        return $this->total_net_vat + $this->total_input_vat;
+    }
 
 }
