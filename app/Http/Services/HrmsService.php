@@ -108,36 +108,52 @@ class HrmsService
         return false;
     }
 
+    public function getAllEmployees()
+    {
+        $response = Http::withToken($this->authToken)
+            ->withUrlParameters([
+                'paginate' => false,
+                'sort' => 'asc',
+            ])
+            ->acceptJson()
+            ->get($this->apiUrl . '/api/employee/list');
+
+        if (!$response->successful()) {
+            return [];
+        }
+
+        return $response->json("data") ?: [];
+    }
+
     public function syncEmployees()
     {
-        $employees = $this->getAllEmployees();
-        $employees = array_map(fn ($employee) => [
-            "hrms_id" => $employee['id'],
-            "first_name" => $employee['first_name'],
-            "middle_name" => $employee['middle_name'],
-            "family_name" => $employee['family_name'],
-            "name_suffix" => $employee['name_suffix'],
-            "nick_name" => $employee['nick_name'],
-            "gender" => $employee['gender'],
-            "date_of_birth" => $employee['date_of_birth'],
-            "place_of_birth" => $employee['place_of_birth'],
-            "citizenship" => $employee['citizenship'],
-            "blood_type" => $employee['blood_type'],
-            "civil_status" => $employee['civil_status'],
-            "date_of_marriage" => $employee['date_of_marriage'],
-            "telephone_number" => $employee['telephone_number'],
-            "mobile_number" => $employee['mobile_number'],
-            "email" => $employee['email'],
-            "religion" => $employee['religion'],
-            "weight" => $employee['weight'],
-            "height" => $employee['height'],
-        ], $employees['data']);
+        $response = $this->getAllEmployees();
+
+        $processedEmployees = array_map(fn ($employee) => [
+            'id' => $employee['id'],
+            'first_name' => $employee['first_name'],
+            'middle_name' => $employee['middle_name'],
+            'family_name' => $employee['family_name'],
+            'name_suffix' => $employee['name_suffix'],
+            'nick_name' => $employee['nick_name'],
+            'gender' => $employee['gender'],
+            'date_of_birth' => $employee['date_of_birth'],
+            'place_of_birth' => $employee['place_of_birth'],
+            'citizenship' => $employee['citizenship'],
+            'blood_type' => $employee['blood_type'],
+            'civil_status' => $employee['civil_status'],
+            'date_of_marriage' => $employee['date_of_marriage'],
+            'telephone_number' => $employee['telephone_number'],
+            'mobile_number' => $employee['mobile_number'],
+            'email' => $employee['email'],
+            'religion' => $employee['religion'],
+            'weight' => $employee['weight'],
+            'height' => $employee['height'],
+        ], $response);
 
         Employee::upsert(
-            $employees,
-            [
-                'hrms_id',
-            ],
+            $processedEmployees,
+            ['id'],
             [
                 'first_name',
                 'middle_name',
@@ -159,6 +175,7 @@ class HrmsService
                 'height',
             ]
         );
+
         return true;
     }
 
@@ -166,7 +183,7 @@ class HrmsService
     {
         $users = $this->getAllUsers();
         $users = array_map(fn ($user) => [
-            "hrms_id" => $user['id'],
+            "id" => $user['id'],
             "type" => $user['type'],
             "accessibilities" => $user['accessibilities'],
             "name" => $user['name'],
@@ -178,10 +195,9 @@ class HrmsService
         User::upsert(
             $users,
             [
-                'hrms_id',
+                'id',
             ],
             [
-                'hrms_id',
                 'type',
                 'accessibilities',
                 'name',
@@ -197,32 +213,20 @@ class HrmsService
     {
         $departments = $this->getAllDepartments();
         $departments = array_map(fn ($department) => [
-            "hrms_id" => $department['id'],
+            "id" => $department['id'],
             "department_name" => $department['department_name'],
         ], $departments);
 
         Department::upsert(
             $departments,
             [
-                'hrms_id',
+                'id',
             ],
             [
-                'hrms_id',
                 'department_name',
             ]
         );
         return true;
-    }
-
-    public function getAllEmployees()
-    {
-        $response = Http::withToken($this->authToken)
-            ->acceptJson()
-            ->get($this->apiUrl.'/api/employee/list');
-        if (! $response->successful()) {
-            return [];
-        }
-        return $response->json();
     }
 
     public function getAllUsers()
@@ -233,11 +237,11 @@ class HrmsService
                 "sort" => "asc"
             ])
             ->acceptJson()
-            ->get($this->apiUrl.'/api/employee/users-list');
-        if (! $response->successful()) {
+            ->get($this->apiUrl . '/api/employee/users-list');
+        if (!$response->successful()) {
             return [];
         }
-        return $response->json();
+        return $response->json() ?: [];
     }
 
     public function getAllDepartments()
@@ -248,11 +252,10 @@ class HrmsService
                 "sort" => "asc"
             ])
             ->acceptJson()
-            ->get($this->apiUrl.'/api/department/list');
-        if (! $response->successful()) {
+            ->get($this->apiUrl . '/api/department/list');
+        if (!$response->successful()) {
             return [];
         }
-        return $response->json();
+        return $response->json() ?: [];
     }
-
 }
