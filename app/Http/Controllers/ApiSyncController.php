@@ -80,7 +80,7 @@ class ApiSyncController extends Controller
             }
         });
         return response()->json([
-            'message' => 'Successfully synced all projects.',
+            'message' => 'Successfully synced all Employees.',
             'success' => true,
         ]);
     }
@@ -95,7 +95,7 @@ class ApiSyncController extends Controller
             }
         });
         return response()->json([
-            'message' => 'Successfully synced all projects.',
+            'message' => 'Successfully synced all Departments.',
             'success' => true,
         ]);
     }
@@ -110,7 +110,7 @@ class ApiSyncController extends Controller
             }
         });
         return response()->json([
-            'message' => 'Successfully synced all projects.',
+            'message' => 'Successfully synced all Users.',
             'success' => true,
         ]);
     }
