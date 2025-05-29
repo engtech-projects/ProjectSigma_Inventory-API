@@ -194,12 +194,13 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/projects', [ApiSyncController::class, 'syncProjects']);
         });
         Route::prefix('hrms')->group(function () {
-            Route::post('/all', [ApiSyncController::class, 'syncAllProjectMonitoring']);
+            Route::post('/all', [ApiSyncController::class, 'syncAllHrms']);
             Route::post('/employees', [ApiSyncController::class, 'syncEmployees']);
             Route::post('/users', [ApiSyncController::class, 'syncUsers']);
             Route::post('/departments', [ApiSyncController::class, 'syncDepartments']);
         });
     });
+
 
     if (config()->get('app.artisan') == 'true') {
         Route::prefix('artisan')->group(function () {
