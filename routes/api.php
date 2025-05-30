@@ -45,13 +45,11 @@ use Illuminate\Support\Facades\Artisan;
 Route::middleware("secret_api")->group(function () {
     // SIGMA SERVICES ROUTES
     Route::prefix('sigma')->group(function () {
-        Route::resource('sync-departments', DepartmentsController::class)->names("syncDepartmentsresource");
-        Route::resource('sync-projects', ProjectsController::class)->names("syncProjectsresource");
-        Route::resource('sync-users', UserController::class)->names("syncUserresource");
-        Route::resource('sync-employees', EmployeeController::class)->names("syncEmployeeresource");
-        Route::get('suppliers', [RequestSupplierController::class, 'get']);
-        Route::get('item-profiles', [ItemProfileController::class, 'get']);
-        Route::get('uoms', [UOMController::class, 'get']);
+        Route::prefix("sync-list")->group(function () {
+            Route::get('suppliers', [RequestSupplierController::class, 'get']);
+            Route::get('item-profiles', [ItemProfileController::class, 'get']);
+            Route::get('uoms', [UOMController::class, 'get']);
+        });
     });
 });
 
@@ -154,7 +152,20 @@ Route::middleware('auth:api')->group(function () {
         // Route::prefix('uom-group')->group(function () {
         //     Route::resource('resource', UOMGroupController::class)->names("uomGroupresource");
         // });
-        //DATA SYNC
+        //DATA SYNC MANUAL USER TRIGGER
+        Route::prefix('sync')->group(function () {
+            Route::post('/all', [ApiSyncController::class, 'syncAll']);
+            Route::prefix('project')->group(function () {
+                Route::post('/all', [ApiSyncController::class, 'syncAllProjectMonitoring']);
+                Route::post('/projects', [ApiSyncController::class, 'syncProjects']);
+            });
+            Route::prefix('hrms')->group(function () {
+                Route::post('/all', [ApiSyncController::class, 'syncAllHrms']);
+                Route::post('/employees', [ApiSyncController::class, 'syncEmployees']);
+                Route::post('/users', [ApiSyncController::class, 'syncUsers']);
+                Route::post('/departments', [ApiSyncController::class, 'syncDepartments']);
+            });
+        });
 
     });
     Route::prefix('request-supplier')->group(function () {
@@ -187,19 +198,6 @@ Route::middleware('auth:api')->group(function () {
         Route::resource('resource', ProjectsController::class)->names("projectsResource");
     });
 
-    Route::prefix('sync')->group(function () {
-        Route::post('/all', [ApiSyncController::class, 'syncAll']);
-        Route::prefix('project')->group(function () {
-            Route::post('/all', [ApiSyncController::class, 'syncAllProjectMonitoring']);
-            Route::post('/projects', [ApiSyncController::class, 'syncProjects']);
-        });
-        Route::prefix('hrms')->group(function () {
-            Route::post('/all', [ApiSyncController::class, 'syncAllHrms']);
-            Route::post('/employees', [ApiSyncController::class, 'syncEmployees']);
-            Route::post('/users', [ApiSyncController::class, 'syncUsers']);
-            Route::post('/departments', [ApiSyncController::class, 'syncDepartments']);
-        });
-    });
 
 
     if (config()->get('app.artisan') == 'true') {

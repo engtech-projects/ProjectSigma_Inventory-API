@@ -1,23 +1,28 @@
 <?php
 
-namespace App\Http\Services;
+namespace App\Http\Services\ApiServices;
 
 use App\Enums\OwnerType;
 use App\Models\Project;
 use App\Models\Warehouse;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
-class ProjectMonitoringService
+class ProjectMonitoringSecretKeyService
 {
     protected $apiUrl;
-    protected $apiUrlHrms;
     protected $authToken;
 
-    public function __construct($authToken)
+    public function __construct()
     {
-        $this->authToken = $authToken;
+        $this->authToken = config('services.sigma.secret_key');
         $this->apiUrl = config('services.url.projects_api');
-        $this->apiUrlHrms = config('services.url.hrms_api_url');
+        if (empty($this->authToken)) {
+            throw new \InvalidArgumentException('SECRET KEY is not configured');
+        }
+        if (empty($this->apiUrl)) {
+            throw new \InvalidArgumentException('Projects API URL is not configured');
+        }
     }
 
     public function syncAll()
@@ -29,6 +34,7 @@ class ProjectMonitoringService
     public function syncProjects()
     {
         $projects = $this->getAllProjects();
+        Log::info($projects);
         $warehouses = array_map(fn ($project) => [
             "name" => $project['code'],
             "location" => $project['code'],
@@ -80,11 +86,19 @@ class ProjectMonitoringService
                 "sort" => "asc"
             ])
             ->acceptJson()
-            ->get($this->apiUrl.'/api/projects');
+            ->get($this->apiUrl.'/sigma/sync-list/projects');
         if (! $response->successful()) {
+            Log::channel("ProjectMonitoringService")->error('Failed to fetch projects from monitoring API', [
+                'status' => $response->status(),
+                'body'   => $response->body(),
+            ]);
             return [];
         }
         $data = $response->json();
-        return is_array($data) ? $data : [];
+        if (!isset($data['data']) || !is_array($data['data'])) {
+            Log::channel("ProjectMonitoringService")->warning('Unexpected response format from projects API', ['response' => $data]);
+            return [];
+        }
+        return $data['data'];
     }
 }

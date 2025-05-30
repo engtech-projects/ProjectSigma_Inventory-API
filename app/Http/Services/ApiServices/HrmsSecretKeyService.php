@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Services;
+namespace App\Http\Services\ApiServices;
 
 use Illuminate\Support\Facades\Http;
 use App\Models\Department;
@@ -9,44 +9,23 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-class HrmsService
+class HrmsSecretKeyService
 {
     protected $apiUrl;
     protected $authToken;
 
-    public function __construct($authToken)
+    public function __construct()
     {
-        $this->authToken = $authToken;
         $this->apiUrl = config('services.url.hrms_api_url');
+        $this->authToken = config('services.sigma.secret_key');
+        if (empty($this->authToken)) {
+            throw new \InvalidArgumentException('SECRET KEY is not configured');
+        }
+        if (empty($this->apiUrl)) {
+            throw new \InvalidArgumentException('Projects API URL is not configured');
+        }
     }
 
-    public static function setNotification($token, $userid, $notificationData)
-    {
-        if (gettype($notificationData) == "array") {
-            $notificationData = json_encode($notificationData);
-        }
-        $response = Http::withToken(token: $token)
-            ->acceptJson()
-            ->withBody($notificationData)
-            ->post(config('services.url.hrms_api_url') . "/api/notifications/services-notify/{$userid}");
-        if (!$response->successful()) {
-            return false;
-        }
-
-        // return $response->json();
-    }
-
-    public static function formatApprovals($token, $approvals)
-    {
-        $response = Http::withToken($token)
-            ->acceptJson()
-            ->withQueryParameters($approvals)
-            ->get(config('services.url.hrms_api_url') . "/api/services/format-approvals");
-        if (!$response->successful()) {
-            return $approvals;
-        }
-        return $response->json()["data"];
-    }
     public static function getEmployeeDetails($token, $user_ids)
     {
         $response = Http::withToken($token)
@@ -108,28 +87,10 @@ class HrmsService
         return false;
     }
 
-    public function getAllEmployees()
-    {
-        $response = Http::withToken($this->authToken)
-            ->withUrlParameters([
-                'paginate' => false,
-                'sort' => 'asc',
-            ])
-            ->acceptJson()
-            ->get($this->apiUrl . '/api/employee/list');
-
-        if (!$response->successful()) {
-            return [];
-        }
-
-        return $response->json("data") ?: [];
-    }
-
     public function syncEmployees()
     {
         $response = $this->getAllEmployees();
-
-        $processedEmployees = array_map(fn ($employee) => [
+        $processedEmployees = array_map(fn($employee) => [
             'id' => $employee['id'],
             'first_name' => $employee['first_name'],
             'middle_name' => $employee['middle_name'],
@@ -155,6 +116,7 @@ class HrmsService
             $processedEmployees,
             ['id'],
             [
+                'id',
                 'first_name',
                 'middle_name',
                 'family_name',
@@ -175,14 +137,13 @@ class HrmsService
                 'height',
             ]
         );
-
         return true;
     }
 
     public function syncUsers()
     {
         $users = $this->getAllUsers();
-        $users = array_map(fn ($user) => [
+        $users = array_map(fn($user) => [
             "id" => $user['id'],
             "type" => $user['type'],
             "accessibilities" => $user['accessibilities'],
@@ -212,7 +173,7 @@ class HrmsService
     public function syncDepartments()
     {
         $departments = $this->getAllDepartments();
-        $departments = array_map(fn ($department) => [
+        $departments = array_map(fn($department) => [
             "id" => $department['id'],
             "department_name" => $department['department_name'],
         ], $departments);
@@ -229,6 +190,23 @@ class HrmsService
         return true;
     }
 
+    public function getAllEmployees()
+    {
+        $response = Http::withToken($this->authToken)
+            ->withUrlParameters([
+                'paginate' => false,
+                'sort' => 'asc',
+            ])
+            ->acceptJson()
+            ->get($this->apiUrl . '/api/sigma/sync-list/employee');
+
+        if (!$response->successful()) {
+            return [];
+        }
+
+        return $response->json("data") ?: [];
+    }
+
     public function getAllUsers()
     {
         $response = Http::withToken($this->authToken)
@@ -237,7 +215,7 @@ class HrmsService
                 "sort" => "asc"
             ])
             ->acceptJson()
-            ->get($this->apiUrl . '/api/employee/users-list');
+            ->get($this->apiUrl . '/api/sigma/sync-list/user');
         if (!$response->successful()) {
             return [];
         }
@@ -252,7 +230,7 @@ class HrmsService
                 "sort" => "asc"
             ])
             ->acceptJson()
-            ->get($this->apiUrl . '/api/department/list');
+            ->get($this->apiUrl . '/api/sigma/sync-list/department');
         if (!$response->successful()) {
             return [];
         }

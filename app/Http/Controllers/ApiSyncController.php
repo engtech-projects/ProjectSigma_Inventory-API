@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Services\ProjectMonitoringService;
-use App\Http\Services\HrmsService;
+use App\Http\Services\ApiServices\AccountingSecretKeyService;
+use App\Http\Services\ApiServices\HrmsSecretKeyService;
+use App\Http\Services\ApiServices\ProjectMonitoringSecretKeyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -11,42 +12,53 @@ class ApiSyncController extends Controller
 {
     public function syncAll(Request $request)
     {
-        $token = $request->bearerToken();
-        DB::transaction(function () use ($token) {
-            $projectService = new ProjectMonitoringService($token);
-            $hrmsService = new HrmsService($token);
-            if (!($projectService->syncAll() || $hrmsService->syncAll())) {
-                throw new \Exception("Sync with API services failed.");
+        DB::transaction(function () {
+            $accountingService = new AccountingSecretKeyService();
+            $hrmsService = new HrmsSecretKeyService();
+            $projectService = new ProjectMonitoringSecretKeyService();
+            $errorServices = [];
+            if (!$accountingService->syncAll()) {
+                $errorServices[] = "Accounting";
             }
-        });
-
-        return response()->json([
-            'message' => 'Successfully synced with API services.',
-            'success' => true,
-        ]);
-    }
-
-    public function syncAllProjectMonitoring(Request $request)
-    {
-        $token = $request->bearerToken();
-        DB::transaction(function () use ($token) {
-            $projectService = new ProjectMonitoringService($token);
+            if (!$hrmsService->syncAll()) {
+                $errorServices[] = "HRMS";
+            }
             if (!$projectService->syncAll()) {
-                throw new \Exception("Project monitoring sync failed.");
+                $errorServices[] = "Project Monitoring";
+            }
+            if (!empty($errorServices)) {
+                throw new \Exception('Sync with ' . implode(', ', $errorServices) .' failed while trying to sync with all API Services');
             }
         });
-
         return response()->json([
-            'message' => 'Successfully synced with Project Monitoring API service.',
+            'message' => 'Successfully synced with all API services.',
             'success' => true,
         ]);
     }
-
+    // Accounting
+    public function syncAllAccounting(Request $request)
+    {
+        return response()->json([
+            'message' => 'No Services to sync with yet.',
+            'success' => true,
+        ], 202);
+        // PREPARED CODE
+        // DB::transaction(function () {
+        //     $accountingService = new AccountingSecretKeyService();
+        //     if (!$accountingService->syncAll()) {
+        //         throw new \Exception("Accounting sync failed.");
+        //     }
+        // });
+        // return response()->json([
+        //     'message' => 'Successfully synced with Accounting API service.',
+        //     'success' => true,
+        // ]);
+    }
+    // HRMS
     public function syncAllHrms(Request $request)
     {
-        $token = $request->bearerToken();
-        DB::transaction(function () use ($token) {
-            $hrmsService = new HrmsService($token);
+        DB::transaction(function () {
+            $hrmsService = new HrmsSecretKeyService();
             if (!$hrmsService->syncAll()) {
                 throw new \Exception("HRMS sync failed.");
             }
@@ -57,28 +69,10 @@ class ApiSyncController extends Controller
             'success' => true,
         ]);
     }
-
-    public function syncProjects(Request $request)
-    {
-        $token = $request->bearerToken();
-        DB::transaction(function () use ($token) {
-            $projectService = new ProjectMonitoringService($token);
-            if (!$projectService->syncProjects()) {
-                throw new \Exception("Project sync failed.");
-            }
-        });
-
-        return response()->json([
-            'message' => 'Successfully synced all projects.',
-            'success' => true,
-        ]);
-    }
-
     public function syncEmployees(Request $request)
     {
-        $token = $request->bearerToken();
-        DB::transaction(function () use ($token) {
-            $hrmsService = new HrmsService($token);
+        DB::transaction(function () {
+            $hrmsService = new HrmsSecretKeyService();
             if (!$hrmsService->syncEmployees()) {
                 throw new \Exception("Employee sync failed.");
             }
@@ -89,12 +83,10 @@ class ApiSyncController extends Controller
             'success' => true,
         ]);
     }
-
     public function syncDepartments(Request $request)
     {
-        $token = $request->bearerToken();
-        DB::transaction(function () use ($token) {
-            $hrmsService = new HrmsService($token);
+        DB::transaction(function () {
+            $hrmsService = new HrmsSecretKeyService();
             if (!$hrmsService->syncDepartments()) {
                 throw new \Exception("Department sync failed.");
             }
@@ -105,12 +97,10 @@ class ApiSyncController extends Controller
             'success' => true,
         ]);
     }
-
     public function syncUsers(Request $request)
     {
-        $token = $request->bearerToken();
-        DB::transaction(function () use ($token) {
-            $hrmsService = new HrmsService($token);
+        DB::transaction(function () {
+            $hrmsService = new HrmsSecretKeyService();
             if (!$hrmsService->syncUsers()) {
                 throw new \Exception("User sync failed.");
             }
@@ -118,6 +108,35 @@ class ApiSyncController extends Controller
 
         return response()->json([
             'message' => 'Successfully synced all users.',
+            'success' => true,
+        ]);
+    }
+    // Project Monitoring
+    public function syncAllProjectMonitoring(Request $request)
+    {
+        DB::transaction(function () {
+            $projectService = new ProjectMonitoringSecretKeyService();
+            if (!$projectService->syncAll()) {
+                throw new \Exception("Project monitoring sync failed.");
+            }
+        });
+
+        return response()->json([
+            'message' => 'Successfully synced with Project Monitoring API service.',
+            'success' => true,
+        ]);
+    }
+    public function syncProjects(Request $request)
+    {
+        DB::transaction(function () {
+            $projectService = new ProjectMonitoringSecretKeyService();
+            if (!$projectService->syncProjects()) {
+                throw new \Exception("Project sync failed.");
+            }
+        });
+
+        return response()->json([
+            'message' => 'Successfully synced all projects.',
             'success' => true,
         ]);
     }
