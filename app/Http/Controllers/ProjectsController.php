@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ValidateToken;
-use App\Http\Services\ProjectService;
 use App\Models\Project;
 
 class ProjectsController extends Controller
@@ -24,6 +22,7 @@ class ProjectsController extends Controller
         return response()->json([
             'message' => 'Moved.',
             'success' => false,
-        ], 302);
+        ], 301)
+        ->header('Location', '/api/setup/sync/hrms/employees');
     }
 }

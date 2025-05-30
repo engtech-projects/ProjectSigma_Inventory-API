@@ -18,6 +18,12 @@ class HrmsSecretKeyService
     {
         $this->apiUrl = config('services.url.hrms_api_url');
         $this->authToken = config('services.sigma.secret_key');
+        if (empty($this->authToken)) {
+            throw new \InvalidArgumentException('SECRET KEY is not configured');
+        }
+        if (empty($this->apiUrl)) {
+            throw new \InvalidArgumentException('Projects API URL is not configured');
+        }
     }
 
     public static function getEmployeeDetails($token, $user_ids)

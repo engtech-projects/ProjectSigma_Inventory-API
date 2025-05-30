@@ -13,6 +13,9 @@ class ProjectService
     {
         $this->authToken = $authToken;
         $this->apiUrl = config('services.url.projects_api');
+        if (empty($this->apiUrl)) {
+            throw new \InvalidArgumentException('Projects API URL is not configured');
+        }
     }
 
     public function getProjects()
@@ -20,7 +23,7 @@ class ProjectService
         $response = Http::withToken($this->authToken)
             ->acceptJson()
             ->get(
-                config('services.url.project_api') . '/api/projects'
+                $this->apiUrl . '/api/projects'
             );
         if (!$response->successful()) {
             return false;

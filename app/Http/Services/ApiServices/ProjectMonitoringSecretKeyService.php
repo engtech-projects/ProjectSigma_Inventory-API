@@ -17,6 +17,12 @@ class ProjectMonitoringSecretKeyService
     {
         $this->authToken = config('services.sigma.secret_key');
         $this->apiUrl = config('services.url.projects_api');
+        if (empty($this->authToken)) {
+            throw new \InvalidArgumentException('SECRET KEY is not configured');
+        }
+        if (empty($this->apiUrl)) {
+            throw new \InvalidArgumentException('Projects API URL is not configured');
+        }
     }
 
     public function syncAll()
@@ -82,8 +88,17 @@ class ProjectMonitoringSecretKeyService
             ->acceptJson()
             ->get($this->apiUrl.'/sigma/sync-list/projects');
         if (! $response->successful()) {
+            Log::channel("ProjectMonitoringService")->error('Failed to fetch projects from monitoring API', [
+                'status' => $response->status(),
+                'body'   => $response->body(),
+            ]);
             return [];
         }
-        return $response->json()["data"];
+        $data = $response->json();
+        if (!isset($data['data']) || !is_array($data['data'])) {
+            Log::channel("ProjectMonitoringService")->warning('Unexpected response format from projects API', ['response' => $data]);
+            return [];
+        }
+        return $data['data'];
     }
 }

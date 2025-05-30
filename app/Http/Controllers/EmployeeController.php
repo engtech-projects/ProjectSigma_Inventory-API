@@ -21,6 +21,7 @@ class EmployeeController extends Controller
         return response()->json([
             'message' => 'Moved.',
             'success' => false,
-        ], 302);
+        ], 301)
+        ->header('Location', '/api/setup/sync/hrms/employees');
     }
 }

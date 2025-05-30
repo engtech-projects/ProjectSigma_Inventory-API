@@ -41,7 +41,7 @@ class ApiSyncController extends Controller
         return response()->json([
             'message' => 'No Services to sync with yet.',
             'success' => true,
-        ], 204);
+        ], 202);
         // PREPARED CODE
         // DB::transaction(function () {
         //     $accountingService = new AccountingSecretKeyService();
