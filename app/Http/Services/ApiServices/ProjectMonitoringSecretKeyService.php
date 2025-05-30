@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Services;
+namespace App\Http\Services\ApiServices;
 
 use App\Enums\OwnerType;
 use App\Models\Project;
 use App\Models\Warehouse;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
-class ProjectMonitoringService
+class ProjectMonitoringSecretKeyService
 {
     protected $apiUrl;
     protected $authToken;
@@ -27,6 +28,7 @@ class ProjectMonitoringService
     public function syncProjects()
     {
         $projects = $this->getAllProjects();
+        Log::info($projects);
         $warehouses = array_map(fn ($project) => [
             "name" => $project['code'],
             "location" => $project['code'],
@@ -78,11 +80,10 @@ class ProjectMonitoringService
                 "sort" => "asc"
             ])
             ->acceptJson()
-            ->get($this->apiUrl.'/api/projects');
+            ->get($this->apiUrl.'/sigma/sync-list/projects');
         if (! $response->successful()) {
             return [];
         }
-        $data = $response->json();
-        return is_array($data) ? $data : [];
+        return $response->json()["data"];
     }
 }

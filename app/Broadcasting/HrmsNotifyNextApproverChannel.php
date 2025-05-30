@@ -2,7 +2,7 @@
 
 namespace App\Broadcasting;
 
-use App\Http\Services\HrmsService;
+use App\Http\Services\ApiServices\HrmsService;
 use Notification;
 
 class HrmsNotifyNextApproverChannel

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ValidateToken;
-use App\Http\Services\HrmsService;
+use App\Http\Services\ApiServices\HrmsService;
 use App\Models\User;
 
 class UserController extends Controller
