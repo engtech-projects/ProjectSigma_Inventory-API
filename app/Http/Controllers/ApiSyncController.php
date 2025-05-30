@@ -11,10 +11,9 @@ class ApiSyncController extends Controller
 {
     public function syncAll(Request $request)
     {
-        $token = $request->bearerToken();
-        DB::transaction(function () use ($token) {
-            $projectService = new ProjectMonitoringService($token);
-            $hrmsService = new HrmsService($token);
+        DB::transaction(function () {
+            $projectService = new ProjectMonitoringService();
+            $hrmsService = new HrmsService();
             if (!($projectService->syncAll() || $hrmsService->syncAll())) {
                 throw new \Exception("Sync with API services failed.");
             }
@@ -28,9 +27,8 @@ class ApiSyncController extends Controller
 
     public function syncAllProjectMonitoring(Request $request)
     {
-        $token = $request->bearerToken();
-        DB::transaction(function () use ($token) {
-            $projectService = new ProjectMonitoringService($token);
+        DB::transaction(function () {
+            $projectService = new ProjectMonitoringService();
             if (!$projectService->syncAll()) {
                 throw new \Exception("Project monitoring sync failed.");
             }
@@ -44,9 +42,8 @@ class ApiSyncController extends Controller
 
     public function syncAllHrms(Request $request)
     {
-        $token = $request->bearerToken();
-        DB::transaction(function () use ($token) {
-            $hrmsService = new HrmsService($token);
+        DB::transaction(function () {
+            $hrmsService = new HrmsService();
             if (!$hrmsService->syncAll()) {
                 throw new \Exception("HRMS sync failed.");
             }
@@ -60,9 +57,8 @@ class ApiSyncController extends Controller
 
     public function syncProjects(Request $request)
     {
-        $token = $request->bearerToken();
-        DB::transaction(function () use ($token) {
-            $projectService = new ProjectMonitoringService($token);
+        DB::transaction(function () {
+            $projectService = new ProjectMonitoringService();
             if (!$projectService->syncProjects()) {
                 throw new \Exception("Project sync failed.");
             }
@@ -76,9 +72,8 @@ class ApiSyncController extends Controller
 
     public function syncEmployees(Request $request)
     {
-        $token = $request->bearerToken();
-        DB::transaction(function () use ($token) {
-            $hrmsService = new HrmsService($token);
+        DB::transaction(function () {
+            $hrmsService = new HrmsService();
             if (!$hrmsService->syncEmployees()) {
                 throw new \Exception("Employee sync failed.");
             }
@@ -92,9 +87,8 @@ class ApiSyncController extends Controller
 
     public function syncDepartments(Request $request)
     {
-        $token = $request->bearerToken();
-        DB::transaction(function () use ($token) {
-            $hrmsService = new HrmsService($token);
+        DB::transaction(function () {
+            $hrmsService = new HrmsService();
             if (!$hrmsService->syncDepartments()) {
                 throw new \Exception("Department sync failed.");
             }
@@ -108,9 +102,8 @@ class ApiSyncController extends Controller
 
     public function syncUsers(Request $request)
     {
-        $token = $request->bearerToken();
-        DB::transaction(function () use ($token) {
-            $hrmsService = new HrmsService($token);
+        DB::transaction(function () {
+            $hrmsService = new HrmsService();
             if (!$hrmsService->syncUsers()) {
                 throw new \Exception("User sync failed.");
             }

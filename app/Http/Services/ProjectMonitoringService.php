@@ -10,14 +10,12 @@ use Illuminate\Support\Facades\Http;
 class ProjectMonitoringService
 {
     protected $apiUrl;
-    protected $apiUrlHrms;
     protected $authToken;
 
-    public function __construct($authToken)
+    public function __construct()
     {
-        $this->authToken = $authToken;
+        $this->authToken = config('services.sigma.secret_key');
         $this->apiUrl = config('services.url.projects_api');
-        $this->apiUrlHrms = config('services.url.hrms_api_url');
     }
 
     public function syncAll()
