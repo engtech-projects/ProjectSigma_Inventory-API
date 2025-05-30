@@ -80,18 +80,16 @@ class RequestStock extends Model
             'reference_no' => $mrrReferenceNo,
             'warehouse_id' => $this->warehouse_id,
             'transaction_type' => TransactionTypes::RECEIVING,
-            'transaction_date' => now()->format('Y-m-d'),
+            'transaction_date' => now()->format('Y-m-d H:i:s'),
             'charging_id' => $this->id,
             'charging_type' => null,
-            'approvals' => [],
+            'approvals' => $this->approvals,
             'metadata' => [
                 'rs_id' => $this->id,
-                'rs_reference_no' => $this->reference_no,
                 'equipment_no' => $this->equipment_no,
-                'transaction_date' => now()->format('Y-m-d'),
-                'project_code' => $this->project_code(),
+                'project_code' => $this->section_id,
                 'supplier_id' => null,
-                'terms_of_payment' => $this->terms_of_payment,
+                'terms_of_payment' => null,
                 'particulars' => 'MRR created from Request Stock - Petty Cash',
                 'po_id' => null,
                 'is_petty_cash' => true,
@@ -100,9 +98,9 @@ class RequestStock extends Model
             'request_status' => RequestApprovalStatus::PENDING,
         ]);
 
-        // $this->storeItems($mrr);
+        $this->storeItems($mrr);
 
-        // return $mrr;
+        return $mrr;
     }
 
     private function generateMRRReferenceNumber()
@@ -124,68 +122,54 @@ class RequestStock extends Model
         return "MRR-{$year}-CENTRAL-{$newNumber}";
     }
 
-    private function getProjectCode()
+    // private function getProjectCode()
+    // {
+    //     // Get project code based on section relationship
+    //     if ($this->section_type === 'App\\Models\\Project') {
+    //         return $this->section->code ?? 'N/A';
+    //     } elseif ($this->section_type === 'App\\Models\\Department') {
+    //         return $this->section->code ?? 'ADMIN';
+    //     }
+    //     return 'N/A';
+    // }
+
+
+    private function storeItems($mrr)
     {
-        // Get project code based on section relationship
-        if ($this->section_type === 'App\\Models\\Project') {
-            return $this->section->code ?? 'N/A';
-        } elseif ($this->section_type === 'App\\Models\\Department') {
-            return $this->section->code ?? 'ADMIN';
+        foreach ($this->items as $requestItem) {
+
+            $metadata = [
+                'specification' => $requestItem->specification,
+                'actual_brand_purchase' => null, // Editable field
+                'unit_price' => null, // Editable field
+                'remarks' => null, // For MRR-specific remarks
+                'request_status' => $requestItem->request_status,
+
+                // 'quantity_requested' => $requestItem->quantity,
+                // 'preferred_brand' => $requestItem->preferred_brand,
+                // 'reason' => $requestItem->reason,
+                // 'location' => $requestItem->location,
+                // 'location_qty' => $requestItem->location_qty,
+                // 'is_approved' => $requestItem->is_approved,
+                
+                // MRR-specific fields - these will be editable by the receiver
+                // 'quantity_received' => $requestItem->quantity,
+                // 'supplier_id' => null, // Editable field
+                // 'accepted' => false,
+                // 'rejected' => false,
+                // 'request_stock_item_id' => $requestItem->id,
+            ];
+
+            WarehouseTransactionItem::create([
+                'warehouse_transaction_id' => $mrr->id,
+                'item_id' => $requestItem->item_id,
+                'parent_id' => null,
+                'quantity' => $requestItem->quantity,
+                'uom' => $requestItem->unit,
+                'metadata' => $metadata,
+            ]);
         }
-        return 'N/A';
     }
-
-    // private function storeItems($mrr)
-    // {
-    //     foreach ($this->items as $requestItem) {
-    //         $metadata = array_merge(
-    //             $requestItem->metadata ?? [],
-    //             [
-    //                 'specification' => $requestItem->specification ?? null,
-    //                 'actual_brand_purchased' => $requestItem->actual_brand_purchased ?? null,
-    //                 'unit_price' => $requestItem->unit_price ?? null,
-    //                 'status' => $requestItem->status ?? null,
-    //                 'remarks' => $requestItem->remarks ?? null,
-    //             ]
-    //         );
-
-    //         WarehouseTransactionItem::create([
-    //             'warehouse_transaction_id' => $mrr->id,
-    //             'item_id' => $requestItem->item_id,
-    //             'parent_id' => $requestItem->parent_id,
-    //             'quantity' => $requestItem->quantity,
-    //             'uom' => $requestItem->uom,
-    //             'metadata' => $metadata,
-    //             'metadata' => [
-    //                 'specification' => null,
-    //                 'actual_brand_purchase' => null,
-    //                 'unit_price' => null,
-    //                 'status' => null,
-    //                 'remarks' => null,
-    //             ],
-    //         ]);
-    //     }
-    // }
-
-    // private function storeItems($mrr)
-    // {
-    //     foreach ($this->items as $requestItem) {
-    //         WarehouseTransactionItem::create([
-    //             'warehouse_transaction_id' => $mrr->id,
-    //             'item_id' => $requestItem->item_id,
-    //             'parent_id' => $requestItem->parent_id,
-    //             'quantity' => $requestItem->quantity,
-    //             'uom' => $requestItem->uom,
-    //             'metadata' => [
-    //                 'specification' => null,
-    //                 'actual_brand_purchase' => null,
-    //                 'unit_price' => null,
-    //                 'status' => null,
-    //                 'remarks' => null,
-    //             ],
-    //         ]);
-    //     }
-    // }
 
     /**
      * ==================================================
@@ -233,6 +217,10 @@ class RequestStock extends Model
         return $this->hasOne(WarehouseTransaction::class, 'charging_id')
             ->where('charging_type', self::class)
             ->where('transaction_type', TransactionTypes::RECEIVING);
+    }
+    public function mrrItems()
+    {
+        return $this->hasMany(WarehouseTransactionItem::class, 'metadata->request_stock_item_id', 'id');
     }
 
 

@@ -63,6 +63,12 @@ class WarehouseTransaction extends Model
         $this->refresh();
     }
 
+    public function getWarehouseNameAttribute()
+{
+    return optional($this->warehouse)->name ?? 'Unknown Warehouse';
+}
+
+
 
     /**
     * ==================================================
@@ -89,7 +95,12 @@ class WarehouseTransaction extends Model
 
     public function supplier()
     {
-        return $this->belongsTo(RequestSupplier::class, 'metadata->supplier_id');
+        return $this->belongsTo(RequestSupplier::class);
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
     }
 
 
