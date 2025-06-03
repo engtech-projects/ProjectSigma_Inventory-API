@@ -6,7 +6,9 @@ use Illuminate\Support\Facades\Http;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class HrmsSecretKeyService
@@ -90,15 +92,16 @@ class HrmsSecretKeyService
     public function syncEmployees()
     {
         $response = $this->getAllEmployees();
-        $processedEmployees = array_map(fn($employee) => [
+        $processedEmployees = array_map(fn ($employee) => [
             'id' => $employee['id'],
+            'hrms_id' => $employee['id'],
             'first_name' => $employee['first_name'],
             'middle_name' => $employee['middle_name'],
             'family_name' => $employee['family_name'],
             'name_suffix' => $employee['name_suffix'],
             'nick_name' => $employee['nick_name'],
             'gender' => $employee['gender'],
-            'date_of_birth' => $employee['date_of_birth'],
+            'date_of_birth' => Carbon::parse($employee['date_of_birth']),
             'place_of_birth' => $employee['place_of_birth'],
             'citizenship' => $employee['citizenship'],
             'blood_type' => $employee['blood_type'],
@@ -143,22 +146,23 @@ class HrmsSecretKeyService
     public function syncUsers()
     {
         $users = $this->getAllUsers();
-        $users = array_map(fn($user) => [
+        $users = array_map(fn ($user) => [
             "id" => $user['id'],
+            "hrms_id" => $user['id'],
             "type" => $user['type'],
-            "accessibilities" => $user['accessibilities'],
+            "accessibilities" => "",
             "name" => $user['name'],
             "email" => $user['email'],
             "email_verified_at" => $user['email_verified_at'],
             "password" => Hash::make(Str::random(10)),
         ], $users);
-
         User::upsert(
             $users,
             [
                 'id',
             ],
             [
+                'hrms_id',
                 'type',
                 'accessibilities',
                 'name',
@@ -173,8 +177,9 @@ class HrmsSecretKeyService
     public function syncDepartments()
     {
         $departments = $this->getAllDepartments();
-        $departments = array_map(fn($department) => [
+        $departments = array_map(fn ($department) => [
             "id" => $department['id'],
+            "hrms_id" => $department['id'],
             "department_name" => $department['department_name'],
         ], $departments);
 
@@ -184,6 +189,7 @@ class HrmsSecretKeyService
                 'id',
             ],
             [
+                'hrms_id',
                 'department_name',
             ]
         );
@@ -217,9 +223,18 @@ class HrmsSecretKeyService
             ->acceptJson()
             ->get($this->apiUrl . '/api/sigma/sync-list/user');
         if (!$response->successful()) {
+            Log::channel("HrmsService")->error('Failed to fetch users from monitoring API', [
+                'status' => $response->status(),
+                'body'   => $response->body(),
+            ]);
             return [];
         }
-        return $response->json() ?: [];
+        $data = $response->json();
+        if (!isset($data['data']) || !is_array($data['data'])) {
+            Log::channel("HrmsService")->warning('Unexpected response format from users API', ['response' => $data]);
+            return [];
+        }
+        return $data['data'];
     }
 
     public function getAllDepartments()
@@ -232,8 +247,17 @@ class HrmsSecretKeyService
             ->acceptJson()
             ->get($this->apiUrl . '/api/sigma/sync-list/department');
         if (!$response->successful()) {
+            Log::channel("HrmsService")->error('Failed to fetch departments from monitoring API', [
+                'status' => $response->status(),
+                'body'   => $response->body(),
+            ]);
             return [];
         }
-        return $response->json() ?: [];
+        $data = $response->json();
+        if (!isset($data['data']) || !is_array($data['data'])) {
+            Log::channel("HrmsService")->warning('Unexpected response format from departments API', ['response' => $data]);
+            return [];
+        }
+        return $data['data'];
     }
 }

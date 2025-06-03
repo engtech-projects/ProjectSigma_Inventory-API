@@ -10,7 +10,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ApiSyncController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\DetailsController;
-use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\ItemProfileBulkUploadController;
 use App\Http\Controllers\UOMController;
@@ -23,7 +22,6 @@ use App\Http\Controllers\RequestStockController;
 use App\Http\Controllers\RequestSupplierController;
 use App\Http\Controllers\RequestSupplierUploadController;
 use App\Http\Controllers\UOMGroupController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehousePssController;
 use App\Http\Controllers\WarehouseTransactionController;
@@ -166,7 +164,6 @@ Route::middleware('auth:api')->group(function () {
                 Route::post('/departments', [ApiSyncController::class, 'syncDepartments']);
             });
         });
-
     });
     Route::prefix('request-supplier')->group(function () {
         Route::resource('resource', RequestSupplierController::class)->names("requestSupplierresource");

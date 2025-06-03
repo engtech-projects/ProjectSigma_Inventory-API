@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ValidateToken;
 use App\Models\Department;
 
 class DepartmentsController extends Controller
@@ -24,6 +23,6 @@ class DepartmentsController extends Controller
             'message' => 'Moved.',
             'success' => false,
         ], 301)
-        ->header('Location', '/api/setup/sync/hrms/employees');
+            ->header('Location', '/api/setup/sync/hrms/employees');
     }
 }
