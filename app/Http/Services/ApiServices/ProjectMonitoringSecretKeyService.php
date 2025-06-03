@@ -86,7 +86,7 @@ class ProjectMonitoringSecretKeyService
                 "sort" => "asc"
             ])
             ->acceptJson()
-            ->get($this->apiUrl.'/sigma/sync-list/projects');
+            ->get($this->apiUrl.'/api/sigma/sync-list/projects');
         if (! $response->successful()) {
             Log::channel("ProjectMonitoringService")->error('Failed to fetch projects from monitoring API', [
                 'status' => $response->status(),
