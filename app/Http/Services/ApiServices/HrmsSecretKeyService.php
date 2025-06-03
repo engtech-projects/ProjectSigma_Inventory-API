@@ -92,7 +92,7 @@ class HrmsSecretKeyService
     public function syncEmployees()
     {
         $response = $this->getAllEmployees();
-        $processedEmployees = array_map(fn($employee) => [
+        $processedEmployees = array_map(fn ($employee) => [
             'id' => $employee['id'],
             'hrms_id' => $employee['id'],
             'first_name' => $employee['first_name'],
@@ -146,7 +146,7 @@ class HrmsSecretKeyService
     public function syncUsers()
     {
         $users = $this->getAllUsers();
-        $users = array_map(fn($user) => [
+        $users = array_map(fn ($user) => [
             "id" => $user['id'],
             "hrms_id" => $user['id'],
             "type" => $user['type'],
@@ -177,7 +177,7 @@ class HrmsSecretKeyService
     public function syncDepartments()
     {
         $departments = $this->getAllDepartments();
-        $departments = array_map(fn($department) => [
+        $departments = array_map(fn ($department) => [
             "id" => $department['id'],
             "hrms_id" => $department['id'],
             "department_name" => $department['department_name'],
