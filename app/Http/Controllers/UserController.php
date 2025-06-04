@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ValidateToken;
-use App\Http\Services\HrmsService;
 use App\Models\User;
 
 class UserController extends Controller
@@ -18,35 +16,12 @@ class UserController extends Controller
             'data' => $request,
         ]);
     }
-    public function store(ValidateToken $request)
+    public function store()
     {
-        $request = $request->validated();
-        $token = $request['token'] ?? null;
-        $users = HrmsService::getUsers($token);
-
-        if ($users === false) {
-            return response()->json([
-                'message' => 'Failed to fetch users from HRMS API.',
-                'success' => false,
-            ]);
-        }
-        foreach ($users as $user) {
-            User::updateOrCreate(
-                [
-                    'hrms_id' => $user['id'],
-                    'name' => $user['name'],
-                    'email' => $user['email'],
-                    'email_verified_at' => $user['email_verified_at'],
-                    'type' => $user['type'],
-                    'password' => $user[''],
-                    'accessibilities' => json_encode($user['accessibilities']),
-                ]
-            );
-        }
         return response()->json([
-            'message' => 'Users synchronized successfully.',
-            'success' => true,
-            'data' => $users,
-        ]);
+            'message' => 'Moved.',
+            'success' => false,
+        ], 301)
+        ->header('Location', '/api/setup/sync/hrms/employees');
     }
 }

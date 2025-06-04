@@ -29,9 +29,9 @@ return [
     ],
 
     'url' => [
+        'accounting_api' => env('ACCOUNTING_API_URL'),
         'hrms_api_url' => env('HRMS_API_URL'),
         'projects_api' => env('PROJECTS_API_URL')
-
     ],
 
     'key' => [

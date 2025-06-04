@@ -4,11 +4,14 @@ use App\Http\Controllers\Actions\Approvals\ApproveApproval;
 use App\Http\Controllers\Actions\Approvals\CancelApproval;
 use App\Http\Controllers\Actions\Approvals\DisapproveApproval;
 use App\Http\Controllers\Actions\Approvals\VoidApproval;
+use App\Http\Controllers\ApiServiceController;
+use App\Http\Controllers\MaterialsReceivingController;
+use App\Http\Controllers\MRRController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ApiSyncController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\DetailsController;
-use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\ItemProfileBulkUploadController;
 use App\Http\Controllers\UOMController;
@@ -20,7 +23,6 @@ use App\Http\Controllers\RequestStockController;
 use App\Http\Controllers\RequestSupplierController;
 use App\Http\Controllers\RequestSupplierUploadController;
 use App\Http\Controllers\UOMGroupController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehousePssController;
 use App\Http\Controllers\WarehouseTransactionController;
@@ -43,13 +45,11 @@ use Illuminate\Support\Facades\Artisan;
 Route::middleware("secret_api")->group(function () {
     // SIGMA SERVICES ROUTES
     Route::prefix('sigma')->group(function () {
-        Route::resource('sync-departments', DepartmentsController::class)->names("syncDepartmentsresource");
-        Route::resource('sync-projects', ProjectsController::class)->names("syncProjectsresource");
-        Route::resource('sync-users', UserController::class)->names("syncUserresource");
-        Route::resource('sync-employees', EmployeeController::class)->names("syncEmployeeresource");
-        Route::get('suppliers', [RequestSupplierController::class, 'get']);
-        Route::get('item-profiles', [ItemProfileController::class, 'get']);
-        Route::get('uoms', [UOMController::class, 'get']);
+        Route::prefix("sync-list")->group(function () {
+            Route::get('suppliers', [ApiServiceController::class, 'getSuppliersList']);
+            Route::get('item-profiles', [ApiServiceController::class, 'getItemprofilesList']);
+            Route::get('uoms', [ApiServiceController::class, 'getUomsList']);
+        });
     });
 });
 
@@ -152,8 +152,20 @@ Route::middleware('auth:api')->group(function () {
         // Route::prefix('uom-group')->group(function () {
         //     Route::resource('resource', UOMGroupController::class)->names("uomGroupresource");
         // });
-        //DATA SYNC
-
+        //DATA SYNC MANUAL USER TRIGGER
+        Route::prefix('sync')->group(function () {
+            Route::post('/all', [ApiSyncController::class, 'syncAll']);
+            Route::prefix('project')->group(function () {
+                Route::post('/all', [ApiSyncController::class, 'syncAllProjectMonitoring']);
+                Route::post('/projects', [ApiSyncController::class, 'syncProjects']);
+            });
+            Route::prefix('hrms')->group(function () {
+                Route::post('/all', [ApiSyncController::class, 'syncAllHrms']);
+                Route::post('/employees', [ApiSyncController::class, 'syncEmployees']);
+                Route::post('/users', [ApiSyncController::class, 'syncUsers']);
+                Route::post('/departments', [ApiSyncController::class, 'syncDepartments']);
+            });
+        });
     });
     Route::prefix('request-supplier')->group(function () {
         Route::resource('resource', RequestSupplierController::class)->names("requestSupplierresource");
@@ -185,6 +197,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('project')->group(function () {
         Route::resource('resource', ProjectsController::class)->names("projectsResource");
     });
+
 
 
     if (config()->get('app.artisan') == 'true') {
