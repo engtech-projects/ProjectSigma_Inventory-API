@@ -77,6 +77,15 @@ class RequestSupplierController extends Controller
         ]);
     }
 
+    public function list()
+    {
+        $main = RequestSupplier::get();
+        $data = json_decode('{}');
+        $data->message = "Successfully fetch.";
+        $data->success = true;
+        $data->data = $main;
+        return response()->json($data);
+    }
 
     public function store(StoreRequestSupplier $request)
     {

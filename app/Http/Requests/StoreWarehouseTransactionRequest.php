@@ -43,6 +43,17 @@ class StoreWarehouseTransactionRequest extends FormRequest
             'items.*.parent_id' => 'nullable|exists:warehouse_transaction_items,id',
             'items.*.quantity' => 'required|numeric|min:0',
             'items.*.uom' => 'required|numeric|exists:setup_uom,id',
+            'metadata' => 'nullable|array',
+            'metadata.rs_id' => 'nullable|integer|exists:request_stocks,id',
+            'metadata.rs_reference_no' => 'nullable|string',
+            'metadata.equipment_no' => 'nullable|string',
+            'metadata.transaction_date' => 'nullable|date',
+            'metadata.project_code' => 'nullable|string',
+            'metadata.supplier_id' => 'nullable|integer|exists:suppliers,id',
+            'metadata.terms_of_payment' => 'nullable|string',
+            'metadata.particulars' => 'nullable|string',
+            'metadata.po_id' => 'nullable|integer|exists:purchase_orders,id',
+            'metadata.is_petty_cash' => 'nullable|boolean',
             ...$this->storeApprovals(),
         ];
     }

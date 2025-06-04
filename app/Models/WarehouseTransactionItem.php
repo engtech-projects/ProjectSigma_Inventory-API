@@ -17,6 +17,10 @@ class WarehouseTransactionItem extends Model
         'parent_id',
         'quantity',
         'uom',
+        'metadata',
+    ];
+    protected $casts = [
+        'metadata' => 'array',
     ];
 
     /**
@@ -43,6 +47,11 @@ class WarehouseTransactionItem extends Model
     {
         return $this->belongsTo(ItemProfile::class);
     }
+    public function supplier()
+    {
+        return $this->belongsTo(RequestSupplier::class);
+    }
+
 
     /**
     * ==================================================

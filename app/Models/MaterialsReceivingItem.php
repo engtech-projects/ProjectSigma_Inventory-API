@@ -26,6 +26,9 @@ class MaterialsReceivingItem extends Model
         'status',
         'remarks',
     ];
+    protected $casts = [
+        'metadata' => 'array',
+    ];
 
     /**
     * ==================================================

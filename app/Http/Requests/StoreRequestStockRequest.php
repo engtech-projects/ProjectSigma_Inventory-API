@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Enums\AssignTypes;
+use App\Enums\RequestTypes;
+use App\Enums\RSRemarksEnums;
 use App\Http\Traits\HasApprovalValidation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
@@ -41,6 +43,14 @@ class StoreRequestStockRequest extends FormRequest
             'date_prepared' => 'required|date',
             'date_needed' => 'required|date',
             'equipment_no' => 'required|string|max:255|unique:request_stocks,equipment_no',
+            'remarks' => ['nullable', 'string', new Enum(RSRemarksEnums::class)],
+            'type_of_request' => ['nullable', 'string', new Enum(RequestTypes::class)],
+            'is_approved' => 'boolean',
+            'contact_no' => 'nullable|integer',
+            'current_smr' => 'nullable|string|max:255',
+            'previous_smr' => 'nullable|string|max:255',
+            'unused_smr' => 'nullable|string|max:255',
+            'next_smr' => 'nullable|string|max:255',
             'items' => 'required|array',
             'items.*.quantity' => 'required|numeric|min:1',
             'items.*.unit' => 'required|integer|exists:setup_uom,id',
@@ -48,14 +58,6 @@ class StoreRequestStockRequest extends FormRequest
             'items.*.specification' => 'nullable|string',
             'items.*.preferred_brand' => 'nullable|string',
             'items.*.reason' => 'nullable|string',
-            'items.*.is_approved' => 'boolean',
-            'items.*.type_of_request' => 'nullable|string',
-            'items.*.contact_no' => 'nullable|string',
-            'items.*.remarks' => 'nullable|string',
-            'items.*.current_smr' => 'nullable|string',
-            'items.*.previous_smr' => 'nullable|string',
-            'items.*.unused_smr' => 'nullable|string',
-            'items.*.next_smr' => 'nullable|string',
             ...$this->storeApprovals(),
         ];
     }

@@ -3,12 +3,13 @@
 namespace App\Http\Services;
 
 use App\Models\MaterialsReceiving;
+use App\Models\WarehouseTransaction;
 
 class MaterialsReceivingService
 {
     public function getAllRequest()
     {
-        return MaterialsReceiving::with('items', 'project', 'supplier', 'project')
+        return WarehouseTransaction::with('items', 'warehouse')
         ->orderBy("created_at", "DESC")
         ->paginate(10);
     }
