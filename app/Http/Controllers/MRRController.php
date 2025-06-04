@@ -10,7 +10,6 @@ use App\Models\WarehouseTransactionItem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-
 class MRRController extends Controller
 {
     public function index()

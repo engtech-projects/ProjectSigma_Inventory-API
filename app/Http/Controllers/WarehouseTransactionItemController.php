@@ -6,7 +6,6 @@ use App\Models\WarehouseTransactionItem;
 use App\Http\Requests\StoreWarehouseTransactionItemRequest;
 use App\Http\Requests\UpdateWarehouseTransactionItemRequest;
 use App\Http\Resources\WarehouseTransactionItemResource;
-use App\Models\WarehouseTransaction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

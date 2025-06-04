@@ -64,9 +64,9 @@ class WarehouseTransaction extends Model
     }
 
     public function getWarehouseNameAttribute()
-{
-    return optional($this->warehouse)->name ?? 'Unknown Warehouse';
-}
+    {
+        return optional($this->warehouse)->name ?? 'Unknown Warehouse';
+    }
 
 
 

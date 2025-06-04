@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\MaterialsReceivingResource;
 use App\Http\Resources\MaterialsReceivingResourceList;
 use App\Http\Resources\WarehouseTransactionResource;
 use App\Http\Services\MaterialsReceivingService;

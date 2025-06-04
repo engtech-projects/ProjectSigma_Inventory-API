@@ -173,7 +173,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::prefix('material-receiving')->group(function () {
         Route::resource('resource', WarehouseTransactionController::class)->names("materialReceivingresource");
-        Route::patch('resource/{id}/save-details', [WarehouseTransactionController::class, 'saveDetails']);
+        Route::patch('{id}/save-details', [WarehouseTransactionController::class, 'saveDetails']);
         Route::get('warehouse/{warehouse_id}', [MaterialsReceivingController::class, 'getMaterialsReceivingByWarehouse']);
         Route::get('all-request', [MaterialsReceivingController::class, 'allRequests']);
         Route::prefix('item')->group(function () {
