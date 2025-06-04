@@ -28,20 +28,6 @@ class HrmsSecretKeyService
         }
     }
 
-    public static function getEmployeeDetails($token, $user_ids)
-    {
-        $response = Http::withToken($token)
-            ->acceptJson()
-            ->get(config('services.url.hrms_api_url') . '/api/services/user-employees', [
-                'user_ids' => $user_ids
-            ]);
-
-        if (!$response->successful()) {
-            return false;
-        }
-
-        return $response->json("data");
-    }
     public static function getDepartments($token)
     {
         $response = Http::withToken($token)
