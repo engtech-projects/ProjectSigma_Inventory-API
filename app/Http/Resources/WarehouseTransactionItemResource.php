@@ -15,7 +15,7 @@ class WarehouseTransactionItemResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $uomName = UOM::find($this->uom)->name ?? $this->uom;
+        $uom = $this->uom ?? 'Unknown';
         return [
             'id' => $this->id,
             'item_id' => $this->item->id,
@@ -23,11 +23,9 @@ class WarehouseTransactionItemResource extends JsonResource
             'item_code' => $this->item->item_code,
             'item_description' => $this->item->item_description,
             'specification' => $this->item->specification,
-            'warehouse_transaction_d' => $this->warehouse_transaction_id,
             'quantity' => $this->quantity,
-            'accepted_quantity' => $this->quantity,
             'ext_price' => $this->ext_price,
-            'uom' => $uomName,
+            'uom' => UOM::find($uom)->name ?? 'Unknown',
             'metadata' => $this->metadata,
             'warehouse_transaction_id' => $this->warehouse_transaction_id,
             'parent_id' => $this->parent_id,

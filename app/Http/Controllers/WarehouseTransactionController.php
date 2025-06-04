@@ -263,4 +263,26 @@ class WarehouseTransactionController extends Controller
             'data' => $requestResources
         ]);
     }
+    public function getMaterialsReceivingByWarehouse($warehouse_id)
+    {
+        $main = WarehouseTransaction::with(['items', 'supplier'])
+            ->where('warehouse_id', $warehouse_id)
+            ->paginate(10);
+
+        $collection = WarehouseTransactionResource::collection($main)->response()->getData(true);
+
+        if ($collection['data']) {
+            return response()->json([
+                "message" => "Materials Receiving Successfully Fetched.",
+                "success" => true,
+                "data" => $collection['data']
+            ]);
+        } else {
+            return response()->json([
+                "message" => "No data found.",
+                "success" => false,
+                "data" => []
+            ]);
+        }
+    }
 }

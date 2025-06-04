@@ -186,15 +186,10 @@ class RequestStock extends Model
         return $this->morphTo();
     }
 
-    public function mrr()
+    public function getRequestStockItemIdAttribute()
     {
-        return $this->hasOne(WarehouseTransaction::class, 'charging_id')
-            ->where('charging_type', self::class)
-            ->where('transaction_type', TransactionTypes::RECEIVING);
-    }
-    public function mrrItems()
-    {
-        return $this->hasMany(WarehouseTransactionItem::class, 'metadata->request_stock_item_id', 'id');
+        return WarehouseTransactionItem::whereJsonContains('metadata->request_stock_item_id', $this->id)
+            ->value('metadata->request_stock_item_id');
     }
 
 

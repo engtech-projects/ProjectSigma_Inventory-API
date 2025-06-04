@@ -92,15 +92,20 @@ class WarehouseTransaction extends Model
         return $this->belongsTo(RequestStock::class, 'charging_id')
             ->where('charging_type', RequestStock::class);
     }
-
     public function supplier()
     {
-        return $this->belongsTo(RequestSupplier::class);
+        return $this->belongsTo(RequestSupplier::class, 'supplier_id');
     }
 
-    public function project()
+
+    public function supplierFromMetadata()
     {
-        return $this->belongsTo(Project::class);
+        return $this->belongsTo(RequestSupplier::class, 'metadata->supplier_id');
+    }
+
+    public function projectFromMetadata()
+    {
+        return $this->belongsTo(Project::class, 'metadata->project_code', 'project_code');
     }
 
 

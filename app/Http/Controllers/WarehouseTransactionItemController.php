@@ -16,12 +16,12 @@ class WarehouseTransactionItemController extends Controller
      */
     public function index()
     {
-        $main = WarehouseTransactionItem::paginate(10);
+        $main = WarehouseTransactionItem::with('item', 'uom')->paginate(10);
         $collection = WarehouseTransactionItemResource::collection($main)->response()->getData(true);
 
         return new JsonResponse([
-            "success" => true,
             "message" => "Successfully fetched.",
+            "success" => true,
             "data" => $collection,
         ], JsonResponse::HTTP_OK);
     }
@@ -95,9 +95,9 @@ class WarehouseTransactionItemController extends Controller
         return response()->json($response, $deleted ? 200 : 400);
     }
 
-    public function acceptAll(Request $request, WarehouseTransactionItem $resource)
+    public function acceptAll(StoreWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
     {
-        $quantity = max($resource->qty, $request->input('quantity'));
+        $quantity = max($resource->qty, $request->input('quantity', 0));
         $unit_price = $request->input('unit_price');
         $actual_brand_purchase = $request->input('actual_brand_purchase');
 
@@ -125,7 +125,7 @@ class WarehouseTransactionItemController extends Controller
         ], 200);
     }
 
-    public function acceptWithDetails(Request $request, WarehouseTransactionItem $resource)
+    public function acceptWithDetails(StoreWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
     {
         $quantity = $request->input('quantity');
         $remarks = $request->input('remarks');
@@ -133,16 +133,16 @@ class WarehouseTransactionItemController extends Controller
         $actual_brand_purchase = $request->input('actual_brand_purchase');
 
         // Retrieve existing metadata and update fields
-        $metadata = $resource->metadata;
+        $metadata = $resource->metadata ?? [];
         $metadata['status'] = 'Accepted';
         $metadata['remarks'] = $remarks;
         $metadata['unit_price'] = $unit_price;
         $metadata['actual_brand_purchase'] = $actual_brand_purchase;
 
         // Determine response message based on existing status
-        $message = ($resource->metadata['status'] === 'Accepted')
-            ? "Accepted quantity, unit price, and remarks have been updated."
-            : "Item has been successfully accepted with unit price.";
+        $message = (isset($resource->metadata['status']) && $resource->metadata['status'] === 'Accepted')
+            ? "Accepted quantity, actual brand purchase, unit price, and remarks have been updated."
+            : "Item has been successfully accepted.";
 
         // Update resource
         $resource->update([
@@ -158,7 +158,10 @@ class WarehouseTransactionItemController extends Controller
 
     public function reject(Request $request, WarehouseTransactionItem $resource)
     {
-        if ($resource->metadata['status'] === 'Rejected') {
+        $request->validate([
+            'remarks' => 'required|string|max:500'
+        ]);
+        if (isset($resource->metadata['status']) && $resource->metadata['status'] === 'Rejected') {
             return response()->json([
                 'message' => "Item has already been rejected.",
                 'data' => $resource
@@ -167,7 +170,7 @@ class WarehouseTransactionItemController extends Controller
 
         $remarks = $request->input('remarks');
 
-        $metadata = $resource->metadata;
+        $metadata = $resource->metadata ?? [];
         $metadata['status'] = 'Rejected';
         $metadata['remarks'] = $remarks;
 
