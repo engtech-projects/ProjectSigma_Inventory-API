@@ -28,6 +28,7 @@ use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehousePssController;
 use App\Http\Controllers\WarehouseTransactionController;
 use App\Http\Controllers\WarehouseTransactionItemController;
+use App\Models\Warehouse;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -171,15 +172,16 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('material-receiving')->group(function () {
-        Route::resource('resource', MaterialsReceivingController::class)->names("materialReceivingresource");
+        Route::resource('resource', WarehouseTransactionController::class)->names("materialReceivingresource");
+        Route::patch('resource/{id}/save-details', [WarehouseTransactionController::class, 'saveDetails']);
         Route::get('warehouse/{warehouse_id}', [MaterialsReceivingController::class, 'getMaterialsReceivingByWarehouse']);
-
         Route::get('all-request', [MaterialsReceivingController::class, 'allRequests']);
         Route::prefix('item')->group(function () {
             Route::resource('resource', MaterialsReceivingItemController::class)->names("materialsReceivingItemresource");
-            Route::patch('{resource}/accept-all', [MaterialsReceivingItemController::class, 'acceptAll']);
-            Route::patch('{resource}/accept-with-details', [MaterialsReceivingItemController::class, 'acceptWithDetails']);
-            Route::patch('{resource}/reject', [MaterialsReceivingItemController::class, 'reject']);
+
+            Route::patch('{resource}/accept-all', [WarehouseTransactionItemController::class, 'acceptAll']);
+            Route::patch('{resource}/accept-with-details', [WarehouseTransactionItemController::class, 'acceptWithDetails']);
+            Route::patch('{resource}/reject', [WarehouseTransactionItemController::class, 'reject']);
         });
     });
 

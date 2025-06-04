@@ -15,7 +15,7 @@ class MRRController extends Controller
 {
     public function index()
     {
-        $mrrs = WarehouseTransaction::with(['items.item', 'items.supplier', 'warehouse', 'requestStock'])
+        $mrrs = WarehouseTransaction::with(['items', 'supplier', 'warehouse', 'requestStock'])
             ->where('transaction_type', TransactionTypes::RECEIVING)
             ->whereJsonContains('metadata->is_petty_cash', true)
             ->paginate(20);
@@ -30,10 +30,10 @@ class MRRController extends Controller
     public function show($id)
     {
         $mrr = WarehouseTransaction::with([
-            'items.item',
-            'items.supplier',
+            'items',
+            'supplier',
             'warehouse',
-            'requestStock.section'
+            'requestStock'
         ])
         ->findOrFail($id);
 
@@ -43,7 +43,7 @@ class MRRController extends Controller
     public function update(Request $request, $id)
     {
         $mrr = WarehouseTransaction::findOrFail($id);
-        
+
         // Validate that user can edit this MRR
         if ($mrr->request_status !== RequestApprovalStatus::PENDING) {
             return response()->json(['error' => 'MRR cannot be edited after approval'], 422);

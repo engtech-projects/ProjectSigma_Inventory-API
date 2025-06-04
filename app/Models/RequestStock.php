@@ -90,7 +90,7 @@ class RequestStock extends Model
                 'project_code' => $this->section_id,
                 'supplier_id' => null,
                 'terms_of_payment' => null,
-                'particulars' => 'MRR created from Request Stock - Petty Cash',
+                'particulars' => null,
                 'po_id' => null,
                 'is_petty_cash' => true,
             ],
@@ -122,18 +122,6 @@ class RequestStock extends Model
         return "MRR-{$year}-CENTRAL-{$newNumber}";
     }
 
-    // private function getProjectCode()
-    // {
-    //     // Get project code based on section relationship
-    //     if ($this->section_type === 'App\\Models\\Project') {
-    //         return $this->section->code ?? 'N/A';
-    //     } elseif ($this->section_type === 'App\\Models\\Department') {
-    //         return $this->section->code ?? 'ADMIN';
-    //     }
-    //     return 'N/A';
-    // }
-
-
     private function storeItems($mrr)
     {
         foreach ($this->items as $requestItem) {
@@ -142,31 +130,17 @@ class RequestStock extends Model
                 'specification' => $requestItem->specification,
                 'actual_brand_purchase' => null, // Editable field
                 'unit_price' => null, // Editable field
-                'remarks' => null, // For MRR-specific remarks
-                'request_status' => $requestItem->request_status,
-
-                // 'quantity_requested' => $requestItem->quantity,
-                // 'preferred_brand' => $requestItem->preferred_brand,
-                // 'reason' => $requestItem->reason,
-                // 'location' => $requestItem->location,
-                // 'location_qty' => $requestItem->location_qty,
-                // 'is_approved' => $requestItem->is_approved,
-                
-                // MRR-specific fields - these will be editable by the receiver
-                // 'quantity_received' => $requestItem->quantity,
-                // 'supplier_id' => null, // Editable field
-                // 'accepted' => false,
-                // 'rejected' => false,
-                // 'request_stock_item_id' => $requestItem->id,
+                'remarks' => null, // Editable field
+                'status' => RequestApprovalStatus::PENDING,
             ];
 
             WarehouseTransactionItem::create([
-                'warehouse_transaction_id' => $mrr->id,
                 'item_id' => $requestItem->item_id,
+                'warehouse_transaction_id' => $mrr->id,
                 'parent_id' => null,
+                'metadata' => $metadata,
                 'quantity' => $requestItem->quantity,
                 'uom' => $requestItem->unit,
-                'metadata' => $metadata,
             ]);
         }
     }

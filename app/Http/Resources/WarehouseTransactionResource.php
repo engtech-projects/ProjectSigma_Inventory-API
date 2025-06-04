@@ -17,10 +17,13 @@ class WarehouseTransactionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return[
+        $supplier = $this->metadata['supplier_id'] ?? null;
+        $project = $this->metadata['project_code'] ?? null;
+
+        return [
             'id' => $this->id,
             'reference_no' => $this->reference_no,
-            'reference' => RequestStock::where('id',$this->charging_id)->first(['id', 'reference_no']),
+            'reference' => RequestStock::find($this->charging_id, ['id', 'reference_no']),
             'transaction_date' => $this->transaction_date,
             'transaction_type' => $this->transaction_type,
             'metadata' => $this->metadata,
@@ -30,10 +33,11 @@ class WarehouseTransactionResource extends JsonResource
             'request_status' => $this->request_status,
             'items' => WarehouseTransactionItemResource::collection($this->items),
             'warehouse' => $this->warehouse->only(['id', 'name', 'location']),
-            'supplier' => RequestSupplier::where('id', $this->metadata['supplier_id'] ?? 0)->first(['id', 'supplier_code', 'company_name', 'company_address']) ?? null,
-            'project' => Project::where('id', $this->metadata['project_code'] ?? 0)->first(['id', 'project_code', 'status']) ?? null,
+            'supplier' => $supplier ? RequestSupplier::find($supplier, ['id', 'supplier_code', 'company_name', 'company_address']) : null,
+            'project' => $project ? Project::find($project, ['id', 'project_code', 'status']) : null,
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
         ];
     }
 }
+

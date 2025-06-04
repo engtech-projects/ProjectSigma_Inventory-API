@@ -47,6 +47,11 @@ class WarehouseTransactionItem extends Model
     {
         return $this->belongsTo(ItemProfile::class);
     }
+    public function supplier()
+    {
+        return $this->belongsTo(RequestSupplier::class);
+    }
+
 
     /**
     * ==================================================

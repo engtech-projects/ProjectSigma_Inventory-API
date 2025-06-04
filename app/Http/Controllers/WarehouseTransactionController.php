@@ -3,19 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Enums\RequestApprovalStatus;
+use App\Http\Resources\WarehouseTransactionResourceList;
+use App\Http\Services\MaterialsReceivingService;
 use App\Models\WarehouseTransaction;
 use App\Http\Requests\StoreWarehouseTransactionRequest;
 use App\Http\Resources\WarehouseTransactionResource;
 use App\Models\WarehouseTransactionItem;
 use App\Notifications\WarehouseTransactionForApprovalNotification;
 use App\Traits\HasApproval;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class WarehouseTransactionController extends Controller
 {
     use HasApproval;
+    protected $materialsReceivingService;
+    public function __construct(MaterialsReceivingService $materialsReceivingService)
+    {
+        $this->materialsReceivingService = $materialsReceivingService;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -141,5 +150,117 @@ class WarehouseTransactionController extends Controller
         ];
 
         return response()->json($response, $deleted ? 200 : 400);
+    }
+
+    public function saveDetails(Request $request, $id)
+    {
+        try {
+            $resource = WarehouseTransaction::findOrFail($id);
+
+            $request->validate([
+                'metadata.supplier_id' => 'nullable|integer',
+                'metadata.terms_of_payment' => 'nullable|string|max:255',
+                'metadata.particulars' => 'nullable|string|max:1000',
+            ]);
+
+            $metadata = $resource->metadata ?? [];
+            $updated = false;
+            $updatedFields = [];
+
+            $incomingData = $request->input('metadata', []);
+
+            if (empty($incomingData)) {
+                $incomingData = $request->only(['supplier_id', 'terms_of_payment', 'particulars']);
+            }
+
+            if (isset($incomingData['supplier_id']) && $incomingData['supplier_id'] !== null) {
+                $metadata['supplier_id'] = $incomingData['supplier_id'];
+                $updated = true;
+                $updatedFields[] = 'supplier';
+            }
+
+            if (isset($incomingData['terms_of_payment']) && $incomingData['terms_of_payment'] !== null) {
+                $metadata['terms_of_payment'] = $incomingData['terms_of_payment'];
+                $updated = true;
+                $updatedFields[] = 'terms of payment';
+            }
+
+            if (isset($incomingData['particulars']) && $incomingData['particulars'] !== null) {
+                $metadata['particulars'] = $incomingData['particulars'];
+                $updated = true;
+                $updatedFields[] = 'particulars';
+            }
+
+            if (!$updated) {
+                return response()->json([
+                    'message' => 'No valid fields provided for update.',
+                    'success' => false,
+                    'data' => $resource,
+                    'received_data' => $request->all(),
+                    'debug_info' => [
+                        'has_metadata' => $request->has('metadata'),
+                        'metadata_content' => $request->input('metadata'),
+                        'all_input' => $request->all()
+                    ]
+                ], 400);
+            }
+
+            $resource->metadata = $metadata;
+
+            if ($resource->save()) {
+                $fieldsList = implode(', ', $updatedFields);
+                return response()->json([
+                    'message' => "Successfully auto-saved: {$fieldsList}.",
+                    'success' => true,
+                    'data' => $resource->refresh(),
+                    'updated_fields' => $updatedFields
+                ], 200);
+            }
+
+            return response()->json([
+                'message' => 'Failed to auto-save changes.',
+                'success' => false,
+                'data' => $resource
+            ], 500);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Warehouse transaction not found.',
+                'success' => false,
+                'data' => null
+            ], 404);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'success' => false,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while auto-saving: ' . $e->getMessage(),
+                'success' => false,
+                'data' => null
+            ], 500);
+        }
+    }
+
+    public function allRequests()
+    {
+        $myRequest = $this->materialsReceivingService->getAllRequest();
+
+        if ($myRequest->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+
+        $requestResources = WarehouseTransactionResourceList::collection($myRequest)->response()->getData(true);
+
+        return new JsonResponse([
+            'message' => 'All Request Fetched.',
+            'success' => true,
+            'data' => $requestResources
+        ]);
     }
 }
