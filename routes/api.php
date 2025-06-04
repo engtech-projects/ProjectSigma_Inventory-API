@@ -4,6 +4,7 @@ use App\Http\Controllers\Actions\Approvals\ApproveApproval;
 use App\Http\Controllers\Actions\Approvals\CancelApproval;
 use App\Http\Controllers\Actions\Approvals\DisapproveApproval;
 use App\Http\Controllers\Actions\Approvals\VoidApproval;
+use App\Http\Controllers\ApiServiceController;
 use App\Http\Controllers\MaterialsReceivingController;
 use App\Http\Controllers\MRRController;
 use Illuminate\Support\Facades\Route;
@@ -46,9 +47,9 @@ Route::middleware("secret_api")->group(function () {
     // SIGMA SERVICES ROUTES
     Route::prefix('sigma')->group(function () {
         Route::prefix("sync-list")->group(function () {
-            Route::get('suppliers', [RequestSupplierController::class, 'get']);
-            Route::get('item-profiles', [ItemProfileController::class, 'get']);
-            Route::get('uoms', [UOMController::class, 'get']);
+            Route::get('suppliers', [ApiServiceController::class, 'getSuppliersList']);
+            Route::get('item-profiles', [ApiServiceController::class, 'getItemprofilesList']);
+            Route::get('uoms', [ApiServiceController::class, 'getUomsList']);
         });
     });
 });
