@@ -10,8 +10,8 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::table('materials_receiving_items', function (Blueprint $table) {
-            $table->renameColumn('acceptedQty', 'accepted_qty');
+        Schema::table('warehouse_transaction_items', function (Blueprint $table) {
+            $table->json('metadata')->after('parent_id')->nullable();
         });
     }
 
@@ -20,8 +20,9 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::table('materials_receiving_items', function (Blueprint $table) {
-            $table->renameColumn('accepted_qty', 'acceptedQty');
+        Schema::table('warehouse_transaction_items', function (Blueprint $table) {
+            $table->dropColumn(['metadata']);
+
         });
     }
 };

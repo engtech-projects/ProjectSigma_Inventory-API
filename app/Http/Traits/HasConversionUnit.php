@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Traits;
+
 use App\Models\UOM;
 
 trait HasConversionUnit

@@ -233,7 +233,7 @@ class ItemProfileBulkUploadService
 
     public function selectedItems(array $processed)
     {
-        $itemsToInsert = array_map(fn($item) => [
+        $itemsToInsert = array_map(fn ($item) => [
             'item_code' => $item['item_code'],
             'item_description' => $item['item_description']['value'],
             'thickness' => $item['thickness']['value'] ?? null,

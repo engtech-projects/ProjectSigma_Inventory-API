@@ -68,7 +68,7 @@ class RequestBOM extends Model
 
     public function completeRequestStatus()
     {
-        $latestVersion = Self::where('assignment_type', $this->assignment_type)
+        $latestVersion = self::where('assignment_type', $this->assignment_type)
             ->where('assignment_id', $this->assignment_id)
             ->where('effectivity', $this->effectivity)
             ->max('version');
@@ -86,7 +86,7 @@ class RequestBOM extends Model
 
     public function getAssignmentType(int $requestBOMId): string
     {
-        return Self::whereKey($requestBOMId)->value('assignment_type') ?? '';
+        return self::whereKey($requestBOMId)->value('assignment_type') ?? '';
     }
 
 
@@ -124,7 +124,7 @@ class RequestBOM extends Model
 
     public function projects()
     {
-        return $this->belongsTo(Project::class,'id','assignment_id');
+        return $this->belongsTo(Project::class, 'id', 'assignment_id');
     }
     public function requestStock()
     {

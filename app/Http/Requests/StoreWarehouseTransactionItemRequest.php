@@ -11,7 +11,7 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,11 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-
+            'item_id' => 'required|exists:item_profile,id',
+            'parent_id' => 'nullable|exists:warehouse_transaction_items,id',
+            'quantity' => 'required|numeric|min:0',
+            'uom' => 'required|numeric|exists:setup_uom,id',
+            'metadata' => 'nullable|array',
         ];
     }
 }

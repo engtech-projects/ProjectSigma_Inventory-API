@@ -10,12 +10,9 @@ use App\Http\Requests\UpdateWarehouseRequest;
 use App\Http\Resources\WarehouseMaterialsReceivingResource;
 use App\Http\Resources\WarehouseResource;
 use App\Http\Resources\WarehouseStocksResource;
-use App\Http\Resources\WarehouseTransactionResource;
 use App\Http\Traits\CheckAccessibility;
-use App\Models\MaterialsReceivingItem;
 use App\Models\Warehouse;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 /**

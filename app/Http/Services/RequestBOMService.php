@@ -3,7 +3,6 @@
 namespace App\Http\Services;
 
 use App\Models\RequestBOM;
-use App\Traits\Filters;
 
 class RequestBOMService
 {

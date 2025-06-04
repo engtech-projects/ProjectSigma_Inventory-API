@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\MaterialsReceivingResource;
 use App\Http\Resources\MaterialsReceivingResourceList;
+use App\Http\Resources\WarehouseTransactionResource;
 use App\Http\Services\MaterialsReceivingService;
 use App\Models\MaterialsReceiving;
+use App\Models\WarehouseTransaction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -21,8 +22,8 @@ class MaterialsReceivingController extends Controller
      */
     public function index()
     {
-        $main = MaterialsReceiving::with(['warehouse', 'supplier', 'project', 'items'])->paginate(10);
-        $collection = MaterialsReceivingResource::collection($main)->response()->getData(true);
+        $main = WarehouseTransaction::with(['warehouse', 'supplier', 'items'])->paginate(10);
+        $collection = WarehouseTransactionResource::collection($main)->response()->getData(true);
 
         return new JsonResponse([
             "message" => "Materials Receiving Successfully Fetched.",
@@ -37,11 +38,11 @@ class MaterialsReceivingController extends Controller
      */
     public function getMaterialsReceivingByWarehouse($warehouse_id)
     {
-        $main = MaterialsReceiving::with(['items', 'supplier', 'project'])
+        $main = WarehouseTransaction::with(['items', 'supplier'])
             ->where('warehouse_id', $warehouse_id)
             ->paginate(10);
 
-        $collection = MaterialsReceivingResource::collection($main)->response()->getData(true);
+        $collection = WarehouseTransactionResource::collection($main)->response()->getData(true);
 
         if ($collection['data']) {
             return response()->json([
@@ -64,18 +65,18 @@ class MaterialsReceivingController extends Controller
     {
         //
     }
-    
+
 
     /**
      * Display the specified resource.
      */
-    public function show(MaterialsReceiving $resource)
+    public function show(WarehouseTransaction $resource)
     {
         $resource->load('items');
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,
-            "data" => new MaterialsReceivingResource($resource)
+            "data" => new WarehouseTransactionResource($resource)
         ]);
     }
 

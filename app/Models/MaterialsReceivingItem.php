@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MaterialsReceivingItem extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $table = 'materials_receiving_items';
     protected $fillable = [
@@ -24,6 +25,9 @@ class MaterialsReceivingItem extends Model
         'ext_price',
         'status',
         'remarks',
+    ];
+    protected $casts = [
+        'metadata' => 'array',
     ];
 
     /**

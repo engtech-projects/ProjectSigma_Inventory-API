@@ -2,11 +2,10 @@
 
 namespace App\Http\Resources;
 
-use App\Http\Services\ApiServices\HrmsService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ApprovalAttributeResource extends JsonResource
+class WarehouseTransactionResourceList extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,6 +14,10 @@ class ApprovalAttributeResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return HrmsService::formatApprovals($request->bearerToken(), $this->resource);
+        // return parent::toArray($request);
+        return [
+            ...parent::toArray($request),
+            "next_approval" => $this->getNextPendingApproval(),
+        ];
     }
 }
