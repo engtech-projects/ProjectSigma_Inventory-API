@@ -44,7 +44,9 @@ class RequestStockController extends Controller
         $sectionId = $attributes['section_id'];
         if ($attributes["section_type"] == class_basename(Department::class)) {
             $departmentCode = strtoupper(implode('-', array_map('ucwords', explode(' ', Department::findOrFail($sectionId)->department_name))));
-            $attributes['reference_no'] = "RS" . $departmentCode;
+            $existing = RequestStock::where('reference_no', 'like', "RS{$departmentCode}%")->get();
+            $increment = $existing->count() + 1;
+            $attributes['reference_no'] = "RS{$departmentCode}" . '-' . (strlen($increment) == 1 ? "0{$increment}" : $increment);
         } else {
             $projectCode = Project::findOrFail($sectionId)->project_code;
             $attributes['reference_no'] = "RS" . $projectCode;
@@ -96,7 +98,7 @@ class RequestStockController extends Controller
 
         return new JsonResponse([
             'success' => true,
-            'message' => 'Request Stock Successfull.',
+            'message' => 'Requisition Slip Successfully Submitted.',
         ], JsonResponse::HTTP_OK);
     }
 
