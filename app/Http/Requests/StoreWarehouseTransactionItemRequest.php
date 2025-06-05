@@ -26,10 +26,11 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
             'parent_id' => 'nullable|exists:warehouse_transaction_items,id',
             'quantity' => 'nullable|numeric|min:0',
             'uom' => 'nullable|numeric|exists:setup_uom,id',
-            'remarks' => 'required|string|max:255',
+            'remarks' => 'nullable|string|max:255',
             'metadata' => 'nullable|array',
             'metadata.unit_price' => 'required|numeric|min:0',
             'metadata.actual_brand_purchase' => 'required|string|max:255',
+            'metadata.specification' => 'nullable|string|max:255',
         ];
     }
 
@@ -41,8 +42,8 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'metadata.unit_price.required' => 'The unit price is required and cannot be null.',
-            'metadata.actual_brand_purchase.required' => 'The actual brand purchase is required and cannot be null.',
+            'metadata.unit_price.required' => 'The unit price is required.',
+            'metadata.actual_brand_purchase.required' => 'The actual brand purchase is required.',
         ];
 
     }
