@@ -1,14 +1,26 @@
 <?php
 
-namespace App\Http\Services;
+namespace App\Http\Services\ApiServices;
 
 use Illuminate\Support\Facades\Http;
 
 class HrmsService
 {
+    protected $apiUrl;
+    protected $authToken;
+
+    public function __construct($authToken)
+    {
+        $this->apiUrl = config('services.url.hrms_api_url');
+        $this->authToken = $authToken;
+        if (empty($this->apiUrl)) {
+            throw new \InvalidArgumentException('HRMS API URL is not configured');
+        }
+    }
+
     public static function setNotification($token, $userid, $notificationData)
     {
-        if (gettype($notificationData) == "array") {
+        if (is_array($notificationData)) {
             $notificationData = json_encode($notificationData);
         }
         $response = Http::withToken(token: $token)
@@ -18,8 +30,7 @@ class HrmsService
         if (!$response->successful()) {
             return false;
         }
-
-        // return $response->json();
+        return true;
     }
 
     public static function formatApprovals($token, $approvals)
@@ -33,6 +44,7 @@ class HrmsService
         }
         return $response->json()["data"];
     }
+
     public static function getEmployeeDetails($token, $user_ids)
     {
         $response = Http::withToken($token)
@@ -47,37 +59,5 @@ class HrmsService
 
         return $response->json("data");
     }
-    public static function getDepartments($token)
-    {
-        $response = Http::withToken($token)
-            ->acceptJson()
-            ->get(config('services.url.hrms_api_url') . '/api/department/list/v2');
 
-        if (!$response->successful()) {
-            return false;
-        }
-        return $response->json("data");
-    }
-    public static function getUsers($token)
-    {
-        $response = Http::withToken($token)
-            ->acceptJson()
-            ->get(config('services.url.hrms_api_url') . '/api/users');
-
-        if (!$response->successful()) {
-            return false;
-        }
-        return $response->json("data");
-    }
-    public static function getEmployees($token)
-    {
-        $response = Http::withToken($token)
-            ->acceptJson()
-            ->get(config('services.url.hrms_api_url') . '/api/employee/resource');
-
-        if (!$response->successful()) {
-            return false;
-        }
-        return $response->json("data");
-    }
 }
