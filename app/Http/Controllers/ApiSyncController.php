@@ -27,7 +27,7 @@ class ApiSyncController extends Controller
                 $errorServices[] = "Project Monitoring";
             }
             if (!empty($errorServices)) {
-                throw new \Exception('Sync with ' . implode(', ', $errorServices) .' failed while trying to sync with all API Services');
+                throw new \Exception('Sync with ' . implode(', ', $errorServices) . ' failed while trying to sync with all API Services');
             }
         });
         return response()->json([
