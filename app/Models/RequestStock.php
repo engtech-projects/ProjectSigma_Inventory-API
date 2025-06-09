@@ -189,8 +189,7 @@ class RequestStock extends Model
 
     public function getRequestStockItemIdAttribute()
     {
-        return WarehouseTransactionItem::whereJsonContains('metadata->request_stock_item_id', $this->id)
-            ->value('metadata->request_stock_item_id');
+        return WarehouseTransactionItem::whereJsonContains('metadata->request_stock_item_id', $this->id)->value('id');
     }
 
 

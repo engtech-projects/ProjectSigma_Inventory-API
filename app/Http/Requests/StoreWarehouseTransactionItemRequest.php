@@ -22,9 +22,6 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'item_id' => 'nullable|exists:item_profile,id',
-            // 'parent_id' => 'nullable|exists:warehouse_transaction_items,id',
-            // 'uom' => 'nullable|numeric|exists:setup_uom,id',
             'specification' => 'nullable|string|max:255',
             'actual_brand_purchase' => 'required|string|max:255',
             'unit_price' => 'required|numeric|min:1',

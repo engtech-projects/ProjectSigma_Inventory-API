@@ -98,17 +98,6 @@ class WarehouseTransaction extends Model
     }
 
 
-    public function supplierFromMetadata()
-    {
-        return $this->belongsTo(RequestSupplier::class, 'metadata->supplier_id');
-    }
-
-    public function projectFromMetadata()
-    {
-        return $this->belongsTo(Project::class, 'metadata->project_id');
-    }
-
-
     /**
     * ==================================================
     * LOCAL SCOPES

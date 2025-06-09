@@ -8,7 +8,6 @@ use App\Http\Resources\SyncUOMResource;
 use App\Models\ItemProfile;
 use App\Models\RequestSupplier;
 use App\Models\UOM;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ApiServiceController extends Controller

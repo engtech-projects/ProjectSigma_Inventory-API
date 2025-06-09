@@ -5,8 +5,6 @@ use App\Http\Controllers\Actions\Approvals\CancelApproval;
 use App\Http\Controllers\Actions\Approvals\DisapproveApproval;
 use App\Http\Controllers\Actions\Approvals\VoidApproval;
 use App\Http\Controllers\ApiServiceController;
-use App\Http\Controllers\MaterialsReceivingController;
-use App\Http\Controllers\MRRController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ApiSyncController;
