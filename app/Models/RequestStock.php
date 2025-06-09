@@ -86,16 +86,17 @@ class RequestStock extends Model
             'approvals' => $this->approvals,
             'metadata' => [
                 'rs_id' => $this->id,
-                'equipment_no' => $this->equipment_no,
-                'project_code' => $this->section_id,
+                'po_id' => null,
                 'supplier_id' => null,
+                'reference' => $this->reference_no,
+                'equipment_no' => $this->equipment_no,
                 'terms_of_payment' => null,
                 'particulars' => null,
-                'po_id' => null,
                 'is_petty_cash' => true,
+
             ],
             'created_by' => auth()->user()->id,
-            'request_status' => RequestApprovalStatus::PENDING,
+            'request_status' => RequestApprovalStatus::APPROVED,
         ]);
 
         $this->storeItems($mrr);
@@ -128,10 +129,10 @@ class RequestStock extends Model
 
             $metadata = [
                 'specification' => $requestItem->specification,
-                'actual_brand_purchase' => null, // Editable field
+                'actual_brand_purchase' => $requestItem->preferred_brand,
                 'unit_price' => null, // Editable field
                 'remarks' => null, // Editable field
-                'status' => RequestApprovalStatus::PENDING,
+                'status' => RequestApprovalStatus::APPROVED,
             ];
 
             WarehouseTransactionItem::create([

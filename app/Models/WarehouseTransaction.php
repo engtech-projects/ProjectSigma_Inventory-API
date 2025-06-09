@@ -105,7 +105,7 @@ class WarehouseTransaction extends Model
 
     public function projectFromMetadata()
     {
-        return $this->belongsTo(Project::class, 'metadata->project_code', 'project_code');
+        return $this->belongsTo(Project::class, 'metadata->project_id');
     }
 
 

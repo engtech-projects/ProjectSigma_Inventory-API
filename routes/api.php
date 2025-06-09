@@ -183,10 +183,11 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('material-receiving')->group(function () {
         Route::resource('resource', WarehouseTransactionController::class)->names("materialReceivingresource");
         Route::patch('{id}/save-details', [WarehouseTransactionController::class, 'saveDetails']);
+        Route::put('{id}/update-reference', [WarehouseTransactionController::class, 'updateReference']);
         Route::get('warehouse/{warehouse_id}', [WarehouseTransactionController::class, 'getMaterialsReceivingByWarehouse']);
         Route::get('all-request', [WarehouseTransactionController::class, 'allRequests']);
         Route::prefix('item')->group(function () {
-            Route::resource('resource', warehouseTransactionItemController::class)->names("materialsReceivingItemresource");
+            Route::resource('resource', WarehouseTransactionItemController::class)->names("materialsReceivingItemresource");
 
             Route::patch('{resource}/accept-all', [WarehouseTransactionItemController::class, 'acceptAll']);
             Route::patch('{resource}/accept-with-details', [WarehouseTransactionItemController::class, 'acceptWithDetails']);

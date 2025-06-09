@@ -100,20 +100,21 @@ class WarehouseTransactionItemController extends Controller
         $quantity = max($resource->qty, $request->input('quantity', 0));
         $unit_price = $request->input('unit_price');
         $actual_brand_purchase = $request->input('actual_brand_purchase');
+        $specification = $request->input('specification');
+        $grand_total = $request->input('grand_total');
 
-        // Retrieve existing metadata and update fields
         $metadata = $resource->metadata;
         $metadata['status'] = 'Accepted';
         $metadata['remarks'] = 'Accepted';
         $metadata['unit_price'] = $unit_price;
         $metadata['actual_brand_purchase'] = $actual_brand_purchase;
+        $metadata['specification'] = $specification;
+        $metadata['grand_total'] = $grand_total;
 
-        // Determine response message based on existing status
         $message = ($resource->metadata['status'] === 'Accepted')
             ? "Accepted quantity and remarks have been updated."
             : "Item has been successfully accepted with unit price.";
 
-        // Update resource
         $resource->update([
             'metadata' => $metadata,
             'quantity' => $quantity
@@ -131,20 +132,21 @@ class WarehouseTransactionItemController extends Controller
         $remarks = $request->input('remarks');
         $unit_price = $request->input('unit_price');
         $actual_brand_purchase = $request->input('actual_brand_purchase');
+        $specification = $request->input('specification');
+        $grand_total = $request->input('grand_total');
 
-        // Retrieve existing metadata and update fields
         $metadata = $resource->metadata ?? [];
         $metadata['status'] = 'Accepted';
         $metadata['remarks'] = $remarks;
         $metadata['unit_price'] = $unit_price;
         $metadata['actual_brand_purchase'] = $actual_brand_purchase;
+        $metadata['specification'] = $specification;
+        $metadata['grand_total'] = $grand_total;
 
-        // Determine response message based on existing status
         $message = (isset($resource->metadata['status']) && $resource->metadata['status'] === 'Accepted')
             ? "Accepted quantity, actual brand purchase, unit price, and remarks have been updated."
             : "Item has been successfully accepted.";
 
-        // Update resource
         $resource->update([
             'metadata' => $metadata,
             'quantity' => $quantity

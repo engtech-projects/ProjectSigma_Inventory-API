@@ -161,6 +161,7 @@ class WarehouseTransactionController extends Controller
                 'metadata.supplier_id' => 'nullable|integer',
                 'metadata.terms_of_payment' => 'nullable|string|max:255',
                 'metadata.particulars' => 'nullable|string|max:1000',
+                'metadata.reference' => 'nullable|string|max:255',
             ]);
 
             $metadata = $resource->metadata ?? [];
@@ -170,7 +171,7 @@ class WarehouseTransactionController extends Controller
             $incomingData = $request->input('metadata', []);
 
             if (empty($incomingData)) {
-                $incomingData = $request->only(['supplier_id', 'terms_of_payment', 'particulars']);
+                $incomingData = $request->only(['supplier_id', 'terms_of_payment', 'particulars', 'reference']);
             }
 
             if (isset($incomingData['supplier_id']) && $incomingData['supplier_id'] !== null) {
@@ -189,6 +190,12 @@ class WarehouseTransactionController extends Controller
                 $metadata['particulars'] = $incomingData['particulars'];
                 $updated = true;
                 $updatedFields[] = 'particulars';
+            }
+
+            if (isset($incomingData['reference']) && $incomingData['reference'] !== null) {
+                $metadata['reference'] = $incomingData['reference'];
+                $updated = true;
+                $updatedFields[] = 'reference';
             }
 
             if (!$updated) {
@@ -263,7 +270,7 @@ class WarehouseTransactionController extends Controller
             'data' => $requestResources
         ]);
     }
-    public function getMaterialsReceivingByWarehouse($warehouse_id)
+    public function getMaterialsReceivingByWarehouse(int $warehouse_id)
     {
         $main = WarehouseTransaction::with(['items', 'supplier'])
             ->where('warehouse_id', $warehouse_id)
