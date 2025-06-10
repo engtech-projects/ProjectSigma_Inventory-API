@@ -22,6 +22,7 @@ class WarehouseTransactionItem extends Model
     protected $casts = [
         'metadata' => 'array',
     ];
+    protected $with = ['uomRelationship', 'item', 'supplier'];
 
     /**
     * ==================================================
@@ -39,9 +40,9 @@ class WarehouseTransactionItem extends Model
     {
         return $this->belongsTo(WarehouseTransaction::class, 'warehouse_transaction_id');
     }
-    public function uom()
+    public function uomRelationship()
     {
-        return $this->belongsTo(UOM::class);
+        return $this->belongsTo(UOM::class, 'uom');
     }
     public function item()
     {
@@ -51,6 +52,7 @@ class WarehouseTransactionItem extends Model
     {
         return $this->belongsTo(RequestSupplier::class);
     }
+
 
 
     /**

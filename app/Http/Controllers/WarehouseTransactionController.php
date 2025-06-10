@@ -30,7 +30,7 @@ class WarehouseTransactionController extends Controller
      */
     public function index()
     {
-        $main = WarehouseTransaction::with('items')->paginate(10);
+        $main = WarehouseTransaction::with(['items.uomRelationship', 'items.item'])->paginate(10);
         $collection = WarehouseTransactionResource::collection($main)->response()->getData(true);
 
         return new JsonResponse([
@@ -272,24 +272,16 @@ class WarehouseTransactionController extends Controller
     }
     public function getMaterialsReceivingByWarehouse(int $warehouse_id)
     {
-        $main = WarehouseTransaction::with(['items', 'supplier'])
+        $main = WarehouseTransaction::with(['items.uomRelationship', 'items.item', 'supplier'])
             ->where('warehouse_id', $warehouse_id)
             ->paginate(10);
 
         $collection = WarehouseTransactionResource::collection($main)->response()->getData(true);
 
-        if ($collection['data']) {
-            return response()->json([
-                "message" => "Materials Receiving Successfully Fetched.",
-                "success" => true,
-                "data" => $collection['data']
-            ]);
-        } else {
-            return response()->json([
-                "message" => "No data found.",
-                "success" => false,
-                "data" => []
-            ]);
-        }
+        return response()->json([
+            "message" => "List of Materials Receiving Request Successfully Fetched.",
+            "success" => true,
+            "data" => $collection,
+        ], JsonResponse::HTTP_OK);
     }
 }

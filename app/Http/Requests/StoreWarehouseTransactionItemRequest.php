@@ -42,6 +42,8 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'unit_price.required' => 'The unit price is required.',
+            'actual_brand_purchase.required' => 'The actual brand purchase is required.',
             'metadata.unit_price.required' => 'The unit price is required.',
             'metadata.actual_brand_purchase.required' => 'The actual brand purchase is required.',
         ];

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RejectWarehouseTransactionItemRequest;
 use App\Models\WarehouseTransactionItem;
 use App\Http\Requests\StoreWarehouseTransactionItemRequest;
 use App\Http\Requests\UpdateWarehouseTransactionItemRequest;
 use App\Http\Resources\WarehouseTransactionItemResource;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class WarehouseTransactionItemController extends Controller
 {
@@ -16,7 +16,7 @@ class WarehouseTransactionItemController extends Controller
      */
     public function index()
     {
-        $main = WarehouseTransactionItem::with('item', 'uom')->paginate(10);
+        $main = WarehouseTransactionItem::with('item', 'uomRelationship')->paginate(10);
         $collection = WarehouseTransactionItemResource::collection($main)->response()->getData(true);
 
         return new JsonResponse([
@@ -158,11 +158,8 @@ class WarehouseTransactionItemController extends Controller
         ], 200);
     }
 
-    public function reject(Request $request, WarehouseTransactionItem $resource)
+    public function reject(RejectWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
     {
-        $request->validate([
-            'remarks' => 'required|string|max:500'
-        ]);
         if (isset($resource->metadata['status']) && $resource->metadata['status'] === 'Rejected') {
             return response()->json([
                 'message' => "Item has already been rejected.",

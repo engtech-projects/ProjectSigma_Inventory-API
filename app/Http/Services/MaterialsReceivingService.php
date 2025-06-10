@@ -9,7 +9,7 @@ class MaterialsReceivingService
 {
     public function getAllRequest()
     {
-        return WarehouseTransaction::with('items', 'warehouse')
+        return WarehouseTransaction::with(['items.uomRelationship', 'items.item', 'warehouse'])
         ->orderBy("created_at", "DESC")
         ->paginate(10);
     }

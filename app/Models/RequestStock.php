@@ -187,13 +187,6 @@ class RequestStock extends Model
         return $this->morphTo();
     }
 
-    public function getRequestStockItemIdAttribute()
-    {
-        return WarehouseTransactionItem::whereJsonContains('metadata->request_stock_item_id', $this->id)->value('id');
-    }
-
-
-
     /**
      * ==================================================
      * LOCAL SCOPES
