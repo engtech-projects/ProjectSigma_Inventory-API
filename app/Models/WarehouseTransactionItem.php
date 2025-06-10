@@ -11,6 +11,8 @@ class WarehouseTransactionItem extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $with = ['uom', 'item'];
+
     protected $fillable = [
         'item_id',
         'warehouse_transaction_id',
