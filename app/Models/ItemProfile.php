@@ -56,7 +56,8 @@ class ItemProfile extends Model
 
     public $appends = [
         'item_summary',
-        'convertable_units'
+        'convertable_units',
+        'created_time_human'
     ];
 
 
@@ -105,6 +106,11 @@ class ItemProfile extends Model
     public function getCodeNameAttribute()
     {
         return '[' . $this->item_code . '] ' . $this->item_description;
+    }
+
+    public function getCreatedTimeHumanAttribute()
+    {
+        return optional($this->created_at)->format('F j, Y');
     }
 
     /**

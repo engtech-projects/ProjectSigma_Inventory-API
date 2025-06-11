@@ -28,6 +28,7 @@ use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehousePssController;
 use App\Http\Controllers\WarehouseTransactionController;
 use App\Http\Controllers\WarehouseTransactionItemController;
+use App\Http\Controllers\ExportController;
 use App\Models\Warehouse;
 use Illuminate\Support\Facades\Artisan;
 
@@ -206,7 +207,9 @@ Route::middleware('auth:api')->group(function () {
         Route::resource('resource', ProjectsController::class)->names("projectsResource");
     });
 
-
+    Route::prefix('export')->group(function () {
+        Route::get('item-list', [ExportController::class, 'itemListGenerate'])->middleware('throttle:exports');
+    });
 
     if (config()->get('app.artisan') == 'true') {
         Route::prefix('artisan')->group(function () {
