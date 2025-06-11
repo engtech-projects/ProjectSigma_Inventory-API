@@ -11,7 +11,10 @@ use Illuminate\Support\Facades\Storage;
 
 class DeleteExportFileJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected $filePath;
 

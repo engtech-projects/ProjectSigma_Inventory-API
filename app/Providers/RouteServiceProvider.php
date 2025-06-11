@@ -62,7 +62,7 @@ class RouteServiceProvider extends ServiceProvider
     {
         RateLimiter::for(
             'exports',
-            fn(Request $request) =>
+            fn (Request $request) =>
             Limit::perMinute(10)->by($request->user()?->id ?? $request->ip())
         );
     }
