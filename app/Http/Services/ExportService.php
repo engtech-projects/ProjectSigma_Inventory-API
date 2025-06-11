@@ -54,7 +54,6 @@ class ExportService
         $reportData = ExportService::itemListSummary()->resolve();
         $excel->addRows($reportData);
         $excel->close();
-        Storage::disk('public')->delete($fullPath, now()->addMinutes(5));
         dispatch(new DeleteExportFileJob($relativePath))->delay(now()->addMinutes(5));
         return $fullPath;
     }

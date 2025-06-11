@@ -26,7 +26,6 @@ class DeleteExportFileJob implements ShouldQueue
 
     public function handle()
     {
-        Storage::disk('public')->delete($this->filePath);
         if (! Storage::disk('public')->delete($this->filePath)) {
             Log::warning(
                 sprintf('DeleteExportFileJob: failed to delete export file "%s"', $this->filePath)
