@@ -115,6 +115,8 @@ class RequestStockController extends Controller
                     // Regenerate reference number for department type
                     if ($attributes["section_type"] == class_basename(Department::class)) {
                         $this->generateDepartmentReferenceNumber($attributes, $sectionId);
+                    } else if ($attributes["section_type"] == class_basename(Project::class)) {
+                        $this->generateProjectReferenceNumber($attributes, $sectionId);
                     }
 
                     // Short delay before retry
@@ -143,7 +145,12 @@ class RequestStockController extends Controller
     private function generateProjectReferenceNumber(array &$attributes, int $sectionId): void
     {
         $projectCode = Project::findOrFail($sectionId)->project_code;
-        $attributes['reference_no'] = "RS" . $projectCode;
+        $latest    = RequestStock::where('reference_no', 'regexp', "^RS{$projectCode}-[0-9]$")
+                        ->orderBy('reference_no', 'desc')
+                        ->lockForUpdate()
+                        ->value('reference_no');
+        $next      = $latest ? ((int)substr($latest, strlen("RS{$projectCode}-")) + 1) : 1;
+        $attributes['reference_no'] = "RS{$projectCode}-" . str_pad($next, 7, '0', STR_PAD_LEFT);
     }
 
     public function show(RequestStock $resource)

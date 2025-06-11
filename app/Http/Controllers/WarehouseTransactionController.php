@@ -270,7 +270,7 @@ class WarehouseTransactionController extends Controller
             'data' => $requestResources
         ]);
     }
-    public function getMaterialsReceivingByWarehouse(int $warehouse_id)
+    public function getTransactionsByWarehouse(int $warehouse_id)
     {
         $main = WarehouseTransaction::with(['items.uomRelationship', 'items.item', 'supplier'])
             ->where('warehouse_id', $warehouse_id)
@@ -279,7 +279,7 @@ class WarehouseTransactionController extends Controller
         $collection = WarehouseTransactionResource::collection($main)->response()->getData(true);
 
         return response()->json([
-            "message" => "List of Materials Receiving Request Successfully Fetched.",
+            "message" => "Warehouse Transactions Successfully Fetched.",
             "success" => true,
             "data" => $collection,
         ], JsonResponse::HTTP_OK);

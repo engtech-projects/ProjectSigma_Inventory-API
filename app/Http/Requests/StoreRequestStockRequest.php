@@ -7,6 +7,7 @@ use App\Enums\RequestTypes;
 use App\Enums\RSRemarksEnums;
 use App\Http\Traits\HasApprovalValidation;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
 class StoreRequestStockRequest extends FormRequest
@@ -43,6 +44,13 @@ class StoreRequestStockRequest extends FormRequest
             'date_prepared' => 'required|date',
             'date_needed' => 'required|date',
             'equipment_no' => 'required|string|max:255|unique:request_stocks,equipment_no,NULL,NULL,equipment_no,!N/A',
+            'equipment_no' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('request_stocks', 'equipment_no')
+                    ->where(fn ($q) => $q->where('equipment_no', '!=', 'N/A')),
+            ],
             'remarks' => ['nullable', 'string', new Enum(RSRemarksEnums::class)],
             'type_of_request' => ['nullable', 'string', new Enum(RequestTypes::class)],
             'is_approved' => 'boolean',

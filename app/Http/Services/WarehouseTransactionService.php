@@ -2,6 +2,7 @@
 
 namespace App\Http\Services;
 
+use App\Enums\RequestStatuses;
 use App\Models\WarehouseTransaction;
 
 class WarehouseTransactionService
@@ -15,15 +16,15 @@ class WarehouseTransactionService
 
     public function getMyRequest()
     {
-        return WarehouseTransaction::with(['items', 'project', 'supplier', 'project'])
+        return WarehouseTransaction::with(['items.uomRelationship', 'items.item', 'warehouse'])
         ->where("created_by", auth()->user()->id)
         ->orderBy("created_at", "DESC")
         ->paginate(10);
     }
     public function getAllApprovedRequest()
     {
-        return WarehouseTransaction::where("request_status", "Approved")
-        ->with(['items', 'project'])
+        return WarehouseTransaction::where("request_status", RequestStatuses::APPROVED)
+        ->with(['items.uomRelationship', 'items.item', 'warehouse'])
         ->orderBy("created_at", "DESC")
         ->paginate(10);
     }
@@ -33,7 +34,7 @@ class WarehouseTransactionService
         $userId = auth()->user()->id;
 
         $result = WarehouseTransaction::myApprovals()
-                    ->with(['items', 'project'])
+                    ->with(['items.uomRelationship', 'items.item', 'warehouse'])
                     ->orderBy("created_at", "DESC")
                     ->paginate(10);
 

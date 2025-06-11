@@ -97,13 +97,13 @@ class WarehouseTransactionItemController extends Controller
 
     public function acceptAll(StoreWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
     {
-        $quantity = max($resource->qty, $request->input('quantity', 0));
+        $quantity = $resource->quantity;
         $unit_price = $request->input('unit_price');
         $actual_brand_purchase = $request->input('actual_brand_purchase');
         $specification = $request->input('specification');
         $grand_total = $request->input('grand_total');
 
-        $metadata = $resource->metadata;
+        $metadata = $resource->metadata ?? [];
         $metadata['status'] = 'Accepted';
         $metadata['remarks'] = 'Accepted';
         $metadata['unit_price'] = $unit_price;
