@@ -38,7 +38,7 @@ class ItemListSummary extends JsonResource
             "item_group" => $this->item_group,
             "sub_item_group" => $this->sub_item_group,
             "inventory_type" => $this->inventory_type,
-            "created_at" => $this->created_time_human,
+            "created_at_human" => $this->created_time_human,
         ];
     }
 }

@@ -56,7 +56,8 @@ class ItemProfile extends Model
 
     public $appends = [
         'item_summary',
-        'convertable_units'
+        'convertable_units',
+        'created_time_human'
     ];
 
 

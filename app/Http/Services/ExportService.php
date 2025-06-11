@@ -7,6 +7,7 @@ use App\Models\ItemProfile;
 use Illuminate\Support\Facades\Storage;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 use Illuminate\Support\Str;
+use App\Jobs\DeleteExportFileJob;
 
 class ExportService
 {
@@ -54,6 +55,7 @@ class ExportService
         $excel->addRows($reportData);
         $excel->close();
         Storage::disk('public')->delete($fullPath, now()->addMinutes(5));
+        dispatch(new DeleteExportFileJob($relativePath))->delay(now()->addMinutes(5));
         return $fullPath;
     }
 }
