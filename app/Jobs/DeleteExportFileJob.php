@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class DeleteExportFileJob implements ShouldQueue
@@ -16,9 +17,9 @@ class DeleteExportFileJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    protected $filePath;
+    private string $filePath;
 
-    public function __construct($filePath)
+    public function __construct(string $filePath)
     {
         $this->filePath = $filePath;
     }
@@ -26,5 +27,10 @@ class DeleteExportFileJob implements ShouldQueue
     public function handle()
     {
         Storage::disk('public')->delete($this->filePath);
+        if (! Storage::disk('public')->delete($this->filePath)) {
+            Log::warning(
+                sprintf('DeleteExportFileJob: failed to delete export file "%s"', $this->filePath)
+            );
+        }
     }
 }
