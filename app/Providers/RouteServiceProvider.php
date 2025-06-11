@@ -60,6 +60,10 @@ class RouteServiceProvider extends ServiceProvider
 
     public function configureRateLimiting(): void
     {
-        RateLimiter::for('exports', fn () => Limit::perMinute(10));
+        RateLimiter::for(
+            'exports',
+            fn(Request $request) =>
+            Limit::perMinute(10)->by($request->user()?->id ?? $request->ip())
+        );
     }
 }
