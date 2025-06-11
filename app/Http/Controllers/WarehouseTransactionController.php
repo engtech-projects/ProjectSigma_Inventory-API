@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Enums\RequestApprovalStatus;
 use App\Http\Resources\WarehouseTransactionResourceList;
-use App\Http\Services\MaterialsReceivingService;
 use App\Models\WarehouseTransaction;
 use App\Http\Requests\StoreWarehouseTransactionRequest;
 use App\Http\Resources\WarehouseTransactionResource;
+use App\Http\Services\WarehouseTransactionService;
 use App\Models\WarehouseTransactionItem;
 use App\Notifications\WarehouseTransactionForApprovalNotification;
 use App\Traits\HasApproval;
@@ -20,10 +20,10 @@ use Illuminate\Validation\ValidationException;
 class WarehouseTransactionController extends Controller
 {
     use HasApproval;
-    protected $materialsReceivingService;
-    public function __construct(MaterialsReceivingService $materialsReceivingService)
+    protected $warehouseTransactionService;
+    public function __construct(WarehouseTransactionService $warehouseTransactionService)
     {
-        $this->materialsReceivingService = $materialsReceivingService;
+        $this->warehouseTransactionService = $warehouseTransactionService;
     }
     /**
      * Display a listing of the resource.
@@ -253,7 +253,7 @@ class WarehouseTransactionController extends Controller
 
     public function allRequests()
     {
-        $myRequest = $this->materialsReceivingService->getAllRequest();
+        $myRequest = $this->warehouseTransactionService->getAllRequest();
 
         if ($myRequest->isEmpty()) {
             return new JsonResponse([

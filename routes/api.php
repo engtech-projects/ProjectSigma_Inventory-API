@@ -184,7 +184,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('warehouse/{warehouse_id}', [WarehouseTransactionController::class, 'getMaterialsReceivingByWarehouse']);
         Route::get('all-request', [WarehouseTransactionController::class, 'allRequests']);
         Route::prefix('item')->group(function () {
-            Route::resource('resource', WarehouseTransactionItemController::class)->names("materialsReceivingItemresource");
+            Route::resource('resource', WarehouseTransactionItemController::class)->names("materialReceivingItems");
             Route::patch('{resource}/accept-all', [WarehouseTransactionItemController::class, 'acceptAll']);
             Route::patch('{resource}/accept-with-details', [WarehouseTransactionItemController::class, 'acceptWithDetails']);
             Route::patch('{resource}/reject', [WarehouseTransactionItemController::class, 'reject']);

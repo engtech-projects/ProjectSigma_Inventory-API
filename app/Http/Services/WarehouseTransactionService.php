@@ -2,10 +2,9 @@
 
 namespace App\Http\Services;
 
-use App\Models\MaterialsReceiving;
 use App\Models\WarehouseTransaction;
 
-class MaterialsReceivingService
+class WarehouseTransactionService
 {
     public function getAllRequest()
     {
@@ -16,14 +15,14 @@ class MaterialsReceivingService
 
     public function getMyRequest()
     {
-        return MaterialsReceiving::with(['items', 'project', 'supplier', 'project'])
+        return WarehouseTransaction::with(['items', 'project', 'supplier', 'project'])
         ->where("created_by", auth()->user()->id)
         ->orderBy("created_at", "DESC")
         ->paginate(10);
     }
     public function getAllApprovedRequest()
     {
-        return MaterialsReceiving::where("request_status", "Approved")
+        return WarehouseTransaction::where("request_status", "Approved")
         ->with(['items', 'project'])
         ->orderBy("created_at", "DESC")
         ->paginate(10);
@@ -33,7 +32,7 @@ class MaterialsReceivingService
     {
         $userId = auth()->user()->id;
 
-        $result = MaterialsReceiving::myApprovals()
+        $result = WarehouseTransaction::myApprovals()
                     ->with(['items', 'project'])
                     ->orderBy("created_at", "DESC")
                     ->paginate(10);
