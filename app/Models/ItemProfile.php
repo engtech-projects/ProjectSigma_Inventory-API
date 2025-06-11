@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Http\Services\ItemProfileService;
 use App\Http\Traits\HasConversionUnit;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -105,6 +106,11 @@ class ItemProfile extends Model
     public function getCodeNameAttribute()
     {
         return '[' . $this->item_code . '] ' . $this->item_description;
+    }
+
+    public function getCreatedTimeHumanAttribute()
+    {
+        return $this->created_at ? Carbon::parse($this->created_at)->format("F j, Y") : null;
     }
 
     /**
