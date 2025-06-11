@@ -208,7 +208,7 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('export')->group(function () {
-        Route::get('item-list', [ExportController::class, 'itemListGenerate']);
+        Route::get('item-list', [ExportController::class, 'itemListGenerate'])->middleware('throttle:exports');
     });
 
     if (config()->get('app.artisan') == 'true') {

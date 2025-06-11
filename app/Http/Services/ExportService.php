@@ -12,9 +12,9 @@ class ExportService
 {
     public static function itemListSummary()
     {
-        $itemProfile = ItemProfile::where('is_approved', true)->get();
-        $returnData = ItemListSummary::collection($itemProfile);
-        return $returnData;
+        return ItemListSummary::collection(
+            ItemProfile::query()->isApproved()->get()
+        );
     }
 
     public static function itemListExport()
@@ -22,12 +22,12 @@ class ExportService
         $masterListHeaders = [
             'Item Code',
             'Item Description',
-            'Thicknesss',
+            'Thickness',
             'Length',
             'Width',
             'Height',
-            'Outside Diamater',
-            'Inside Diamater',
+            'Outside Diameter',
+            'Inside Diameter',
             'Angle',
             'Size',
             'Specification',
@@ -45,15 +45,15 @@ class ExportService
             'Inventory Type',
             'Created At'
         ];
-        $fileName = "storage/temp-export-generations/ItemList-" . Str::random(10);
-        $excel = SimpleExcelWriter::create($fileName . ".xlsx");
+        $relativePath = 'temp-export-generations/ItemList-' . Str::random(10) . '.xlsx';
+        Storage::disk('public')->makeDirectory('temp-export-generations');
+        $fullPath = Storage::disk('public')->path($relativePath);
+        $excel = SimpleExcelWriter::create($fullPath);
         $excel->addHeader($masterListHeaders);
         $reportData = ExportService::itemListSummary()->resolve();
-        foreach ($reportData as $row) {
-            $excel->addRow($row);
-        }
+        $excel->addRows($reportData);
         $excel->close();
-        Storage::disk('public')->delete($fileName . '.xlsx', now()->addMinutes(5));
-        return '/' . $fileName . '.xlsx';
+        Storage::disk('public')->delete($fullPath, now()->addMinutes(5));
+        return $fullPath;
     }
 }

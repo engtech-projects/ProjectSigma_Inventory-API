@@ -56,4 +56,9 @@ class RouteServiceProvider extends ServiceProvider
             throw new NotFoundHttpException("Resource not found");
         }
     }
+
+    public function configureRateLimiting(): void
+    {
+        RateLimiter::for('exports', fn () => Limit::perMinute(10));
+    }
 }
