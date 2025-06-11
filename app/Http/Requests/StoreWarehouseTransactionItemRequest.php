@@ -27,10 +27,7 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
             'unit_price' => 'required|numeric|min:1',
             'quantity' => 'required|numeric|min:0',
             'remarks' => 'nullable|string|max:255',
-            'metadata' => 'required|array',
-            'metadata.unit_price'         => 'required|numeric|min:0',
-            'metadata.actual_brand_purchase' => 'required|string|max:255',
-            'metadata.specification'      => 'nullable|string|max:255',
+            'metadata' => 'nullable|array',
         ];
     }
 
