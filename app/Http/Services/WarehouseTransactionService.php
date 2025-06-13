@@ -31,16 +31,11 @@ class WarehouseTransactionService
 
     public function getMyApprovals()
     {
-        $userId = auth()->user()->id;
-
         $result = WarehouseTransaction::myApprovals()
                     ->with(['items.uomRelationship', 'items.item', 'warehouse'])
                     ->orderBy("created_at", "DESC")
                     ->paginate(10);
 
-        return $result->filter(function ($item) use ($userId) {
-            $nextPendingApproval = $item->getNextPendingApproval();
-            return ($nextPendingApproval && $userId === $nextPendingApproval['user_id']);
-        });
+        return $result;
     }
 }

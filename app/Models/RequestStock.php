@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\RequestApprovalStatus;
 use App\Enums\RequestStatuses;
 use App\Enums\RSRemarksEnums;
 use App\Enums\TransactionTypes;
@@ -63,7 +62,7 @@ class RequestStock extends Model
 
     public function completeRequestStatus()
     {
-        $this->request_status = RequestApprovalStatus::APPROVED;
+        $this->request_status = RequestStatuses::APPROVED;
         if ($this->remarks == RSRemarksEnums::PETTYCASH->value) {
             $this->createPettyCashMRR();
         }
@@ -96,7 +95,7 @@ class RequestStock extends Model
 
             ],
             'created_by' => auth()->user()->id,
-            'request_status' => RequestApprovalStatus::APPROVED,
+            'request_status' => RequestStatuses::APPROVED,
         ]);
 
         $this->storeItems($mrr);
@@ -132,7 +131,7 @@ class RequestStock extends Model
                 'actual_brand_purchase' => $requestItem->preferred_brand,
                 'unit_price' => null, // Editable field
                 'remarks' => null, // Editable field
-                'status' => RequestApprovalStatus::APPROVED,
+                'status' => RequestStatuses::APPROVED,
             ];
 
             WarehouseTransactionItem::create([

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\RequestApprovalStatus;
+use App\Enums\RequestStatuses;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -47,7 +47,7 @@ class RequestItemProfiling extends Model
 
     public function scopeRequestStatusPending(Builder $query): void
     {
-        $query->where('request_status', RequestApprovalStatus::PENDING);
+        $query->where('request_status', RequestStatuses::PENDING);
     }
 
     public function scopeAuthUserPending(Builder $query): void
@@ -58,7 +58,7 @@ class RequestItemProfiling extends Model
 
     public function completeRequestStatus()
     {
-        $this->request_status = RequestApprovalStatus::APPROVED;
+        $this->request_status = RequestStatuses::APPROVED;
         $this->itemProfiles()->update([
             "is_approved" => 1,
         ]);

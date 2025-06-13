@@ -111,7 +111,7 @@ class WarehouseTransactionItemController extends Controller
         $metadata['specification'] = $specification;
         $metadata['grand_total'] = $grand_total;
 
-        $message = ($resource->metadata['status'] === 'Accepted')
+        $message = (isset($resource->metadata['status']) && $resource->metadata['status'] === 'Accepted')
             ? "Accepted quantity and remarks have been updated."
             : "Item has been successfully accepted with unit price.";
 

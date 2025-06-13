@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\RequestApprovalStatus;
+use App\Enums\RequestStatuses;
 use App\Enums\TransactionTypes;
 use App\Traits\HasApproval;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -48,7 +48,7 @@ class WarehouseTransaction extends Model
     */
     public function scopeRequestStatusPending(Builder $query): void
     {
-        $query->where('request_status', RequestApprovalStatus::PENDING);
+        $query->where('request_status', RequestStatuses::PENDING);
     }
 
     public function scopeAuthUserPending(Builder $query): void
@@ -58,7 +58,7 @@ class WarehouseTransaction extends Model
     }
     public function completeRequestStatus()
     {
-        $this->request_status = RequestApprovalStatus::APPROVED;
+        $this->request_status = RequestStatuses::APPROVED;
         $this->save();
         $this->refresh();
     }

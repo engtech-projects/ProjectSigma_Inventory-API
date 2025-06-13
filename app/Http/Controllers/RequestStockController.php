@@ -145,7 +145,7 @@ class RequestStockController extends Controller
     private function generateProjectReferenceNumber(array &$attributes, int $sectionId): void
     {
         $projectCode = Project::findOrFail($sectionId)->project_code;
-        $latest    = RequestStock::where('reference_no', 'regexp', "^RS{$projectCode}-[0-9]$")
+        $latest    = RequestStock::where('reference_no', 'regexp', "^RS{$projectCode}-[0-9]+$")
                         ->orderBy('reference_no', 'desc')
                         ->lockForUpdate()
                         ->value('reference_no');
