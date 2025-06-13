@@ -5,11 +5,17 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RejectWarehouseTransactionItemRequest extends FormRequest
-{
-    public function rules()
+ {
+    public function authorize(): bool
     {
-        return [
-            'remarks' => 'required|string|max:500'
-        ];
+        // Adjust the logic (roles/permissions) as needed
+        return true;
     }
-}
+
+     public function rules()
+     {
+         return [
+             'remarks' => 'required|string|max:500'
+         ];
+     }
+ }

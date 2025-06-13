@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\RequestApprovalStatus;
+use App\Enums\RequestStatuses;
 use App\Http\Requests\StoreRequestSupplier;
 use App\Http\Requests\UpdateRequestSupplier;
 use App\Http\Resources\RequestSupplierResource;
@@ -90,7 +90,7 @@ class RequestSupplierController extends Controller
     public function store(StoreRequestSupplier $request)
     {
         $validated = $request->validated();
-        $validated['request_status'] = RequestApprovalStatus::PENDING;
+        $validated['request_status'] = RequestStatuses::PENDING;
         $validated['created_by'] = auth()->user()->id;
 
         DB::transaction(function () use ($validated, $request) {

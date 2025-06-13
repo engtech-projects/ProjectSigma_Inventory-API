@@ -43,7 +43,6 @@ class StoreRequestStockRequest extends FormRequest
             'office_project_address' => 'required|string|max:255',
             'date_prepared' => 'required|date',
             'date_needed' => 'required|date',
-            'equipment_no' => 'required|string|max:255|unique:request_stocks,equipment_no,NULL,NULL,equipment_no,!N/A',
             'equipment_no' => [
                 'required',
                 'string',

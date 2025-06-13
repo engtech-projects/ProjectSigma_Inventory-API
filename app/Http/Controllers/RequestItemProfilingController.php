@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ItemProfileActiveStatus;
-use App\Enums\RequestApprovalStatus;
+use App\Enums\RequestStatuses;
 use App\Http\Requests\StoreRequestItemProfilingRequest;
 use App\Models\RequestItemProfiling;
 use App\Http\Requests\UpdateRequestItemProfilingRequest;
@@ -63,7 +63,7 @@ class RequestItemProfilingController extends Controller
     public function store(StoreRequestItemProfilingRequest $request)
     {
         $attributes = $request->validated();
-        $attributes['request_status'] = RequestApprovalStatus::PENDING;
+        $attributes['request_status'] = RequestStatuses::PENDING;
         $attributes['created_by'] = auth()->user()->id;
 
         // try {

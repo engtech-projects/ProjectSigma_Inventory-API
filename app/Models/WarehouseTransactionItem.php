@@ -22,7 +22,6 @@ class WarehouseTransactionItem extends Model
     protected $casts = [
         'metadata' => 'array',
     ];
-    protected $with = ['uomRelationship', 'item', 'supplier'];
 
     /**
     * ==================================================
@@ -50,7 +49,8 @@ class WarehouseTransactionItem extends Model
     }
     public function supplier()
     {
-        return $this->belongsTo(RequestSupplier::class);
+        // ensure correct FK and index exist
+        return $this->belongsTo(RequestSupplier::class, 'supplier_id');
     }
 
 

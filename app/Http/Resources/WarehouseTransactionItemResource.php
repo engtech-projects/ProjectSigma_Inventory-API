@@ -23,7 +23,7 @@ class WarehouseTransactionItemResource extends JsonResource
             'specification'     => $this->item->specification,
             'quantity'          => $this->quantity,
             'ext_price'         => $this->ext_price,
-            'uom_name'          => $this->uomRelationship->name ?? 'Unknown',
+            'uom_name'          => $this->uomRelationship?->name ?? 'Unknown',
             'metadata'          => $this->metadata,
         ];
     }

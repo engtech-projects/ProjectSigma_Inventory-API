@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\RequestApprovalStatus;
+use App\Enums\RequestStatuses;
 use App\Http\Resources\WarehouseTransactionResourceList;
 use App\Models\WarehouseTransaction;
 use App\Http\Requests\StoreWarehouseTransactionRequest;
@@ -46,7 +46,7 @@ class WarehouseTransactionController extends Controller
     public function store(StoreWarehouseTransactionRequest $request)
     {
         $attributes = $request->validated();
-        $attributes['request_status'] = $attributes['request_status'] ?? RequestApprovalStatus::PENDING;
+        $attributes['request_status'] = RequestStatuses::PENDING;
         $attributes['created_by'] = auth()->user()->id;
 
 
@@ -254,16 +254,7 @@ class WarehouseTransactionController extends Controller
     public function allRequests()
     {
         $myRequest = $this->warehouseTransactionService->getAllRequest();
-
-        if ($myRequest->isEmpty()) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'No data found.',
-            ], JsonResponse::HTTP_OK);
-        }
-
         $requestResources = WarehouseTransactionResourceList::collection($myRequest)->response()->getData(true);
-
         return new JsonResponse([
             'message' => 'All Request Fetched.',
             'success' => true,
@@ -275,9 +266,7 @@ class WarehouseTransactionController extends Controller
         $main = WarehouseTransaction::with(['items.uomRelationship', 'items.item', 'supplier'])
             ->where('warehouse_id', $warehouse_id)
             ->paginate(10);
-
         $collection = WarehouseTransactionResource::collection($main)->response()->getData(true);
-
         return response()->json([
             "message" => "Warehouse Transactions Successfully Fetched.",
             "success" => true,
