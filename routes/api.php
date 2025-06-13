@@ -5,8 +5,6 @@ use App\Http\Controllers\Actions\Approvals\CancelApproval;
 use App\Http\Controllers\Actions\Approvals\DisapproveApproval;
 use App\Http\Controllers\Actions\Approvals\VoidApproval;
 use App\Http\Controllers\ApiServiceController;
-use App\Http\Controllers\MaterialsReceivingController;
-use App\Http\Controllers\MRRController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ApiSyncController;
@@ -16,7 +14,6 @@ use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\ItemProfileBulkUploadController;
 use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
-use App\Http\Controllers\MaterialsReceivingItemController;
 use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\RequestBOMController;
 use App\Http\Controllers\RequestItemProfilingController;
@@ -185,22 +182,14 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('material-receiving')->group(function () {
         Route::resource('resource', WarehouseTransactionController::class)->names("materialReceivingresource");
         Route::patch('{id}/save-details', [WarehouseTransactionController::class, 'saveDetails']);
-        Route::get('warehouse/{warehouse_id}', [MaterialsReceivingController::class, 'getMaterialsReceivingByWarehouse']);
-        Route::get('all-request', [MaterialsReceivingController::class, 'allRequests']);
+        Route::get('warehouse/{warehouse_id}', [WarehouseTransactionController::class, 'getTransactionsByWarehouse']);
+        Route::get('all-request', [WarehouseTransactionController::class, 'allRequests']);
         Route::prefix('item')->group(function () {
-            Route::resource('resource', MaterialsReceivingItemController::class)->names("materialsReceivingItemresource");
-
+            Route::resource('resource', WarehouseTransactionItemController::class)->names("materialReceivingItemResource");
             Route::patch('{resource}/accept-all', [WarehouseTransactionItemController::class, 'acceptAll']);
             Route::patch('{resource}/accept-with-details', [WarehouseTransactionItemController::class, 'acceptWithDetails']);
             Route::patch('{resource}/reject', [WarehouseTransactionItemController::class, 'reject']);
         });
-    });
-
-    Route::prefix('mrr')->group(function () {
-        Route::resource('resource', MRRController::class)->names("materialReceivingReportresource");
-        Route::get('/{id}', [MRRController::class, 'show']);
-        Route::put('/{id}', [MRRController::class, 'update']);
-        Route::get('/suppliers/list', [MRRController::class, 'getSuppliers']);
     });
 
     Route::prefix('project')->group(function () {

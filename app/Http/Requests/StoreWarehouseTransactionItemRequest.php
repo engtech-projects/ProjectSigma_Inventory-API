@@ -21,12 +21,31 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
      */
     public function rules(): array
     {
+return [
+             'specification' => 'nullable|string|max:255',
+             'actual_brand_purchase' => 'required|string|max:255',
+             'unit_price' => 'required|numeric|min:1',
+             'quantity' => 'required|numeric|min:0',
+             'remarks' => 'nullable|string|max:255',
+            'metadata.unit_price' => 'required|numeric|min:1',
+            'metadata.actual_brand_purchase' => 'required|string|max:255',
+             'metadata' => 'nullable|array',
+         ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
         return [
-            'item_id' => 'required|exists:item_profile,id',
-            'parent_id' => 'nullable|exists:warehouse_transaction_items,id',
-            'quantity' => 'required|numeric|min:0',
-            'uom' => 'required|numeric|exists:setup_uom,id',
-            'metadata' => 'nullable|array',
+            'unit_price.required' => 'The unit price is required.',
+            'actual_brand_purchase.required' => 'The actual brand purchase is required.',
+            'metadata.unit_price.required' => 'The unit price is required.',
+            'metadata.actual_brand_purchase.required' => 'The actual brand purchase is required.',
         ];
+
     }
 }

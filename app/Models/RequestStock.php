@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\RequestApprovalStatus;
 use App\Enums\RequestStatuses;
 use App\Enums\RSRemarksEnums;
 use App\Enums\TransactionTypes;
@@ -63,7 +62,7 @@ class RequestStock extends Model
 
     public function completeRequestStatus()
     {
-        $this->request_status = RequestApprovalStatus::APPROVED;
+        $this->request_status = RequestStatuses::APPROVED;
         if ($this->remarks == RSRemarksEnums::PETTYCASH->value) {
             $this->createPettyCashMRR();
         }
@@ -86,16 +85,17 @@ class RequestStock extends Model
             'approvals' => $this->approvals,
             'metadata' => [
                 'rs_id' => $this->id,
-                'equipment_no' => $this->equipment_no,
-                'project_code' => $this->section_id,
+                'po_id' => null,
                 'supplier_id' => null,
+                'reference' => $this->reference_no,
+                'equipment_no' => $this->equipment_no,
                 'terms_of_payment' => null,
                 'particulars' => null,
-                'po_id' => null,
                 'is_petty_cash' => true,
+
             ],
             'created_by' => auth()->user()->id,
-            'request_status' => RequestApprovalStatus::PENDING,
+            'request_status' => RequestStatuses::APPROVED,
         ]);
 
         $this->storeItems($mrr);
@@ -128,10 +128,10 @@ class RequestStock extends Model
 
             $metadata = [
                 'specification' => $requestItem->specification,
-                'actual_brand_purchase' => null, // Editable field
+                'actual_brand_purchase' => $requestItem->preferred_brand,
                 'unit_price' => null, // Editable field
                 'remarks' => null, // Editable field
-                'status' => RequestApprovalStatus::PENDING,
+                'status' => RequestStatuses::APPROVED,
             ];
 
             WarehouseTransactionItem::create([
@@ -185,19 +185,6 @@ class RequestStock extends Model
     {
         return $this->morphTo();
     }
-
-    public function mrr()
-    {
-        return $this->hasOne(WarehouseTransaction::class, 'charging_id')
-            ->where('charging_type', self::class)
-            ->where('transaction_type', TransactionTypes::RECEIVING);
-    }
-    public function mrrItems()
-    {
-        return $this->hasMany(WarehouseTransactionItem::class, 'metadata->request_stock_item_id', 'id');
-    }
-
-
 
     /**
      * ==================================================
