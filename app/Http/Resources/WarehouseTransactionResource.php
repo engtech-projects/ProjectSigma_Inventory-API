@@ -32,7 +32,7 @@ class WarehouseTransactionResource extends JsonResource
             'created_by' => $this->created_by,
             'request_status' => $this->request_status,
             'items' => WarehouseTransactionItemResource::collection($this->items),
-            'warehouse' => $this->warehouse->only(['id', 'name', 'location']),
+            'warehouse' => $this->warehouse?->only(['id', 'name', 'location']),
             'supplier' => $supplier ? RequestSupplier::find($supplier, ['id', 'supplier_code', 'company_name', 'company_address']) : null,
             'project' => $project ? Project::find($project, ['id', 'project_code', 'status']) : null,
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),

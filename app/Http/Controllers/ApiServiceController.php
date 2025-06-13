@@ -27,7 +27,7 @@ class ApiServiceController extends Controller
         $requestResources = SyncSuppliersResource::collection($fetch);
         return new JsonResponse([
             'success' => true,
-            'message' => 'Suppliers Successfully Fetched.',
+            'message' => 'Item Profiles Successfully Fetched.',
             'data' => $requestResources
         ]);
 
@@ -44,7 +44,7 @@ class ApiServiceController extends Controller
         $requestResources = SyncItemProfilesResource::collection($fetch);
         return new JsonResponse([
             'success' => true,
-            'message' => 'Suppliers Successfully Fetched.',
+            'message' => 'Item Profiles Successfully Fetched.',
             'data' => $requestResources
         ]);
 
