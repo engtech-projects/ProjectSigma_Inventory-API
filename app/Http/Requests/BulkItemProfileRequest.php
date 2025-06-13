@@ -36,7 +36,7 @@ class BulkItemProfileRequest extends FormRequest
             "processed.*" => 'required|array',
 
             // Required fields
-            "processed.*.item_code" => 'required|string|max:10',
+            "processed.*.item_code" => 'required|string|max:255',
             "processed.*.item_description.value" => 'required|string|max:255',
             "processed.*.uom.uom_id" => 'required|exists:setup_uom,id',
             "processed.*.item_group.value" => 'required|string|max:50',
