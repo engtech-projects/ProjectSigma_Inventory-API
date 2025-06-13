@@ -51,6 +51,7 @@ class RequestStocksResource extends JsonResource
                 ];
             })->toArray(),
             'project' => $this->project,
+            "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
         ];
     }
