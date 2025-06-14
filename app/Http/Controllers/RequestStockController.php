@@ -42,15 +42,6 @@ class RequestStockController extends Controller
     {
         $attributes = $request->validated();
         $sectionId = $attributes['section_id'];
-        if ($attributes["section_type"] == class_basename(Department::class)) {
-            $departmentCode = strtoupper(implode('-', array_map('ucwords', explode(' ', Department::findOrFail($sectionId)->department_name))));
-            $attributes['reference_no'] = "RS" . $departmentCode;
-        } else {
-            $projectCode = Project::findOrFail($sectionId)->project_code;
-            $attributes['reference_no'] = "RS" . $projectCode;
-        }
-        $attributes['request_status'] = RequestStatuses::PENDING;
-        $attributes['created_by'] = auth()->user()->id;
 
         if ($attributes["section_type"] == AssignTypes::DEPARTMENT->value) {
             $attributes["section_type"] = class_basename(Department::class);
@@ -58,46 +49,108 @@ class RequestStockController extends Controller
             $attributes["section_type"] = class_basename(Project::class);
         }
 
-        $duplicatedAttr = RequestStock::where('reference_no', $attributes['reference_no'])
-            ->orWhere('equipment_no', $attributes['equipment_no'])
-            ->first();
+        $attributes['request_status'] = RequestStatuses::PENDING;
+        $attributes['created_by'] = auth()->user()->id;
 
-        if ($duplicatedAttr) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => $duplicatedAttr->reference_no == $attributes['reference_no']
-                    ? 'The reference number has already been taken.'
-                    : 'The equipment number has already been taken.',
-            ], JsonResponse::HTTP_CONFLICT);
+        // Generate reference number with retry logic
+        if ($attributes["section_type"] == class_basename(Department::class)) {
+            $this->generateDepartmentReferenceNumber($attributes, $sectionId);
+        } else {
+            $this->generateProjectReferenceNumber($attributes, $sectionId);
         }
 
-        DB::transaction(function () use ($attributes, $request) {
-            $requestStock = RequestStock::create(
-                $attributes
-            );
+        // Execute transaction with retry logic
+        $maxRetries = 5;
+        $attempt = 0;
 
-            foreach ($attributes['items'] as $item) {
-                RequestStockItem::create([
-                    'request_stock_id' => $requestStock->id,
-                    'quantity' => $item['quantity'],
-                    'unit' => $item['unit'],
-                    'item_id' => $item['item_id'],
-                    'specification' => $item['specification'],
-                    'preferred_brand' => $item['preferred_brand'],
-                    'reason' => $item['reason'],
-                ]);
+        do {
+            try {
+                return DB::transaction(function () use ($attributes, $request) {
+                    $duplicatedAttr = RequestStock::where('reference_no', $attributes['reference_no'])
+                        ->orWhere('equipment_no', $attributes['equipment_no'])
+                        ->first();
+
+                    if ($duplicatedAttr) {
+                        throw new \Exception(
+                            $duplicatedAttr->reference_no == $attributes['reference_no']
+                                ? 'The reference number has already been taken.'
+                                : 'The equipment number has already been taken.'
+                        );
+                    }
+
+                    $requestStock = RequestStock::create($attributes);
+
+                    foreach ($attributes['items'] as $item) {
+                        RequestStockItem::create([
+                            'request_stock_id' => $requestStock->id,
+                            'quantity' => $item['quantity'],
+                            'unit' => $item['unit'],
+                            'item_id' => $item['item_id'],
+                            'specification' => $item['specification'],
+                            'preferred_brand' => $item['preferred_brand'],
+                            'reason' => $item['reason'],
+                        ]);
+                    }
+
+                    if ($requestStock->getNextPendingApproval()) {
+                        $requestStock->notify(new RequestStockForApprovalNotification($request->bearerToken(), $requestStock));
+                    }
+
+                    return new JsonResponse([
+                        'success' => true,
+                        'message' => 'Requisition Slip Successfully Submitted.',
+                    ], JsonResponse::HTTP_OK);
+                });
+
+            } catch (\Illuminate\Database\QueryException $e) {
+                if ($e->errorInfo[1] == 1062) { // Duplicate entry error
+                    $attempt++;
+                    if ($attempt >= $maxRetries) {
+                        return new JsonResponse([
+                            'success' => false,
+                            'message' => 'Unable to generate unique reference number after ' . $maxRetries . ' attempts',
+                        ], JsonResponse::HTTP_CONFLICT);
+                    }
+
+                    // Regenerate reference number for department type
+                    if ($attributes["section_type"] == class_basename(Department::class)) {
+                        $this->generateDepartmentReferenceNumber($attributes, $sectionId);
+                    } else if ($attributes["section_type"] == class_basename(Project::class)) {
+                        $this->generateProjectReferenceNumber($attributes, $sectionId);
+                    }
+
+                    // Short delay before retry
+                    usleep(100000); // 100ms
+                } else {
+                    throw $e; // Re-throw if it's not a duplicate key error
+                }
+            } catch (\Exception $e) {
+                return new JsonResponse([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], JsonResponse::HTTP_CONFLICT);
             }
+        } while ($attempt < $maxRetries);
+    }
 
-            if ($requestStock->getNextPendingApproval()) {
-                $requestStock->notify(new RequestStockForApprovalNotification($request->bearerToken(), $requestStock));
-            }
+    private function generateDepartmentReferenceNumber(array &$attributes, int $sectionId): void
+    {
+        $departmentCode = strtoupper(implode('-', array_map('ucwords', explode(' ', Department::findOrFail($sectionId)->department_name))));
 
-        });
+        $baseRef = "RS{$departmentCode}";
+        $increment = RequestStock::where('reference_no', 'regexp', "^{$baseRef}-[0-9]+$")->count() + 1;
+        $attributes['reference_no'] = $baseRef . '-' . str_pad($increment, 7, '0', STR_PAD_LEFT);
+    }
 
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'Request Stock Successfull.',
-        ], JsonResponse::HTTP_OK);
+    private function generateProjectReferenceNumber(array &$attributes, int $sectionId): void
+    {
+        $projectCode = Project::findOrFail($sectionId)->project_code;
+        $latest    = RequestStock::where('reference_no', 'regexp', "^RS{$projectCode}-[0-9]+$")
+                        ->orderBy('reference_no', 'desc')
+                        ->lockForUpdate()
+                        ->value('reference_no');
+        $next      = $latest ? ((int)substr($latest, strlen("RS{$projectCode}-")) + 1) : 1;
+        $attributes['reference_no'] = "RS{$projectCode}-" . str_pad($next, 7, '0', STR_PAD_LEFT);
     }
 
     public function show(RequestStock $resource)

@@ -4,8 +4,7 @@ use App\Http\Controllers\Actions\Approvals\ApproveApproval;
 use App\Http\Controllers\Actions\Approvals\CancelApproval;
 use App\Http\Controllers\Actions\Approvals\DisapproveApproval;
 use App\Http\Controllers\Actions\Approvals\VoidApproval;
-use App\Http\Controllers\MaterialsReceivingController;
-use App\Http\Controllers\MRRController;
+use App\Http\Controllers\ApiServiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ApiSyncController;
@@ -15,7 +14,6 @@ use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\ItemProfileBulkUploadController;
 use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
-use App\Http\Controllers\MaterialsReceivingItemController;
 use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\RequestBOMController;
 use App\Http\Controllers\RequestItemProfilingController;
@@ -27,6 +25,7 @@ use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehousePssController;
 use App\Http\Controllers\WarehouseTransactionController;
 use App\Http\Controllers\WarehouseTransactionItemController;
+use App\Http\Controllers\ExportController;
 use App\Models\Warehouse;
 use Illuminate\Support\Facades\Artisan;
 
@@ -46,9 +45,9 @@ Route::middleware("secret_api")->group(function () {
     // SIGMA SERVICES ROUTES
     Route::prefix('sigma')->group(function () {
         Route::prefix("sync-list")->group(function () {
-            Route::get('suppliers', [RequestSupplierController::class, 'get']);
-            Route::get('item-profiles', [ItemProfileController::class, 'get']);
-            Route::get('uoms', [UOMController::class, 'get']);
+            Route::get('suppliers', [ApiServiceController::class, 'getSuppliersList']);
+            Route::get('item-profiles', [ApiServiceController::class, 'getItemprofilesList']);
+            Route::get('uoms', [ApiServiceController::class, 'getUomsList']);
         });
     });
 });
@@ -183,29 +182,23 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('material-receiving')->group(function () {
         Route::resource('resource', WarehouseTransactionController::class)->names("materialReceivingresource");
         Route::patch('{id}/save-details', [WarehouseTransactionController::class, 'saveDetails']);
-        Route::get('warehouse/{warehouse_id}', [MaterialsReceivingController::class, 'getMaterialsReceivingByWarehouse']);
-        Route::get('all-request', [MaterialsReceivingController::class, 'allRequests']);
+        Route::get('warehouse/{warehouse_id}', [WarehouseTransactionController::class, 'getTransactionsByWarehouse']);
+        Route::get('all-request', [WarehouseTransactionController::class, 'allRequests']);
         Route::prefix('item')->group(function () {
-            Route::resource('resource', MaterialsReceivingItemController::class)->names("materialsReceivingItemresource");
-
+            Route::resource('resource', WarehouseTransactionItemController::class)->names("materialReceivingItemResource");
             Route::patch('{resource}/accept-all', [WarehouseTransactionItemController::class, 'acceptAll']);
             Route::patch('{resource}/accept-with-details', [WarehouseTransactionItemController::class, 'acceptWithDetails']);
             Route::patch('{resource}/reject', [WarehouseTransactionItemController::class, 'reject']);
         });
     });
 
-    Route::prefix('mrr')->group(function () {
-        Route::resource('resource', MRRController::class)->names("materialReceivingReportresource");
-        Route::get('/{id}', [MRRController::class, 'show']);
-        Route::put('/{id}', [MRRController::class, 'update']);
-        Route::get('/suppliers/list', [MRRController::class, 'getSuppliers']);
-    });
-
     Route::prefix('project')->group(function () {
         Route::resource('resource', ProjectsController::class)->names("projectsResource");
     });
 
-
+    Route::prefix('export')->group(function () {
+        Route::get('item-list', [ExportController::class, 'itemListGenerate'])->middleware('throttle:exports');
+    });
 
     if (config()->get('app.artisan') == 'true') {
         Route::prefix('artisan')->group(function () {

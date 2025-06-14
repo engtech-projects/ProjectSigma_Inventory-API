@@ -39,9 +39,9 @@ class WarehouseTransactionItem extends Model
     {
         return $this->belongsTo(WarehouseTransaction::class, 'warehouse_transaction_id');
     }
-    public function uom()
+    public function uomRelationship()
     {
-        return $this->belongsTo(UOM::class);
+        return $this->belongsTo(UOM::class, 'uom');
     }
     public function item()
     {
@@ -49,8 +49,10 @@ class WarehouseTransactionItem extends Model
     }
     public function supplier()
     {
-        return $this->belongsTo(RequestSupplier::class);
+        // ensure correct FK and index exist
+        return $this->belongsTo(RequestSupplier::class, 'supplier_id');
     }
+
 
 
     /**
