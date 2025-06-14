@@ -17,7 +17,7 @@ class WarehouseTransactionService
     public function getMyRequest()
     {
         return WarehouseTransaction::with(['items.uomRelationship', 'items.item', 'warehouse'])
-        ->where("created_by", auth()->user()->id)
+        ->myRequests()
         ->orderBy("created_at", "DESC")
         ->paginate(10);
     }
