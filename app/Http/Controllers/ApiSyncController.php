@@ -96,7 +96,7 @@ class ApiSyncController extends Controller
             throw new \Exception("Project monitoring sync failed.");
         }
         return response()->json([
-            'message' => 'SSuccessfully synced with Project Monitoring API service.',
+            'message' => 'Successfully synced with Project Monitoring API service.',
             'success' => true,
         ]);
     }
