@@ -9,6 +9,13 @@ class ExportController extends Controller
 {
     public function itemListGenerate(Request $request)
     {
-        return ExportService::itemListExport($request);
+        $downloadUrl = ExportService::itemListExport($request);
+        return response()->json(
+            [
+                "success" => true,
+                'url' => $downloadUrl,
+                'message' => "Successfully Download."
+            ]
+        );
     }
 }
