@@ -34,7 +34,6 @@ class ProjectMonitoringSecretKeyService
     public function syncProjects()
     {
         $projects = $this->getAllProjects();
-        Log::info($projects);
         $warehouses = array_map(fn ($project) => [
             "name" => $project['code'],
             "location" => $project['code'],
