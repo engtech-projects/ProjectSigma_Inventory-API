@@ -148,8 +148,8 @@ class WarehouseController extends Controller
         $date_to = $validated['date_to'] ?? null;
         $transaction_type = $validated['transaction_type'] ?? null;
 
-        $parseDateFrom = $date_from ? Carbon::parse($date_from) : null;
-        $parseDateTo = $date_to ? Carbon::parse($date_to) : null;
+        $parseDateFrom = $date_from ? Carbon::parse($date_from)->startOfDay() : null;
+        $parseDateTo = $date_to ? Carbon::parse($date_to)->endOfDay() : null;
 
         $warehouse = WarehouseTransactionItem::with(['item', 'uom', 'transaction'])->whereHas(
             "transaction",
