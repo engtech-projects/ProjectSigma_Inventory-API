@@ -72,7 +72,6 @@ class ItemProfile extends Model
         return $uom;
     }
 
-
     public function getNameSummaryAttribute()
     {
         return implode(' ', array_values(array_filter([
