@@ -28,7 +28,7 @@ class RequestStockController extends Controller
 
     public function index()
     {
-        $main = RequestStock::with(['project', 'items', 'currentBom'])->paginate(10);
+        $main = RequestStock::with(['project', 'items', 'currentBom', 'department'])->paginate(10);
         $collection = RequestStocksResource::collection($main)->response()->getData(true);
 
         return new JsonResponse([
@@ -115,7 +115,7 @@ class RequestStockController extends Controller
                     // Regenerate reference number for department type
                     if ($attributes["section_type"] == class_basename(Department::class)) {
                         $this->generateDepartmentReferenceNumber($attributes, $sectionId);
-                    } else if ($attributes["section_type"] == class_basename(Project::class)) {
+                    } elseif ($attributes["section_type"] == class_basename(Project::class)) {
                         $this->generateProjectReferenceNumber($attributes, $sectionId);
                     }
 
@@ -155,10 +155,14 @@ class RequestStockController extends Controller
 
     public function show(RequestStock $resource)
     {
-        return response()->json([
-            "message" => "Successfully fetched.",
-            "success" => true,
-            "data" => new RequestStocksResource($resource)
+        $resource = RequestStock::with('department')->get();
+
+        $collection = RequestStocksResource::collection($resource)->response()->getData(true);
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => "Successfully fetched.",
+            'data' => $collection
         ]);
     }
 
