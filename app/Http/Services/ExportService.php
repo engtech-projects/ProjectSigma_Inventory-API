@@ -7,7 +7,6 @@ use App\Models\ItemProfile;
 use Illuminate\Support\Facades\Storage;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 use Illuminate\Support\Str;
-use App\Jobs\DeleteExportFileJob;
 
 class ExportService
 {
