@@ -37,7 +37,6 @@ class SearchedItemsResource extends JsonResource
             'color' => $this->color,
             'uom' => $this->uom,
             'convertable_units' => $this->convertable_units,
-            'uom_name' => $this->uom_full_name,
         ];
     }
 }
