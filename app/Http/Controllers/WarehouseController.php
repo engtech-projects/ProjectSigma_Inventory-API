@@ -151,7 +151,7 @@ class WarehouseController extends Controller
         $parseDateFrom = $date_from ? Carbon::parse($date_from)->startOfDay() : null;
         $parseDateTo = $date_to ? Carbon::parse($date_to)->endOfDay() : null;
 
-        $warehouse = WarehouseTransactionItem::with(['item', 'uom', 'transaction'])->whereHas(
+        $warehouse = WarehouseTransactionItem::with(['item', 'uomRelationship', 'transaction'])->whereHas(
             "transaction",
             function ($query) use ($warehouse_id, $parseDateFrom, $parseDateTo, $transaction_type) {
                 $query->where('warehouse_id', $warehouse_id);
