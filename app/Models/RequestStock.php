@@ -210,7 +210,7 @@ class RequestStock extends Model
      */
 
 
-     public function createProcurementRequest()
+    public function createProcurementRequest()
     {
         return $this->requestProcurement()->create([
             'serve_status' => 'unserved'
