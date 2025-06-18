@@ -13,8 +13,7 @@ return new class () extends Migration {
         Schema::create('request_procurement', function (Blueprint $table) {
             $table->id();
             $table->foreignId('request_requisition_slip_id')
-                  ->constrained('request_stocks')
-                  ->onDelete('cascade');
+                  ->constrained('request_stocks');
             $table->enum('serve_status', ['served', 'unserved'])->default('unserved');
             $table->timestamps();
             $table->softDeletes();

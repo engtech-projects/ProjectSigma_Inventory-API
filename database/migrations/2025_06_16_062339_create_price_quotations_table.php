@@ -13,11 +13,9 @@ return new class () extends Migration {
         Schema::create('price_quotations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('request_procurement_id')
-                  ->constrained('request_procurement')
-                  ->onDelete('cascade');
+                  ->constrained('request_procurement');
             $table->foreignId('supplier_id')
-                  ->constrained('request_supplier')
-                  ->onDelete('cascade');
+                  ->constrained('request_supplier');
             $table->timestamps();
             $table->softDeletes();
         });

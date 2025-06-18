@@ -13,11 +13,9 @@ return new class () extends Migration {
         Schema::create('request_procurement_canvassers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('request_procurement_id')
-                  ->constrained('request_procurement')
-                  ->onDelete('cascade');
+                  ->constrained('request_procurement');
             $table->foreignId('user_id')
-                  ->constrained('users')
-                  ->onDelete('cascade');
+                  ->constrained('users');
             $table->timestamps();
             $table->softDeletes();
         });

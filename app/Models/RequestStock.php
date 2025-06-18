@@ -192,7 +192,6 @@ class RequestStock extends Model
         return $this->date_prepared ? Carbon::parse($this->date_prepared)->format("F j, Y") : null;
     }
 
-
     public function requestProcurement()
     {
         return $this->hasOne(RequestProcurement::class, 'request_requisition_slip_id');
