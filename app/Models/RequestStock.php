@@ -156,8 +156,10 @@ class RequestStock extends Model
     }
     public function project()
     {
-        return $this->belongsTo(Project::class, 'office_project', 'id');
+        return $this->belongsTo(Project::class,  'id');
     }
+
+
     public function department()
     {
         return $this->belongsTo(Department::class, 'office_project_address', 'id');
@@ -198,4 +200,9 @@ class RequestStock extends Model
      * DYNAMIC SCOPES
      * ==================================================
      */
+
+    public function getProjectCodeAttribute()
+    {
+        return $this->project->project_code ?? null;
+    }
 }
