@@ -28,7 +28,7 @@ class RequestStockController extends Controller
 
     public function index()
     {
-        $main = RequestStock::with(['project', 'items', 'currentBom'])->paginate(10);
+        $main = RequestStock::with(['department', 'project', 'items', 'currentBom'])->paginate(10);
         $collection = RequestStocksResource::collection($main)->response()->getData(true);
 
         return new JsonResponse([
@@ -42,6 +42,11 @@ class RequestStockController extends Controller
     {
         $attributes = $request->validated();
         $sectionId = $attributes['section_id'];
+
+        if ($attributes['type_of_request'] === 'Consolidated Request for the month of' && !empty($attributes['month'])) {
+            $attributes['type_of_request'] = $attributes['type_of_request'] . ' ' . $attributes['month'];
+            unset($attributes['month']);
+        }
 
         if ($attributes["section_type"] == AssignTypes::DEPARTMENT->value) {
             $attributes["section_type"] = class_basename(Department::class);
