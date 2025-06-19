@@ -81,6 +81,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get('my-approvals', [RequestItemProfilingController::class, 'myApprovals']);
         });
         Route::get('list', [RequestItemProfilingController::class, 'get']);
+        Route::get('item-list', [ItemProfileController::class, 'itemlist']);
         Route::resource('resource', ItemProfileController::class)->names("itemProfileresource");
 
         Route::get('search', [ItemProfileController::class, 'search']);

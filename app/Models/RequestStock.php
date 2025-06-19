@@ -163,7 +163,7 @@ class RequestStock extends Model
 
     public function department()
     {
-        return $this->belongsTo(Department::class, 'office_project_address', 'id');
+        return $this->belongsTo(Department::class,  'id');
     }
     public function currentBom()
     {

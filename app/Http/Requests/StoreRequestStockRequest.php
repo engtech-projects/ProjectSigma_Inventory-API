@@ -51,7 +51,25 @@ class StoreRequestStockRequest extends FormRequest
                     ->where(fn ($q) => $q->where('equipment_no', '!=', 'N/A')),
             ],
             'remarks' => ['nullable', 'string', new Enum(RSRemarksEnums::class)],
-            'type_of_request' => ['nullable', 'string', new Enum(RequestTypes::class)],
+            'type_of_request' => [
+                'required',
+                'string',
+                Rule::in([
+                    'Consolidated Request for the month of',
+                    'Recommended Request',
+                    'Special Case of Request',
+                    'N/A'
+                ])
+            ],
+            'month' => [
+                'nullable',
+                'string',
+                Rule::in([
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ]),
+                'required_if:type_of_request,Consolidated Request for the month of'
+            ],
             'is_approved' => 'boolean',
             'contact_no' => 'nullable|integer',
             'current_smr' => 'nullable|string|max:255',
@@ -78,6 +96,7 @@ class StoreRequestStockRequest extends FormRequest
             'items.*.quantity.min' => 'The quantity must be at least 1.',
             'reference_no.unique' => 'The reference number has already been taken.',
             'equipment_no.unique' => 'The equipment number has already been taken.',
+            'month.required_if' => 'The month field is required when type of request is "Consolidated Request for the month of".',
         ];
     }
 }
