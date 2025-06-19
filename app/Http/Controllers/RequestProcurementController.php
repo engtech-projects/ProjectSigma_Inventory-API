@@ -6,7 +6,6 @@ use App\Models\RequestProcurement;
 use App\Http\Resources\RequestProcurementDetailedResource;
 use App\Http\Resources\RequestProcurementListingResource;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 
 class RequestProcurementController extends Controller
 {

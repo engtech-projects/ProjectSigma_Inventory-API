@@ -18,12 +18,12 @@ class ApiHrmsSyncJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-     protected string $method;
+    protected string $method;
 
     /**
      * Create a new job instance.
      */
-     public function __construct(string $method)
+    public function __construct(string $method)
     {
         $this->method = $method;
     }

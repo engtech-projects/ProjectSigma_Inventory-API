@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RequestProcurementCanvasser extends Model
- {
-     use HasFactory;
-     use SoftDeletes;
+{
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'request_procurement_id',

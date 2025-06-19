@@ -54,6 +54,7 @@ jobs:
       - name: Build Laravel
         run: |
               composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+              ./vendor/bin/pint --test
               php artisan key:generate
               php artisan migrate
               php artisan db:seed
@@ -95,6 +96,7 @@ jobs:
       - name: Build Laravel
         run: |
               composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+              ./vendor/bin/pint --test
               php artisan key:generate
               php artisan migrate
               php artisan db:seed
