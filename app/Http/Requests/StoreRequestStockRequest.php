@@ -13,6 +13,7 @@ use Illuminate\Validation\Rules\Enum;
 class StoreRequestStockRequest extends FormRequest
 {
     use HasApprovalValidation;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -29,6 +30,7 @@ class StoreRequestStockRequest extends FormRequest
             ]);
         }
     }
+
     public function rules(): array
     {
         return [
@@ -51,15 +53,38 @@ class StoreRequestStockRequest extends FormRequest
                     ->where(fn ($q) => $q->where('equipment_no', '!=', 'N/A')),
             ],
             'remarks' => ['nullable', 'string', new Enum(RSRemarksEnums::class)],
+            // Updated type_of_request validation
             'type_of_request' => [
                 'required',
                 'string',
-                Rule::in([
-                    'Consolidated Request for the month of',
-                    'Recommended Request',
-                    'Special Case of Request',
-                    'N/A'
-                ])
+                function ($attribute, $value, $fail) {
+                    $allowedTypes = [
+                        'Recommended Request',
+                        'Special Case of Request',
+                        'N/A'
+                    ];
+
+                    $months = [
+                        'January', 'February', 'March', 'April', 'May', 'June',
+                        'July', 'August', 'September', 'October', 'November', 'December'
+                    ];
+
+                    // Check if it's one of the simple allowed types
+                    if (in_array($value, $allowedTypes)) {
+                        return;
+                    }
+
+                    // Check if it's a consolidated request with month
+                    $consolidatedPrefix = 'Consolidated Request for the month of ';
+                    if (str_starts_with($value, $consolidatedPrefix)) {
+                        $month = substr($value, strlen($consolidatedPrefix));
+                        if (in_array($month, $months)) {
+                            return;
+                        }
+                    }
+
+                    $fail('The selected type of request is invalid.');
+                }
             ],
             'month' => [
                 'nullable',
@@ -68,7 +93,8 @@ class StoreRequestStockRequest extends FormRequest
                     'January', 'February', 'March', 'April', 'May', 'June',
                     'July', 'August', 'September', 'October', 'November', 'December'
                 ]),
-                'required_if:type_of_request,Consolidated Request for the month of'
+                // Remove this validation since it's handled in frontend
+                // 'required_if:type_of_request,Consolidated Request for the month of'
             ],
             'is_approved' => 'boolean',
             'contact_no' => 'nullable|integer',
