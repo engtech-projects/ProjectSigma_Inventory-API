@@ -6,6 +6,7 @@ use App\Models\RequestProcurement;
 use App\Http\Resources\RequestProcurementDetailedResource;
 use App\Http\Resources\RequestProcurementListingResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class RequestProcurementController extends Controller
 {
@@ -15,32 +16,27 @@ class RequestProcurementController extends Controller
     public function index()
     {
         $procurements = RequestProcurement::with('requestStock')->paginate(10);
-
-        $returnData = RequestProcurementListingResource::collection($procurements);
-
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'Unserved request procurements fetched successfully',
-            'data' => $returnData
-        ]);
+        return RequestProcurementListingResource::collection($procurements)
+            ->additional([
+                'success' => true,
+                'message' => 'Request procurements retrieved successfully.',
+            ]);
     }
     /**
      * Display the specified resource.
      */
-    public function show(RequestProcurement $requestProcurement)
+    public function show(RequestProcurement $resource)
     {
-        $procurement = $requestProcurement->with(['requestStock.department', 'canvassers'])->paginate(10);
-
-        $returnData = RequestProcurementDetailedResource::collection($procurement);
-
         return new JsonResponse([
             'success' => true,
-            'message' => 'Unserved request procurements fetched successfully',
-            'data' => $returnData
-        ]);
+            'message' => 'Request procurement retrieved successfully.',
+            'data' => new RequestProcurementDetailedResource(
+                $resource->fresh(['requestStock.department', 'canvassers'])
+            )
+        ], JsonResponse::HTTP_OK);
     }
 
-    public function unservedRequests(RequestProcurement $requestProcurement)
+    public function unservedRequests()
     {
         $userId = auth()->id();
         $procurements = RequestProcurement::with('requestStock')
@@ -48,12 +44,10 @@ class RequestProcurementController extends Controller
             ->isCanvasser($userId)
             ->paginate(10);
 
-        $returnData = RequestProcurementListingResource::collection($procurements);
-
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'Unserved request procurements fetched successfully',
-            'data' => $returnData
-        ]);
+        return RequestProcurementListingResource::collection($procurements)
+            ->additional([
+                'success' => true,
+                'message' => 'Unserved request procurements fetched successfully.',
+            ]);
     }
 }
