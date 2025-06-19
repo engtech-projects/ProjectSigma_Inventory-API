@@ -35,7 +35,7 @@ class RequestProcurementController extends Controller
             ]);
     }
 
-    public function unservedRequests(RequestProcurement $requestProcurement)
+    public function unservedRequests()
     {
         $userId = auth()->id();
         $procurements = RequestProcurement::with('requestStock')
