@@ -184,4 +184,15 @@ class ItemProfileController extends Controller
         ]);
     }
 
+    public function itemlist()
+    {
+        $main = ItemProfile::IsApproved()->get();
+
+        return new JsonResponse([
+            "message" => "Successfully fetched all approved items.",
+            "success" => true,
+            "data" => ItemProfileResource::collection($main)
+        ]);
+    }
+
 }
