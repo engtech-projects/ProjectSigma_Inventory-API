@@ -10,7 +10,7 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create('request_procurement', function (Blueprint $table) {
+        Schema::create('request_procurements', function (Blueprint $table) {
             $table->id();
             $table->foreignId('request_requisition_slip_id')
                   ->constrained('request_stocks')
@@ -27,6 +27,6 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('request_procurement');
+        Schema::dropIfExists('request_procurements');
     }
 };
