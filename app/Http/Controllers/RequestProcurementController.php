@@ -25,13 +25,13 @@ class RequestProcurementController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(RequestProcurement $requestProcurement)
+    public function show(RequestProcurement $resource)
     {
         return new JsonResponse([
             'success' => true,
             'message' => 'Request procurement retrieved successfully.',
             'data' => new RequestProcurementDetailedResource(
-                $requestProcurement->fresh(['requestStock.department', 'canvassers'])
+                $resource->fresh(['requestStock.department', 'canvassers'])
             )
         ], JsonResponse::HTTP_OK);
     }

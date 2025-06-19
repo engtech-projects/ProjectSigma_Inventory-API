@@ -39,8 +39,6 @@ class RouteServiceProvider extends ServiceProvider
             return $getModel::findOrfail($value);
         });
 
-        Route::model('resource', RequestProcurement::class);
-
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')
