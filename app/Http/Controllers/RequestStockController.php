@@ -28,7 +28,7 @@ class RequestStockController extends Controller
 
     public function index()
     {
-        $main = RequestStock::with(['project', 'items', 'currentBom'])->paginate(10);
+        $main = RequestStock::with(['department', 'project', 'items', 'currentBom'])->paginate(10);
         $collection = RequestStocksResource::collection($main)->response()->getData(true);
 
         return new JsonResponse([
@@ -42,6 +42,11 @@ class RequestStockController extends Controller
     {
         $attributes = $request->validated();
         $sectionId = $attributes['section_id'];
+
+        if ($attributes['type_of_request'] === 'Consolidated Request for the month of' && !empty($attributes['month'])) {
+            $attributes['type_of_request'] = $attributes['type_of_request'] . ' ' . $attributes['month'];
+            unset($attributes['month']);
+        }
 
         if ($attributes["section_type"] == AssignTypes::DEPARTMENT->value) {
             $attributes["section_type"] = class_basename(Department::class);
@@ -101,7 +106,6 @@ class RequestStockController extends Controller
                         'message' => 'Requisition Slip Successfully Submitted.',
                     ], JsonResponse::HTTP_OK);
                 });
-
             } catch (\Illuminate\Database\QueryException $e) {
                 if ($e->errorInfo[1] == 1062) { // Duplicate entry error
                     $attempt++;
@@ -115,7 +119,7 @@ class RequestStockController extends Controller
                     // Regenerate reference number for department type
                     if ($attributes["section_type"] == class_basename(Department::class)) {
                         $this->generateDepartmentReferenceNumber($attributes, $sectionId);
-                    } else if ($attributes["section_type"] == class_basename(Project::class)) {
+                    } elseif ($attributes["section_type"] == class_basename(Project::class)) {
                         $this->generateProjectReferenceNumber($attributes, $sectionId);
                     }
 
@@ -146,9 +150,9 @@ class RequestStockController extends Controller
     {
         $projectCode = Project::findOrFail($sectionId)->project_code;
         $latest    = RequestStock::where('reference_no', 'regexp', "^RS{$projectCode}-[0-9]+$")
-                        ->orderBy('reference_no', 'desc')
-                        ->lockForUpdate()
-                        ->value('reference_no');
+            ->orderBy('reference_no', 'desc')
+            ->lockForUpdate()
+            ->value('reference_no');
         $next      = $latest ? ((int)substr($latest, strlen("RS{$projectCode}-")) + 1) : 1;
         $attributes['reference_no'] = "RS{$projectCode}-" . str_pad($next, 7, '0', STR_PAD_LEFT);
     }
@@ -242,5 +246,4 @@ class RequestStockController extends Controller
             'data' => $requestResources
         ]);
     }
-
 }

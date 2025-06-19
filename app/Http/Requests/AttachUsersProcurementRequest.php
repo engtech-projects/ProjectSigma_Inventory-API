@@ -2,11 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\TransactionTypes;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
 
-class GetLogsRequest extends FormRequest
+class AttachUsersProcurementRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,6 +12,16 @@ class GetLogsRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation()
+    {
+        // Check if user_ids data is in string format and convert to array
+        if (gettype($this->user_ids) === "string") {
+            $this->merge([
+                "user_ids" => json_decode($this->user_ids, true),
+            ]);
+        }
     }
 
     /**
@@ -24,9 +32,8 @@ class GetLogsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'date_from' => 'nullable|date',
-            'date_to' => 'nullable|date|after_or_equal:date_from',
-            'transaction_type' => ['nullable', 'string', new Enum(TransactionTypes::class)],
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
         ];
     }
 }

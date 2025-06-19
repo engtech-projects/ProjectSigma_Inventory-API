@@ -2,18 +2,16 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\TransactionTypes;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
 
-class GetLogsRequest extends FormRequest
+class StorePriceQuotationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -24,9 +22,7 @@ class GetLogsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'date_from' => 'nullable|date',
-            'date_to' => 'nullable|date|after_or_equal:date_from',
-            'transaction_type' => ['nullable', 'string', new Enum(TransactionTypes::class)],
+            //
         ];
     }
 }

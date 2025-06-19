@@ -26,6 +26,8 @@ use App\Http\Controllers\WarehousePssController;
 use App\Http\Controllers\WarehouseTransactionController;
 use App\Http\Controllers\WarehouseTransactionItemController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\RequestProcurementCanvasserController;
+use App\Http\Controllers\RequestProcurementController;
 use App\Models\Warehouse;
 use Illuminate\Support\Facades\Artisan;
 
@@ -79,6 +81,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get('my-approvals', [RequestItemProfilingController::class, 'myApprovals']);
         });
         Route::get('list', [RequestItemProfilingController::class, 'get']);
+        Route::get('item-list', [ItemProfileController::class, 'itemlist']);
         Route::resource('resource', ItemProfileController::class)->names("itemProfileresource");
 
         Route::get('search', [ItemProfileController::class, 'search']);
@@ -198,6 +201,12 @@ Route::middleware('auth:api')->group(function () {
 
     Route::prefix('export')->group(function () {
         Route::get('item-list', [ExportController::class, 'itemListGenerate'])->middleware('throttle:exports');
+    });
+
+    Route::prefix('procurement-request')->group(function () {
+        Route::resource('resource', RequestProcurementController::class)->names("requestProcurement");
+        Route::get('set-canvasser/{procurement-request}', [RequestProcurementCanvasserController::class, 'setCanvasser']);
+        Route::get('unserved', [RequestProcurementController::class, 'unservedRequests']);
     });
 
     if (config()->get('app.artisan') == 'true') {

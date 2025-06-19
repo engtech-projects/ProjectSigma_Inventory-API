@@ -23,6 +23,20 @@ class SearchItemProfile extends FormRequest
     {
         return [
             'query' => 'present|nullable|string|max:255',
+            'item_id' => 'nullable|integer|exists:item_profiles,id',
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array
+     */
+    public function messages(): array
+    {
+        return [
+            'item_id.exists' => 'The selected item does not exist or is not available.',
+            'item_id.integer' => 'The item ID must be a valid number.',
         ];
     }
 }
