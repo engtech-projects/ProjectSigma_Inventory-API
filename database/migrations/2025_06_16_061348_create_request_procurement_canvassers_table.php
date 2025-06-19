@@ -13,7 +13,7 @@ return new class () extends Migration {
         Schema::create('request_procurement_canvassers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('request_procurement_id')
-                  ->constrained('request_procurement')
+                  ->constrained('request_procurements')
                   ->cascadeOnUpdate()
                   ->restrictOnDelete();
             $table->foreignId('user_id')
