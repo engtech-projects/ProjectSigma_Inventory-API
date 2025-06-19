@@ -25,24 +25,15 @@ class RequestProcurementController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(RequestProcurement $requestProcurement)
     {
-        $procurement = RequestProcurement::with(['requestStock.department', 'canvassers'])
-        ->find($id);
-
-        if (!$procurement) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No data found.',
-                'data' => null
-            ], 404);
-        }
-
-        return response()->json([
+        return new JsonResponse([
             'success' => true,
             'message' => 'Request procurement retrieved successfully.',
-            'data' => new RequestProcurementDetailedResource($procurement)
-        ]);
+            'data' => new RequestProcurementDetailedResource(
+                $requestProcurement->fresh(['requestStock.department', 'canvassers'])
+            )
+        ], JsonResponse::HTTP_OK);
     }
 
     public function unservedRequests()
