@@ -15,7 +15,7 @@ class RequisitionSlipItemDetailedResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "quantity " => $this->quantity,
+            "quantity" => $this->quantity,
             "unit_uom" => $this->uomName,
             "item_description" => $this->item_description,
             "specification" => $this->specification,

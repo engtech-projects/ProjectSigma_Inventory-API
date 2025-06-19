@@ -36,15 +36,15 @@ class ApiProjectsSyncJob implements ShouldQueue
         try {
             $service = app(ProjectMonitoringSecretKeyService::class);
             if (!method_exists($service, $this->method)) {
-                Log::warning("ApiProjectSyncJob: Method {$this->method} does not exist.");
+                Log::warning("ApiProjectsSyncJob: Method {$this->method} does not exist.");
                 return;
             }
             DB::transaction(function () use ($service) {
                 $service->{$this->method}();
             });
-            Log::info("ApiProjectSyncJob successfully synced with [{$this->method}]");
+            Log::info("ApiProjectsSyncJob successfully synced with [{$this->method}]");
         } catch (\Throwable $e) {
-            Log::error("ApiProjectSyncJob failed [{$this->method}]: " . $e->getMessage());
+            Log::error("ApiProjectsSyncJob failed [{$this->method}]: " . $e->getMessage());
         }
     }
 }

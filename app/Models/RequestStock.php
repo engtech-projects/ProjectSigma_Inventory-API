@@ -157,13 +157,11 @@ class RequestStock extends Model
     }
     public function project()
     {
-        return $this->belongsTo(Project::class,  'id');
+        return $this->belongsTo(Project::class,  'section_id');
     }
-
-
     public function department()
     {
-        return $this->belongsTo(Department::class,  'id');
+        return $this->belongsTo(Department::class, 'section_id');
     }
     public function currentBom()
     {

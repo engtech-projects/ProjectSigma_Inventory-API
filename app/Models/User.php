@@ -87,7 +87,7 @@ class User extends Model implements AuthenticatableContract
 
     public function procurementRequests()
     {
-        return $this->belongsToMany(RequestProcurementCanvasser::class, 'request_procurement_canvassers');
+        return $this->belongsToMany(RequestProcurement::class, 'request_procurement_canvassers', 'user_id', 'request_procurement_id');
     }
 
     public function employee()

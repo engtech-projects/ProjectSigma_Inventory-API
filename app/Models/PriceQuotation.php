@@ -12,8 +12,6 @@ use Laravel\Sanctum\HasApiTokens;
 class PriceQuotation extends Model
 {
     use HasFactory;
-    use HasApiTokens;
-    use Authorizable;
     use Notifiable;
     use SoftDeletes;
 

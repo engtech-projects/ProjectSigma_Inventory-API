@@ -16,7 +16,7 @@ class AttachUsersProcurementRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        // Check if items data is in string format and convert to array
+        // Check if user_ids data is in string format and convert to array
         if (gettype($this->user_ids) === "string") {
             $this->merge([
                 "user_ids" => json_decode($this->user_ids, true),

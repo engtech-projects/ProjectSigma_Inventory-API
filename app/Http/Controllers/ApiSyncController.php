@@ -7,6 +7,7 @@ use App\Jobs\ApiHrmsSyncJob;
 use App\Jobs\ApiProjectsSyncJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ApiSyncController extends Controller
 {
@@ -14,8 +15,11 @@ class ApiSyncController extends Controller
     {
         DB::transaction(function () {
             $errorServices = [];
-            if (!ApiHrmsSyncJob::dispatch('syncAll')) {
+            try {
+                ApiHrmsSyncJob::dispatch('syncAll');
+            } catch (\Exception $e) {
                 $errorServices[] = "HRMS";
+                Log::error('Failed to dispatch HRMS sync job', ['error' => $e->getMessage()]);
             }
             if (!ApiProjectsSyncJob::dispatch('syncAll')) {
                 $errorServices[] = "Project Monitoring";
@@ -51,8 +55,11 @@ class ApiSyncController extends Controller
     // HRMS
     public function syncAllHrms(Request $request)
     {
-        if (!ApiHrmsSyncJob::dispatch('syncAll')) {
-            throw new \Exception("HRMS sync failed.");
+        try {
+            ApiHrmsSyncJob::dispatch('syncAll');
+        } catch (\Exception $e) {
+            Log::error('Failed to dispatch HRMS sync job', ['error' => $e->getMessage()]);
+            throw new \Exception("HRMS sync failed: " . $e->getMessage());
         }
         return response()->json([
             'message' => 'Successfully synced with HRMS API service.',
@@ -61,8 +68,11 @@ class ApiSyncController extends Controller
     }
     public function syncEmployees(Request $request)
     {
-        if (!ApiHrmsSyncJob::dispatch('syncEmployees')) {
-            throw new \Exception("Employee sync failed.");
+        try {
+            ApiHrmsSyncJob::dispatch('syncEmployees');
+        } catch (\Exception $e) {
+            Log::error('Failed to dispatch Employee sync job', ['error' => $e->getMessage()]);
+            throw new \Exception("Employee sync failed: " . $e->getMessage());
         }
         return response()->json([
             'message' => 'Successfully synced all employees.',

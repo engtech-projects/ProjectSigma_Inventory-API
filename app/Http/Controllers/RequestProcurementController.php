@@ -31,7 +31,7 @@ class RequestProcurementController extends Controller
             'success' => true,
             'message' => 'Request procurement retrieved successfully.',
             'data' => new RequestProcurementDetailedResource(
-                $resource->fresh(['requestStock.department', 'canvassers'])
+                $resource->load(['requestStock.department', 'canvassers'])
             )
         ], JsonResponse::HTTP_OK);
     }
