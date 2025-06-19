@@ -17,7 +17,6 @@ use App\Models\WarehouseTransactionItem;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class WarehouseController extends Controller
 {
@@ -164,7 +163,6 @@ class WarehouseController extends Controller
             }
         )->orderBy('created_at', 'desc')->get();
 
-        Log::info($warehouse);
         $returnData = WarehouseLogsResource::collection($warehouse);
 
         return new JsonResponse([
