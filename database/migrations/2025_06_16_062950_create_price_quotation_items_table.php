@@ -13,7 +13,9 @@ return new class () extends Migration {
         Schema::create('price_quotation_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('price_quotation_id')
-                  ->constrained('price_quotations');
+                  ->constrained('price_quotations')
+                  ->cascadeOnUpdate()
+                  ->restrictOnDelete();
             $table->unsignedBigInteger('item_id');
             $table->string('brand')->nullable();
             $table->decimal('price', 12, 2);

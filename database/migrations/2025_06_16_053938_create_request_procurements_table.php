@@ -13,7 +13,9 @@ return new class () extends Migration {
         Schema::create('request_procurement', function (Blueprint $table) {
             $table->id();
             $table->foreignId('request_requisition_slip_id')
-                  ->constrained('request_stocks');
+                  ->constrained('request_stocks')
+                  ->cascadeOnUpdate()
+                  ->restrictOnDelete();
             $table->enum('serve_status', ['served', 'unserved'])->default('unserved');
             $table->timestamps();
             $table->softDeletes();
