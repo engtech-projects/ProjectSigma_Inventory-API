@@ -168,13 +168,14 @@ class ItemProfileBulkUploadService
                     $isUnprocessed = true;
                 }
 
-
                 $filteredData['item_code'] = $this->generateItemCode($filteredData);
 
                 if ($isUnprocessed) {
                     $unprocessed[] = $filteredData;
                 } else {
-                    $existingItem = ItemProfile::where('item_description', $filteredData['item_description']['value'])->first();
+                    // Enhanced duplicate check with key physical attributes
+                    $existingItem = $this->checkForDuplicate($filteredData);
+
                     if ($existingItem) {
                         $duplicates[] = $filteredData;
                     } else {
@@ -189,6 +190,55 @@ class ItemProfileBulkUploadService
         }
 
         return [$processed, $duplicates, $unprocessed];
+    }
+
+    private function checkForDuplicate(array $filteredData): ?ItemProfile
+    {
+        $query = ItemProfile::where('item_description', $filteredData['item_description']['value']);
+
+        $physicalAttributes = [
+            'length' => $filteredData['length']['value'] ?? null,
+            'width' => $filteredData['width']['value'] ?? null,
+            'height' => $filteredData['height']['value'] ?? null,
+            'thickness' => $filteredData['thickness']['value'] ?? null,
+            'outside_diameter' => $filteredData['outside_diameter']['value'] ?? null,
+            'inside_diameter' => $filteredData['inside_diameter']['value'] ?? null,
+            'volume' => $filteredData['volume']['value'] ?? null,
+            'weight' => $filteredData['weight']['value'] ?? null,
+            'size' => $filteredData['size']['value'] ?? null,
+            'angle' => $filteredData['angle']['value'] ?? null,
+        ];
+
+        foreach ($physicalAttributes as $attribute => $value) {
+            if ($value !== null && $value !== '') {
+                $query->where($attribute, $value);
+            } else {
+                $query->where(function ($q) use ($attribute) {
+                    $q->whereNull($attribute)->orWhere($attribute, '');
+                });
+            }
+        }
+
+        $otherKeyAttributes = [
+            'grade' => $filteredData['grade']['value'] ?? null,
+            'specification' => $filteredData['specification']['value'] ?? null,
+            'color' => $filteredData['color']['value'] ?? null,
+            'part_number' => $filteredData['part_number']['value'] ?? null,
+            'volts' => $filteredData['volts']['value'] ?? null,
+            'plates' => $filteredData['plates']['value'] ?? null,
+        ];
+
+        foreach ($otherKeyAttributes as $attribute => $value) {
+            if ($value !== null && $value !== '') {
+                $query->where($attribute, $value);
+            } else {
+                $query->where(function ($q) use ($attribute) {
+                    $q->whereNull($attribute)->orWhere($attribute, '');
+                });
+            }
+        }
+
+        return $query->first();
     }
 
     private function generateItemCode(array $filteredData): string
@@ -229,7 +279,6 @@ class ItemProfileBulkUploadService
 
         return $skuPrefix;
     }
-
 
     public function selectedItems(array $processed)
     {
