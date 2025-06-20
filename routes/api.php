@@ -29,6 +29,7 @@ use App\Http\Controllers\WarehousePssController;
 use App\Http\Controllers\WarehouseTransactionController;
 use App\Http\Controllers\WarehouseTransactionItemController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\SetupListsController;
 use App\Models\Warehouse;
 use Illuminate\Support\Facades\Artisan;
 
@@ -167,6 +168,12 @@ Route::middleware('auth:api')->group(function () {
                 Route::post('/users', [ApiSyncController::class, 'syncUsers']);
                 Route::post('/departments', [ApiSyncController::class, 'syncDepartments']);
             });
+        });
+        Route::prefix('lists')->group(function () {
+            Route::get('/department', [SetupListsController::class, 'getDepartmentList']   );
+            Route::get('/employee', [SetupListsController::class, 'getEmployeeList']);
+            Route::get('/users', [SetupListsController::class, 'getUsersList']);
+            Route::get('/project', [SetupListsController::class, 'getProjectlist']);
         });
     });
     Route::prefix('request-supplier')->group(function () {
