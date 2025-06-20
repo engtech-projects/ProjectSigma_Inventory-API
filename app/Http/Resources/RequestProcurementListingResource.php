@@ -17,8 +17,8 @@ class RequestProcurementListingResource extends JsonResource
         return [
             "id" => $this->id,
             "rs_reference_no" => $this->requestStock->reference_no ?? "",
-            "rs_date_prepared_human" => $this->requestStock->date_prepared ?? "",
-            "rs_date_needed_human" => $this->requestStock->date_needed ?? "",
+            "rs_date_prepared_human" => $this->requestStock->date_prepared_human ?? "",
+            "rs_date_needed_human" => $this->requestStock->date_needed_human ?? "",
             "status" => $this->requestStock->request_status ?? "",
         ];
     }

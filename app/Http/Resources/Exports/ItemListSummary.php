@@ -34,7 +34,6 @@ class ItemListSummary extends JsonResource
             "part_number" => $this->part_number,
             "color" => $this->color,
             "uom" => $this->uom_full_name,
-            "uom_conversion_value" => $this->uom_conversion_value,
             "item_group" => $this->item_group,
             "sub_item_group" => $this->sub_item_group,
             "inventory_type" => $this->inventory_type,
