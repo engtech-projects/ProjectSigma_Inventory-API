@@ -7,7 +7,6 @@ use App\Models\ItemProfile;
 use Illuminate\Support\Facades\Storage;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 use Illuminate\Support\Str;
-use App\Jobs\DeleteExportFileJob;
 
 class ExportService
 {
@@ -40,7 +39,6 @@ class ExportService
             'Part Number',
             'Color',
             'UOM',
-            'UOM Conversion Value',
             'Item Group',
             'Sub Item Group',
             'Inventory Type',
@@ -54,7 +52,7 @@ class ExportService
         $reportData = ExportService::itemListSummary()->resolve();
         $excel->addRows($reportData);
         $excel->close();
-        dispatch(new DeleteExportFileJob($relativePath))->delay(now()->addMinutes(5));
-        return $fullPath;
+        Storage::disk('public')->delete('/storage/' . $relativePath . '.xlsx', now()->addMinutes(5));
+        return '/storage/' . $relativePath;
     }
 }

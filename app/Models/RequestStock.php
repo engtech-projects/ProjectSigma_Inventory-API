@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use App\Enums\RequestApprovalStatus;
 use App\Enums\RequestStatuses;
 use App\Enums\RSRemarksEnums;
 use App\Enums\TransactionTypes;
 use App\Traits\HasApproval;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -63,7 +63,7 @@ class RequestStock extends Model
 
     public function completeRequestStatus()
     {
-        $this->request_status = RequestApprovalStatus::APPROVED;
+        $this->request_status = RequestStatuses::APPROVED;
         if ($this->remarks == RSRemarksEnums::PETTYCASH->value) {
             $this->createPettyCashMRR();
         }
@@ -86,16 +86,17 @@ class RequestStock extends Model
             'approvals' => $this->approvals,
             'metadata' => [
                 'rs_id' => $this->id,
-                'equipment_no' => $this->equipment_no,
-                'project_code' => $this->section_id,
+                'po_id' => null,
                 'supplier_id' => null,
+                'reference' => $this->reference_no,
+                'equipment_no' => $this->equipment_no,
                 'terms_of_payment' => null,
                 'particulars' => null,
-                'po_id' => null,
                 'is_petty_cash' => true,
+
             ],
             'created_by' => auth()->user()->id,
-            'request_status' => RequestApprovalStatus::PENDING,
+            'request_status' => RequestStatuses::APPROVED,
         ]);
 
         $this->storeItems($mrr);
@@ -128,10 +129,10 @@ class RequestStock extends Model
 
             $metadata = [
                 'specification' => $requestItem->specification,
-                'actual_brand_purchase' => null, // Editable field
+                'actual_brand_purchase' => $requestItem->preferred_brand,
                 'unit_price' => null, // Editable field
                 'remarks' => null, // Editable field
-                'status' => RequestApprovalStatus::PENDING,
+                'status' => RequestStatuses::APPROVED,
             ];
 
             WarehouseTransactionItem::create([
@@ -156,11 +157,11 @@ class RequestStock extends Model
     }
     public function project()
     {
-        return $this->belongsTo(Project::class, 'office_project', 'id');
+        return $this->belongsTo(Project::class, 'section_id');
     }
     public function department()
     {
-        return $this->belongsTo(Department::class, 'office_project_address', 'id');
+        return $this->belongsTo(Department::class, 'section_id');
     }
     public function currentBom()
     {
@@ -181,23 +182,25 @@ class RequestStock extends Model
         );
     }
 
+    public function getDateNeededHumanAttribute()
+    {
+        return $this->date_needed ? Carbon::parse($this->date_needed)->format("F j, Y") : null;
+    }
+
+    public function getDatePreparedHumanAttribute()
+    {
+        return $this->date_prepared ? Carbon::parse($this->date_prepared)->format("F j, Y") : null;
+    }
+
+    public function requestProcurement()
+    {
+        return $this->hasOne(RequestProcurement::class, 'request_requisition_slip_id');
+    }
+
     public function section()
     {
         return $this->morphTo();
     }
-
-    public function mrr()
-    {
-        return $this->hasOne(WarehouseTransaction::class, 'charging_id')
-            ->where('charging_type', self::class)
-            ->where('transaction_type', TransactionTypes::RECEIVING);
-    }
-    public function mrrItems()
-    {
-        return $this->hasMany(WarehouseTransactionItem::class, 'metadata->request_stock_item_id', 'id');
-    }
-
-
 
     /**
      * ==================================================
@@ -206,9 +209,20 @@ class RequestStock extends Model
      */
 
 
+    public function createProcurementRequest()
+    {
+        return $this->requestProcurement()->create([
+            'serve_status' => 'unserved'
+        ]);
+    }
     /**
      * ==================================================
      * DYNAMIC SCOPES
      * ==================================================
      */
+
+    public function getProjectCodeAttribute()
+    {
+        return $this->project->project_code ?? null;
+    }
 }

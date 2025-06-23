@@ -155,6 +155,7 @@ class ItemProfileController extends Controller
             ->where('active_status', 'Active')
             ->where(function ($q) use ($searchKey) {
                 $q->where('item_description', 'LIKE', "%{$searchKey}%")
+                    ->orWhere('item_code', 'LIKE', "%{$searchKey}%")
                 ->orWhere('thickness', 'LIKE', "%{$searchKey}%")
                 ->orWhere('length', 'LIKE', "%{$searchKey}%")
                 ->orWhere('width', 'LIKE', "%{$searchKey}%")
@@ -180,6 +181,17 @@ class ItemProfileController extends Controller
             'message' => 'Successfully fetched.',
             'success' => true,
             'data' => SearchedItemsResource::collection($query)
+        ]);
+    }
+
+    public function itemlist()
+    {
+        $main = ItemProfile::IsApproved()->get();
+
+        return new JsonResponse([
+            "message" => "Successfully fetched all approved items.",
+            "success" => true,
+            "data" => ItemProfileResource::collection($main)
         ]);
     }
 

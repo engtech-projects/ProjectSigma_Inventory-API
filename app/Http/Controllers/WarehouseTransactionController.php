@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\RequestApprovalStatus;
+use App\Enums\RequestStatuses;
 use App\Http\Resources\WarehouseTransactionResourceList;
-use App\Http\Services\MaterialsReceivingService;
 use App\Models\WarehouseTransaction;
 use App\Http\Requests\StoreWarehouseTransactionRequest;
 use App\Http\Resources\WarehouseTransactionResource;
+use App\Http\Services\WarehouseTransactionService;
 use App\Models\WarehouseTransactionItem;
 use App\Notifications\WarehouseTransactionForApprovalNotification;
 use App\Traits\HasApproval;
@@ -20,17 +20,17 @@ use Illuminate\Validation\ValidationException;
 class WarehouseTransactionController extends Controller
 {
     use HasApproval;
-    protected $materialsReceivingService;
-    public function __construct(MaterialsReceivingService $materialsReceivingService)
+    protected $warehouseTransactionService;
+    public function __construct(WarehouseTransactionService $warehouseTransactionService)
     {
-        $this->materialsReceivingService = $materialsReceivingService;
+        $this->warehouseTransactionService = $warehouseTransactionService;
     }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $main = WarehouseTransaction::with('items')->paginate(10);
+        $main = WarehouseTransaction::with(['items.uomRelationship', 'items.item'])->paginate(10);
         $collection = WarehouseTransactionResource::collection($main)->response()->getData(true);
 
         return new JsonResponse([
@@ -46,7 +46,7 @@ class WarehouseTransactionController extends Controller
     public function store(StoreWarehouseTransactionRequest $request)
     {
         $attributes = $request->validated();
-        $attributes['request_status'] = $attributes['request_status'] ?? RequestApprovalStatus::PENDING;
+        $attributes['request_status'] = RequestStatuses::PENDING;
         $attributes['created_by'] = auth()->user()->id;
 
 
@@ -161,6 +161,7 @@ class WarehouseTransactionController extends Controller
                 'metadata.supplier_id' => 'nullable|integer',
                 'metadata.terms_of_payment' => 'nullable|string|max:255',
                 'metadata.particulars' => 'nullable|string|max:1000',
+                'metadata.reference' => 'nullable|string|max:255',
             ]);
 
             $metadata = $resource->metadata ?? [];
@@ -170,7 +171,7 @@ class WarehouseTransactionController extends Controller
             $incomingData = $request->input('metadata', []);
 
             if (empty($incomingData)) {
-                $incomingData = $request->only(['supplier_id', 'terms_of_payment', 'particulars']);
+                $incomingData = $request->only(['supplier_id', 'terms_of_payment', 'particulars', 'reference']);
             }
 
             if (isset($incomingData['supplier_id']) && $incomingData['supplier_id'] !== null) {
@@ -189,6 +190,12 @@ class WarehouseTransactionController extends Controller
                 $metadata['particulars'] = $incomingData['particulars'];
                 $updated = true;
                 $updatedFields[] = 'particulars';
+            }
+
+            if (isset($incomingData['reference']) && $incomingData['reference'] !== null) {
+                $metadata['reference'] = $incomingData['reference'];
+                $updated = true;
+                $updatedFields[] = 'reference';
             }
 
             if (!$updated) {
@@ -246,21 +253,24 @@ class WarehouseTransactionController extends Controller
 
     public function allRequests()
     {
-        $myRequest = $this->materialsReceivingService->getAllRequest();
-
-        if ($myRequest->isEmpty()) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'No data found.',
-            ], JsonResponse::HTTP_OK);
-        }
-
+        $myRequest = $this->warehouseTransactionService->getAllRequest();
         $requestResources = WarehouseTransactionResourceList::collection($myRequest)->response()->getData(true);
-
         return new JsonResponse([
             'message' => 'All Request Fetched.',
             'success' => true,
             'data' => $requestResources
         ]);
+    }
+    public function getTransactionsByWarehouse(int $warehouse_id)
+    {
+        $main = WarehouseTransaction::with(['items.uomRelationship', 'items.item', 'supplier'])
+            ->where('warehouse_id', $warehouse_id)
+            ->paginate(10);
+        $collection = WarehouseTransactionResource::collection($main)->response()->getData(true);
+        return response()->json([
+            "message" => "Warehouse Transactions Successfully Fetched.",
+            "success" => true,
+            "data" => $collection,
+        ], JsonResponse::HTTP_OK);
     }
 }
