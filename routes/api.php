@@ -170,7 +170,7 @@ Route::middleware('auth:api')->group(function () {
             });
         });
         Route::prefix('lists')->group(function () {
-            Route::get('/department', [SetupListsController::class, 'getDepartmentList']   );
+            Route::get('/department', [SetupListsController::class, 'getDepartmentList']);
             Route::get('/employee', [SetupListsController::class, 'getEmployeeList']);
             Route::get('/users', [SetupListsController::class, 'getUsersList']);
             Route::get('/project', [SetupListsController::class, 'getProjectlist']);
