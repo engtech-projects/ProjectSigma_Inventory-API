@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\RequestProcurement;
 use App\Http\Resources\RequestProcurementDetailedResource;
 use App\Http\Resources\RequestProcurementListingResource;
+use App\Utils\PaginateResourceCollection;
 use Illuminate\Http\JsonResponse;
 
 class RequestProcurementController extends Controller
@@ -14,12 +15,13 @@ class RequestProcurementController extends Controller
      */
     public function index()
     {
-        $procurements = RequestProcurement::with('requestStock')->paginate(10);
-        return RequestProcurementListingResource::collection($procurements)
-            ->additional([
-                'success' => true,
-                'message' => 'Request procurements retrieved successfully.',
-            ]);
+        $procurements = RequestProcurement::with('requestStock')->get();
+        $dataReturn = collect(RequestProcurementListingResource::collection($procurements));
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Successfully fetched.",
+            "data" => PaginateResourceCollection::paginate($dataReturn, 10)
+        ], JsonResponse::HTTP_OK);
     }
     /**
      * Display the specified resource.
