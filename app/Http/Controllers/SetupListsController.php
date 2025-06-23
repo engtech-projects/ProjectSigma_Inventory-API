@@ -14,8 +14,7 @@ use Illuminate\Http\JsonResponse;
 
 class SetupListsController extends Controller
 {
-
-    public function getDepartmentList ()
+    public function getDepartmentList()
     {
 
         $fetch = Department::orderBy('created_at', 'DESC')
@@ -29,7 +28,7 @@ class SetupListsController extends Controller
 
     }
 
-    public function getEmployeeList ()
+    public function getEmployeeList()
     {
 
         $fetch = Employee::orderBy('created_at', 'DESC')
@@ -43,7 +42,7 @@ class SetupListsController extends Controller
 
     }
 
-    public function getUsersList ()
+    public function getUsersList()
     {
 
         $fetch = User::orderBy('created_at', 'DESC')
@@ -57,7 +56,7 @@ class SetupListsController extends Controller
 
     }
 
-    public function getProjectList ()
+    public function getProjectList()
     {
 
         $fetch = Project::orderBy('created_at', 'DESC')
