@@ -29,6 +29,7 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
                      'remarks' => 'nullable|string|max:255',
                      'metadata' => 'nullable|array',
                  ];
+
     }
 
     /**

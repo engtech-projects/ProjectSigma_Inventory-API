@@ -26,10 +26,10 @@ return new class () extends Migration {
             $table->foreignId('item_profile_id')->constrained('item_profile')->onDelete('cascade');
             $table->string('specification');
             $table->string('actual_brand');
-            $table->float('qty');
+            $table->decimal('qty', 10, 2);
             $table->foreignId('uom_id')->constrained('setup_uom')->onDelete('cascade');
-            $table->float('unit_price');
-            $table->float('ext_price');
+            $table->decimal('unit_price', 10, 2);
+            $table->decimal('ext_price', 10, 2);
             $table->string('status');
             $table->string('remarks')->nullable();
             $table->timestamps();

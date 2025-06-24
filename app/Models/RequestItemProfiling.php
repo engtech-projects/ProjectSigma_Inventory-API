@@ -58,7 +58,7 @@ class RequestItemProfiling extends Model
 
     public function completeRequestStatus()
     {
-        $this->request_status = RequestStatuses::APPROVED;
+        $this->request_status = RequestStatuses::APPROVED->value;
         $this->itemProfiles()->update([
             "is_approved" => 1,
         ]);

@@ -6,6 +6,7 @@ use App\Enums\RequestStatuses;
 use App\Enums\RSRemarksEnums;
 use App\Enums\TransactionTypes;
 use App\Traits\HasApproval;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -156,7 +157,7 @@ class RequestStock extends Model
     }
     public function project()
     {
-        return $this->belongsTo(Project::class, 'office_project', 'id');
+        return $this->belongsTo(Project::class, 'section_id');
     }
     public function department()
     {
@@ -181,6 +182,21 @@ class RequestStock extends Model
         );
     }
 
+    public function getDateNeededHumanAttribute()
+    {
+        return $this->date_needed ? Carbon::parse($this->date_needed)->format("F j, Y") : null;
+    }
+
+    public function getDatePreparedHumanAttribute()
+    {
+        return $this->date_prepared ? Carbon::parse($this->date_prepared)->format("F j, Y") : null;
+    }
+
+    public function requestProcurement()
+    {
+        return $this->hasOne(RequestProcurement::class, 'request_requisition_slip_id');
+    }
+
     public function section()
     {
         return $this->morphTo();
@@ -193,9 +209,20 @@ class RequestStock extends Model
      */
 
 
+    public function createProcurementRequest()
+    {
+        return $this->requestProcurement()->create([
+            'serve_status' => 'unserved'
+        ]);
+    }
     /**
      * ==================================================
      * DYNAMIC SCOPES
      * ==================================================
      */
+
+    public function getProjectCodeAttribute()
+    {
+        return $this->project->project_code ?? null;
+    }
 }

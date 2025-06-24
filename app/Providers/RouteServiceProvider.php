@@ -26,6 +26,8 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->configureRateLimiting();
+
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
@@ -35,7 +37,6 @@ class RouteServiceProvider extends ServiceProvider
             $getModel = $this->getModelClass($modelName);
             return $getModel::findOrfail($value);
         });
-
 
         $this->routes(function () {
             Route::middleware('api')
@@ -55,5 +56,14 @@ class RouteServiceProvider extends ServiceProvider
         } catch (\Exception $e) {
             throw new NotFoundHttpException("Resource not found");
         }
+    }
+
+    public function configureRateLimiting(): void
+    {
+        RateLimiter::for(
+            'exports',
+            fn (Request $request) =>
+            Limit::perMinute(10)->by($request->user()?->id ?? $request->ip())
+        );
     }
 }

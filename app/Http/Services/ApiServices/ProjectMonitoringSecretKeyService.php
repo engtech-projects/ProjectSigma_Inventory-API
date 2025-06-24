@@ -34,7 +34,7 @@ class ProjectMonitoringSecretKeyService
     public function syncProjects()
     {
         $projects = $this->getAllProjects();
-        Log::info($projects);
+
         $warehouses = array_map(fn ($project) => [
             "name" => $project['code'],
             "location" => $project['code'],
@@ -49,10 +49,19 @@ class ProjectMonitoringSecretKeyService
             "status" => $project['status'],
         ], $projects);
 
+        $existingWarehouseOwnerIds = Warehouse::where('owner_type', OwnerType::PROJECT)
+            ->pluck('owner_id')
+            ->toArray();
+
+        $filteredWarehouses = array_filter(
+            $warehouses,
+            fn ($warehouse) =>
+            !in_array($warehouse['owner_id'], $existingWarehouseOwnerIds)
+        );
+
         Project::upsert(
             $projects,
             [
-                'id',
                 'project_monitoring_id',
             ],
             [
@@ -61,10 +70,10 @@ class ProjectMonitoringSecretKeyService
                 'status',
             ]
         );
+
         Warehouse::upsert(
-            $warehouses,
+            array_values($filteredWarehouses),
             [
-                'id',
                 'name',
                 'owner_id',
             ],
@@ -86,7 +95,7 @@ class ProjectMonitoringSecretKeyService
                 "sort" => "asc"
             ])
             ->acceptJson()
-            ->get($this->apiUrl.'/api/sigma/sync-list/projects');
+            ->get($this->apiUrl . '/api/sigma/sync-list/projects');
         if (! $response->successful()) {
             Log::channel("ProjectMonitoringService")->error('Failed to fetch projects from monitoring API', [
                 'status' => $response->status(),

@@ -26,7 +26,6 @@ class GetLogsRequest extends FormRequest
         return [
             'date_from' => 'nullable|date',
             'date_to' => 'nullable|date|after_or_equal:date_from',
-            'item_id' => 'nullable|integer|exists:warehouse_transaction_items,id',
             'transaction_type' => ['nullable', 'string', new Enum(TransactionTypes::class)],
         ];
     }

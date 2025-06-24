@@ -7,12 +7,15 @@ use App\Enums\UserTypes;
 use App\Http\Requests\GetLogsRequest;
 use App\Http\Requests\StoreWarehouseRequest;
 use App\Http\Requests\UpdateWarehouseRequest;
+use App\Http\Resources\WarehouseLogsResource;
 use App\Http\Resources\WarehouseMaterialsReceivingResource;
 use App\Http\Resources\WarehouseResource;
 use App\Http\Resources\WarehouseStocksResource;
 use App\Http\Traits\CheckAccessibility;
 use App\Models\Warehouse;
+use App\Models\WarehouseTransactionItem;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 class WarehouseController extends Controller
@@ -140,32 +143,33 @@ class WarehouseController extends Controller
     public function getLogs(GetLogsRequest $request, $warehouse_id)
     {
         $validated = $request->validated();
-
         $date_from = $validated['date_from'] ?? null;
         $date_to = $validated['date_to'] ?? null;
-        $item_id = $validated['item_id'] ?? null;
         $transaction_type = $validated['transaction_type'] ?? null;
 
-        $warehouse = Warehouse::with(['transactionItems' => function ($query) use ($date_from, $date_to, $item_id, $transaction_type) {
-            if ($date_from) {
-                $query->where('warehouse_transaction_items.created_at', '>=', Carbon::parse($date_from));
-            }
-            if ($date_to) {
-                $query->where('warehouse_transaction_items.created_at', '<=', Carbon::parse($date_to)->endOfDay());
-            }
-            if ($item_id) {
-                $query->where('warehouse_transaction_items.item_id', $item_id);
-            }
-            if ($transaction_type) {
-                $query->where('warehouse_transactions.transaction_type', $transaction_type);
-            }
-        }])->findOrFail($warehouse_id);
+        $parseDateFrom = $date_from ? Carbon::parse($date_from)->startOfDay() : null;
+        $parseDateTo = $date_to ? Carbon::parse($date_to)->endOfDay() : null;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Successfully Fetched.',
-            'warehouse' => $warehouse,
-        ]);
+        $warehouse = WarehouseTransactionItem::with(['item', 'uomRelationship', 'transaction'])->whereHas(
+            "transaction",
+            function ($query) use ($warehouse_id, $parseDateFrom, $parseDateTo, $transaction_type) {
+                $query->where('warehouse_id', $warehouse_id);
+                if (!is_null($transaction_type)) {
+                    $query->where('transaction_type', $transaction_type);
+                }
+                if (!is_null($parseDateFrom) && !is_null($parseDateTo)) {
+                    $query->betweenDates($parseDateFrom, $parseDateTo);
+                }
+            }
+        )->orderBy('created_at', 'desc')->get();
+
+        $returnData = WarehouseLogsResource::collection($warehouse);
+
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Successfully fetched.",
+            "data" => $returnData
+        ], JsonResponse::HTTP_OK);
     }
 
     public function getStocks($warehouse_id)
@@ -187,5 +191,4 @@ class WarehouseController extends Controller
             'data' => WarehouseStocksResource::collection($transactionItems)->response()->getData(true),
         ]);
     }
-
 }

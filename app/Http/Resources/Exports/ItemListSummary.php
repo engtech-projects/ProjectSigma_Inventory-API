@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Http\Resources\Exports;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class ItemListSummary extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
+        return [
+            "item_code" => $this->item_code,
+            "item_description" => $this->item_description,
+            "thickness" => $this->thickness,
+            "length" => $this->length,
+            "width" => $this->width,
+            "height" => $this->height,
+            "outside_diameter" => $this->outside_diameter,
+            "inside_diameter" => $this->inside_diameter,
+            "angle" => $this->angle,
+            "size" => $this->size,
+            "specification" => $this->specification,
+            "volume" => $this->volume,
+            "weight" => $this->weight,
+            "grade" => $this->grade,
+            "volts" => $this->volts,
+            "plates" => $this->plates,
+            "part_number" => $this->part_number,
+            "color" => $this->color,
+            "uom" => $this->uom_full_name,
+            "item_group" => $this->item_group,
+            "sub_item_group" => $this->sub_item_group,
+            "inventory_type" => $this->inventory_type,
+            "created_at_human" => $this->created_time_human,
+        ];
+    }
+}

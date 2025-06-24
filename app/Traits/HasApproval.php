@@ -119,7 +119,7 @@ trait HasApproval
     }
     public function getNextPendingApproval()
     {
-        if ($this->request_status != RequestStatuses::PENDING) {
+        if ($this->request_status !== RequestStatuses::PENDING->value) {
             return null;
         }
         return collect($this->approvals)->where('status', RequestApprovalStatus::PENDING)->first();
@@ -190,7 +190,7 @@ trait HasApproval
             ];
         }
         DB::beginTransaction();
-        if ($data['status'] === RequestStatuses::DENIED->value) {
+        if ($data['status'] === RequestApprovalStatus::DENIED) {
             $this->denyCurrentApproval($data["remarks"]);
         } else {
             $this->approveCurrentApproval();
