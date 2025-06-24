@@ -67,5 +67,20 @@ class WarehouseTransactionItem extends Model
     * DYNAMIC SCOPES
     * ==================================================
     */
+    public function getGrandTotalAttribute()
+    {
+        return $this->metadata['unit_price'] * $this->quantity;
+    }
+
+    // to be used later
+    // public function getTotalNetVatAttribute()
+    // {
+    //     return ($this->metadata['unit_price'] ?? 0) * ($this->quantity ?? 0);
+    // }
+
+    // public function getTotalInputVatAttribute()
+    // {
+    //     return $this->total_net_vat * 0.12; // 12% VAT
+    // }
 
 }

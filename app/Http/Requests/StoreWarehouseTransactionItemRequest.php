@@ -27,8 +27,6 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
                      'unit_price' => 'required|numeric|min:1',
                      'quantity' => 'required|numeric|min:0',
                      'remarks' => 'nullable|string|max:255',
-                    'metadata.unit_price' => 'required|numeric|min:1',
-                    'metadata.actual_brand_purchase' => 'required|string|max:255',
                      'metadata' => 'nullable|array',
                  ];
     }
@@ -43,8 +41,6 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
         return [
             'unit_price.required' => 'The unit price is required.',
             'actual_brand_purchase.required' => 'The actual brand purchase is required.',
-            'metadata.unit_price.required' => 'The unit price is required.',
-            'metadata.actual_brand_purchase.required' => 'The actual brand purchase is required.',
         ];
 
     }
