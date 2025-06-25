@@ -118,7 +118,7 @@ class WarehouseTransaction extends Model
     }
     public function items()
     {
-        return $this->hasMany(WarehouseTransactionItem::class,'warehouse_transaction_id');
+        return $this->hasMany(WarehouseTransactionItem::class, 'warehouse_transaction_id');
     }
     public function transactions()
     {

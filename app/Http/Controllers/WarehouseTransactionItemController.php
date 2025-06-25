@@ -98,7 +98,7 @@ class WarehouseTransactionItemController extends Controller
 
     public function acceptAll(StoreWarehouseTransactionAllItemRequest $request, WarehouseTransactionItem $resource)
     {
-        $validatedData = $request->validated ();
+        $validatedData = $request->validated();
 
         $quantity = $resource->quantity;
         $accepted_quantity = $quantity;
@@ -133,7 +133,7 @@ class WarehouseTransactionItemController extends Controller
 
     public function acceptWithDetails(StoreWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
     {
-        $validatedData = $request->validated ();
+        $validatedData = $request->validated();
 
         $quantity = $resource->quantity;
         $accepted_quantity = $validatedData['accepted_quantity'];
