@@ -98,6 +98,7 @@ class WarehouseTransactionItemController extends Controller
     public function acceptAll(StoreWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
     {
         $quantity = $resource->quantity;
+        $accepted_quantity = $request->input('accepted_quantity', $quantity);
         $unit_price = $request->input('unit_price');
         $actual_brand_purchase = $request->input('actual_brand_purchase');
         $specification = $request->input('specification');
@@ -107,6 +108,7 @@ class WarehouseTransactionItemController extends Controller
         $metadata['status'] = 'Accepted';
         $metadata['remarks'] = 'Accepted';
         $metadata['unit_price'] = $unit_price;
+        $metadata['accepted_quantity'] = $accepted_quantity;
         $metadata['actual_brand_purchase'] = $actual_brand_purchase;
         $metadata['specification'] = $specification;
         $metadata['grand_total'] = $grand_total;
@@ -117,7 +119,7 @@ class WarehouseTransactionItemController extends Controller
 
         $resource->update([
             'metadata' => $metadata,
-            'quantity' => $quantity
+            'quantity' => $quantity,
         ]);
 
         return response()->json([
@@ -129,6 +131,7 @@ class WarehouseTransactionItemController extends Controller
     public function acceptWithDetails(StoreWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
     {
         $quantity = $request->input('quantity');
+        $accepted_quantity = $request->input('accepted_quantity', $quantity);
         $remarks = $request->input('remarks');
         $unit_price = $request->input('unit_price');
         $actual_brand_purchase = $request->input('actual_brand_purchase');
@@ -139,6 +142,7 @@ class WarehouseTransactionItemController extends Controller
         $metadata['status'] = 'Accepted';
         $metadata['remarks'] = $remarks;
         $metadata['unit_price'] = $unit_price;
+        $metadata['accepted_quantity'] = $accepted_quantity;
         $metadata['actual_brand_purchase'] = $actual_brand_purchase;
         $metadata['specification'] = $specification;
         $metadata['grand_total'] = $grand_total;
@@ -149,7 +153,8 @@ class WarehouseTransactionItemController extends Controller
 
         $resource->update([
             'metadata' => $metadata,
-            'quantity' => $quantity
+            'quantity' => $quantity,
+
         ]);
 
         return response()->json([

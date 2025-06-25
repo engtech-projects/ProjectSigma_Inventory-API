@@ -70,7 +70,7 @@ class WarehouseTransactionItem extends Model
     public function getPerItemTotalAttribute()
     {
         $unitPrice = $this->metadata['unit_price'] ?? 0;
-        $quantity = $this->quantity ?? 0;
+        $quantity = $this->metadata['accepted_quantity'] ?? 0;
 
         return $unitPrice * $quantity;
     }
@@ -79,7 +79,7 @@ class WarehouseTransactionItem extends Model
     public function getExtPriceAttribute()
     {
         $unitPrice = $this->metadata['unit_price'] ?? 0;
-        $quantity = $this->quantity ?? 0;
+        $quantity = $this->metadata['accepted_quantity'] ?? 0;
         return $unitPrice * $quantity ?? 0;
     }
 

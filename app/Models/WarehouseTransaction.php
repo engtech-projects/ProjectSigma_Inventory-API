@@ -168,7 +168,7 @@ class WarehouseTransaction extends Model
 
     public function getGrandTotalAttribute()
     {
-        return $this->items->sum('per_item_total');
+        return $this->items->sum('ext_price');
     }
 
     public function getTransactionDateHumanAttribute()
