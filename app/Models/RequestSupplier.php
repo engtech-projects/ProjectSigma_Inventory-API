@@ -70,7 +70,7 @@ class RequestSupplier extends Model
      */
     public function scopeIsApproved(Builder $query): void
     {
-        $query->where('request_status', "Approved");
+        $query->where('request_status', RequestStatuses::APPROVED);
     }
     public function scopeRequestStatusPending(Builder $query): void
     {

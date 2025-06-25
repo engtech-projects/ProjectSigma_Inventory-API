@@ -85,6 +85,16 @@ class User extends Model implements AuthenticatableContract
         return 'users.' . $this->id;
     }
 
+    public function procurementRequests()
+    {
+        return $this->belongsToMany(RequestProcurement::class, 'request_procurement_canvassers', 'user_id', 'request_procurement_id');
+    }
+
+    public function employee()
+    {
+        return $this->hasOne(Employee::class, 'user_id');
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

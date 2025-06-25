@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 
 class WarehouseTransaction extends Model
 {
@@ -49,6 +50,11 @@ class WarehouseTransaction extends Model
     public function scopeRequestStatusPending(Builder $query): void
     {
         $query->where('request_status', RequestStatuses::PENDING);
+    }
+
+    public function scopeBetweenDates(Builder $query, $dateFrom, $dateTo): void
+    {
+        $query->whereBetween('transaction_date', [$dateFrom, $dateTo]);
     }
 
     public function scopeAuthUserPending(Builder $query): void
@@ -118,6 +124,7 @@ class WarehouseTransaction extends Model
     {
         return $this->hasManyThrough(WarehouseTransactionItem::class, WarehouseTransaction::class);
     }
+
     public function requestStock()
     {
         return $this->belongsTo(RequestStock::class, 'charging_id')
@@ -164,6 +171,9 @@ class WarehouseTransaction extends Model
         return $this->items->sum('per_item_total');
     }
 
-
+    public function getTransactionDateHumanAttribute()
+    {
+        return $this->transaction_date ? Carbon::parse($this->transaction_date)->format('F j, Y') : null;
+    }
 
 }

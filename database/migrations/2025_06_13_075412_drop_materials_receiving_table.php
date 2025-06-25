@@ -21,7 +21,7 @@ return new class () extends Migration {
         // Recreate the table with its original structure
         Schema::create('materials_receiving', function (Blueprint $table) {
             $table->id();
-            $table->integer('parent_id')->after('id');
+            $table->integer('parent_id');
             $table->enum('parent_type', ['receiving', 'transfer', 'withdrawal'])->after('parent_id');
             $table->foreignId('warehouse_id')->constrained('warehouse')->onDelete('cascade');
             $table->foreignId('supplier_id')->constrained('request_supplier')->onDelete('cascade');
