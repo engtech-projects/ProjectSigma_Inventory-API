@@ -98,12 +98,14 @@ class WarehouseTransactionItemController extends Controller
 
     public function acceptAll(StoreWarehouseTransactionAllItemRequest $request, WarehouseTransactionItem $resource)
     {
+        $validatedData = $request->validated ();
+
         $quantity = $resource->quantity;
         $accepted_quantity = $quantity;
-        $unit_price = $request->input('unit_price');
-        $actual_brand_purchase = $request->input('actual_brand_purchase');
-        $specification = $request->input('specification');
-        $grand_total = $request->input('grand_total');
+        $unit_price = $validatedData['unit_price'];
+        $actual_brand_purchase = $validatedData['actual_brand_purchase'];
+        $specification = $validatedData['specification'];
+        $grand_total = $validatedData['grand_total'];
 
         $metadata = $resource->metadata ?? [];
         $metadata['status'] = 'Accepted';
@@ -131,13 +133,15 @@ class WarehouseTransactionItemController extends Controller
 
     public function acceptWithDetails(StoreWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
     {
+        $validatedData = $request->validated ();
+
         $quantity = $resource->quantity;
-        $accepted_quantity = $request->input('accepted_quantity');
-        $remarks = $request->input('remarks');
-        $unit_price = $request->input('unit_price');
-        $actual_brand_purchase = $request->input('actual_brand_purchase');
-        $specification = $request->input('specification');
-        $grand_total = $request->input('grand_total');
+        $accepted_quantity = $validatedData['accepted_quantity'];
+        $remarks = $validatedData['remarks'];
+        $unit_price = $validatedData['unit_price'];
+        $actual_brand_purchase = $validatedData['actual_brand_purchase'];
+        $specification = $validatedData['specification'];
+        $grand_total = $validatedData['grand_total'];
 
         $metadata = $resource->metadata ?? [];
         $metadata['status'] = 'Accepted';
