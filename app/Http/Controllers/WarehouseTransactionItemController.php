@@ -132,7 +132,7 @@ class WarehouseTransactionItemController extends Controller
     public function acceptWithDetails(StoreWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
     {
         $quantity = $resource->quantity;
-        $accepted_quantity = $request->input('accepted_quantity', $quantity);
+        $accepted_quantity = $request->input('accepted_quantity');
         $remarks = $request->input('remarks');
         $unit_price = $request->input('unit_price');
         $actual_brand_purchase = $request->input('actual_brand_purchase');
