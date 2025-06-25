@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RejectWarehouseTransactionItemRequest;
+use App\Http\Requests\StoreWarehouseTransactionAllItemRequest;
 use App\Models\WarehouseTransactionItem;
 use App\Http\Requests\StoreWarehouseTransactionItemRequest;
 use App\Http\Requests\UpdateWarehouseTransactionItemRequest;
@@ -95,10 +96,10 @@ class WarehouseTransactionItemController extends Controller
         return response()->json($response, $deleted ? 200 : 400);
     }
 
-    public function acceptAll(StoreWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
+    public function acceptAll(StoreWarehouseTransactionAllItemRequest $request, WarehouseTransactionItem $resource)
     {
         $quantity = $resource->quantity;
-        $accepted_quantity = $request->input('accepted_quantity', $quantity);
+        $accepted_quantity = $quantity;
         $unit_price = $request->input('unit_price');
         $actual_brand_purchase = $request->input('actual_brand_purchase');
         $specification = $request->input('specification');
@@ -130,7 +131,7 @@ class WarehouseTransactionItemController extends Controller
 
     public function acceptWithDetails(StoreWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
     {
-        $quantity = $request->input('quantity');
+        $quantity = $resource->quantity;
         $accepted_quantity = $request->input('accepted_quantity', $quantity);
         $remarks = $request->input('remarks');
         $unit_price = $request->input('unit_price');
