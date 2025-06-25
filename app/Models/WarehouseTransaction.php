@@ -71,7 +71,38 @@ class WarehouseTransaction extends Model
 
     public function getWarehouseNameAttribute()
     {
-        return optional($this->warehouse)->name ?? 'Unknown Warehouse';
+        return $this->warehouse->name ?? 'Unknown Warehouse';
+    }
+    public function getProjectCodeAttribute(): ?string
+    {
+        $requestStock = RequestStock::find($this->charging_id, ['id', 'reference_no', 'section_id', 'section_type']);
+
+        if (!$requestStock || !$requestStock->section_type || !$requestStock->section_id) {
+            return null;
+        }
+
+        switch ($requestStock->section_type) {
+            case 'Project':
+                $project = Project::find($requestStock->section_id, ['project_code']);
+                return $project?->project_code;
+
+            case 'Department':
+                $department = Department::find($requestStock->section_id, ['department_name']);
+                return $department?->department_name;
+
+            default:
+                return null;
+        }
+    }
+    public function getRSReferenceNoAttribute(): ?string
+    {
+        return RequestStock::where('id', $this->charging_id)->value('reference_no');
+    }
+    public function getSupplierCompanyNameAttribute(): string
+    {
+        return $this->metadata['supplier_id']
+            ? RequestSupplier::where('id', $this->metadata['supplier_id'])->value('company_name')
+            : 'Unknown Company';
     }
 
 
@@ -87,7 +118,7 @@ class WarehouseTransaction extends Model
     }
     public function items()
     {
-        return $this->hasMany(WarehouseTransactionItem::class);
+        return $this->hasMany(WarehouseTransactionItem::class,'warehouse_transaction_id');
     }
     public function transactions()
     {
@@ -134,9 +165,10 @@ class WarehouseTransaction extends Model
         return $this->total_net_vat * 0.12; // 12% VAT
     }
 
+
     public function getGrandTotalAttribute()
     {
-        return $this->total_net_vat + $this->total_input_vat;
+        return $this->items->sum('ext_price');
     }
 
     public function getTransactionDateHumanAttribute()

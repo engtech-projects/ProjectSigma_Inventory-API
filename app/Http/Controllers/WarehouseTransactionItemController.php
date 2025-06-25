@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RejectWarehouseTransactionItemRequest;
+use App\Http\Requests\StoreWarehouseTransactionAllItemRequest;
 use App\Models\WarehouseTransactionItem;
 use App\Http\Requests\StoreWarehouseTransactionItemRequest;
 use App\Http\Requests\UpdateWarehouseTransactionItemRequest;
@@ -95,18 +96,22 @@ class WarehouseTransactionItemController extends Controller
         return response()->json($response, $deleted ? 200 : 400);
     }
 
-    public function acceptAll(StoreWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
+    public function acceptAll(StoreWarehouseTransactionAllItemRequest $request, WarehouseTransactionItem $resource)
     {
+        $validatedData = $request->validated ();
+
         $quantity = $resource->quantity;
-        $unit_price = $request->input('unit_price');
-        $actual_brand_purchase = $request->input('actual_brand_purchase');
-        $specification = $request->input('specification');
-        $grand_total = $request->input('grand_total');
+        $accepted_quantity = $quantity;
+        $unit_price = $validatedData['unit_price'];
+        $actual_brand_purchase = $validatedData['actual_brand_purchase'];
+        $specification = $validatedData['specification'];
+        $grand_total = $validatedData['grand_total'];
 
         $metadata = $resource->metadata ?? [];
         $metadata['status'] = 'Accepted';
         $metadata['remarks'] = 'Accepted';
         $metadata['unit_price'] = $unit_price;
+        $metadata['accepted_quantity'] = $accepted_quantity;
         $metadata['actual_brand_purchase'] = $actual_brand_purchase;
         $metadata['specification'] = $specification;
         $metadata['grand_total'] = $grand_total;
@@ -117,7 +122,7 @@ class WarehouseTransactionItemController extends Controller
 
         $resource->update([
             'metadata' => $metadata,
-            'quantity' => $quantity
+            'quantity' => $quantity,
         ]);
 
         return response()->json([
@@ -128,17 +133,21 @@ class WarehouseTransactionItemController extends Controller
 
     public function acceptWithDetails(StoreWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
     {
-        $quantity = $request->input('quantity');
-        $remarks = $request->input('remarks');
-        $unit_price = $request->input('unit_price');
-        $actual_brand_purchase = $request->input('actual_brand_purchase');
-        $specification = $request->input('specification');
-        $grand_total = $request->input('grand_total');
+        $validatedData = $request->validated ();
+
+        $quantity = $resource->quantity;
+        $accepted_quantity = $validatedData['accepted_quantity'];
+        $remarks = $validatedData['remarks'];
+        $unit_price = $validatedData['unit_price'];
+        $actual_brand_purchase = $validatedData['actual_brand_purchase'];
+        $specification = $validatedData['specification'];
+        $grand_total = $validatedData['grand_total'];
 
         $metadata = $resource->metadata ?? [];
         $metadata['status'] = 'Accepted';
         $metadata['remarks'] = $remarks;
         $metadata['unit_price'] = $unit_price;
+        $metadata['accepted_quantity'] = $accepted_quantity;
         $metadata['actual_brand_purchase'] = $actual_brand_purchase;
         $metadata['specification'] = $specification;
         $metadata['grand_total'] = $grand_total;
@@ -149,7 +158,8 @@ class WarehouseTransactionItemController extends Controller
 
         $resource->update([
             'metadata' => $metadata,
-            'quantity' => $quantity
+            'quantity' => $quantity,
+
         ]);
 
         return response()->json([
