@@ -112,7 +112,7 @@ class WarehouseTransaction extends Model
     }
     public function items()
     {
-        return $this->hasMany(WarehouseTransactionItem::class);
+        return $this->hasMany(WarehouseTransactionItem::class,'warehouse_transaction_id');
     }
     public function transactions()
     {
@@ -158,9 +158,10 @@ class WarehouseTransaction extends Model
         return $this->total_net_vat * 0.12; // 12% VAT
     }
 
+
     public function getGrandTotalAttribute()
     {
-        return $this->total_net_vat + $this->total_input_vat;
+        return $this->items->sum('per_item_total');
     }
 
 

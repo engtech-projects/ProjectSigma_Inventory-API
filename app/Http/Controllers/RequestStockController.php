@@ -155,14 +155,10 @@ class RequestStockController extends Controller
 
     public function show(RequestStock $resource)
     {
-        $resource = RequestStock::with('department')->get();
-
-        $collection = RequestStocksResource::collection($resource)->response()->getData(true);
-
-        return new JsonResponse([
-            'success' => true,
-            'message' => "Successfully fetched.",
-            'data' => $collection
+        return response()->json([
+            "message" => "Successfully fetched.",
+            "success" => true,
+            "data" => new RequestStocksResource($resource)
         ]);
     }
 

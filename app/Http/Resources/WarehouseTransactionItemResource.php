@@ -22,12 +22,12 @@ class WarehouseTransactionItemResource extends JsonResource
             'item_description'  => $this->item->item_description,
             'specification'     => $this->item->specification,
             'quantity'          => $this->quantity,
+            'accepted_qty'          => $this->accepted_qty,
             'ext_price'         => $this->ext_price,
             'uom_name'          => $this->uomRelationship?->name ?? 'Unknown',
             'metadata'          => $this->metadata,
             'total_net_of_vat_cost'       => $this->total_net_vat,
             'total_input_vat'       => $this->total_input_vat,
-            'grand_total'       => $this->grand_total,
         ];
     }
 }

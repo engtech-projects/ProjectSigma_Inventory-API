@@ -67,10 +67,22 @@ class WarehouseTransactionItem extends Model
     * DYNAMIC SCOPES
     * ==================================================
     */
-    public function getGrandTotalAttribute()
+    public function getPerItemTotalAttribute()
     {
-        return $this->metadata['unit_price'] * $this->quantity;
+        $unitPrice = $this->metadata['unit_price'] ?? 0;
+        $quantity = $this->quantity ?? 0;
+
+        return $unitPrice * $quantity;
     }
+
+
+    public function getExtPriceAttribute()
+    {
+        $unitPrice = $this->metadata['unit_price'] ?? 0;
+        $quantity = $this->quantity ?? 0;
+        return $unitPrice * $quantity ?? 0;
+    }
+
 
     // to be used later
     // public function getTotalNetVatAttribute()

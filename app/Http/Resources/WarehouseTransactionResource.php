@@ -27,6 +27,7 @@ class WarehouseTransactionResource extends JsonResource
             'created_by' => $this->created_by,
             'request_status' => $this->request_status,
             'items' => WarehouseTransactionItemResource::collection($this->items),
+            'grand_total' => $this->grand_total,
             'warehouse' => $this->warehouse_name,
             'supplier' => $this->supplier_company_name,
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
