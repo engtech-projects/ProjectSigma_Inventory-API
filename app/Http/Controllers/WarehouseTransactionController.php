@@ -220,7 +220,6 @@ class WarehouseTransactionController extends Controller
                     'message' => "Successfully auto-saved: {$fieldsList}.",
                     'success' => true,
                     'data' => $resource->refresh(),
-                    'updated_fields' => $updatedFields
                 ], 200);
             }
 

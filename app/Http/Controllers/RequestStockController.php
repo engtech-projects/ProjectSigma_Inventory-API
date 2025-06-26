@@ -28,7 +28,7 @@ class RequestStockController extends Controller
 
     public function index()
     {
-        $main = RequestStock::with(['department', 'project', 'items', 'currentBom'])->paginate(10);
+        $main = RequestStock::with(['project', 'items', 'currentBom', 'department'])->paginate(10);
         $collection = RequestStocksResource::collection($main)->response()->getData(true);
 
         return new JsonResponse([

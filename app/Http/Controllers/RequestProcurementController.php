@@ -18,7 +18,7 @@ class RequestProcurementController extends Controller
         return RequestProcurementListingResource::collection($procurements)
             ->additional([
                 'success' => true,
-                'message' => 'Request procurements retrieved successfully.',
+                'message' => 'Successfully fetched.',
             ]);
     }
     /**
@@ -42,7 +42,6 @@ class RequestProcurementController extends Controller
             ->isUnserved()
             ->isCanvasser($userId)
             ->paginate(10);
-
         return RequestProcurementListingResource::collection($procurements)
             ->additional([
                 'success' => true,

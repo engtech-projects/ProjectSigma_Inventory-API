@@ -39,7 +39,6 @@ class ExportService
             'Part Number',
             'Color',
             'UOM',
-            'UOM Conversion Value',
             'Item Group',
             'Sub Item Group',
             'Inventory Type',
