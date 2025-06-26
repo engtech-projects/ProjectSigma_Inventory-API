@@ -16,7 +16,6 @@ class SetupListsController extends Controller
 {
     public function getDepartmentList()
     {
-
         $fetch = Department::orderBy('created_at', 'DESC')
             ->paginate();
         $requestResources = DepartmentListResource::collection($fetch)->response()->getData(true);
@@ -30,7 +29,6 @@ class SetupListsController extends Controller
 
     public function getEmployeeList()
     {
-
         $fetch = Employee::orderBy('created_at', 'DESC')
             ->paginate();
         $requestResources = EmployeeListResource::collection($fetch)->response()->getData(true);
@@ -44,7 +42,6 @@ class SetupListsController extends Controller
 
     public function getUsersList()
     {
-
         $fetch = User::orderBy('created_at', 'DESC')
             ->paginate();
         $requestResources = UsersListResource::collection($fetch)->response()->getData(true);
@@ -58,7 +55,6 @@ class SetupListsController extends Controller
 
     public function getProjectList()
     {
-
         $fetch = Project::orderBy('created_at', 'DESC')
             ->paginate();
         $requestResources = ProjectListResource::collection($fetch)->response()->getData(true);
