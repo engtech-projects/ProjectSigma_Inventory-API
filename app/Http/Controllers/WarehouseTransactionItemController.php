@@ -155,7 +155,6 @@ class WarehouseTransactionItemController extends Controller
         $resource->update([
             'metadata' => $metadata,
             'quantity' => $quantity,
-
         ]);
 
         return response()->json([
