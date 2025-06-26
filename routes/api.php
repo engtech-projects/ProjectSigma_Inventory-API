@@ -184,6 +184,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('my-request', [RequestSupplierController::class, 'myRequests']);
         Route::get('my-approvals', [RequestSupplierController::class, 'myApprovals']);
         Route::get('approved-request', [RequestSupplierController::class, 'allApprovedRequests']);
+        Route::get('search', [RequestSupplierController::class, 'search']);
     });
     Route::prefix('enum')->group(function () {
         Route::get('suppliers', [RequestSupplierController::class, 'list']);
