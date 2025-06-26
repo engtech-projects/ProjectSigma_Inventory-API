@@ -24,7 +24,6 @@ class SearchSupplierRequest extends FormRequest
         return [
             'search_key' =>
             [
-                "present",
                 "nullable",
                 "string",
                 "max:100",
