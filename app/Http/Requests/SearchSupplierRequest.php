@@ -27,7 +27,7 @@ class SearchSupplierRequest extends FormRequest
                 "present",
                 "nullable",
                 "string",
-                "max:35",
+                "max:100",
             ]
         ];
     }

@@ -124,13 +124,13 @@ class RequestSupplierController extends Controller
     {
         $validated = $request->validated();
         $searchKey = $validated['search_key'] ?? null;
-        $results = RequestSupplier::query()
-            ->isApproved()
+        $results = RequestSupplier::isApproved()
             ->when($searchKey, function ($query, $searchKey) {
-                $query->where(function ($subQuery) use ($searchKey) {
-                    $subQuery->where('supplier_code', 'like', "%{$searchKey}%")
-                        ->orWhere('company_name', 'like', "%{$searchKey}%");
-                });
+                $query->where(
+                    fn($q) =>
+                    $q->where('supplier_code', 'like', "%{$searchKey}%")
+                        ->orWhere('company_name', 'like', "%{$searchKey}%")
+                );
             })
             ->orderBy('company_name')
             ->limit(15)
