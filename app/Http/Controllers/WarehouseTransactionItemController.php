@@ -105,7 +105,6 @@ class WarehouseTransactionItemController extends Controller
         $unit_price = $validatedData['unit_price'];
         $actual_brand_purchase = $validatedData['actual_brand_purchase'];
         $specification = $validatedData['specification'];
-        $grand_total = $validatedData['grand_total'];
 
         $metadata = $resource->metadata ?? [];
         $metadata['status'] = 'Accepted';
@@ -114,7 +113,6 @@ class WarehouseTransactionItemController extends Controller
         $metadata['accepted_quantity'] = $accepted_quantity;
         $metadata['actual_brand_purchase'] = $actual_brand_purchase;
         $metadata['specification'] = $specification;
-        $metadata['grand_total'] = $grand_total;
 
         $message = (isset($resource->metadata['status']) && $resource->metadata['status'] === 'Accepted')
             ? "Accepted quantity and remarks have been updated."
@@ -141,7 +139,6 @@ class WarehouseTransactionItemController extends Controller
         $unit_price = $validatedData['unit_price'];
         $actual_brand_purchase = $validatedData['actual_brand_purchase'];
         $specification = $validatedData['specification'];
-        $grand_total = $validatedData['grand_total'];
 
         $metadata = $resource->metadata ?? [];
         $metadata['status'] = 'Accepted';
@@ -150,7 +147,6 @@ class WarehouseTransactionItemController extends Controller
         $metadata['accepted_quantity'] = $accepted_quantity;
         $metadata['actual_brand_purchase'] = $actual_brand_purchase;
         $metadata['specification'] = $specification;
-        $metadata['grand_total'] = $grand_total;
 
         $message = (isset($resource->metadata['status']) && $resource->metadata['status'] === 'Accepted')
             ? "Accepted quantity, actual brand purchase, unit price, and remarks have been updated."
@@ -159,7 +155,6 @@ class WarehouseTransactionItemController extends Controller
         $resource->update([
             'metadata' => $metadata,
             'quantity' => $quantity,
-
         ]);
 
         return response()->json([
