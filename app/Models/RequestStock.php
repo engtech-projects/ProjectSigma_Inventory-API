@@ -132,7 +132,7 @@ class RequestStock extends Model
                 'actual_brand_purchase' => $requestItem->preferred_brand,
                 'unit_price' => null, // Editable field
                 'remarks' => null, // Editable field
-                'status' => RequestStatuses::APPROVED,
+                'status' => null,
             ];
 
             WarehouseTransactionItem::create([
