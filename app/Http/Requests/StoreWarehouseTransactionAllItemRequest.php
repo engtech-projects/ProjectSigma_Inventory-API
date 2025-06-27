@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreWarehouseTransactionItemRequest extends FormRequest
+class StoreWarehouseTransactionAllItemRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,8 +25,6 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
             'specification' => 'nullable|string|max:255',
             'actual_brand_purchase' => 'required|string|max:255',
             'unit_price' => 'required|numeric|min:1',
-            'accepted_quantity' => 'required|numeric|min:1',
-            'remarks' => 'nullable|string|max:255',
         ];
 
     }

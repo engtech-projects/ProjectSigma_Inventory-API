@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\RequestStatuses;
+use App\Http\Requests\SearchSupplierRequest;
 use App\Http\Requests\StoreRequestSupplier;
 use App\Http\Requests\UpdateRequestSupplier;
 use App\Http\Resources\RequestSupplierResource;
@@ -10,6 +11,7 @@ use App\Http\Resources\SyncSuppliersResource;
 use App\Models\RequestSupplier;
 use App\Http\Resources\RequestSupplierResourceList;
 use App\Http\Resources\SupplierResource;
+use App\Http\Resources\SupplierSearchResultResource;
 use App\Http\Services\RequestSupplierService;
 use App\Http\Traits\UploadFileTrait;
 use App\Notifications\RequestSupplierForApprovalNotification;
@@ -117,6 +119,27 @@ class RequestSupplierController extends Controller
             "data" =>  new RequestSupplierResource($resource)
         ]);
     }
+
+    public function search(SearchSupplierRequest $request)
+    {
+        $validated = $request->validated();
+        $searchKey = $validated['search_key'] ?? null;
+        $results = RequestSupplier::isApproved()
+            ->when($searchKey, function ($query, $searchKey) {
+                $query->where('supplier_code', 'like', "%{$searchKey}%")
+                    ->orWhere('company_name', 'like', "%{$searchKey}%");
+            })
+            ->orderBy('company_name')
+            ->limit(15)
+            ->get();
+
+        return new JsonResponse([
+            'message' => 'Approved supplier requests retrieved successfully.',
+            'success' => true,
+            'data' => SupplierSearchResultResource::collection($results),
+        ]);
+    }
+
 
     public function update(UpdateRequestSupplier $request, RequestSupplier $resource)
     {

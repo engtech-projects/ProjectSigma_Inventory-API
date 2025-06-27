@@ -26,6 +26,7 @@ use App\Http\Controllers\WarehousePssController;
 use App\Http\Controllers\WarehouseTransactionController;
 use App\Http\Controllers\WarehouseTransactionItemController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\SetupListsController;
 use App\Http\Controllers\RequestProcurementCanvasserController;
 use App\Http\Controllers\RequestProcurementController;
 use App\Models\Warehouse;
@@ -168,6 +169,12 @@ Route::middleware('auth:api')->group(function () {
                 Route::post('/departments', [ApiSyncController::class, 'syncDepartments']);
             });
         });
+        Route::prefix('lists')->group(function () {
+            Route::get('/department', [SetupListsController::class, 'getDepartmentList']);
+            Route::get('/employee', [SetupListsController::class, 'getEmployeeList']);
+            Route::get('/users', [SetupListsController::class, 'getUsersList']);
+            Route::get('/project', [SetupListsController::class, 'getProjectlist']);
+        });
     });
     Route::prefix('request-supplier')->group(function () {
         Route::resource('resource', RequestSupplierController::class)->names("requestSupplierresource");
@@ -177,6 +184,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('my-request', [RequestSupplierController::class, 'myRequests']);
         Route::get('my-approvals', [RequestSupplierController::class, 'myApprovals']);
         Route::get('approved-request', [RequestSupplierController::class, 'allApprovedRequests']);
+        Route::get('search', [RequestSupplierController::class, 'search']);
     });
     Route::prefix('enum')->group(function () {
         Route::get('suppliers', [RequestSupplierController::class, 'list']);
