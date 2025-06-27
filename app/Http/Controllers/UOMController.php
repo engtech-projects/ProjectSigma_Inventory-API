@@ -56,6 +56,16 @@ class UOMController extends Controller
             'data' => $requestResources
         ]);
     }
+    public function list()
+    {
+        $uom = UOM::get();
+
+        return response()->json([
+            'message' => 'Unit of Measurements Successfully Fetched.',
+            'success' => true,
+            'data' => $uom,
+        ]);
+    }
 
     /**
      * Store a newly created resource in storage.
