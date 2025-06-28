@@ -67,6 +67,9 @@ class RequestStock extends Model
         if ($this->remarks == RSRemarksEnums::PETTYCASH->value) {
             $this->createPettyCashMRR();
         }
+        if ($this->remarks == RSRemarksEnums::PURCHASEORDER->value) {
+            $this->createProcurementRequest();
+        }
         $this->save();
         $this->refresh();
     }
