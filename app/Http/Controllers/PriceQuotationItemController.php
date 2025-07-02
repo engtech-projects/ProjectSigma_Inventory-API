@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\PriceQuotationItem;
-use App\Http\Requests\StorePriceQuotationItemRequest;
 use App\Http\Requests\UpdatePriceQuotationItemRequest;
 
 class PriceQuotationItemController extends Controller
