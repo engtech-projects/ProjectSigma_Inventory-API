@@ -9,30 +9,6 @@ use App\Http\Requests\UpdatePriceQuotationItemRequest;
 class PriceQuotationItemController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorePriceQuotationItemRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(PriceQuotationItem $priceQuotationItem)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(UpdatePriceQuotationItemRequest $request, PriceQuotationItem $priceQuotationItem)
@@ -53,11 +29,4 @@ class PriceQuotationItemController extends Controller
         ], 400);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(PriceQuotationItem $priceQuotationItem)
-    {
-        //
-    }
 }

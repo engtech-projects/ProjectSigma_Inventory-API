@@ -30,6 +30,7 @@ return new class () extends Migration {
             $table->renameColumn('actual_brand', 'brand');
             $table->renameColumn('unit_price', 'price');
             $table->renameColumn('remarks_during_canvass', 'remarks');
+            $table->dropColumn('metadata');
         });
     }
 };

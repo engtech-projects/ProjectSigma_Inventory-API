@@ -13,18 +13,11 @@ use Illuminate\Http\Request;
 
 class PriceQuotationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePriceQuotationRequest $request, RequestProcurement $pr_id)
+    public function store(StorePriceQuotationRequest $request, RequestProcurement $requestProcurement)
     {
         $validated = $request->validated();
 
@@ -35,18 +28,20 @@ class PriceQuotationController extends Controller
                 'message' => 'Supplier is not approved.',
             ], 422);
         }
-        $priceQuotation = $pr_id->priceQuotations()->create([
+        $priceQuotation = $requestProcurement->priceQuotations()->create([
             'supplier_id' => $supplier->id,
         ]);
 
-        foreach ($validated['items'] as $item) {
-            $priceQuotation->items()->create([
+        $itemsData = collect($validated['items'])->map(function ($item) {
+            return [
                 'item_id' => $item['item_id'],
                 'actual_brand' => $item['actual_brand'] ?? null,
                 'unit_price' => $item['unit_price'] ?? null,
                 'remarks_during_canvass' => $item['remarks_during_canvass'] ?? null,
-            ]);
-        }
+            ];
+        })->toArray();
+
+        $priceQuotation->items()->createMany($itemsData);
 
         return response()->json([
             'success' => true,
@@ -59,9 +54,9 @@ class PriceQuotationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(PriceQuotation $pq_id)
+    public function show(PriceQuotation $priceQuotation)
     {
-        $pq_id->load([
+        $priceQuotation->load([
             'supplier',
             'items.requestStockItem.itemProfile',
             'items.requestStockItem.uom',
@@ -69,25 +64,8 @@ class PriceQuotationController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Price quotation retrieved successfully.',
-            'data' => new PriceQuotationDetailedResource($pq_id)
+            'data' => new PriceQuotationDetailedResource($priceQuotation)
         ]);
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, PriceQuotationItem $priceQuotationItem)
-    {
-        //
-    }
-
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(PriceQuotation $priceQuotation)
-    {
-        //
-    }
 }
