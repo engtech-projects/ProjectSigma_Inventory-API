@@ -14,8 +14,18 @@ class PriceQuotationItem extends Model
     protected $fillable = [
         'price_quotation_id',
         'item_id',
-        'brand',
-        'price',
-        'remarks',
+        'actual_brand',
+        'unit_price',
+        'remarks_during_canvass',
     ];
+
+    public function priceQuotation()
+    {
+        return $this->belongsTo(PriceQuotation::class);
+    }
+
+    public function requestStockItem()
+    {
+        return $this->belongsTo(RequestStockItem::class, 'item_id');
+    }
 }
