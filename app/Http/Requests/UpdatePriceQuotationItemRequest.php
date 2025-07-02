@@ -11,7 +11,7 @@ class UpdatePriceQuotationItemRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,9 @@ class UpdatePriceQuotationItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'actual_brand' => ['nullable', 'string'],
+            'unit_price' => ['nullable', 'numeric'],
+            'remarks_during_canvass' => ['nullable', 'string'],
         ];
     }
 }

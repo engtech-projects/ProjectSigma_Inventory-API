@@ -26,6 +26,8 @@ use App\Http\Controllers\WarehousePssController;
 use App\Http\Controllers\WarehouseTransactionController;
 use App\Http\Controllers\WarehouseTransactionItemController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\PriceQuotationController;
+use App\Http\Controllers\PriceQuotationItemController;
 use App\Http\Controllers\SetupListsController;
 use App\Http\Controllers\RequestProcurementCanvasserController;
 use App\Http\Controllers\RequestProcurementController;
@@ -215,6 +217,10 @@ Route::middleware('auth:api')->group(function () {
         Route::resource('resource', RequestProcurementController::class)->names("requestProcurement");
         Route::get('set-canvasser/{procurement-request}', [RequestProcurementCanvasserController::class, 'setCanvasser']);
         Route::get('unserved', [RequestProcurementController::class, 'unservedRequests']);
+        Route::post('{requestProcurement}/create-price-quotation', [PriceQuotationController::class, 'store']);
+        Route::get('price-quotation/{priceQuotation}', [PriceQuotationController::class, 'show']);
+        Route::resource('price-quotation-item', PriceQuotationItemController::class)
+            ->only(['update']);
     });
 
     if (config()->get('app.artisan') == 'true') {

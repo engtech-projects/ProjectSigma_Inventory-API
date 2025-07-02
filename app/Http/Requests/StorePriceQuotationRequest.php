@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePriceQuotationRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StorePriceQuotationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +23,16 @@ class StorePriceQuotationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'supplier_id' => ['required', 'exists:request_supplier,id'],
+            'items' => ['required', 'array'],
+            'items.*.item_id' => [
+                'required',
+                Rule::exists('item_profile', 'id')->where('is_approved', 1)
+            ],
+            'items.*.actual_brand' => ['nullable', 'string'],
+            'items.*.unit_price' => ['nullable', 'numeric'],
+            'items.*.remarks_during_canvass' => ['nullable', 'string'],
         ];
+
     }
 }

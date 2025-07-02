@@ -44,4 +44,10 @@ class RequestProcurement extends Model
         });
     }
 
+    public function priceQuotations()
+    {
+        return $this->hasMany(PriceQuotation::class, 'request_procurement_id');
+    }
+
+
 }
