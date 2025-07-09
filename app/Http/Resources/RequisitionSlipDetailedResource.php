@@ -17,7 +17,7 @@ class RequisitionSlipDetailedResource extends JsonResource
         return [
             "id" => $this->id,
             "request_for" => $this->request_for,
-            "office_project" =>  $this->department->department_name ?? null,
+            "office_project" =>  $this->office_project,
             "address" => $this->section_address ?? "",
             "reference_no" => $this->reference_no ?? "",
             "date_prepared" => $this->date_prepared_human ?? "",
@@ -30,8 +30,8 @@ class RequisitionSlipDetailedResource extends JsonResource
             "previous_smr" => $this->previous_smr ?? "",
             "unused_smr" => $this->unused_smr ?? "",
             "next_smr" => $this->next_smr ?? "",
-            "price_quotations" => PriceQuotationListingResource::collection($this->priceQuotations),
-            "price_quotation_count" => $this->priceQuotations->count(),
+            "items" => $this->items,
+            "request_stock_items" => RequisitionSlipItemsResource::collection($this->items),
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
         ];

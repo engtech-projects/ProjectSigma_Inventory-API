@@ -7,10 +7,15 @@ use App\Http\Requests\StorePriceQuotationRequest;
 use App\Http\Resources\PriceQuotationDetailedResource;
 use App\Models\RequestProcurement;
 use App\Models\RequestSupplier;
-use Illuminate\Contracts\Cache\Store;
+use App\Traits\HasReferenceNumber;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 class PriceQuotationController extends Controller
 {
+    use HasReferenceNumber;
+
     /**
      * Store a newly created resource in storage.
      */
@@ -25,27 +30,46 @@ class PriceQuotationController extends Controller
                 'message' => 'Supplier is not approved.',
             ], 422);
         }
-        $priceQuotation = $requestProcurement->priceQuotations()->create([
-            'supplier_id' => $supplier->id,
-        ]);
 
-        $itemsData = collect($validated['items'])->map(function ($item) {
-            return [
-                'item_id' => $item['item_id'],
-                'actual_brand' => $item['actual_brand'] ?? null,
-                'unit_price' => $item['unit_price'] ?? null,
-                'remarks_during_canvass' => $item['remarks_during_canvass'] ?? null,
-            ];
-        })->toArray();
+        return DB::transaction(function () use ($validated, $requestProcurement, $supplier) {
+            $quotationNo = PriceQuotation::generateReferenceNumber(
+                'metadata->quotation_no',
+                fn ($prefix, $datePart, $number) => "{$prefix}-{$datePart}-{$number}",
+                ['prefix' => 'RPQ', 'dateFormat' => 'Y-m']
+            );
 
-        $priceQuotation->items()->createMany($itemsData);
+            $metadata = Arr::only($validated, [
+                'date', 'address', 'contact_person', 'contact_no', 'conso_reference_no',
+            ]);
+            $metadata['quotation_no'] = $quotationNo;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Price quotation created successfully.',
-            'data' => $priceQuotation
-        ], 201);
+            $priceQuotation = $requestProcurement->priceQuotations()->create([
+                'supplier_id' => $supplier->id,
+                'metadata' => $metadata,
+            ]);
+
+            $itemsData = array_map(function ($item) {
+                return [
+                    'item_id' => $item['item_id'],
+                    'actual_brand' => $item['actual_brand'] ?? null,
+                    'unit_price' => $item['unit_price'] ?? null,
+                    'remarks_during_canvass' => $item['remarks_during_canvass'] ?? null,
+                    'metadata' => Arr::only($item, [
+                        'item_description', 'specification', 'quantity', 'uom', 'preferred_brand'
+                    ]),
+                ];
+            }, $validated['items']);
+
+            $priceQuotation->items()->createMany($itemsData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Price quotation created successfully.',
+                'data' => $priceQuotation
+            ], 201);
+        });
     }
+
 
 
     /**

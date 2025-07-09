@@ -29,10 +29,8 @@ class RequestProcurementController extends Controller
         return new JsonResponse([
             'success' => true,
             'message' => 'Request procurement retrieved successfully.',
-            'data' => new RequestProcurementDetailedResource(
-                $resource->load(['requestStock.department', 'canvassers'])
-            )
-        ], JsonResponse::HTTP_OK);
+            'data' => new RequestProcurementDetailedResource($resource)
+        ]);
     }
 
     public function unservedRequests()

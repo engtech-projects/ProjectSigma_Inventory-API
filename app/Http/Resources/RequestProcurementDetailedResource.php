@@ -19,6 +19,8 @@ class RequestProcurementDetailedResource extends JsonResource
             'requisition_slip' => new RequisitionSlipDetailedResource($this->requestStock),
             'status' => $this->serve_status,
             'canvassers' => CanvasserResource::collection($this->canvassers),
+            "price_quotations" => PriceQuotationListingResource::collection($this->priceQuotations),
+            "price_quotation_count" => $this->priceQuotations->count(),
         ];
     }
 }

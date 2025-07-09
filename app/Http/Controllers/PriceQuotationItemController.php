@@ -12,6 +12,8 @@ class PriceQuotationItemController extends Controller
      */
     public function update(UpdatePriceQuotationItemRequest $request, PriceQuotationItem $priceQuotationItem)
     {
+        $validated = $request->validated();
+
         $priceQuotationItem->fill($request->validated());
         if ($priceQuotationItem->save()) {
             return response()->json([
