@@ -16,7 +16,7 @@ class PriceQuotationListingResource extends JsonResource
         return [
             'id' => $this->id,
             'supplier_id' => $this->supplier_id,
-            'supplier_name' => $this->supplier->name,
+            'supplier_name' => $this->supplier->company_name,
             'created_at_human' => $this->created_time_human,
         ];
     }
