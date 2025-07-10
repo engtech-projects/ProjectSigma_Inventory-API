@@ -30,56 +30,48 @@ class PriceQuotationController extends Controller
             ], 422);
         }
 
-        try {
-            $quotation = DB::transaction(function () use ($validated, $requestProcurement, $items, $request) {
+        $quotation = DB::transaction(function () use ($validated, $requestProcurement, $items, $request) {
 
-                $quotationNo = PriceQuotation::generateReferenceNumber(
-                    'metadata->quotation_no',
-                    fn ($prefix, $datePart, $number) => "{$prefix}-{$datePart}-{$number}",
-                    ['prefix' => 'RPQ', 'dateFormat' => 'Y-m']
-                );
+            $quotationNo = PriceQuotation::generateReferenceNumber(
+                'metadata->quotation_no',
+                fn ($prefix, $datePart, $number) => "{$prefix}-{$datePart}-{$number}",
+                ['prefix' => 'RPQ', 'dateFormat' => 'Y-m']
+            );
 
-                $metadata = array_merge(
-                    Arr::only($request->all(), ['date', 'address', 'contact_person', 'contact_no', 'conso_reference_no']),
-                    ['quotation_no' => $quotationNo]
-                );
+            $metadata = array_merge(
+                Arr::only($request->all(), ['date', 'address', 'contact_person', 'contact_no', 'conso_reference_no']),
+                ['quotation_no' => $quotationNo]
+            );
 
-                $quotation = $requestProcurement->priceQuotations()->create([
-                    'supplier_id' => $validated['supplier_id'],
-                    'metadata' => $metadata,
-                ]);
+            $quotation = $requestProcurement->priceQuotations()->create([
+                'supplier_id' => $validated['supplier_id'],
+                'metadata' => $metadata,
+            ]);
 
+            $quotation->items()->createMany(
+                array_map(fn ($item) => [
+                    'item_id' => $item['item_id'],
+                    'actual_brand' => $item['actual_brand'] ?? null,
+                    'unit_price' => $item['unit_price'] ?? null,
+                    'remarks_during_canvass' => $item['remarks_during_canvass'] ?? null,
+                    'metadata' => (object) array_filter(Arr::only($item, [
+                        'item_description',
+                        'specification',
+                        'quantity',
+                        'uom',
+                        'preferred_brand',
+                    ]), fn ($value) => !is_null($value)),
+                ], $items)
+            );
 
-                $quotation->items()->createMany(
-                    array_map(fn ($item) => [
-                        'item_id' => $item['item_id'],
-                        'actual_brand' => $item['actual_brand'] ?? null,
-                        'unit_price' => $item['unit_price'] ?? null,
-                        'remarks_during_canvass' => $item['remarks_during_canvass'] ?? null,
-                        'metadata' => (object) array_filter(Arr::only($item, [
-                            'item_description',
-                            'specification',
-                            'quantity',
-                            'uom',
-                            'preferred_brand',
-                        ]), fn ($value) => !is_null($value)),
-                    ], $items)
-                );
+            return $quotation;
+        });
 
-                return $quotation;
-            });
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Price quotation created successfully.',
-                'data' => $quotation
-            ], 201);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to store price quotation.',
-            ], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Price quotation created successfully.',
+            'data' => $quotation
+        ], 201);
     }
 
 
