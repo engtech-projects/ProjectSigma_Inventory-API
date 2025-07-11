@@ -17,6 +17,10 @@ class PriceQuotationItem extends Model
         'actual_brand',
         'unit_price',
         'remarks_during_canvass',
+        'metadata',
+    ];
+    protected $casts = [
+        'metadata' => 'array',
     ];
 
     public function priceQuotation()
@@ -28,4 +32,5 @@ class PriceQuotationItem extends Model
     {
         return $this->belongsTo(RequestStockItem::class, 'item_id');
     }
+
 }

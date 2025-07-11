@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\ModelHelpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -16,6 +17,7 @@ class RequestProcurement extends Model
     use Authorizable;
     use Notifiable;
     use SoftDeletes;
+    use ModelHelpers;
 
     protected $fillable = [
         'request_requisition_slip_id',
