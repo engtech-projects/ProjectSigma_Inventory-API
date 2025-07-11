@@ -23,7 +23,7 @@ class RequestProcurementDetailedResource extends JsonResource
             'canvassers' => CanvasserResource::collection($this->canvassers),
             "price_quotations" => PriceQuotationListingResource::collection($this->priceQuotations),
             "price_quotation_count" => $this->priceQuotations->count(),
-            
+
         ];
     }
 }

@@ -126,6 +126,14 @@ class RequestStock extends Model
     {
         return $this->hasOne(RequestProcurement::class, 'request_requisition_slip_id');
     }
+    public function getProjectDepartmentNameAttribute(): ?string
+    {
+        return match ($this->section_type) {
+            'Project' => $this->project?->project_code,
+            'Department' => $this->department?->department_name,
+            default => null,
+        };
+    }
 
     public function section()
     {
