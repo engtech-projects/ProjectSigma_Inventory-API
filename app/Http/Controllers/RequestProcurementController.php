@@ -6,6 +6,7 @@ use App\Models\RequestProcurement;
 use App\Http\Resources\RequestProcurementDetailedResource;
 use App\Http\Resources\RequestProcurementListingResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class RequestProcurementController extends Controller
 {
@@ -36,14 +37,19 @@ class RequestProcurementController extends Controller
     public function unservedRequests()
     {
         $userId = auth()->id();
+        $user = Auth::user();
+        $userAccessibilitiesNames = $user->accessibilities_name;
+        $isUserSetCanvasser = $this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_PROCUREMENT_PROCUREMENTREQUESTS_SETCANVASSER->value]) || Auth::user()->type == UserTypes::ADMINISTRATOR->value;
         $procurements = RequestProcurement::with('requestStock')
-            ->isUnserved()
-            ->isCanvasser($userId)
-            ->paginate(10);
+        ->isUnserved()
+        ->when($isUserSetCanvasser, function ($query) use ($userId) {
+            return $query->isCanvasser($userId);
+        })
+        ->paginate(10);
         return RequestProcurementListingResource::collection($procurements)
-            ->additional([
-                'success' => true,
-                'message' => 'Unserved request procurements fetched successfully.',
-            ]);
+        ->additional([
+            'success' => true,
+            'message' => 'Unserved request procurements fetched successfully.',
+        ]);
     }
 }

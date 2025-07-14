@@ -86,7 +86,7 @@ class RequestStock extends Model
     }
     public function project()
     {
-        return $this->belongsTo(Project::class, 'section_id');
+        return $this->belongsTo(Project::class, 'section_id', 'id');
     }
     public function department()
     {
@@ -149,8 +149,7 @@ class RequestStock extends Model
         $this->request_status = RequestStatuses::APPROVED;
         if ($this->remarks == RSRemarksEnums::PETTYCASH->value) {
             $this->createPettyCashMRR();
-        }
-        if ($this->remarks == RSRemarksEnums::PURCHASEORDER->value) {
+        } elseif ($this->remarks == RSRemarksEnums::PURCHASEORDER->value) {
             $this->createProcurementRequest();
         }
         $this->save();
@@ -231,7 +230,7 @@ class RequestStock extends Model
         }
     }
 
-    // create price quotation
+    // create procurement request
     public function createProcurementRequest()
     {
         return $this->requestProcurement()->create([

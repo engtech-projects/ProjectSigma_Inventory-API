@@ -22,12 +22,7 @@ class SearchSupplierRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'search_key' =>
-            [
-                "nullable",
-                "string",
-                "max:100",
-            ]
+            'search_key' => ['nullable', 'string', 'max:100'],
         ];
     }
 }
