@@ -126,13 +126,14 @@ class RequestSupplierController extends Controller
         $searchKey = $validated['search_key'] ?? null;
         $results = RequestSupplier::isApproved()
             ->when($searchKey, function ($query, $searchKey) {
-                $query->where('supplier_code', 'like', "%{$searchKey}%")
+                $query->where(function ($subQuery) use ($searchKey) {
+                    $subQuery->where('supplier_code', 'like', "%{$searchKey}%")
                     ->orWhere('company_name', 'like', "%{$searchKey}%");
+                });
             })
             ->orderBy('company_name')
             ->limit(15)
             ->get();
-
         return new JsonResponse([
             'message' => 'Approved supplier requests retrieved successfully.',
             'success' => true,

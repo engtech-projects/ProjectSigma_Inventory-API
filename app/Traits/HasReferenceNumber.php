@@ -18,20 +18,15 @@ trait HasReferenceNumber
     {
         $prefix = $options['prefix'] ?? 'REF';
         $dateFormat = $options['dateFormat'] ?? 'Y-m';
-
         $pattern = "{$prefix}-" . date($dateFormat) . '-%';
-
         $lastRecord = self::where($column, 'like', $pattern)
             ->latest('created_at')
             ->lockForUpdate()
             ->first();
-
         $newNumber = $lastRecord ? ((int)substr($lastRecord->$column, -4) + 1) : 1;
-
         if ($formatter) {
             return $formatter($prefix, date($dateFormat), str_pad($newNumber, 4, '0', STR_PAD_LEFT));
         }
-
         // default format
         return "{$prefix}-" . date($dateFormat) . '-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
     }

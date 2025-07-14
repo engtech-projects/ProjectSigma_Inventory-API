@@ -26,7 +26,6 @@ class RequestStocksResource extends JsonResource
                     ->latest('version')
                     ->first()
             ),
-
             'items' => $this->items->map(function ($item) {
                 return [
                     'id' => $item->id,
@@ -51,8 +50,6 @@ class RequestStocksResource extends JsonResource
                     'next_smr' => $item->next_smr,
                 ];
             })->toArray(),
-            // 'department' => $this->department,
-            // 'project' => $this->project,
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
         ];

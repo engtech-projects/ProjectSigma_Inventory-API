@@ -15,7 +15,6 @@ class RequisitionSlipItemsResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            // parent::toArray($request),
             "id" => $this->id,
             "item_id" => $this->item_id,
             "request_stock_id" => $this->request_stock_id,

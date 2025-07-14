@@ -22,9 +22,9 @@ class UpdatePriceQuotationItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'actual_brand' => ['nullable', 'string'],
-            'unit_price' => ['nullable', 'numeric'],
-            'remarks_during_canvass' => ['nullable', 'string'],
+            'actual_brand' => ['nullable', 'string', 'max:255'],
+            'unit_price' => ['nullable', 'numeric', 'min:1'],
+            'remarks_during_canvass' => ['nullable', 'string', 'max:1000'],
         ];
     }
 }

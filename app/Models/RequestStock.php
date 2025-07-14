@@ -64,8 +64,7 @@ class RequestStock extends Model
     }
     public function getUomNameAttribute()
     {
-        $uom = $this->uom ? $this->uom->name : 'null';
-        return $uom;
+        return $this->uom?->name;
     }
     public function getProjectCodeAttribute()
     {

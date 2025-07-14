@@ -21,34 +21,23 @@ class PriceQuotationController extends Controller
     public function store(StorePriceQuotationRequest $request, RequestProcurement $requestProcurement)
     {
         $validated = $request->validated();
-        // Log::info(
-        //     'validated: ',
-        //     array_map(function ($value) {
-        //         return is_array($value) ? json_encode($value, JSON_PRETTY_PRINT) : $value;
-        //     }, $validated)
-        // );
         $quotation = DB::transaction(function () use ($validated, $requestProcurement, $request) {
             $quotationNo = PriceQuotation::generateReferenceNumber(
                 'metadata->quotation_no',
                 fn ($prefix, $datePart, $number) => "{$prefix}-{$datePart}-{$number}",
                 ['prefix' => 'RPQ', 'dateFormat' => 'Y-m']
             );
-
             $metadata = [
                 ...$request->only(['date', 'address', 'contact_person', 'contact_no', 'conso_reference_no']),
                 'quotation_no' => $quotationNo,
             ];
-
             $quotation = $requestProcurement->priceQuotations()->create([
                 'supplier_id' => $validated['supplier_id'],
                 'metadata' => $metadata,
             ]);
-
             $quotation->items()->createMany($validated['items']);
-
             return $quotation;
         });
-
         if ($quotation) {
             return new JsonResponse([
                 'success' => true,
@@ -56,9 +45,9 @@ class PriceQuotationController extends Controller
             ], JsonResponse::HTTP_OK);
         } else {
             return new JsonResponse([
-                'success' => true,
+                'success' => false,
                 'message' => 'Price quotation creation failed.',
-            ], JsonResponse::HTTP_OK);
+            ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
         }
     }
 
