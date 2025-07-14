@@ -213,7 +213,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::prefix('procurement-request')->group(function () {
         Route::resource('resource', RequestProcurementController::class)->names("requestProcurement");
-        Route::get('set-canvasser/{procurement-request}', [RequestProcurementCanvasserController::class, 'setCanvasser']);
+        Route::patch('set-canvasser/{requestProcurement}', [RequestProcurementCanvasserController::class, 'setCanvasser']);
         Route::get('unserved', [RequestProcurementController::class, 'unservedRequests']);
         Route::post('{requestProcurement}/create-price-quotation', [PriceQuotationController::class, 'store']);
         Route::get('price-quotation/{priceQuotation}', [PriceQuotationController::class, 'show']);
