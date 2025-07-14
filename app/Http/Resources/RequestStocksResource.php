@@ -18,6 +18,7 @@ class RequestStocksResource extends JsonResource
     {
         return [
             ...parent::toArray($request),
+            'section_type' => $this->office_project,
             'current_bom' => new CurrentBOMResource(
                 RequestBOM::where('assignment_type', $this->section_type)
                     ->where('assignment_id', $this->section_id)
@@ -25,7 +26,6 @@ class RequestStocksResource extends JsonResource
                     ->latest('version')
                     ->first()
             ),
-
             'items' => $this->items->map(function ($item) {
                 return [
                     'id' => $item->id,
@@ -50,8 +50,6 @@ class RequestStocksResource extends JsonResource
                     'next_smr' => $item->next_smr,
                 ];
             })->toArray(),
-            'department' => $this->department,
-            'project' => $this->project,
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
         ];

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Http\Traits\CheckAccessibility;
+use App\Traits\ModelHelpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -16,6 +18,8 @@ class RequestProcurement extends Model
     use Authorizable;
     use Notifiable;
     use SoftDeletes;
+    use ModelHelpers;
+    use CheckAccessibility;
 
     protected $fillable = [
         'request_requisition_slip_id',
@@ -42,6 +46,11 @@ class RequestProcurement extends Model
         return $query->whereHas('canvassers', function ($q) use ($userId) {
             $q->where('users.id', $userId);
         });
+    }
+
+    public function priceQuotations()
+    {
+        return $this->hasMany(PriceQuotation::class, 'request_procurement_id');
     }
 
 }

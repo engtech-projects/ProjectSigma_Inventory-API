@@ -6,6 +6,7 @@ use App\Enums\RequestStatuses;
 use App\Enums\RSRemarksEnums;
 use App\Enums\TransactionTypes;
 use App\Traits\HasApproval;
+use App\Traits\HasReferenceNumber;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,7 @@ class RequestStock extends Model
     use Notifiable;
     use SoftDeletes;
     use HasApproval;
+    use HasReferenceNumber;
 
     protected $table = 'request_stocks';
 
@@ -60,18 +62,100 @@ class RequestStock extends Model
             return $item->itemProfile->convertable_units ?? [];
         })->collapse()->unique('id')->values();
     }
+    public function getUomNameAttribute()
+    {
+        return $this->uom?->name;
+    }
+    public function getProjectCodeAttribute()
+    {
+        return $this->project->project_code ?? null;
+    }
 
+    /**
+     * ==================================================
+     * MODEL RELATIONSHIPS
+     * ==================================================
+     */
+    public function uom()
+    {
+        return $this->belongsTo(UOM::class);
+    }
+    public function items()
+    {
+        return $this->hasMany(RequestStockItem::class);
+    }
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'section_id', 'id');
+    }
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'section_id', 'id');
+    }
+    public function currentBom()
+    {
+        return $this->hasMany(RequestBOM::class, 'assignment_id', 'section_id')
+            ->where('request_status', RequestStatuses::APPROVED)
+            ->latest("version");
+    }
+
+    public function itemProfiles()
+    {
+        return $this->hasManyThrough(
+            ItemProfile::class,
+            RequestStockItem::class,
+            'request_stock_id',
+            'id',
+            'id',
+            'item_id'
+        );
+    }
+
+    public function getDateNeededHumanAttribute()
+    {
+        return $this->date_needed ? Carbon::parse($this->date_needed)->format("F j, Y") : null;
+    }
+
+    public function getDatePreparedHumanAttribute()
+    {
+        return $this->date_prepared ? Carbon::parse($this->date_prepared)->format("F j, Y") : null;
+    }
+
+    public function requestProcurement()
+    {
+        return $this->hasOne(RequestProcurement::class, 'request_requisition_slip_id');
+    }
+    public function getProjectDepartmentNameAttribute(): ?string
+    {
+        return match ($this->section_type) {
+            'Project' => $this->project?->project_code,
+            'Department' => $this->department?->department_name,
+            default => null,
+        };
+    }
+
+    public function section()
+    {
+        return $this->morphTo();
+    }
+
+    /**
+     * ==================================================
+     * LOCAL SCOPES
+     * ==================================================
+     */
     public function completeRequestStatus()
     {
         $this->request_status = RequestStatuses::APPROVED;
         if ($this->remarks == RSRemarksEnums::PETTYCASH->value) {
             $this->createPettyCashMRR();
+        } elseif ($this->remarks == RSRemarksEnums::PURCHASEORDER->value) {
+            $this->createProcurementRequest();
         }
         $this->save();
         $this->refresh();
     }
-
-    //create MRR
+    // create MRR
     public function createPettyCashMRR()
     {
         $mrrReferenceNo = $this->generateMRRReferenceNumber();
@@ -132,7 +216,7 @@ class RequestStock extends Model
                 'actual_brand_purchase' => $requestItem->preferred_brand,
                 'unit_price' => null, // Editable field
                 'remarks' => null, // Editable field
-                'status' => RequestStatuses::APPROVED,
+                'status' => null,
             ];
 
             WarehouseTransactionItem::create([
@@ -146,83 +230,17 @@ class RequestStock extends Model
         }
     }
 
-    /**
-     * ==================================================
-     * MODEL RELATIONSHIPS
-     * ==================================================
-     */
-    public function items()
-    {
-        return $this->hasMany(RequestStockItem::class);
-    }
-    public function project()
-    {
-        return $this->belongsTo(Project::class, 'section_id');
-    }
-    public function department()
-    {
-        return $this->belongsTo(Department::class, 'section_id', 'id');
-    }
-    public function currentBom()
-    {
-        return $this->hasMany(RequestBOM::class, 'assignment_id', 'section_id')
-            ->where('request_status', RequestStatuses::APPROVED)
-            ->latest("version");
-    }
-
-    public function itemProfiles()
-    {
-        return $this->hasManyThrough(
-            ItemProfile::class,
-            RequestStockItem::class,
-            'request_stock_id',
-            'id',
-            'id',
-            'item_id'
-        );
-    }
-
-    public function getDateNeededHumanAttribute()
-    {
-        return $this->date_needed ? Carbon::parse($this->date_needed)->format("F j, Y") : null;
-    }
-
-    public function getDatePreparedHumanAttribute()
-    {
-        return $this->date_prepared ? Carbon::parse($this->date_prepared)->format("F j, Y") : null;
-    }
-
-    public function requestProcurement()
-    {
-        return $this->hasOne(RequestProcurement::class, 'request_requisition_slip_id');
-    }
-
-    public function section()
-    {
-        return $this->morphTo();
-    }
-
-    /**
-     * ==================================================
-     * LOCAL SCOPES
-     * ==================================================
-     */
-
-
+    // create procurement request
     public function createProcurementRequest()
     {
         return $this->requestProcurement()->create([
             'serve_status' => 'unserved'
         ]);
     }
+
     /**
      * ==================================================
      * DYNAMIC SCOPES
      * ==================================================
      */
-
-    public function getProjectCodeAttribute()
-    {
-        return $this->project->project_code ?? null;
-    }
 }
