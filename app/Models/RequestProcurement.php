@@ -50,7 +50,7 @@ class RequestProcurement extends Model
         $user = Auth::user();
         $userAccessibilitiesNames = $user->accessibilities_name;
         $isUserSetCanvasser = $this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_PROCUREMENT_PROCUREMENTREQUESTS_SETCANVASSER->value]) || Auth::user()->type == UserTypes::ADMINISTRATOR->value;
-        return $query->when($isUserSetCanvasser, function($query) use($userId) {
+        return $query->when($isUserSetCanvasser, function ($query) use ($userId) {
             $query->whereHas('canvassers', function ($q) use ($userId) {
                 $q->where('users.id', $userId);
             });
