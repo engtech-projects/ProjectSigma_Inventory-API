@@ -28,8 +28,6 @@ use App\Http\Controllers\WarehouseTransactionItemController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\PriceQuotationController;
 use App\Http\Controllers\PriceQuotationItemController;
-use App\Models\RequestProcurement;
-use App\Models\PriceQuotation;
 use App\Http\Controllers\SetupListsController;
 use App\Http\Controllers\RequestProcurementCanvasserController;
 use App\Http\Controllers\RequestProcurementController;

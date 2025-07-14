@@ -9,7 +9,6 @@ use App\Models\RequestProcurement;
 use App\Traits\HasReferenceNumber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class PriceQuotationController extends Controller
 {
