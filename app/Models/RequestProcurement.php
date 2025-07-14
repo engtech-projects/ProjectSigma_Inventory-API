@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use App\Enums\AccessibilityInventory;
+use App\Enums\UserTypes;
+use App\Http\Traits\CheckAccessibility;
 use App\Traits\ModelHelpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
 
 class RequestProcurement extends Model
@@ -18,6 +22,7 @@ class RequestProcurement extends Model
     use Notifiable;
     use SoftDeletes;
     use ModelHelpers;
+    use CheckAccessibility;
 
     protected $fillable = [
         'request_requisition_slip_id',
@@ -41,8 +46,14 @@ class RequestProcurement extends Model
 
     public function scopeIsCanvasser($query, $userId)
     {
-        return $query->whereHas('canvassers', function ($q) use ($userId) {
-            $q->where('users.id', $userId);
+
+        $user = Auth::user();
+        $userAccessibilitiesNames = $user->accessibilities_name;
+        $isUserSetCanvasser = $this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_PROCUREMENT_PROCUREMENTREQUESTS_SETCANVASSER->value]) || Auth::user()->type == UserTypes::ADMINISTRATOR->value;
+        return $query->when($isUserSetCanvasser, function($query) use($userId) {
+            $query->whereHas('canvassers', function ($q) use ($userId) {
+                $q->where('users.id', $userId);
+            });
         });
     }
 

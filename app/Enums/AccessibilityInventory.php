@@ -4,6 +4,7 @@ namespace App\Enums;
 
 enum AccessibilityInventory: string
 {
+    case INVENTORY_ADMIN = "AdminOnly";
     case INVENTORY_DASHBOARD = "inventory:dashboard";
     case INVENTORY_SETUP_APPROVALS = "inventory:setup_approvals";
     case INVENTORY_SETUP_ITEMGROUP = "inventory:setup_item group";
@@ -15,7 +16,7 @@ enum AccessibilityInventory: string
     case INVENTORY_ITEMPROFILE_NEW_FORM = "inventory:item profile_new profile_forms and my requests";
     case INVENTORY_WAREHOUSE_VIEWONLY = "inventory:warehouse_overview_view only";
     case INVENTORY_WAREHOUSE_PSSMANAGER = "inventory:warehouse_overview_pss manager";
-    case INVENTORY_ADMIN = "AdminOnly";
+    case INVENTORY_PROCUREMENT_PROCUREMENTREQUESTS_SETCANVASSER = "inventory:procurement_procurement request_set canvasser";
 
     public static function toArray(): array
     {
