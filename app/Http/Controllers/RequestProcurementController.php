@@ -7,11 +7,13 @@ use App\Enums\UserTypes;
 use App\Models\RequestProcurement;
 use App\Http\Resources\RequestProcurementDetailedResource;
 use App\Http\Resources\RequestProcurementListingResource;
+use App\Http\Traits\CheckAccessibility;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 class RequestProcurementController extends Controller
 {
+    use CheckAccessibility;
     /**
      * Display a listing of the resource.
      */
