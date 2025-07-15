@@ -13,7 +13,7 @@ class RequestProcurementCanvasserController extends Controller
     {
         $validated = $request->validated();
         try {
-            $requestProcurement->canvassers()->syncWithoutDetaching($validated['user_ids']);
+            $requestProcurement->canvassers()->sync($validated['user_ids']);
             return new JsonResponse([
                 'success' => true,
                 'message' => 'Users successfully attached as canvassers.',
