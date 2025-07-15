@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AccessibilityInventory;
+use App\Enums\UserTypes;
 use App\Models\RequestProcurement;
 use App\Http\Resources\RequestProcurementDetailedResource;
 use App\Http\Resources\RequestProcurementListingResource;
