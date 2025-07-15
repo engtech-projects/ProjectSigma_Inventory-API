@@ -28,9 +28,8 @@ class PriceQuotationItem extends Model
         return $this->belongsTo(PriceQuotation::class);
     }
 
-    public function requestStockItem()
+    public function getRequestStockItemAttribute()
     {
-        return $this->belongsTo(RequestStockItem::class, 'item_id');
+        return $this->priceQuotation?->requestProcurement?->requestStock?->items?->firstWhere('item_id', $this->item_id);
     }
-
 }

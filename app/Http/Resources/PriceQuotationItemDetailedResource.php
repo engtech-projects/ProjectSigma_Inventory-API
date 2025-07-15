@@ -14,11 +14,13 @@ class PriceQuotationItemDetailedResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'item_description' => $this->requestStockItem?->item_description,
-            'specification' => $this->requestStockItem?->specification,
-            'qty' => $this->requestStockItem?->quantity,
-            'unit' => $this->requestStockItem?->uom_name,
-            'preferred_brand' => $this->requestStockItem?->preferred_brand,
+            "id" => $this->id,
+            "item_id" => $this->item_id,
+            'item_description' => $this->request_stock_item?->item_description,
+            'specification' => $this->request_stock_item?->specification,
+            'qty' => $this->request_stock_item?->quantity,
+            'unit' => $this->request_stock_item?->uom_name,
+            'preferred_brand' => $this->request_stock_item?->preferred_brand,
             'brand' => $this->actual_brand,
             'price' => $this->unit_price,
             'remarks' => $this->remarks_during_canvass,

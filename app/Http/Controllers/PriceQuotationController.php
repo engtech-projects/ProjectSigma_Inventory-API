@@ -57,8 +57,7 @@ class PriceQuotationController extends Controller
     {
         $priceQuotation->load([
             'supplier',
-            'items.requestStockItem.itemProfile',
-            'items.requestStockItem.uom',
+            'items',
         ]);
         return response()->json([
             'success' => true,
