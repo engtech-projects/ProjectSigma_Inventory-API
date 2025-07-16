@@ -20,6 +20,7 @@ class PriceQuotation extends Model
     protected $fillable = [
         'request_procurement_id',
         'supplier_id',
+        'quotation_no',
         'metadata',
     ];
     protected $casts = [
