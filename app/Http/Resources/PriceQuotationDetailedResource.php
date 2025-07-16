@@ -2,11 +2,13 @@
 
 namespace App\Http\Resources;
 
+use App\Traits\ModelHelpers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PriceQuotationDetailedResource extends JsonResource
 {
+    use ModelHelpers;
     /**
      * Transform the resource into an array.
      *
@@ -22,6 +24,7 @@ class PriceQuotationDetailedResource extends JsonResource
             'supplier_contact_person' => $this->supplier?->contact_person_name,
             'supplier_contact_person_number' => $this->supplier?->contact_person_number,
             'reference_no' => $this->requestProcurement?->requestStock?->reference_no,
+            'quotation_no' => $this->metadata['quotation_no'],
             'quotation_date' => $this->created_at_date_human,
             'items' => PriceQuotationItemDetailedResource::collection($this->items),
         ];
