@@ -72,15 +72,10 @@ class RequestStockController extends Controller
             try {
                 return DB::transaction(function () use ($attributes, $request) {
                     $duplicatedAttr = RequestStock::where('reference_no', $attributes['reference_no'])
-                        ->orWhere('equipment_no', $attributes['equipment_no'])
                         ->first();
 
                     if ($duplicatedAttr) {
-                        throw new \Exception(
-                            $duplicatedAttr->reference_no == $attributes['reference_no']
-                                ? 'The reference number has already been taken.'
-                                : 'The equipment number has already been taken.'
-                        );
+                        throw new \Exception('The reference number has already been taken.');
                     }
 
                     $requestStock = RequestStock::create($attributes);

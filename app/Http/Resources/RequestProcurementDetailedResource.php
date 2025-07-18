@@ -21,7 +21,9 @@ class RequestProcurementDetailedResource extends JsonResource
                 : null,
             'status' => $this->serve_status,
             'canvassers' => CanvasserResource::collection($this->canvassers),
-            "price_quotations" => PriceQuotationListingResource::collection($this->priceQuotations),
+            "price_quotations" => PriceQuotationListingResource::collection(
+    $this->priceQuotations->sortByDesc('created_at')->values()
+            ),
             "price_quotation_count" => $this->priceQuotations->count(),
 
         ];
