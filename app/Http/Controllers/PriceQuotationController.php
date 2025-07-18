@@ -7,12 +7,14 @@ use App\Http\Requests\StorePriceQuotationRequest;
 use App\Http\Resources\PriceQuotationDetailedResource;
 use App\Models\RequestProcurement;
 use App\Traits\HasReferenceNumber;
+use App\Traits\ModelHelpers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class PriceQuotationController extends Controller
 {
     use HasReferenceNumber;
+    use ModelHelpers;
 
     /**
      * Store a newly created resource in storage.
