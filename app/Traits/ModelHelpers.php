@@ -43,10 +43,6 @@ trait ModelHelpers
      * STATIC SCOPES
      * ==================================================
      */
-    public function scopeLatestFirst($query)
-    {
-        return $query->latest();
-    }
 
     /**
      * ==================================================

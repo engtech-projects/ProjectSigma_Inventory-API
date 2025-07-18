@@ -57,7 +57,6 @@ class PriceQuotationController extends Controller
      */
     public function show(PriceQuotation $priceQuotation)
     {
-
         $priceQuotation->load([
             'supplier',
             'items',

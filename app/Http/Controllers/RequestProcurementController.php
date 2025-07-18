@@ -33,7 +33,7 @@ class RequestProcurementController extends Controller
     {
         $resource->load([
             'priceQuotations' => function ($query) {
-                $query->latestFirst();
+                $query->latest();
             },
         ]);
         return new JsonResponse([
