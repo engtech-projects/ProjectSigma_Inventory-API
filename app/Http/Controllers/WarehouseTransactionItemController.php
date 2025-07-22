@@ -100,17 +100,16 @@ class WarehouseTransactionItemController extends Controller
     {
         $validatedData = $request->validated();
 
-        $quantity = $resource->quantity;
-        $accepted_quantity = $quantity;
+        $requestedQuantity = $resource->metadata['requested_quantity'];
+        $acceptedQuantity = $requestedQuantity;
         $unit_price = $validatedData['unit_price'];
         $actual_brand_purchase = $validatedData['actual_brand_purchase'];
         $specification = $validatedData['specification'];
 
         $metadata = $resource->metadata ?? [];
-        $metadata['status'] = 'Accepted';
-        $metadata['remarks'] = 'Accepted';
+        $metadata['accepted_status'] = 'Accepted';
         $metadata['unit_price'] = $unit_price;
-        $metadata['accepted_quantity'] = $accepted_quantity;
+        $metadata['accepted_quantity'] = $acceptedQuantity;
         $metadata['actual_brand_purchase'] = $actual_brand_purchase;
         $metadata['specification'] = $specification;
 
@@ -120,8 +119,15 @@ class WarehouseTransactionItemController extends Controller
 
         $resource->update([
             'metadata' => $metadata,
-            'quantity' => $quantity,
+            'quantity' => $requestedQuantity,
         ]);
+        $transaction = $resource->transaction;
+        $metadata = $transaction->metadata ?? [];
+
+        if (!isset($metadata['evaluated_by'])) {
+            $metadata['evaluated_by'] = auth()->user()->id;
+            $transaction->update(['metadata' => $metadata]);
+        }
 
         return response()->json([
             'message' => $message,
@@ -133,7 +139,6 @@ class WarehouseTransactionItemController extends Controller
     {
         $validatedData = $request->validated();
 
-        $quantity = $resource->quantity;
         $accepted_quantity = $validatedData['accepted_quantity'];
         $remarks = $validatedData['remarks'];
         $unit_price = $validatedData['unit_price'];
@@ -141,12 +146,12 @@ class WarehouseTransactionItemController extends Controller
         $specification = $validatedData['specification'];
 
         $metadata = $resource->metadata ?? [];
-        $metadata['status'] = 'Accepted';
+        $metadata['accepted_status'] = 'Accepted';
         $metadata['remarks'] = $remarks;
-        $metadata['unit_price'] = $unit_price;
         $metadata['accepted_quantity'] = $accepted_quantity;
         $metadata['actual_brand_purchase'] = $actual_brand_purchase;
         $metadata['specification'] = $specification;
+        $metadata['unit_price'] = $unit_price;
 
         $message = (isset($resource->metadata['status']) && $resource->metadata['status'] === 'Accepted')
             ? "Accepted quantity, actual brand purchase, unit price, and remarks have been updated."
@@ -154,8 +159,17 @@ class WarehouseTransactionItemController extends Controller
 
         $resource->update([
             'metadata' => $metadata,
-            'quantity' => $quantity,
+            'quantity' => $accepted_quantity,
         ]);
+
+        $transaction = $resource->transaction;
+        $metadata = $transaction->metadata ?? [];
+
+        if (!isset($metadata['evaluated_by'])) {
+            $metadata['evaluated_by'] = auth()->user()->id;
+            $transaction->update(['metadata' => $metadata]);
+        }
+
 
         return response()->json([
             'message' => $message,
@@ -175,12 +189,22 @@ class WarehouseTransactionItemController extends Controller
         $remarks = $request->input('remarks');
 
         $metadata = $resource->metadata ?? [];
-        $metadata['status'] = 'Rejected';
+        $metadata['accepted_status'] = 'Rejected';
         $metadata['remarks'] = $remarks;
+        $metadata['accepted_quantity'] = 0;
 
         $resource->update([
             'metadata' => $metadata,
+            'quantity' => 0,
         ]);
+
+        $transaction = $resource->transaction;
+        $metadata = $transaction->metadata ?? [];
+
+        if (!isset($metadata['evaluated_by'])) {
+            $metadata['evaluated_by'] = auth()->user()->id;
+            $transaction->update(['metadata' => $metadata]);
+        }
 
         return response()->json([
             'message' => "Item has been successfully rejected.",

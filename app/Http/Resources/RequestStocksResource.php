@@ -18,7 +18,7 @@ class RequestStocksResource extends JsonResource
     {
         return [
             ...parent::toArray($request),
-            'section_type' => $this->office_project,
+            'section_type' => $this->projectDepartmentName,
             'current_bom' => new CurrentBOMResource(
                 RequestBOM::where('assignment_type', $this->section_type)
                     ->where('assignment_id', $this->section_id)

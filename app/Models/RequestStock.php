@@ -212,6 +212,7 @@ class RequestStock extends Model
         foreach ($this->items as $requestItem) {
 
             $metadata = [
+                'requested_quantity' => $requestItem->quantity,
                 'specification' => $requestItem->specification,
                 'actual_brand_purchase' => $requestItem->preferred_brand,
                 'unit_price' => null, // Editable field
@@ -224,7 +225,7 @@ class RequestStock extends Model
                 'warehouse_transaction_id' => $mrr->id,
                 'parent_id' => null,
                 'metadata' => $metadata,
-                'quantity' => $requestItem->quantity,
+                'quantity' => 0,
                 'uom' => $requestItem->unit,
             ]);
         }
