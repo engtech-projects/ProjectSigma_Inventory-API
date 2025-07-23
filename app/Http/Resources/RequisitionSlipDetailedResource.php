@@ -18,7 +18,7 @@ class RequisitionSlipDetailedResource extends JsonResource
             "id" => $this->id,
             "request_for" => $this->request_for,
             "office_project" => $this->projectDepartmentName ?? "",
-            "address" => $this->office_project_address ?? "",
+            "office_project_address" => $this->office_project_address ?? "",
             "reference_no" => $this->reference_no ?? "",
             "date_prepared" => $this->date_prepared_human ?? "",
             "date_needed" => $this->date_needed_human ?? "",
