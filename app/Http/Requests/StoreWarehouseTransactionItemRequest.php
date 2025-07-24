@@ -25,7 +25,7 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
             'specification' => 'nullable|string|max:255',
             'actual_brand_purchase' => 'required|string|max:255',
             'unit_price' => 'required|numeric|min:1',
-            'accepted_quantity' => 'required|numeric|min:1',
+            'quantity' => 'required|numeric|min:1',
             'remarks' => 'nullable|string|max:255',
         ];
 

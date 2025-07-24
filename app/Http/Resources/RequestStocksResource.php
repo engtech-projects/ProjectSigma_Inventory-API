@@ -19,6 +19,7 @@ class RequestStocksResource extends JsonResource
         return [
             ...parent::toArray($request),
             'office_project' => $this->projectDepartmentName,
+            'price_quotation_count' => $this->requestProcurement?->priceQuotations->count(),
             'current_bom' => new CurrentBOMResource(
                 RequestBOM::where('assignment_type', $this->section_type)
                     ->where('assignment_id', $this->section_id)
@@ -48,6 +49,7 @@ class RequestStocksResource extends JsonResource
                     'previous_smr' => $item->previous_smr,
                     'unused_smr' => $item->unused_smr,
                     'next_smr' => $item->next_smr,
+
                 ];
             })->toArray(),
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),

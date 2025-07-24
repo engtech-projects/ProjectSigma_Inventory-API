@@ -12,7 +12,8 @@ class RequestProcurementCanvasser extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'request_procurement_id',
+        'id',
         'user_id',
+        'request_procurement_id',
     ];
 }

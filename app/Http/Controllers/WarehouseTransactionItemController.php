@@ -100,16 +100,14 @@ class WarehouseTransactionItemController extends Controller
     {
         $validatedData = $request->validated();
 
-        $requestedQuantity = $resource->metadata['requested_quantity'];
-        $acceptedQuantity = $requestedQuantity;
+        $acceptedQuantity = $resource->metadata['requested_quantity'];
         $unit_price = $validatedData['unit_price'];
         $actual_brand_purchase = $validatedData['actual_brand_purchase'];
         $specification = $validatedData['specification'];
 
         $metadata = $resource->metadata ?? [];
-        $metadata['accepted_status'] = 'Accepted';
+        $metadata['status'] = 'Accepted';
         $metadata['unit_price'] = $unit_price;
-        $metadata['accepted_quantity'] = $acceptedQuantity;
         $metadata['actual_brand_purchase'] = $actual_brand_purchase;
         $metadata['specification'] = $specification;
 
@@ -119,7 +117,7 @@ class WarehouseTransactionItemController extends Controller
 
         $resource->update([
             'metadata' => $metadata,
-            'quantity' => $requestedQuantity,
+            'quantity' => $acceptedQuantity,
         ]);
         $transaction = $resource->transaction;
         $metadata = $transaction->metadata ?? [];
@@ -128,7 +126,7 @@ class WarehouseTransactionItemController extends Controller
             $metadata['evaluated_by'] = auth()->user()->id;
             $transaction->update(['metadata' => $metadata]);
         }
-
+        $this->checkAndUpdateServeStatus($transaction);
         return response()->json([
             'message' => $message,
             'data' => $resource
@@ -139,16 +137,16 @@ class WarehouseTransactionItemController extends Controller
     {
         $validatedData = $request->validated();
 
-        $accepted_quantity = $validatedData['accepted_quantity'];
+        $quantity = $validatedData['quantity'];
         $remarks = $validatedData['remarks'];
         $unit_price = $validatedData['unit_price'];
         $actual_brand_purchase = $validatedData['actual_brand_purchase'];
         $specification = $validatedData['specification'];
 
         $metadata = $resource->metadata ?? [];
-        $metadata['accepted_status'] = 'Accepted';
+        $metadata['status'] = 'Accepted';
         $metadata['remarks'] = $remarks;
-        $metadata['accepted_quantity'] = $accepted_quantity;
+        $metadata['quantity'] = $quantity;
         $metadata['actual_brand_purchase'] = $actual_brand_purchase;
         $metadata['specification'] = $specification;
         $metadata['unit_price'] = $unit_price;
@@ -159,7 +157,7 @@ class WarehouseTransactionItemController extends Controller
 
         $resource->update([
             'metadata' => $metadata,
-            'quantity' => $accepted_quantity,
+            'quantity' => $quantity,
         ]);
 
         $transaction = $resource->transaction;
@@ -169,8 +167,7 @@ class WarehouseTransactionItemController extends Controller
             $metadata['evaluated_by'] = auth()->user()->id;
             $transaction->update(['metadata' => $metadata]);
         }
-
-
+        $this->checkAndUpdateServeStatus($transaction);
         return response()->json([
             'message' => $message,
             'data' => $resource
@@ -189,9 +186,8 @@ class WarehouseTransactionItemController extends Controller
         $remarks = $request->input('remarks');
 
         $metadata = $resource->metadata ?? [];
-        $metadata['accepted_status'] = 'Rejected';
+        $metadata['status'] = 'Rejected';
         $metadata['remarks'] = $remarks;
-        $metadata['accepted_quantity'] = 0;
 
         $resource->update([
             'metadata' => $metadata,
@@ -205,11 +201,24 @@ class WarehouseTransactionItemController extends Controller
             $metadata['evaluated_by'] = auth()->user()->id;
             $transaction->update(['metadata' => $metadata]);
         }
-
+        $this->checkAndUpdateServeStatus($transaction);
         return response()->json([
             'message' => "Item has been successfully rejected.",
             'data' => $resource
         ]);
+    }
+
+    private function checkAndUpdateServeStatus($transaction)
+    {
+        $allProcessed = $transaction->items->every(function ($item) {
+            return isset($item->metadata['status']);
+        });
+
+        if ($allProcessed) {
+            $metadata = $transaction->metadata ?? [];
+            $metadata['serve_status'] = 'Served';
+            $transaction->update(['metadata' => $metadata]);
+        }
     }
 
 

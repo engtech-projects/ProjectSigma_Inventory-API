@@ -176,6 +176,7 @@ class RequestStock extends Model
                 'equipment_no' => $this->equipment_no,
                 'terms_of_payment' => null,
                 'particulars' => null,
+                'serve_status' => 'Unserved',
                 'is_petty_cash' => true,
 
             ],
@@ -218,6 +219,7 @@ class RequestStock extends Model
                 'unit_price' => null, // Editable field
                 'remarks' => null, // Editable field
                 'status' => null,
+                'ext_price' => null,
             ];
 
             WarehouseTransactionItem::create([

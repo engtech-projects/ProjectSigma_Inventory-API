@@ -46,6 +46,7 @@ class PriceQuotation extends Model
     {
         return $this->belongsTo(RequestSupplier::class, 'supplier_id');
     }
+    
 
     /**
      * ==================================================
