@@ -119,14 +119,7 @@ class WarehouseTransactionItemController extends Controller
             'metadata' => $metadata,
             'quantity' => $acceptedQuantity,
         ]);
-        $transaction = $resource->transaction;
-        $metadata = $transaction->metadata ?? [];
-
-        if (!isset($metadata['evaluated_by'])) {
-            $metadata['evaluated_by'] = auth()->user()->id;
-            $transaction->update(['metadata' => $metadata]);
-        }
-        $this->checkAndUpdateServeStatus($transaction);
+        $this->checkAndUpdateServeStatus($resource->transaction);
         return response()->json([
             'message' => $message,
             'data' => $resource
@@ -159,14 +152,6 @@ class WarehouseTransactionItemController extends Controller
             'metadata' => $metadata,
             'quantity' => $quantity,
         ]);
-
-        $transaction = $resource->transaction;
-        $metadata = $transaction->metadata ?? [];
-
-        if (!isset($metadata['evaluated_by'])) {
-            $metadata['evaluated_by'] = auth()->user()->id;
-            $transaction->update(['metadata' => $metadata]);
-        }
         $this->checkAndUpdateServeStatus($transaction);
         return response()->json([
             'message' => $message,
@@ -193,14 +178,6 @@ class WarehouseTransactionItemController extends Controller
             'metadata' => $metadata,
             'quantity' => 0,
         ]);
-
-        $transaction = $resource->transaction;
-        $metadata = $transaction->metadata ?? [];
-
-        if (!isset($metadata['evaluated_by'])) {
-            $metadata['evaluated_by'] = auth()->user()->id;
-            $transaction->update(['metadata' => $metadata]);
-        }
         $this->checkAndUpdateServeStatus($transaction);
         return response()->json([
             'message' => "Item has been successfully rejected.",

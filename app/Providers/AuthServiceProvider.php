@@ -11,6 +11,8 @@ use App\Policies\UserPolicy;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
+use App\Models\WarehouseTransaction;
+use App\Policies\WarehouseTransactionPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -21,6 +23,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         User::class => UserPolicy::class,
+        WarehouseTransaction::class => WarehouseTransactionPolicy::class,
     ];
 
     /**
