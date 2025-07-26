@@ -4,6 +4,8 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Services\ApiServices\HrmsService;
+use App\Http\Resources\RequestProcurementDetailedResource;
 
 class CanvasserResource extends JsonResource
 {
@@ -14,11 +16,12 @@ class CanvasserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
-            "id" => $this->id,
-            "name" => $this->name,
-            // "fullname_first" => optional($this->employee)->fullname_first,
-            // "fullname_last" => optional($this->employee)->fullname_last,
+        return
+        [
+            'id' => $this->id,
+            'request_procurement_id' => $this->request_procurement_id,
+            'user_id' => $this->user_id,
+            'user' => HrmsService::getEmployeeDetails($request->bearerToken(), [$this->user_id]),
         ];
     }
 }
