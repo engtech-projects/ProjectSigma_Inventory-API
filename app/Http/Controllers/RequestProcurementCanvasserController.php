@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AttachUsersProcurementRequest;
 use App\Models\RequestProcurement;
 use App\Models\RequestProcurementCanvasser;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\RequestProcurementDetailedResource;
 

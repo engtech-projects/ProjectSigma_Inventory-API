@@ -10,7 +10,7 @@ class RequestProcurementCanvasser extends Model
 {
     use HasFactory;
     use SoftDeletes;
-    
+
     protected $table = 'request_procurement_canvassers';
 
     protected $fillable = [

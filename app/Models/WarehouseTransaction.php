@@ -180,7 +180,7 @@ class WarehouseTransaction extends Model
     {
         return $this->metadata['serve_status'] ?? 'Unserved';
     }
-    
+
 
 
 }
