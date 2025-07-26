@@ -50,7 +50,7 @@ class Warehouse extends Model
     */
     public function warehousePss()
     {
-        return $this->hasMany(WarehousePss::class);
+        return $this->hasOne(WarehousePss::class);
     }
     public function transactionItems()
     {

@@ -26,24 +26,24 @@ class WarehouseController extends Controller
     {
         $user = Auth::user();
         $userAccessibilitiesNames = $user->accessibilities_name;
-        if (
-            $this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value])
-            || Auth::user()->type == UserTypes::ADMINISTRATOR->value
-        ) {
-            $main = Warehouse::all();
-        } else {
-            $main = Warehouse::whereHas('warehousePss', function ($query) use ($user) {
+
+        $main = (
+            $this->checkUserAccessManual($userAccessibilitiesNames, [
+                AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value
+            ]) || $user->type === UserTypes::ADMINISTRATOR->value
+        )
+            ? Warehouse::all()
+            : Warehouse::whereHas('warehousePss', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->get();
-        }
 
-        $requestResources = WarehouseResource::collection($main)->collect();
         return response()->json([
             'message' => 'Successfully fetched.',
             'success' => true,
-            'data' => $requestResources,
+            'data' => WarehouseResource::collection($main),
         ]);
     }
+
 
     public function get()
     {
@@ -74,7 +74,7 @@ class WarehouseController extends Controller
         $user = Auth::user();
         $userAccessibilitiesNames = $user->accessibilities_name;
         if (
-            $this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value]) || $warehouse_id->warehousePss->contains('user_id', $user->id)
+            $this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value]) || $warehouse_id->warehousePss->user_id
             || Auth::user()->type == UserTypes::ADMINISTRATOR->value
         ) {
             return response()->json([

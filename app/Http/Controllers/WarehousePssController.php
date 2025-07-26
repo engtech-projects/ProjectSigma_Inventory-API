@@ -18,7 +18,7 @@ class WarehousePssController extends Controller
      */
     public function index()
     {
-        $main = WarehousePss::paginate(10);
+        $main = WarehousePss::get();
         $collection = WarehousePssResource::collection($main)->response()->getData(true);
 
         return new JsonResponse([
@@ -72,10 +72,10 @@ class WarehousePssController extends Controller
     public function update(UpdateWarehousePssRequest $request, Warehouse $warehouse_id)
     {
         $userId = $request->input('user_id');
-        $currentPss = $warehouse_id->warehousePss->first();
-        $currentUserId = $currentPss ? $currentPss->user_id : null;
+        $currentPss = $warehouse_id->warehousePss;
+        $currentUserId = $currentPss->user_id;
         if ($userId) {
-            $intUserId = intval($userId);;
+            $intUserId = intval($userId);
             if ($intUserId === $currentUserId) {
                 return response()->json([
                     'message' => 'The user is already assigned as PSS to this warehouse.',
@@ -83,21 +83,6 @@ class WarehousePssController extends Controller
                     "data" => new WarehouseResource($warehouse_id)
                 ]);
             }
-            // DB::transaction(function () use ($userId, $warehouse_id) {
-            //     WarehousePss::where("warehouse_id", $warehouse_id->id)->delete();
-            //     foreach ($userId as $id) {
-            //         $exists = WarehousePss::where([
-            //             ['warehouse_id', "=", $warehouse_id->id],
-            //             ['user_id', "=", $id],
-            //         ])->exists();
-            //         if (!$exists) {
-            //             WarehousePss::create([
-            //                 'warehouse_id' => $warehouse_id->id,
-            //                 'user_id' => $id,
-            //             ]);
-            //         }
-            //     }
-            // });
             DB::transaction(function () use ($userId, $warehouse_id) {
                 WarehousePss::where("warehouse_id", $warehouse_id->id)->delete();
 
