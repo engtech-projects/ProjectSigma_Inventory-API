@@ -69,18 +69,23 @@ class WarehouseController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Warehouse $warehouse_id)
+    public function show($warehouse_id)
     {
         $user = Auth::user();
         $userAccessibilitiesNames = $user->accessibilities_name;
+
+        // Eager-load warehousePss relation
+        $warehouse = Warehouse::with('warehousePss')->findOrFail($warehouse_id);
+
         if (
-            $this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value]) || $warehouse_id->warehousePss->user_id
-            || Auth::user()->type == UserTypes::ADMINISTRATOR->value
+            $this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value])
+            || optional($warehouse->warehousePss)->id
+            || $user->type == UserTypes::ADMINISTRATOR->value
         ) {
             return response()->json([
                 "message" => "Successfully fetched.",
                 "success" => true,
-                "warehouse" => new WarehouseResource($warehouse_id)
+                "warehouse" => new WarehouseResource($warehouse)
             ]);
         }
 
@@ -89,6 +94,7 @@ class WarehouseController extends Controller
             "success" => false
         ], 403);
     }
+
     public function withMaterialsReceiving(Warehouse $warehouse_id)
     {
         return response()->json([
