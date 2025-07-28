@@ -17,7 +17,7 @@ class CanvasserResource extends JsonResource
         return
         [
             "id" => $this->id,
-            "name" => $this->user->name,
+            "name" => $this->name,
             // "fullname_first" => optional($this->employee)->fullname_first,
             // "fullname_last" => optional($this->employee)->fullname_last,
         ];

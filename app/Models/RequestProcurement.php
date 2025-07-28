@@ -35,7 +35,14 @@ class RequestProcurement extends Model
 
     public function canvasser()
     {
-        return $this->hasOne(RequestProcurementCanvasser::class);
+        return $this->hasOneThrough(
+            User::class,
+            RequestProcurementCanvasser::class,
+            'request_procurement_id',
+            'id',
+            'id',
+            'user_id'
+        );
     }
 
     public function scopeIsUnserved($query)
@@ -46,7 +53,7 @@ class RequestProcurement extends Model
     public function scopeIsCanvasser($query, $userId)
     {
         return $query->whereHas('canvasser', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
+            $q->where('users.id', $userId);
         });
     }
 

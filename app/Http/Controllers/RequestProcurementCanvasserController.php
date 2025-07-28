@@ -20,7 +20,7 @@ class RequestProcurementCanvasserController extends Controller
         }
         $userId = intval($userId);
         $currentCanvasser = $requestProcurement->canvasser;
-        if ($currentCanvasser && $userId === $currentCanvasser->user_id) {
+        if ($currentCanvasser && $userId === $currentCanvasser->id) {
             return response()->json([
                 'message' => 'The user is already assigned as canvasser to this procurement request.',
                 'success' => false,
@@ -28,9 +28,10 @@ class RequestProcurementCanvasserController extends Controller
             ]);
         }
         DB::transaction(function () use ($userId, $requestProcurement) {
-            $requestProcurement->canvasser()?->delete();
+            $requestProcurement->where('request_procurement_id', $requestProcurement->id)->delete();
             $requestProcurement->canvasser()->create([
                 'user_id' => $userId,
+                'request_procurement_id' => $requestProcurement->id,
             ]);
         });
         $requestProcurement->refresh();
