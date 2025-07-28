@@ -46,6 +46,7 @@ class WarehouseTransactionController extends Controller
     {
         $attributes = $request->validated();
         $attributes['created_by'] = auth()->user()->id;
+        $attributes['request_status'] = RequestStatuses::APPROVED;
 
 
         DB::transaction(function () use (&$warehouseTransaction, $attributes, $request) {

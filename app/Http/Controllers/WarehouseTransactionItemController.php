@@ -99,6 +99,7 @@ class WarehouseTransactionItemController extends Controller
     public function acceptAll(StoreWarehouseTransactionAllItemRequest $request, WarehouseTransactionItem $resource)
     {
         $validatedData = $request->validated();
+        $wasAccepted = $resource->isAlreadyProcessed('Accepted');
 
         $acceptedQuantity = $resource->metadata['requested_quantity'];
         $unit_price = $validatedData['unit_price'];
@@ -111,7 +112,7 @@ class WarehouseTransactionItemController extends Controller
         $metadata['actual_brand_purchase'] = $actual_brand_purchase;
         $metadata['specification'] = $specification;
 
-        $message = (isset($resource->metadata['status']) && $resource->metadata['status'] === 'Accepted')
+        $message = ($wasAccepted)
             ? "Accepted quantity and remarks have been updated."
             : "Item has been successfully accepted with unit price.";
 
@@ -119,7 +120,6 @@ class WarehouseTransactionItemController extends Controller
             'metadata' => $metadata,
             'quantity' => $acceptedQuantity,
         ]);
-        $this->checkAndUpdateServeStatus($resource->transaction);
         return response()->json([
             'message' => $message,
             'data' => $resource
@@ -129,6 +129,7 @@ class WarehouseTransactionItemController extends Controller
     public function acceptWithDetails(StoreWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
     {
         $validatedData = $request->validated();
+        $wasAccepted = $resource->isAlreadyProcessed('Accepted');
 
         $quantity = $validatedData['quantity'];
         $remarks = $validatedData['remarks'];
@@ -144,7 +145,7 @@ class WarehouseTransactionItemController extends Controller
         $metadata['specification'] = $specification;
         $metadata['unit_price'] = $unit_price;
 
-        $message = (isset($resource->metadata['status']) && $resource->metadata['status'] === 'Accepted')
+        $message = ($wasAccepted)
             ? "Accepted quantity, actual brand purchase, unit price, and remarks have been updated."
             : "Item has been successfully accepted.";
 
@@ -152,7 +153,6 @@ class WarehouseTransactionItemController extends Controller
             'metadata' => $metadata,
             'quantity' => $quantity,
         ]);
-        $this->checkAndUpdateServeStatus($transaction);
         return response()->json([
             'message' => $message,
             'data' => $resource
@@ -161,7 +161,7 @@ class WarehouseTransactionItemController extends Controller
 
     public function reject(RejectWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
     {
-        if (isset($resource->metadata['status']) && $resource->metadata['status'] === 'Rejected') {
+        if ($resource->isAlreadyProcessed('Rejected')) {
             return response()->json([
                 'message' => "Item has already been rejected.",
                 'data' => $resource
@@ -178,25 +178,9 @@ class WarehouseTransactionItemController extends Controller
             'metadata' => $metadata,
             'quantity' => 0,
         ]);
-        $this->checkAndUpdateServeStatus($transaction);
         return response()->json([
             'message' => "Item has been successfully rejected.",
             'data' => $resource
         ]);
     }
-
-    private function checkAndUpdateServeStatus($transaction)
-    {
-        $allProcessed = $transaction->items->every(function ($item) {
-            return isset($item->metadata['status']);
-        });
-
-        if ($allProcessed) {
-            $metadata = $transaction->metadata ?? [];
-            $metadata['serve_status'] = 'Served';
-            $transaction->update(['metadata' => $metadata]);
-        }
-    }
-
-
 }

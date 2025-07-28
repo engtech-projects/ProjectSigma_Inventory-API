@@ -23,6 +23,20 @@ class WarehouseTransactionItem extends Model
         'metadata' => 'array',
     ];
 
+    protected static function booted(): void
+    {
+        static::updated(function (WarehouseTransactionItem $item) {
+            $item->checkAndUpdateTransactionServeStatus();
+        });
+
+        static::created(function (WarehouseTransactionItem $item) {
+            $item->checkAndUpdateTransactionServeStatus();
+        });
+
+        static::deleted(function (WarehouseTransactionItem $item) {
+            $item->checkAndUpdateTransactionServeStatus();
+        });
+    }
     /**
     * ==================================================
     * MODEL ATTRIBUTES
@@ -94,5 +108,46 @@ class WarehouseTransactionItem extends Model
     // {
     //     return $this->total_net_vat * 0.12; // 12% VAT
     // }
+
+    public function getStatus(): ?string
+    {
+        return $this->metadata['status'] ?? null;
+    }
+
+    public function isAccepted(): bool
+    {
+        return $this->getStatus() === 'Accepted';
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->getStatus() === 'Rejected';
+    }
+
+    public function isAlreadyProcessed(string $status): bool
+    {
+        return $this->hasStatus() && $this->getStatus() === $status;
+    }
+
+    public function checkAndUpdateTransactionServeStatus(): void
+    {
+        if (!$this->transaction) {
+            return;
+        }
+
+        $transaction = $this->transaction->fresh(['items']);
+        if (!$transaction || !$transaction->items->count()) {
+            return;
+        }
+        $allProcessed = $transaction->items->every(function ($item) {
+            return $item->isAccepted() || $item->isRejected();
+        });
+
+        if ($allProcessed) {
+            $metadata = $transaction->metadata ?? [];
+            $metadata['serve_status'] = 'Served';
+            $transaction->update(['metadata' => $metadata]);
+        }
+    }
 
 }

@@ -14,6 +14,7 @@ class RequestProcurementCanvasser extends Model
     protected $table = 'request_procurement_canvassers';
 
     protected $fillable = [
+        'id',
         'user_id',
         'request_procurement_id',
     ];
@@ -21,6 +22,11 @@ class RequestProcurementCanvasser extends Model
     public function requestProcurement()
     {
         return $this->belongsTo(RequestProcurement::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
 }

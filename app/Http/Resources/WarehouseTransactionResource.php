@@ -29,7 +29,7 @@ class WarehouseTransactionResource extends JsonResource
             'items' => WarehouseTransactionItemResource::collection($this->items),
             'grand_total' => $this->grand_total,
             'warehouse' => $this->warehouse_name,
-            'supplier' => $this->supplierCompanyName,
+            'supplier' => $this->supplier_company_name,
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
         ];

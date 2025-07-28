@@ -16,7 +16,7 @@ class RequestStockResourceList extends JsonResource
     {
         return [
             ...parent::toArray($request),
-            'office_project' => $this->projectDepartmentName,
+            'office_project' => $this->project_department_name,
             "next_approval" => $this->getNextPendingApproval(),
         ];
     }

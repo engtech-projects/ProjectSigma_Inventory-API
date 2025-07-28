@@ -14,14 +14,11 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
     public function authorize(): bool
     {
         $resource = $this->route('resource');
-
         if (!$resource) {
             return false;
         }
-
         $transaction = $resource->transaction;
         $response = Gate::inspect('isEvaluator', $transaction);
-
         if ($response->denied()) {
             throw new HttpResponseException(
                 response()->json([
@@ -29,13 +26,11 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
                 ], 403)
             );
         }
-
         $metadata = $transaction->metadata ?? [];
         if (!isset($metadata['evaluated_by'])) {
             $metadata['evaluated_by'] = auth()->user()->id;
             $transaction->update(['metadata' => $metadata]);
         }
-
         return true;
     }
 
@@ -53,7 +48,6 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
             'quantity' => 'required|numeric|min:1',
             'remarks' => 'nullable|string|max:255',
         ];
-
     }
 
     /**
@@ -67,6 +61,5 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
             'unit_price.required' => 'The unit price is required.',
             'actual_brand_purchase.required' => 'The actual brand purchase is required.',
         ];
-
     }
 }

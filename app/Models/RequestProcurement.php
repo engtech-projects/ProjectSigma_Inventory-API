@@ -46,7 +46,7 @@ class RequestProcurement extends Model
     public function scopeIsCanvasser($query, $userId)
     {
         return $query->whereHas('canvasser', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
+            $q->where('users.id', $userId);
         });
     }
 

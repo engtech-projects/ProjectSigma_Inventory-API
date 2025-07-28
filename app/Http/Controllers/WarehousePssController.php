@@ -85,7 +85,6 @@ class WarehousePssController extends Controller
             }
             DB::transaction(function () use ($userId, $warehouse_id) {
                 WarehousePss::where("warehouse_id", $warehouse_id->id)->delete();
-
                 WarehousePss::create([
                     'warehouse_id' => $warehouse_id->id,
                     'user_id' => $userId,
@@ -102,8 +101,6 @@ class WarehousePssController extends Controller
             "success" => false,
         ]);
     }
-
-
     /**
      * Remove the specified resource from storage.
      */
@@ -116,9 +113,7 @@ class WarehousePssController extends Controller
                 'data' => null
             ], 404);
         }
-
         $deleted = $resource->delete();
-
         return response()->json([
             'message' => $deleted ? 'Warehouse PSS successfully deleted.' : 'Failed to delete Warehouse PSS.',
             'success' => $deleted,
