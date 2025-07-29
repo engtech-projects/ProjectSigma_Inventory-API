@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\RequestStatuses;
 use App\Http\Resources\WarehouseTransactionResourceList;
 use App\Models\WarehouseTransaction;
 use App\Http\Requests\StoreWarehouseTransactionRequest;
@@ -46,8 +45,8 @@ class WarehouseTransactionController extends Controller
     public function store(StoreWarehouseTransactionRequest $request)
     {
         $attributes = $request->validated();
-        $attributes['request_status'] = RequestStatuses::PENDING;
         $attributes['created_by'] = auth()->user()->id;
+        $attributes['request_status'] = RequestStatuses::APPROVED;
 
 
         DB::transaction(function () use (&$warehouseTransaction, $attributes, $request) {
@@ -59,7 +58,6 @@ class WarehouseTransactionController extends Controller
                 'approvals' => $attributes['approvals'],
                 'metadata' => $attributes['metadata'] ?? [],
                 'created_by' => $attributes['created_by'],
-                'request_status' => $attributes['request_status'],
             ]);
 
             foreach ($attributes['items'] as $transactionData) {

@@ -4,30 +4,41 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AttachUsersProcurementRequest;
 use App\Models\RequestProcurement;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use App\Http\Resources\RequestProcurementDetailedResource;
 
 class RequestProcurementCanvasserController extends Controller
 {
     public function setCanvasser(AttachUsersProcurementRequest $request, RequestProcurement $requestProcurement)
     {
-        $validated = $request->validated();
-        try {
-            $requestProcurement->canvassers()->sync($validated['user_ids']);
-            return new JsonResponse([
-                'success' => true,
-                'message' => 'Users successfully attached as canvassers.',
+        $userId = $request->input('user_id');
+        if (!$userId) {
+            return response()->json([
+                "message" => "Failed to assign canvasser.",
+                "success" => false,
             ]);
-        } catch (\Exception $e) {
-            Log::error('Failed to attach canvassers to procurement request', [
-                'request_procurement_id' => $requestProcurement->id,
-                'user_ids' => $validated['user_ids'],
-                'error' => $e->getMessage()
-            ]);
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'Attachment failed: ' . $e->getMessage(),
-            ], 500);
         }
+        $userId = intval($userId);
+        $currentCanvasser = $requestProcurement->canvasser;
+        if ($currentCanvasser && $userId === $currentCanvasser->id) {
+            return response()->json([
+                'message' => 'The user is already assigned as canvasser to this procurement request.',
+                'success' => false,
+                "data" => new RequestProcurementDetailedResource($requestProcurement)
+            ]);
+        }
+        DB::transaction(function () use ($userId, $requestProcurement) {
+            $requestProcurement->where('request_procurement_id', $requestProcurement->id)->delete();
+            $requestProcurement->canvasser()->create([
+                'user_id' => $userId,
+                'request_procurement_id' => $requestProcurement->id,
+            ]);
+        });
+        $requestProcurement->refresh();
+        return response()->json([
+            'message' => 'Successfully assigned new canvasser',
+            'success' => true,
+            "data" => new RequestProcurementDetailedResource($requestProcurement->load('canvasser'))
+        ]);
     }
 }

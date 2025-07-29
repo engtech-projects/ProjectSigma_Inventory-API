@@ -176,4 +176,11 @@ class WarehouseTransaction extends Model
         return $this->transaction_date ? Carbon::parse($this->transaction_date)->format('F j, Y') : null;
     }
 
+    public function getServeStatusAttribute(): string
+    {
+        return $this->metadata['serve_status'] ?? 'Unserved';
+    }
+
+
+
 }

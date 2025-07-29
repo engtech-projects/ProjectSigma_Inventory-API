@@ -99,30 +99,27 @@ class WarehouseTransactionItemController extends Controller
     public function acceptAll(StoreWarehouseTransactionAllItemRequest $request, WarehouseTransactionItem $resource)
     {
         $validatedData = $request->validated();
+        $wasAccepted = $resource->isAlreadyProcessed('Accepted');
 
-        $quantity = $resource->quantity;
-        $accepted_quantity = $quantity;
+        $acceptedQuantity = $resource->metadata['requested_quantity'];
         $unit_price = $validatedData['unit_price'];
         $actual_brand_purchase = $validatedData['actual_brand_purchase'];
         $specification = $validatedData['specification'];
 
         $metadata = $resource->metadata ?? [];
         $metadata['status'] = 'Accepted';
-        $metadata['remarks'] = 'Accepted';
         $metadata['unit_price'] = $unit_price;
-        $metadata['accepted_quantity'] = $accepted_quantity;
         $metadata['actual_brand_purchase'] = $actual_brand_purchase;
         $metadata['specification'] = $specification;
 
-        $message = (isset($resource->metadata['status']) && $resource->metadata['status'] === 'Accepted')
+        $message = ($wasAccepted)
             ? "Accepted quantity and remarks have been updated."
             : "Item has been successfully accepted with unit price.";
 
         $resource->update([
             'metadata' => $metadata,
-            'quantity' => $quantity,
+            'quantity' => $acceptedQuantity,
         ]);
-
         return response()->json([
             'message' => $message,
             'data' => $resource
@@ -132,9 +129,9 @@ class WarehouseTransactionItemController extends Controller
     public function acceptWithDetails(StoreWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
     {
         $validatedData = $request->validated();
+        $wasAccepted = $resource->isAlreadyProcessed('Accepted');
 
-        $quantity = $resource->quantity;
-        $accepted_quantity = $validatedData['accepted_quantity'];
+        $quantity = $validatedData['quantity'];
         $remarks = $validatedData['remarks'];
         $unit_price = $validatedData['unit_price'];
         $actual_brand_purchase = $validatedData['actual_brand_purchase'];
@@ -143,12 +140,12 @@ class WarehouseTransactionItemController extends Controller
         $metadata = $resource->metadata ?? [];
         $metadata['status'] = 'Accepted';
         $metadata['remarks'] = $remarks;
-        $metadata['unit_price'] = $unit_price;
-        $metadata['accepted_quantity'] = $accepted_quantity;
+        $metadata['quantity'] = $quantity;
         $metadata['actual_brand_purchase'] = $actual_brand_purchase;
         $metadata['specification'] = $specification;
+        $metadata['unit_price'] = $unit_price;
 
-        $message = (isset($resource->metadata['status']) && $resource->metadata['status'] === 'Accepted')
+        $message = ($wasAccepted)
             ? "Accepted quantity, actual brand purchase, unit price, and remarks have been updated."
             : "Item has been successfully accepted.";
 
@@ -156,7 +153,6 @@ class WarehouseTransactionItemController extends Controller
             'metadata' => $metadata,
             'quantity' => $quantity,
         ]);
-
         return response()->json([
             'message' => $message,
             'data' => $resource
@@ -165,7 +161,7 @@ class WarehouseTransactionItemController extends Controller
 
     public function reject(RejectWarehouseTransactionItemRequest $request, WarehouseTransactionItem $resource)
     {
-        if (isset($resource->metadata['status']) && $resource->metadata['status'] === 'Rejected') {
+        if ($resource->isAlreadyProcessed('Rejected')) {
             return response()->json([
                 'message' => "Item has already been rejected.",
                 'data' => $resource
@@ -180,13 +176,11 @@ class WarehouseTransactionItemController extends Controller
 
         $resource->update([
             'metadata' => $metadata,
+            'quantity' => 0,
         ]);
-
         return response()->json([
             'message' => "Item has been successfully rejected.",
             'data' => $resource
         ]);
     }
-
-
 }
