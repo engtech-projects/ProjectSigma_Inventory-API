@@ -74,12 +74,13 @@ class WarehouseController extends Controller
         $userAccessibilitiesNames = $user->accessibilities_name;
 
         $warehouse_id->load('warehousePss');
+        $isPssUser = optional($warehouse_id->warehousePss)->id === $user->id;
+        $isAdmin = $user->type === UserTypes::ADMINISTRATOR->value;
+        $hasAccess = $this->checkUserAccessManual($userAccessibilitiesNames, [
+            AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value,
+        ]);
 
-        if (
-            $this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value])
-            || optional($warehouse_id->warehousePss)->id
-            || $user->type == UserTypes::ADMINISTRATOR->value
-        ) {
+        if ($hasAccess || $isPssUser || $isAdmin) {
             return response()->json([
                 "message" => "Successfully fetched.",
                 "success" => true,
