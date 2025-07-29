@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RequestStatuses;
 use App\Http\Resources\WarehouseTransactionResourceList;
 use App\Models\WarehouseTransaction;
 use App\Http\Requests\StoreWarehouseTransactionRequest;

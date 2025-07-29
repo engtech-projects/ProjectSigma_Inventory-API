@@ -69,10 +69,10 @@ class WarehousePssController extends Controller
      * Update the specified resource in storage.
      */
 
-    public function update(UpdateWarehousePssRequest $request, Warehouse $warehouse_id)
+    public function update(UpdateWarehousePssRequest $request, Warehouse $warehouse)
     {
         $userId = $request->input('user_id');
-        $currentPss = $warehouse_id->warehousePss;
+        $currentPss = $warehouse->warehousePss;
         $currentUserId = $currentPss->user_id;
         if ($userId) {
             $intUserId = intval($userId);
@@ -80,20 +80,20 @@ class WarehousePssController extends Controller
                 return response()->json([
                     'message' => 'The user is already assigned as PSS to this warehouse.',
                     'success' => false,
-                    "data" => new WarehouseResource($warehouse_id)
+                    "data" => new WarehouseResource($warehouse)
                 ]);
             }
-            DB::transaction(function () use ($userId, $warehouse_id) {
-                WarehousePss::where("warehouse_id", $warehouse_id->id)->delete();
+            DB::transaction(function () use ($userId, $warehouse) {
+                WarehousePss::where("warehouse_id", $warehouse->id)->delete();
                 WarehousePss::create([
-                    'warehouse_id' => $warehouse_id->id,
+                    'warehouse_id' => $warehouse->id,
                     'user_id' => $userId,
                 ]);
             });
             return response()->json([
                 'message' => 'Successfully assigned new PSS',
                 'success' => true,
-                "data" => new WarehouseResource($warehouse_id->load('warehousePss'))
+                "data" => new WarehouseResource($warehouse->load('warehousePss'))
             ]);
         }
         return response()->json([

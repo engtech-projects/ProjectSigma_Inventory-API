@@ -68,12 +68,12 @@ class WarehouseController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Warehouse $warehouse_id)
+    public function show(Warehouse $warehouse)
     {
         $user = Auth::user();
         $userAccessibilitiesNames = $user->accessibilities_name;
-        $warehouse_id->load('warehousePss');
-        $isPssUser = optional($warehouse_id->warehousePss)->id === $user->id;
+        $warehouse->load('warehousePss');
+        $isPssUser = optional($warehouse->warehousePss)->id === $user->id;
         $isAdmin = $user->type === UserTypes::ADMINISTRATOR->value;
         $hasAccess = $this->checkUserAccessManual($userAccessibilitiesNames, [
             AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value,
@@ -82,7 +82,7 @@ class WarehouseController extends Controller
             return response()->json([
                 "message" => "Successfully fetched.",
                 "success" => true,
-                "warehouse" => new WarehouseResource($warehouse_id)
+                "warehouse" => new WarehouseResource($warehouse)
             ]);
         }
         return response()->json([

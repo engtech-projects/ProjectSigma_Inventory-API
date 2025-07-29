@@ -17,19 +17,17 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
         if (!$resource) {
             return false;
         }
+        if (!auth()->user()) {
+            return false;
+        }
         $transaction = $resource->transaction;
         $response = Gate::inspect('isEvaluator', $transaction);
         if ($response->denied()) {
             throw new HttpResponseException(
                 response()->json([
-                    'message' => $response->message()
+                    'message' => $response->message(),
                 ], 403)
             );
-        }
-        $metadata = $transaction->metadata ?? [];
-        if (!isset($metadata['evaluated_by'])) {
-            $metadata['evaluated_by'] = auth()->user()->id;
-            $transaction->update(['metadata' => $metadata]);
         }
         return true;
     }
