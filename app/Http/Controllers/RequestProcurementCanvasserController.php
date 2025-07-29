@@ -35,7 +35,6 @@ class RequestProcurementCanvasserController extends Controller
             ]);
         });
         $requestProcurement->refresh();
-
         return response()->json([
             'message' => 'Successfully assigned new canvasser',
             'success' => true,

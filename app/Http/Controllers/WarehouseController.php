@@ -72,7 +72,6 @@ class WarehouseController extends Controller
     {
         $user = Auth::user();
         $userAccessibilitiesNames = $user->accessibilities_name;
-
         $warehouse_id->load('warehousePss');
         $isPssUser = optional($warehouse_id->warehousePss)->id === $user->id;
         $isAdmin = $user->type === UserTypes::ADMINISTRATOR->value;
@@ -151,7 +150,6 @@ class WarehouseController extends Controller
         $date_from = $validated['date_from'] ?? null;
         $date_to = $validated['date_to'] ?? null;
         $transaction_type = $validated['transaction_type'] ?? null;
-
         $parseDateFrom = $date_from ? Carbon::parse($date_from)->startOfDay() : null;
         $parseDateTo = $date_to ? Carbon::parse($date_to)->endOfDay() : null;
 
@@ -180,16 +178,13 @@ class WarehouseController extends Controller
     public function getStocks($warehouse_id)
     {
         $warehouse = Warehouse::find($warehouse_id);
-
         if (!$warehouse) {
             return response()->json([
                 'message' => 'No data found.',
                 'success' => false,
             ]);
         }
-
         $transactionItems = $warehouse->transactionItems()->with('item')->paginate(10);
-
         return response()->json([
             'message' => '' . $warehouse->name . ' Warehouse Stocks Successfully fetched.',
             'success' => true,

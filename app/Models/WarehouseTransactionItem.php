@@ -134,7 +134,6 @@ class WarehouseTransactionItem extends Model
         if (!$this->transaction) {
             return;
         }
-
         $transaction = $this->transaction->fresh(['items']);
         if (!$transaction || !$transaction->items->count()) {
             return;
@@ -142,7 +141,6 @@ class WarehouseTransactionItem extends Model
         $allProcessed = $transaction->items->every(function ($item) {
             return $item->isAccepted() || $item->isRejected();
         });
-
         if ($allProcessed) {
             $metadata = $transaction->metadata ?? [];
             $metadata['serve_status'] = 'Served';
