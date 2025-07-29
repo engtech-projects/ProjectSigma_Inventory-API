@@ -78,7 +78,6 @@ class WarehouseController extends Controller
         $hasAccess = $this->checkUserAccessManual($userAccessibilitiesNames, [
             AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value,
         ]);
-
         if ($hasAccess || $isPssUser || $isAdmin) {
             return response()->json([
                 "message" => "Successfully fetched.",
@@ -86,7 +85,6 @@ class WarehouseController extends Controller
                 "warehouse" => new WarehouseResource($warehouse_id)
             ]);
         }
-
         return response()->json([
             "message" => "Unauthorized Access.",
             "success" => false
@@ -134,9 +132,7 @@ class WarehouseController extends Controller
                 'data' => null
             ], 404);
         }
-
         $deleted = $resource->delete();
-
         return response()->json([
             'message' => $deleted ? 'Warehouse successfully deleted.' : 'Failed to delete warehouse.',
             'success' => $deleted,
@@ -152,7 +148,6 @@ class WarehouseController extends Controller
         $transaction_type = $validated['transaction_type'] ?? null;
         $parseDateFrom = $date_from ? Carbon::parse($date_from)->startOfDay() : null;
         $parseDateTo = $date_to ? Carbon::parse($date_to)->endOfDay() : null;
-
         $warehouse = WarehouseTransactionItem::with(['item', 'uomRelationship', 'transaction'])->whereHas(
             "transaction",
             function ($query) use ($warehouse_id, $parseDateFrom, $parseDateTo, $transaction_type) {
@@ -165,9 +160,7 @@ class WarehouseController extends Controller
                 }
             }
         )->orderBy('created_at', 'desc')->get();
-
         $returnData = WarehouseLogsResource::collection($warehouse);
-
         return new JsonResponse([
             "success" => true,
             "message" => "Successfully fetched.",
