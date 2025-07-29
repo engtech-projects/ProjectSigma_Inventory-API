@@ -6,6 +6,7 @@ use App\Http\Requests\AttachUsersProcurementRequest;
 use App\Models\RequestProcurement;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\RequestProcurementDetailedResource;
+use App\Models\RequestProcurementCanvasser;
 
 class RequestProcurementCanvasserController extends Controller
 {
@@ -28,10 +29,10 @@ class RequestProcurementCanvasserController extends Controller
             ]);
         }
         DB::transaction(function () use ($userId, $requestProcurement) {
-            $requestProcurement->where('request_procurement_id', $requestProcurement->id)->delete();
-            $requestProcurement->canvasser()->create([
-                'user_id' => $userId,
+            RequestProcurementCanvasser::where('request_procurement_id', $requestProcurement->id)->delete();
+            RequestProcurementCanvasser::create([
                 'request_procurement_id' => $requestProcurement->id,
+                'user_id' => $userId,
             ]);
         });
         $requestProcurement->refresh();
