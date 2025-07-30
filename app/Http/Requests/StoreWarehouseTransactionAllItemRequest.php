@@ -26,11 +26,6 @@ class StoreWarehouseTransactionAllItemRequest extends FormRequest
                 ], 403)
             );
         }
-        $metadata = $transaction->metadata ?? [];
-        if (!isset($metadata['evaluated_by'])) {
-            $metadata['evaluated_by'] = auth()->user()->id;
-            $transaction->update(['metadata' => $metadata]);
-        }
         return true;
     }
 

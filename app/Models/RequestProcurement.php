@@ -23,7 +23,6 @@ class RequestProcurement extends Model
 
     protected $table = 'request_procurements';
     protected $fillable = [
-        'id',
         'request_requisition_slip_id',
         'serve_status',
     ];
