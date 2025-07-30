@@ -176,6 +176,7 @@ class RequestStock extends Model
                 'equipment_no' => $this->equipment_no,
                 'terms_of_payment' => null,
                 'particulars' => null,
+                'serve_status' => 'Unserved',
                 'is_petty_cash' => true,
 
             ],
@@ -212,11 +213,13 @@ class RequestStock extends Model
         foreach ($this->items as $requestItem) {
 
             $metadata = [
+                'requested_quantity' => $requestItem->quantity,
                 'specification' => $requestItem->specification,
                 'actual_brand_purchase' => $requestItem->preferred_brand,
                 'unit_price' => null, // Editable field
                 'remarks' => null, // Editable field
                 'status' => null,
+                'ext_price' => null,
             ];
 
             WarehouseTransactionItem::create([
@@ -224,7 +227,7 @@ class RequestStock extends Model
                 'warehouse_transaction_id' => $mrr->id,
                 'parent_id' => null,
                 'metadata' => $metadata,
-                'quantity' => $requestItem->quantity,
+                'quantity' => 0,
                 'uom' => $requestItem->unit,
             ]);
         }

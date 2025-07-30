@@ -31,6 +31,12 @@ class RequestProcurementController extends Controller
      */
     public function show(RequestProcurement $resource)
     {
+        $resource->load([
+            'priceQuotations' => function ($query) {
+                $query->latest();
+            },
+            'canvasser'
+        ]);
         return new JsonResponse([
             'success' => true,
             'message' => 'Request procurement retrieved successfully.',

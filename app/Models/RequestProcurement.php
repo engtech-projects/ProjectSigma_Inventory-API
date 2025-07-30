@@ -21,6 +21,7 @@ class RequestProcurement extends Model
     use ModelHelpers;
     use CheckAccessibility;
 
+    protected $table = 'request_procurements';
     protected $fillable = [
         'request_requisition_slip_id',
         'serve_status',
@@ -31,9 +32,16 @@ class RequestProcurement extends Model
         return $this->belongsTo(RequestStock::class, 'request_requisition_slip_id');
     }
 
-    public function canvassers()
+    public function canvasser()
     {
-        return $this->belongsToMany(User::class, 'request_procurement_canvassers', 'request_procurement_id', 'user_id');
+        return $this->hasOneThrough(
+            User::class,
+            RequestProcurementCanvasser::class,
+            'request_procurement_id',
+            'id',
+            'id',
+            'user_id'
+        );
     }
 
     public function scopeIsUnserved($query)
@@ -43,7 +51,7 @@ class RequestProcurement extends Model
 
     public function scopeIsCanvasser($query, $userId)
     {
-        return $query->whereHas('canvassers', function ($q) use ($userId) {
+        return $query->whereHas('canvasser', function ($q) use ($userId) {
             $q->where('users.id', $userId);
         });
     }

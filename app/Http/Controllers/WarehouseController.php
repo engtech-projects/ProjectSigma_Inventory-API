@@ -26,24 +26,23 @@ class WarehouseController extends Controller
     {
         $user = Auth::user();
         $userAccessibilitiesNames = $user->accessibilities_name;
-        if (
-            $this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value])
-            || Auth::user()->type == UserTypes::ADMINISTRATOR->value
-        ) {
-            $main = Warehouse::all();
-        } else {
-            $main = Warehouse::whereHas('warehousePss', function ($query) use ($user) {
+        $main = (
+            $this->checkUserAccessManual($userAccessibilitiesNames, [
+                AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value
+            ]) || $user->type === UserTypes::ADMINISTRATOR->value
+        )
+            ? Warehouse::all()
+            : Warehouse::whereHas('warehousePss', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->get();
-        }
 
-        $requestResources = WarehouseResource::collection($main)->collect();
         return response()->json([
             'message' => 'Successfully fetched.',
             'success' => true,
-            'data' => $requestResources,
+            'data' => WarehouseResource::collection($main),
         ]);
     }
+
 
     public function get()
     {
@@ -69,26 +68,29 @@ class WarehouseController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Warehouse $warehouse_id)
+    public function show(Warehouse $warehouse)
     {
         $user = Auth::user();
         $userAccessibilitiesNames = $user->accessibilities_name;
-        if (
-            $this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value]) || $warehouse_id->warehousePss->contains('user_id', $user->id)
-            || Auth::user()->type == UserTypes::ADMINISTRATOR->value
-        ) {
+        $warehouse->load('warehousePss');
+        $isPssUser = optional($warehouse->warehousePss)->id === $user->id;
+        $isAdmin = $user->type === UserTypes::ADMINISTRATOR->value;
+        $hasAccess = $this->checkUserAccessManual($userAccessibilitiesNames, [
+            AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value,
+        ]);
+        if ($hasAccess || $isPssUser || $isAdmin) {
             return response()->json([
                 "message" => "Successfully fetched.",
                 "success" => true,
-                "warehouse" => new WarehouseResource($warehouse_id)
+                "warehouse" => new WarehouseResource($warehouse)
             ]);
         }
-
         return response()->json([
             "message" => "Unauthorized Access.",
             "success" => false
         ], 403);
     }
+
     public function withMaterialsReceiving(Warehouse $warehouse_id)
     {
         return response()->json([
@@ -130,9 +132,7 @@ class WarehouseController extends Controller
                 'data' => null
             ], 404);
         }
-
         $deleted = $resource->delete();
-
         return response()->json([
             'message' => $deleted ? 'Warehouse successfully deleted.' : 'Failed to delete warehouse.',
             'success' => $deleted,
@@ -146,10 +146,8 @@ class WarehouseController extends Controller
         $date_from = $validated['date_from'] ?? null;
         $date_to = $validated['date_to'] ?? null;
         $transaction_type = $validated['transaction_type'] ?? null;
-
         $parseDateFrom = $date_from ? Carbon::parse($date_from)->startOfDay() : null;
         $parseDateTo = $date_to ? Carbon::parse($date_to)->endOfDay() : null;
-
         $warehouse = WarehouseTransactionItem::with(['item', 'uomRelationship', 'transaction'])->whereHas(
             "transaction",
             function ($query) use ($warehouse_id, $parseDateFrom, $parseDateTo, $transaction_type) {
@@ -162,9 +160,7 @@ class WarehouseController extends Controller
                 }
             }
         )->orderBy('created_at', 'desc')->get();
-
         $returnData = WarehouseLogsResource::collection($warehouse);
-
         return new JsonResponse([
             "success" => true,
             "message" => "Successfully fetched.",
@@ -175,16 +171,13 @@ class WarehouseController extends Controller
     public function getStocks($warehouse_id)
     {
         $warehouse = Warehouse::find($warehouse_id);
-
         if (!$warehouse) {
             return response()->json([
                 'message' => 'No data found.',
                 'success' => false,
             ]);
         }
-
         $transactionItems = $warehouse->transactionItems()->with('item')->paginate(10);
-
         return response()->json([
             'message' => '' . $warehouse->name . ' Warehouse Stocks Successfully fetched.',
             'success' => true,

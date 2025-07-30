@@ -45,11 +45,8 @@ class StoreRequestStockRequest extends FormRequest
             'date_prepared' => 'required|date',
             'date_needed' => 'required|date',
             'equipment_no' => [
-                'required',
                 'string',
                 'max:255',
-                Rule::unique('request_stocks', 'equipment_no')
-                    ->where(fn ($q) => $q->where('equipment_no', '!=', 'N/A')),
             ],
             'remarks' => ['nullable', 'string', new Enum(RSRemarksEnums::class)],
             // Updated type_of_request validation

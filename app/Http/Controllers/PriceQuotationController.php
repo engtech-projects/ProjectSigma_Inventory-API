@@ -7,12 +7,14 @@ use App\Http\Requests\StorePriceQuotationRequest;
 use App\Http\Resources\PriceQuotationDetailedResource;
 use App\Models\RequestProcurement;
 use App\Traits\HasReferenceNumber;
+use App\Traits\ModelHelpers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class PriceQuotationController extends Controller
 {
     use HasReferenceNumber;
+    use ModelHelpers;
 
     /**
      * Store a newly created resource in storage.
@@ -22,17 +24,17 @@ class PriceQuotationController extends Controller
         $validated = $request->validated();
         $quotation = DB::transaction(function () use ($validated, $requestProcurement, $request) {
             $quotationNo = PriceQuotation::generateReferenceNumber(
-                'metadata->quotation_no',
+                'quotation_no',
                 fn ($prefix, $datePart, $number) => "{$prefix}-{$datePart}-{$number}",
                 ['prefix' => 'RPQ', 'dateFormat' => 'Y-m']
             );
             $metadata = [
                 ...$request->only(['date', 'address', 'contact_person', 'contact_no', 'conso_reference_no']),
-                'quotation_no' => $quotationNo,
             ];
             $quotation = $requestProcurement->priceQuotations()->create([
                 'supplier_id' => $validated['supplier_id'],
                 'metadata' => $metadata,
+                'quotation_no' => $quotationNo,
             ]);
             $quotation->items()->createMany($validated['items']);
             return $quotation;

@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreWarehouseTransactionItemRequest extends FormRequest
 {
@@ -11,6 +13,22 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
      */
     public function authorize(): bool
     {
+        $resource = $this->route('resource');
+        if (!$resource) {
+            return false;
+        }
+        if (!auth()->user()) {
+            return false;
+        }
+        $transaction = $resource->transaction;
+        $response = Gate::inspect('isEvaluator', $transaction);
+        if ($response->denied()) {
+            throw new HttpResponseException(
+                response()->json([
+                    'message' => $response->message(),
+                ], 403)
+            );
+        }
         return true;
     }
 
@@ -25,10 +43,9 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
             'specification' => 'nullable|string|max:255',
             'actual_brand_purchase' => 'required|string|max:255',
             'unit_price' => 'required|numeric|min:1',
-            'accepted_quantity' => 'required|numeric|min:1',
+            'quantity' => 'required|numeric|min:1',
             'remarks' => 'nullable|string|max:255',
         ];
-
     }
 
     /**
@@ -42,6 +59,5 @@ class StoreWarehouseTransactionItemRequest extends FormRequest
             'unit_price.required' => 'The unit price is required.',
             'actual_brand_purchase.required' => 'The actual brand purchase is required.',
         ];
-
     }
 }

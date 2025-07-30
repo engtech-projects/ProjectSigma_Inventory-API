@@ -18,7 +18,7 @@ class WarehousePssController extends Controller
      */
     public function index()
     {
-        $main = WarehousePss::paginate(10);
+        $main = WarehousePss::get();
         $collection = WarehousePssResource::collection($main)->response()->getData(true);
 
         return new JsonResponse([
@@ -69,38 +69,31 @@ class WarehousePssController extends Controller
      * Update the specified resource in storage.
      */
 
-    public function update(UpdateWarehousePssRequest $request, Warehouse $warehouse_id)
+    public function update(UpdateWarehousePssRequest $request, Warehouse $warehouse)
     {
-        $userIds = $request->input('user_ids');
-        $currentUserIds = $warehouse_id->warehousePss->pluck('user_id')->toArray();
-        if (!empty($userIds)) {
-            $intUserIds = array_map('intval', $userIds);
-            if ($intUserIds === $currentUserIds) {
+        $userId = $request->input('user_id');
+        $currentPss = $warehouse->warehousePss;
+        $currentUserId = $currentPss->user_id;
+        if ($userId) {
+            $intUserId = intval($userId);
+            if ($intUserId === $currentUserId) {
                 return response()->json([
-                    'message' => 'The user(s) are already assigned.',
+                    'message' => 'The user is already assigned as PSS to this warehouse.',
                     'success' => false,
-                    "data" => new WarehouseResource($warehouse_id)
+                    "data" => new WarehouseResource($warehouse)
                 ]);
             }
-            DB::transaction(function () use ($userIds, $warehouse_id) {
-                WarehousePss::where("warehouse_id", $warehouse_id->id)->whereNotIn('user_id', $userIds)->delete();
-                foreach ($userIds as $id) {
-                    $exists = WarehousePss::where([
-                        ['warehouse_id', "=", $warehouse_id->id],
-                        ['user_id', "=", $id],
-                    ])->exists();
-                    if (!$exists) {
-                        WarehousePss::create([
-                            'warehouse_id' => $warehouse_id->id,
-                            'user_id' => $id,
-                        ]);
-                    }
-                }
+            DB::transaction(function () use ($userId, $warehouse) {
+                WarehousePss::where("warehouse_id", $warehouse->id)->delete();
+                WarehousePss::create([
+                    'warehouse_id' => $warehouse->id,
+                    'user_id' => $userId,
+                ]);
             });
             return response()->json([
                 'message' => 'Successfully assigned new PSS',
                 'success' => true,
-                "data" => new WarehouseResource($warehouse_id->load('warehousePss'))
+                "data" => new WarehouseResource($warehouse->load('warehousePss'))
             ]);
         }
         return response()->json([
@@ -108,8 +101,6 @@ class WarehousePssController extends Controller
             "success" => false,
         ]);
     }
-
-
     /**
      * Remove the specified resource from storage.
      */
@@ -122,9 +113,7 @@ class WarehousePssController extends Controller
                 'data' => null
             ], 404);
         }
-
         $deleted = $resource->delete();
-
         return response()->json([
             'message' => $deleted ? 'Warehouse PSS successfully deleted.' : 'Failed to delete Warehouse PSS.',
             'success' => $deleted,

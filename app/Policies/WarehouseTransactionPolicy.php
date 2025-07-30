@@ -4,9 +4,21 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\WarehouseTransaction;
+use Illuminate\Auth\Access\Response;
 
 class WarehouseTransactionPolicy
 {
+    public function isEvaluator(User $user, WarehouseTransaction $transaction): Response
+    {
+        $metadata = $transaction->metadata ?? [];
+
+        if (isset($metadata['evaluated_by']) && $metadata['evaluated_by'] !== $user->id) {
+            return Response::deny('You are not authorized to evaluate this transaction. Another evaluator has already started processing this transaction.');
+        }
+
+        return Response::allow();
+    }
+
     /**
      * Determine whether the user can view any models.
      */

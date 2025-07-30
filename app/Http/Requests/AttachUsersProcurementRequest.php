@@ -14,16 +14,6 @@ class AttachUsersProcurementRequest extends FormRequest
         return true;
     }
 
-    protected function prepareForValidation()
-    {
-        // Check if user_ids data is in string format and convert to array
-        if (gettype($this->user_ids) === "string") {
-            $this->merge([
-                "user_ids" => json_decode($this->user_ids, true),
-            ]);
-        }
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -32,8 +22,8 @@ class AttachUsersProcurementRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:users,id',
+            'user_id' => 'required|exists:users,id',
+            'request_procurement_id' => 'required|exists:request_procurements,id',
         ];
     }
 }
