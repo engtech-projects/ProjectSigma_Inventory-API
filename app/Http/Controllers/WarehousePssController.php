@@ -72,17 +72,25 @@ class WarehousePssController extends Controller
     public function update(UpdateWarehousePssRequest $request, Warehouse $warehouse_id)
     {
         $userId = $request->input('user_id');
+
+        if (!$userId) {
+            return response()->json([
+                "message" => "User ID is required.",
+                "success" => false,
+            ]);
+        }
+
         $currentPss = $warehouse_id->warehousePss;
-        $currentUserId = $currentPss->user_id;
-        if ($userId) {
-            $intUserId = intval($userId);
-            if ($intUserId === $currentUserId) {
-                return response()->json([
-                    'message' => 'The user is already assigned as PSS to this warehouse.',
-                    'success' => false,
-                    "data" => new WarehouseResource($warehouse_id)
-                ]);
-            }
+
+        if ($currentPss && $currentPss->user_id === intval($userId)) {
+            return response()->json([
+                'message' => 'The user is already assigned as PSS to this warehouse.',
+                'success' => false,
+                "data" => new WarehouseResource($warehouse_id)
+            ]);
+        }
+
+        try {
             DB::transaction(function () use ($userId, $warehouse_id) {
                 WarehousePss::where("warehouse_id", $warehouse_id->id)->delete();
                 WarehousePss::create([
@@ -95,11 +103,13 @@ class WarehousePssController extends Controller
                 'success' => true,
                 "data" => new WarehouseResource($warehouse_id->load('warehousePss'))
             ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                "message" => "Failed to assign PSS: " . $e->getMessage(),
+                "success" => false,
+            ], 500);
         }
-        return response()->json([
-            "message" => "Failed to assigned.",
-            "success" => false,
-        ]);
     }
     /**
      * Remove the specified resource from storage.
