@@ -126,7 +126,7 @@ class WarehouseTransactionItem extends Model
 
     public function isAlreadyProcessed(string $status): bool
     {
-        return $this->hasStatus() && $this->getStatus() === $status;
+        return $this->getStatus() === $status;
     }
 
     public function checkAndUpdateTransactionServeStatus(): void
