@@ -6,7 +6,6 @@ use App\Http\Requests\StoreWarehousePssRequest;
 use App\Http\Requests\UpdateWarehousePssRequest;
 use App\Http\Resources\WarehousePssResource;
 use App\Http\Resources\WarehouseResource;
-use App\Models\User;
 use App\Models\Warehouse;
 use App\Models\WarehousePss;
 use Illuminate\Http\JsonResponse;
