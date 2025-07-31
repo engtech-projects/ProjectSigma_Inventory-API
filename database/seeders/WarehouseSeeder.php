@@ -19,6 +19,7 @@ class WarehouseSeeder extends Seeder
                     'id' => 1,
                     'name' => 'Main Warehouse',
                     'location' => 'Main Office',
+                    'owner_type' => 'Department',
                     'deleted_at' => null,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
