@@ -40,6 +40,7 @@ class ProjectMonitoringSecretKeyService
             "location" => $project['code'],
             "owner_id" => $project['id'],
             "owner_type" => OwnerType::PROJECT,
+            "deleted_at" => $project['deleted_at'] ?? null,
         ], $projects);
 
         $projects = array_map(fn ($project) => [
@@ -47,6 +48,7 @@ class ProjectMonitoringSecretKeyService
             "project_monitoring_id" => $project['id'],
             "project_code" => $project['code'],
             "status" => $project['status'],
+            "deleted_at" => $project['deleted_at'] ?? null,
         ], $projects);
 
         $existingWarehouseOwnerIds = Warehouse::where('owner_type', OwnerType::PROJECT)
@@ -68,6 +70,7 @@ class ProjectMonitoringSecretKeyService
                 'project_monitoring_id',
                 'project_code',
                 'status',
+                'deleted_at'
             ]
         );
 
@@ -82,6 +85,7 @@ class ProjectMonitoringSecretKeyService
                 'location',
                 'owner_id',
                 'owner_type',
+                'deleted_at'
             ]
         );
         return true;
