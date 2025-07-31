@@ -73,14 +73,6 @@ class WarehousePssController extends Controller
     public function update(UpdateWarehousePssRequest $request, Warehouse $warehouse)
     {
         $validated = $request->validated();
-        $userId = $validated['user_id'];
-        if ($warehouse->warehousePss && $warehouse->warehousePss->user_id === $userId) {
-            return response()->json([
-                'message' => 'The user is already assigned as PSS to this warehouse.',
-                'success' => false,
-                'data' => new WarehouseResource($warehouse),
-            ]);
-        }
         DB::transaction(function () use ($validated, $warehouse) {
             WarehousePss::updateOrCreate(
                 ['warehouse_id' => $warehouse->id],
@@ -89,7 +81,7 @@ class WarehousePssController extends Controller
         });
         $warehouse->refresh();
         return response()->json([
-            'message' => 'Successfully assigned new PSS',
+            'message' => 'Successfully set PSS',
             'success' => true,
             "data" => new WarehouseResource($warehouse->load('warehousePss'))
         ]);
