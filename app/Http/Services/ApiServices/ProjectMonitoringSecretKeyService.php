@@ -5,6 +5,7 @@ namespace App\Http\Services\ApiServices;
 use App\Enums\OwnerType;
 use App\Models\Project;
 use App\Models\Warehouse;
+use DateTime;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -34,35 +35,22 @@ class ProjectMonitoringSecretKeyService
     public function syncProjects()
     {
         $projects = $this->getAllProjects();
-
-        $warehouses = array_map(fn ($project) => [
-            "name" => $project['code'],
-            "location" => $project['code'],
-            "owner_id" => $project['id'],
-            "owner_type" => OwnerType::PROJECT,
-            "deleted_at" => $project['deleted_at'] ?? null,
-        ], $projects);
-
-        $projects = array_map(fn ($project) => [
+        $mappedProjects = array_map(fn ($project) => [
             "id" => $project['id'],
             "project_monitoring_id" => $project['id'],
             "project_code" => $project['code'],
             "status" => $project['status'],
-            "deleted_at" => $project['deleted_at'] ?? null,
+            "deleted_at" => $project["deleted_at"] ? new DateTime($project['deleted_at']) : null,
         ], $projects);
-
-        $existingWarehouseOwnerIds = Warehouse::where('owner_type', OwnerType::PROJECT)
-            ->pluck('owner_id')
-            ->toArray();
-
-        $filteredWarehouses = array_filter(
-            $warehouses,
-            fn ($warehouse) =>
-            !in_array($warehouse['owner_id'], $existingWarehouseOwnerIds)
-        );
-
+        $warehouses = array_map(fn ($project) => [
+            "owner_id" => $project['id'],
+            "owner_type" => OwnerType::PROJECT->value,
+            "name" => $project['code'],
+            "location" => $project['code'],
+            "deleted_at" => $project["deleted_at"] ? new DateTime($project['deleted_at']) : null,
+        ], $projects);
         Project::upsert(
-            $projects,
+            $mappedProjects,
             [
                 'project_monitoring_id',
             ],
@@ -73,18 +61,15 @@ class ProjectMonitoringSecretKeyService
                 'deleted_at'
             ]
         );
-
         Warehouse::upsert(
-            array_values($filteredWarehouses),
+            $warehouses,
             [
-                'name',
                 'owner_id',
+                'owner_type',
             ],
             [
                 'name',
                 'location',
-                'owner_id',
-                'owner_type',
                 'deleted_at'
             ]
         );
