@@ -74,24 +74,17 @@ class WarehousePssController extends Controller
     {
         $validated = $request->validated();
         $userId = $validated['user_id'];
-        if (!User::find($userId)) {
-            return response()->json([
-                "message" => "User not found.",
-                "success" => false,
-            ]);
-        }
-        $currentPss = $warehouse->warehousePss;
-        if ($currentPss && $userId === $currentPss->id) {
+        if ($warehouse->warehousePss && $warehouse->warehousePss->user_id === $userId) {
             return response()->json([
                 'message' => 'The user is already assigned as PSS to this warehouse.',
                 'success' => false,
-                "data" => new WarehouseResource($warehouse)
+                'data' => new WarehouseResource($warehouse),
             ]);
         }
-        DB::transaction(function () use ($userId, $warehouse) {
+        DB::transaction(function () use ($validated, $warehouse) {
             WarehousePss::updateOrCreate(
                 ['warehouse_id' => $warehouse->id],
-                ['user_id' => $userId]
+                ['user_id' => $validated['user_id']]
             );
         });
         $warehouse->refresh();
