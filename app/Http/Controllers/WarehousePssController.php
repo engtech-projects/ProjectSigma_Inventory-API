@@ -71,7 +71,8 @@ class WarehousePssController extends Controller
 
     public function update(UpdateWarehousePssRequest $request, Warehouse $warehouse)
     {
-        $userId = $request->validated()['user_id'];
+        $validated = $request->validated();
+        $userId = $validated['user_id'];
         if (!\App\Models\User::find($userId)) {
             return response()->json([
                 "message" => "User not found.",
