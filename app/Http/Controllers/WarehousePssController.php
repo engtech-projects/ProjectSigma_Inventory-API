@@ -71,40 +71,33 @@ class WarehousePssController extends Controller
 
     public function update(UpdateWarehousePssRequest $request, Warehouse $warehouse)
     {
-        $userId = $request->input('user_id');
-        if (!$userId) {
+        $userId = $request->validated()['user_id'];
+        if (!\App\Models\User::find($userId)) {
             return response()->json([
-                "message" => "User ID is required.",
+                "message" => "User not found.",
                 "success" => false,
             ]);
         }
-        $currentPss = $warehouse_id->warehousePss;
-        if ($currentPss && $currentPss->user_id === intval($userId)) {
+        $currentPss = $warehouse->warehousePss;
+        if ($currentPss && $userId === $currentPss->id) {
             return response()->json([
                 'message' => 'The user is already assigned as PSS to this warehouse.',
                 'success' => false,
-                "data" => new WarehouseResource($warehouse_id)
+                "data" => new WarehouseResource($warehouse)
             ]);
         }
-        try {
-            DB::transaction(function () use ($userId, $warehouse_id) {
-                WarehousePss::where("warehouse_id", $warehouse_id->id)->delete();
-                WarehousePss::create([
-                    'warehouse_id' => $warehouse->id,
-                    'user_id' => $userId,
-                ]);
-            });
-            return response()->json([
-                'message' => 'Successfully assigned new PSS',
-                'success' => true,
-                "data" => new WarehouseResource($warehouse->load('warehousePss'))
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                "message" => "Failed to assign PSS: " . $e->getMessage(),
-                "success" => false,
-            ], 500);
-        }
+        DB::transaction(function () use ($userId, $warehouse) {
+            WarehousePss::updateOrCreate(
+                ['warehouse_id' => $warehouse->id],
+                ['user_id' => $userId]
+            );
+        });
+        $warehouse->refresh();
+        return response()->json([
+            'message' => 'Successfully assigned new PSS',
+            'success' => true,
+            "data" => new WarehouseResource($warehouse->load('warehousePss'))
+        ]);
     }
     /**
      * Remove the specified resource from storage.
