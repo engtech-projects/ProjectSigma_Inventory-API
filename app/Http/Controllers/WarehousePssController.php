@@ -6,6 +6,7 @@ use App\Http\Requests\StoreWarehousePssRequest;
 use App\Http\Requests\UpdateWarehousePssRequest;
 use App\Http\Resources\WarehousePssResource;
 use App\Http\Resources\WarehouseResource;
+use App\Models\User;
 use App\Models\Warehouse;
 use App\Models\WarehousePss;
 use Illuminate\Http\JsonResponse;
@@ -73,7 +74,7 @@ class WarehousePssController extends Controller
     {
         $validated = $request->validated();
         $userId = $validated['user_id'];
-        if (!\App\Models\User::find($userId)) {
+        if (!User::find($userId)) {
             return response()->json([
                 "message" => "User not found.",
                 "success" => false,
