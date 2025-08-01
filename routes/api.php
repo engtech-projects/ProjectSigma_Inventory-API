@@ -13,7 +13,6 @@ use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\ItemProfileBulkUploadController;
 use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
-use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\RequestBOMController;
 use App\Http\Controllers\RequestItemProfilingController;
 use App\Http\Controllers\RequestStockController;
@@ -170,6 +169,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/employee', [SetupListsController::class, 'getEmployeeList']);
             Route::get('/users', [SetupListsController::class, 'getUsersList']);
             Route::get('/project', [SetupListsController::class, 'getProjectlist']);
+            Route::get('/warehouse', [SetupListsController::class, 'getWarehouseList']);
         });
     });
     Route::prefix('request-supplier')->group(function () {
@@ -197,10 +197,6 @@ Route::middleware('auth:api')->group(function () {
             Route::patch('{resource}/accept-with-details', [WarehouseTransactionItemController::class, 'acceptWithDetails']);
             Route::patch('{resource}/reject', [WarehouseTransactionItemController::class, 'reject']);
         });
-    });
-
-    Route::prefix('project')->group(function () {
-        Route::resource('resource', ProjectsController::class)->names("projectsResource");
     });
 
     Route::prefix('export')->group(function () {

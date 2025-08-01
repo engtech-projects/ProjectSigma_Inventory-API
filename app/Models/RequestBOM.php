@@ -96,12 +96,18 @@ class RequestBOM extends Model
     {
         return $this->morphTo();
     }
-
+    public function project()
+    {
+        return $this->morphTo(__FUNCTION__, 'assignment_type', 'assignment_id', "id");
+    }
+    public function department()
+    {
+        return $this->morphTo(__FUNCTION__, 'assignment_type', 'assignment_id', "id");
+    }
     public function details()
     {
         return $this->hasMany(Details::class, 'request_bom_id');
     }
-
     public function items(): HasManyThrough
     {
         return $this->hasManyThrough(
@@ -112,15 +118,6 @@ class RequestBOM extends Model
             'id',
             'item_id'
         );
-    }
-    public function department()
-    {
-        return $this->belongsTo(SetupDepartments::class, 'assignment_id');
-    }
-
-    public function projects()
-    {
-        return $this->belongsTo(Project::class, 'id', 'assignment_id');
     }
     public function requestStock()
     {

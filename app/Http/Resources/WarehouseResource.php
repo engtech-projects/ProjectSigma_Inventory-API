@@ -17,8 +17,8 @@ class WarehouseResource extends JsonResource
         return
         [
             ...parent::toArray($request),
-            'warehouse_pss' => $this->warehousePss ? new WarehousePssResource($this->warehousePss) : null,
-            'logs' => WarehouseTransactionItemResource::collection($this->transactionItems),
+            // 'warehouse_pss' => $this->warehousePss ? new WarehousePssResource($this->warehousePss) : null,
+            // 'logs' => WarehouseTransactionItemResource::collection($this->transactionItems),
         ];
     }
 }
