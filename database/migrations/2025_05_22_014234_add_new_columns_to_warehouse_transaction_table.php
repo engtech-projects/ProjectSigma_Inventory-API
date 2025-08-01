@@ -14,7 +14,6 @@ return new class () extends Migration {
             $table->dateTime('transaction_date')->nullable()->after('transaction_type');
             $table->json('metadata')->after('transaction_date')->nullable();
             $table->string('reference_no')->after('warehouse_id');
-
         });
     }
 
@@ -25,7 +24,6 @@ return new class () extends Migration {
     {
         Schema::table('warehouse_transactions', function (Blueprint $table) {
             $table->dropColumn(['transaction_date', 'metadata', 'reference_no']);
-
         });
     }
 };

@@ -62,6 +62,4 @@ class RequestStockItem extends Model
     {
         return $this->morphTo();
     }
-
-
 }

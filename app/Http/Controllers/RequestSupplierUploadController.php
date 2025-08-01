@@ -74,7 +74,6 @@ class RequestSupplierUploadController extends Controller
         }
     }
 
-
     /**
      * Display the specified resource.
      */
@@ -116,8 +115,4 @@ class RequestSupplierUploadController extends Controller
             'data' => $upload,
         ], $deleted ? 200 : 400);
     }
-
-
-
-
 }

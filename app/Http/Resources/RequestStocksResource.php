@@ -49,7 +49,6 @@ class RequestStocksResource extends JsonResource
                     'previous_smr' => $item->previous_smr,
                     'unused_smr' => $item->unused_smr,
                     'next_smr' => $item->next_smr,
-
                 ];
             })->toArray(),
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),

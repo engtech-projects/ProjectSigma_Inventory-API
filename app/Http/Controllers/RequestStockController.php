@@ -14,8 +14,8 @@ use App\Http\Services\RequestStockService;
 use App\Notifications\RequestStockForApprovalNotification;
 use App\Traits\HasApproval;
 use App\Http\Resources\RequestStocksResource;
-use App\Models\Department;
 use App\Models\Project;
+use App\Models\SetupDepartments;
 
 class RequestStockController extends Controller
 {
@@ -49,16 +49,16 @@ class RequestStockController extends Controller
         }
 
         if ($attributes["section_type"] == AssignTypes::DEPARTMENT->value) {
-            $attributes["section_type"] = class_basename(Department::class);
+            $attributes["section_type"] = AssignTypes::DEPARTMENT->value;
         } elseif ($attributes["section_type"] == AssignTypes::PROJECT->value) {
-            $attributes["section_type"] = class_basename(Project::class);
+            $attributes["section_type"] = AssignTypes::PROJECT->value;
         }
 
         $attributes['request_status'] = RequestStatuses::PENDING;
         $attributes['created_by'] = auth()->user()->id;
 
         // Generate reference number with retry logic
-        if ($attributes["section_type"] == class_basename(Department::class)) {
+        if ($attributes["section_type"] == AssignTypes::DEPARTMENT->value) {
             $this->generateDepartmentReferenceNumber($attributes, $sectionId);
         } else {
             $this->generateProjectReferenceNumber($attributes, $sectionId);
@@ -112,9 +112,9 @@ class RequestStockController extends Controller
                     }
 
                     // Regenerate reference number for department type
-                    if ($attributes["section_type"] == class_basename(Department::class)) {
+                    if ($attributes["section_type"] == AssignTypes::DEPARTMENT->value) {
                         $this->generateDepartmentReferenceNumber($attributes, $sectionId);
-                    } elseif ($attributes["section_type"] == class_basename(Project::class)) {
+                    } elseif ($attributes["section_type"] == AssignTypes::PROJECT->value) {
                         $this->generateProjectReferenceNumber($attributes, $sectionId);
                     }
 
@@ -134,7 +134,7 @@ class RequestStockController extends Controller
 
     private function generateDepartmentReferenceNumber(array &$attributes, int $sectionId): void
     {
-        $departmentCode = strtoupper(implode('-', array_map('ucwords', explode(' ', Department::findOrFail($sectionId)->department_name))));
+        $departmentCode = strtoupper(implode('-', array_map('ucwords', explode(' ', SetupDepartments::findOrFail($sectionId)->department_name))));
 
         $baseRef = "RS{$departmentCode}";
         $increment = RequestStock::where('reference_no', 'regexp', "^{$baseRef}-[0-9]+$")->count() + 1;
@@ -160,7 +160,6 @@ class RequestStockController extends Controller
             "data" => new RequestStocksResource($resource)
         ]);
     }
-
 
     public function destroy(RequestStock $resource)
     {

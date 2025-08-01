@@ -16,7 +16,6 @@ trait UploadFileTrait
         return $fileLocation . $hashname . "/" . $originalName;
     }
 
-
     public function replaceUploadFile($oldFile, $file, $fileLocation)
     {
         $oldAttachment = explode("/", $oldFile);

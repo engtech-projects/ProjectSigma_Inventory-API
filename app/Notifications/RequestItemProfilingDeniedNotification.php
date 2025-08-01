@@ -23,7 +23,6 @@ class RequestItemProfilingDeniedNotification extends Notification
     {
         $this->token = $token;
         $this->model = $model;
-
     }
 
     /**

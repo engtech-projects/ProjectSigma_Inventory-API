@@ -40,13 +40,11 @@ class WarehouseTransaction extends Model
         'metadata' => 'array',
     ];
 
-
-
     /**
-    * ==================================================
-    * MODEL ATTRIBUTES
-    * ==================================================
-    */
+     * ==================================================
+     * MODEL ATTRIBUTES
+     * ==================================================
+     */
     public function scopeRequestStatusPending(Builder $query): void
     {
         $query->where('request_status', RequestStatuses::PENDING);
@@ -85,11 +83,9 @@ class WarehouseTransaction extends Model
             case 'Project':
                 $project = Project::find($requestStock->section_id, ['project_code']);
                 return $project?->project_code;
-
             case 'Department':
-                $department = Department::find($requestStock->section_id, ['department_name']);
+                $department = SetupDepartments::find($requestStock->section_id, ['department_name']);
                 return $department?->department_name;
-
             default:
                 return null;
         }
@@ -105,13 +101,11 @@ class WarehouseTransaction extends Model
             : 'Unknown Company';
     }
 
-
-
     /**
-    * ==================================================
-    * MODEL RELATIONSHIPS
-    * ==================================================
-    */
+     * ==================================================
+     * MODEL RELATIONSHIPS
+     * ==================================================
+     */
     public function warehouse()
     {
         return $this->belongsTo(Warehouse::class);
@@ -135,24 +129,22 @@ class WarehouseTransaction extends Model
         return $this->belongsTo(RequestSupplier::class, 'supplier_id');
     }
 
-
     /**
-    * ==================================================
-    * LOCAL SCOPES
-    * ==================================================
-    */
+     * ==================================================
+     * LOCAL SCOPES
+     * ==================================================
+     */
     public function scopePettyCashMRR($query)
     {
         return $query->where('transaction_type', TransactionTypes::RECEIVING)
             ->whereJsonContains('metadata->is_petty_cash', true);
     }
 
-
     /**
-    * ==================================================
-    * DYNAMIC SCOPES
-    * ==================================================
-    */
+     * ==================================================
+     * DYNAMIC SCOPES
+     * ==================================================
+     */
     public function getTotalNetVatAttribute()
     {
         return $this->items->sum(function ($item) {
@@ -164,7 +156,6 @@ class WarehouseTransaction extends Model
     {
         return $this->total_net_vat * 0.12; // 12% VAT
     }
-
 
     public function getGrandTotalAttribute()
     {
@@ -180,7 +171,4 @@ class WarehouseTransaction extends Model
     {
         return $this->metadata['serve_status'] ?? 'Unserved';
     }
-
-
-
 }

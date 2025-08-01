@@ -19,7 +19,6 @@ class RequestBOM extends Model
     use SoftDeletes;
     use HasApproval;
 
-
     protected $table = 'request_bom';
     protected $fillable = [
         'assignment_id',
@@ -45,7 +44,6 @@ class RequestBOM extends Model
      * MODEL ATTRIBUTES
      * ==================================================
      */
-
 
     public function scopeLatestVersion(Builder $query): Builder
     {
@@ -89,8 +87,6 @@ class RequestBOM extends Model
         return self::whereKey($requestBOMId)->value('assignment_type') ?? '';
     }
 
-
-
     /**
      * ==================================================
      * MODEL RELATIONSHIPS
@@ -119,7 +115,7 @@ class RequestBOM extends Model
     }
     public function department()
     {
-        return $this->belongsTo(Department::class, 'assignment_id');
+        return $this->belongsTo(SetupDepartments::class, 'assignment_id');
     }
 
     public function projects()
@@ -130,7 +126,6 @@ class RequestBOM extends Model
     {
         return $this->belongsTo(RequestStock::class);
     }
-
 
     /**
      * ==================================================

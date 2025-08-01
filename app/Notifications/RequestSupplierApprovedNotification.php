@@ -23,7 +23,6 @@ class RequestSupplierApprovedNotification extends Notification
     {
         $this->token = $token;
         $this->model = $model;
-
     }
 
     /**

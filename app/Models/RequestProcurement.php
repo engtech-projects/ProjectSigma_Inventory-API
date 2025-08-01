@@ -60,5 +60,4 @@ class RequestProcurement extends Model
     {
         return $this->hasMany(PriceQuotation::class, 'request_procurement_id');
     }
-
 }

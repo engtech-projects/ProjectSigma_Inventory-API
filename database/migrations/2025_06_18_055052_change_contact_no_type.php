@@ -13,7 +13,6 @@ return new class () extends Migration {
         Schema::table('request_stocks', function (Blueprint $table) {
             $table->string('contact_no', 255)->nullable()->change();
         });
-
     }
 
     /**

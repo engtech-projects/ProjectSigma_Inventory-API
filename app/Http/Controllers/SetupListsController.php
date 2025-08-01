@@ -6,9 +6,9 @@ use App\Http\Resources\DepartmentListResource;
 use App\Http\Resources\EmployeeListResource;
 use App\Http\Resources\ProjectListResource;
 use App\Http\Resources\UsersListResource;
-use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Project;
+use App\Models\SetupDepartments;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 
@@ -16,15 +16,13 @@ class SetupListsController extends Controller
 {
     public function getDepartmentList()
     {
-        $fetch = Department::orderBy('created_at', 'DESC')
+        $fetch = SetupDepartments::orderBy('created_at', 'DESC')
             ->paginate();
-        $requestResources = DepartmentListResource::collection($fetch)->response()->getData(true);
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'Department Successfully Fetched.',
-            'data' => $requestResources
-        ]);
-
+        return DepartmentListResource::collection($fetch)
+            ->additional([
+                'success' => true,
+                'message' => 'Departments Successfully Fetched.',
+            ]);
     }
 
     public function getEmployeeList()
@@ -37,7 +35,6 @@ class SetupListsController extends Controller
             'message' => 'Employee Successfully Fetched.',
             'data' => $requestResources
         ]);
-
     }
 
     public function getUsersList()
@@ -50,7 +47,6 @@ class SetupListsController extends Controller
             'message' => 'Users Successfully Fetched.',
             'data' => $requestResources
         ]);
-
     }
 
     public function getProjectList()
@@ -63,7 +59,5 @@ class SetupListsController extends Controller
             'message' => 'Projects Successfully Fetched.',
             'data' => $requestResources
         ]);
-
     }
-
 }

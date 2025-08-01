@@ -32,7 +32,6 @@ class DisapproveApproval extends Controller
             case ApprovalModels::RequestBOM->name:
                 $model->notify(new RequestBOMDeniedNotification($request->bearerToken(), $model));
                 break;
-
             default:
                 break;
         }

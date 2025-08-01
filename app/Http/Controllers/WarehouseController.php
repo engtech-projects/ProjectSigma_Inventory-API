@@ -43,7 +43,6 @@ class WarehouseController extends Controller
         ]);
     }
 
-
     public function get()
     {
         $main = Warehouse::get();

@@ -43,7 +43,6 @@ class WarehouseTransactionItem extends Model
     * ==================================================
     */
 
-
     /**
     * ==================================================
     * MODEL RELATIONSHIPS
@@ -67,14 +66,11 @@ class WarehouseTransactionItem extends Model
         return $this->belongsTo(RequestSupplier::class, 'supplier_id');
     }
 
-
-
     /**
     * ==================================================
     * LOCAL SCOPES
     * ==================================================
     */
-
 
     /**
     * ==================================================
@@ -89,14 +85,12 @@ class WarehouseTransactionItem extends Model
         return $unitPrice * $quantity;
     }
 
-
     public function getExtPriceAttribute()
     {
         $unitPrice = $this->metadata['unit_price'] ?? 0;
         $quantity = $this->metadata['accepted_quantity'] ?? 0;
         return $unitPrice * $quantity ?? 0;
     }
-
 
     // to be used later
     // public function getTotalNetVatAttribute()
@@ -147,5 +141,4 @@ class WarehouseTransactionItem extends Model
             $transaction->update(['metadata' => $metadata]);
         }
     }
-
 }

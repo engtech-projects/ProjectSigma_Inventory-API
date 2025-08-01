@@ -24,7 +24,6 @@ class RequestStockForApprovalNotification extends Notification
     { //token model
         $this->token = $token;
         $this->model = $model;
-
     }
 
     /**

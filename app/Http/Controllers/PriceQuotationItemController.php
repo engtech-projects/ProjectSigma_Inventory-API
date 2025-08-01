@@ -27,5 +27,4 @@ class PriceQuotationItemController extends Controller
             'data' => $priceQuotationItem
         ], 400);
     }
-
 }

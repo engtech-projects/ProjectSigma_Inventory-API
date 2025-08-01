@@ -28,7 +28,6 @@ class CancelApproval extends Controller
             case ApprovalModels::RequestBOM->name:
                 $model->notify(new RequestBOMCancelledNotification($request->bearerToken(), $model));
                 break;
-
             default:
                 break;
         }
