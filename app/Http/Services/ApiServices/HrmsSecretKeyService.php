@@ -3,8 +3,8 @@
 namespace App\Http\Services\ApiServices;
 
 use Illuminate\Support\Facades\Http;
-use App\Models\Employee;
 use App\Models\SetupDepartments;
+use App\Models\SetupEmployees;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
@@ -80,7 +80,6 @@ class HrmsSecretKeyService
         $response = $this->getAllEmployees();
         $processedEmployees = array_map(fn ($employee) => [
             'id' => $employee['id'],
-            'hrms_id' => $employee['id'],
             'first_name' => $employee['first_name'],
             'middle_name' => $employee['middle_name'],
             'family_name' => $employee['family_name'],
@@ -101,11 +100,10 @@ class HrmsSecretKeyService
             'height' => $employee['height'],
         ], $response);
 
-        Employee::upsert(
+        SetupEmployees::upsert(
             $processedEmployees,
             ['id'],
             [
-                'id',
                 'first_name',
                 'middle_name',
                 'family_name',

@@ -92,7 +92,7 @@ class User extends Model implements AuthenticatableContract
 
     public function employee()
     {
-        return $this->hasOne(Employee::class, 'user_id');
+        return $this->hasOne(SetupEmployees::class, 'user_id');
     }
 
     /**
