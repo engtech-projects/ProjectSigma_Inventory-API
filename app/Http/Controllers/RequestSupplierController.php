@@ -217,20 +217,10 @@ class RequestSupplierController extends Controller
     public function allApprovedRequests()
     {
         $myRequest = $this->requestSupplierService->getAllApprovedRequest();
-
-        if ($myRequest->isEmpty()) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'No data found.',
-            ], JsonResponse::HTTP_OK);
-        }
-
-        $requestResources = RequestSupplierResourceList::collection($myRequest)->response()->getData(true);
-
-        return new JsonResponse([
-            'message' => 'All Approved Requests Fetched.',
+        return RequestSupplierResourceList::collection($myRequest)
+        ->additional([
             'success' => true,
-            'data' => $requestResources
+            'message' => 'All Approved Requests Fetched.',
         ]);
     }
 
