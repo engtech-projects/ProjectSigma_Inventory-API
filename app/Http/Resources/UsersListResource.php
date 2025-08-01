@@ -18,6 +18,7 @@ class UsersListResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            'employee_name' => $this->employee ? $this->employee->fullname_last : null,
         ];
     }
 }

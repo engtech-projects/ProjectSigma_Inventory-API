@@ -38,14 +38,14 @@ class SetupListsController extends Controller
 
     public function getUsersList()
     {
-        $fetch = User::orderBy('created_at', 'DESC')
+        $fetch = User::with("employee")
+            ->orderBy('created_at', 'DESC')
             ->paginate();
-        $requestResources = UsersListResource::collection($fetch)->response()->getData(true);
-        return new JsonResponse([
+        return UsersListResource::collection($fetch)
+        ->additional([
             'success' => true,
             'message' => 'Users Successfully Fetched.',
-            'data' => $requestResources
-        ]);
+        ])->response()->getData(true);
     }
 
     public function getProjectList()
