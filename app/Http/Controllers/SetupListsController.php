@@ -17,7 +17,7 @@ class SetupListsController extends Controller
     public function getDepartmentList()
     {
         $fetch = SetupDepartments::orderBy('created_at', 'DESC')
-            ->paginate();
+            ->paginate(config('app.pagination.per_page'));
         return DepartmentListResource::collection($fetch)
             ->additional([
                 'success' => true,
@@ -38,20 +38,20 @@ class SetupListsController extends Controller
 
     public function getUsersList()
     {
-        $fetch = User::orderBy('created_at', 'DESC')
-            ->paginate();
-        $requestResources = UsersListResource::collection($fetch)->response()->getData(true);
-        return new JsonResponse([
+        $fetch = User::with("employee")
+            ->orderBy('created_at', 'DESC')
+            ->paginate(config('app.pagination.per_page'));
+        return UsersListResource::collection($fetch)
+        ->additional([
             'success' => true,
             'message' => 'Users Successfully Fetched.',
-            'data' => $requestResources
-        ]);
+        ])->response()->getData(true);
     }
 
     public function getProjectList()
     {
         $fetch = Project::orderBy('created_at', 'DESC')
-            ->paginate();
+            ->paginate(config('app.pagination.per_page'));
         $requestResources = ProjectListResource::collection($fetch)->response()->getData(true);
         return new JsonResponse([
             'success' => true,
