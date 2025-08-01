@@ -32,7 +32,7 @@ class SetupListsController extends Controller
         return EmployeeListResource::collection($fetch)
             ->additional([
                 'success' => true,
-                'message' => 'Employees Successfully Fetched.', 
+                'message' => 'Employees Successfully Fetched.',
             ]);
     }
 

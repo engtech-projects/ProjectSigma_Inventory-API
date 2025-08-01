@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Traits\ModelHelpers;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -42,7 +41,6 @@ class SetupEmployees extends Model
         'date_of_birth' => 'datetime',
         'date_of_marriage' => 'datetime',
     ];
-
 
     /**
     * ==================================================
