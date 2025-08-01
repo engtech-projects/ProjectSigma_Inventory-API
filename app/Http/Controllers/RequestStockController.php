@@ -14,8 +14,8 @@ use App\Http\Services\RequestStockService;
 use App\Notifications\RequestStockForApprovalNotification;
 use App\Traits\HasApproval;
 use App\Http\Resources\RequestStocksResource;
-use App\Models\Project;
 use App\Models\SetupDepartments;
+use App\Models\SetupProjects;
 
 class RequestStockController extends Controller
 {
@@ -143,7 +143,7 @@ class RequestStockController extends Controller
 
     private function generateProjectReferenceNumber(array &$attributes, int $sectionId): void
     {
-        $projectCode = Project::findOrFail($sectionId)->project_code;
+        $projectCode = SetupProjects::findOrFail($sectionId)->project_code;
         $latest    = RequestStock::where('reference_no', 'regexp', "^RS{$projectCode}-[0-9]+$")
             ->orderBy('reference_no', 'desc')
             ->lockForUpdate()

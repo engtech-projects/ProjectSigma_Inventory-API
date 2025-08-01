@@ -81,7 +81,7 @@ class WarehouseTransaction extends Model
 
         switch ($requestStock->section_type) {
             case 'Project':
-                $project = Project::find($requestStock->section_id, ['project_code']);
+                $project = SetupProjects::find($requestStock->section_id, ['project_code']);
                 return $project?->project_code;
             case 'Department':
                 $department = SetupDepartments::find($requestStock->section_id, ['department_name']);
@@ -106,9 +106,21 @@ class WarehouseTransaction extends Model
      * MODEL RELATIONSHIPS
      * ==================================================
      */
+    public function charging()
+    {
+        return $this->morphTo();
+    }
+    public function project()
+    {
+        return $this->morphTo(__FUNCTION__, 'charging_type', 'charging_id', "id");
+    }
+    public function department()
+    {
+        return $this->morphTo(__FUNCTION__, 'charging_type', 'charging_id', "id");
+    }
     public function warehouse()
     {
-        return $this->belongsTo(Warehouse::class);
+        return $this->belongsTo(SetupWarehouses::class);
     }
     public function items()
     {

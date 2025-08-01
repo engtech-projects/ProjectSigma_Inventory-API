@@ -6,7 +6,7 @@ use App\Http\Requests\StoreWarehousePssRequest;
 use App\Http\Requests\UpdateWarehousePssRequest;
 use App\Http\Resources\WarehousePssResource;
 use App\Http\Resources\WarehouseResource;
-use App\Models\Warehouse;
+use App\Models\SetupWarehouses;
 use App\Models\WarehousePss;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -69,7 +69,7 @@ class WarehousePssController extends Controller
      * Update the specified resource in storage.
      */
 
-    public function update(UpdateWarehousePssRequest $request, Warehouse $warehouse)
+    public function update(UpdateWarehousePssRequest $request, SetupWarehouses $warehouse)
     {
         $validated = $request->validated();
         DB::transaction(function () use ($validated, $warehouse) {

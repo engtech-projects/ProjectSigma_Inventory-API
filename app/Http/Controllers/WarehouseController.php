@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AccessibilityInventory;
-use App\Enums\UserTypes;
 use App\Http\Requests\GetLogsRequest;
 use App\Http\Requests\StoreWarehouseRequest;
 use App\Http\Requests\UpdateWarehouseRequest;
@@ -12,7 +11,7 @@ use App\Http\Resources\WarehouseMaterialsReceivingResource;
 use App\Http\Resources\WarehouseResource;
 use App\Http\Resources\WarehouseStocksResource;
 use App\Http\Traits\CheckAccessibility;
-use App\Models\Warehouse;
+use App\Models\SetupWarehouses;
 use App\Models\WarehouseTransactionItem;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -25,27 +24,23 @@ class WarehouseController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $userAccessibilitiesNames = $user->accessibilities_name;
-        $main = (
-            $this->checkUserAccessManual($userAccessibilitiesNames, [
-                AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value
-            ]) || $user->type === UserTypes::ADMINISTRATOR->value
-        )
-            ? Warehouse::all()
-            : Warehouse::whereHas('warehousePss', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })->get();
-
+        $isPssManager = $this->checkUserAccess([AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value]);
+        $warehouses = SetupWarehouses::when(!$isPssManager, function ($query) use ($user) {
+            $query->whereHas('warehousePss', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+        })
+        ->get();
         return response()->json([
             'message' => 'Successfully fetched.',
             'success' => true,
-            'data' => WarehouseResource::collection($main),
+            'data' => WarehouseResource::collection($warehouses),
         ]);
     }
 
     public function get()
     {
-        $main = Warehouse::get();
+        $main = SetupWarehouses::get();
         $requestResources = WarehouseResource::collection($main)->collect();
 
         return response()->json([
@@ -54,7 +49,7 @@ class WarehouseController extends Controller
             'data' => $requestResources,
         ]);
     }
-    public function store(StoreWarehouseRequest $request, Warehouse $resource)
+    public function store(StoreWarehouseRequest $request, SetupWarehouses $resource)
     {
         $saved = $resource->create($request->validated());
         return response()->json([
@@ -67,17 +62,13 @@ class WarehouseController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Warehouse $warehouse)
+    public function show(SetupWarehouses $warehouse)
     {
         $user = Auth::user();
-        $userAccessibilitiesNames = $user->accessibilities_name;
         $warehouse->load('warehousePss');
-        $isPssUser = optional($warehouse->warehousePss)->id === $user->id;
-        $isAdmin = $user->type === UserTypes::ADMINISTRATOR->value;
-        $hasAccess = $this->checkUserAccessManual($userAccessibilitiesNames, [
-            AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value,
-        ]);
-        if ($hasAccess || $isPssUser || $isAdmin) {
+        $isPssUser = $warehouse->warehousePss?->id === $user->id;
+        $isPssManager = $this->checkUserAccess([AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value]);
+        if ($isPssManager || $isPssUser) {
             return response()->json([
                 "message" => "Successfully fetched.",
                 "success" => true,
@@ -90,7 +81,7 @@ class WarehouseController extends Controller
         ], 403);
     }
 
-    public function withMaterialsReceiving(Warehouse $warehouse_id)
+    public function withMaterialsReceiving(SetupWarehouses $warehouse_id)
     {
         return response()->json([
             "message" => "Materials Receiving under " . $warehouse_id->name . " Warehouse successfully fetched.",
@@ -102,7 +93,7 @@ class WarehouseController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateWarehouseRequest $request, Warehouse $resource)
+    public function update(UpdateWarehouseRequest $request, SetupWarehouses $resource)
     {
         $resource->fill($request->validated());
         if ($resource->save()) {
@@ -122,7 +113,7 @@ class WarehouseController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Warehouse $resource)
+    public function destroy(SetupWarehouses $resource)
     {
         if (!$resource) {
             return response()->json([
@@ -169,7 +160,7 @@ class WarehouseController extends Controller
 
     public function getStocks($warehouse_id)
     {
-        $warehouse = Warehouse::find($warehouse_id);
+        $warehouse = SetupWarehouses::find($warehouse_id);
         if (!$warehouse) {
             return response()->json([
                 'message' => 'No data found.',

@@ -32,7 +32,7 @@ class WarehousePss extends Model
     */
     public function warehouse()
     {
-        return $this->belongsTo(Warehouse::class);
+        return $this->belongsTo(SetupWarehouses::class);
     }
 
     public function user()

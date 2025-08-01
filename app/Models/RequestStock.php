@@ -70,6 +70,24 @@ class RequestStock extends Model
         return $this->project->project_code ?? null;
     }
 
+    public function getDateNeededHumanAttribute()
+    {
+        return $this->date_needed ? Carbon::parse($this->date_needed)->format("F j, Y") : null;
+    }
+
+    public function getDatePreparedHumanAttribute()
+    {
+        return $this->date_prepared ? Carbon::parse($this->date_prepared)->format("F j, Y") : null;
+    }
+
+    public function getProjectDepartmentNameAttribute(): ?string
+    {
+        return match ($this->section_type) {
+            'Project' => $this->project?->project_code,
+            'Department' => $this->department?->department_name,
+            default => null,
+        };
+    }
     /**
      * ==================================================
      * MODEL RELATIONSHIPS
@@ -83,13 +101,17 @@ class RequestStock extends Model
     {
         return $this->hasMany(RequestStockItem::class);
     }
+    public function section()
+    {
+        return $this->morphTo();
+    }
     public function project()
     {
-        return $this->belongsTo(Project::class, 'section_id', 'id');
+        return $this->morphTo(__FUNCTION__, 'section_type', 'section_id', "id");
     }
     public function department()
     {
-        return $this->belongsTo(SetupDepartments::class, 'section_id', 'id');
+        return $this->morphTo(__FUNCTION__, 'section_type', 'section_id', "id");
     }
     public function currentBom()
     {
@@ -97,7 +119,6 @@ class RequestStock extends Model
             ->where('request_status', RequestStatuses::APPROVED)
             ->latest("version");
     }
-
     public function itemProfiles()
     {
         return $this->hasManyThrough(
@@ -110,32 +131,9 @@ class RequestStock extends Model
         );
     }
 
-    public function getDateNeededHumanAttribute()
-    {
-        return $this->date_needed ? Carbon::parse($this->date_needed)->format("F j, Y") : null;
-    }
-
-    public function getDatePreparedHumanAttribute()
-    {
-        return $this->date_prepared ? Carbon::parse($this->date_prepared)->format("F j, Y") : null;
-    }
-
     public function requestProcurement()
     {
         return $this->hasOne(RequestProcurement::class, 'request_requisition_slip_id');
-    }
-    public function getProjectDepartmentNameAttribute(): ?string
-    {
-        return match ($this->section_type) {
-            'Project' => $this->project?->project_code,
-            'Department' => $this->department?->department_name,
-            default => null,
-        };
-    }
-
-    public function section()
-    {
-        return $this->morphTo();
     }
 
     /**
