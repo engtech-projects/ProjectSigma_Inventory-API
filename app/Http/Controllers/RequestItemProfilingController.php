@@ -33,7 +33,6 @@ class RequestItemProfilingController extends Controller
      */
     public function index()
     {
-
         $main = RequestItemProfiling::with('itemProfiles')->paginate(10);
         $collection = RequestItemProfilingResource::collection($main)->response()->getData(true);
 
@@ -217,7 +216,6 @@ class RequestItemProfilingController extends Controller
         ]);
     }
 
-
     public function myApprovals()
     {
         $myApproval = $this->requestItemProfilingService->getMyApprovals();
@@ -237,5 +235,4 @@ class RequestItemProfilingController extends Controller
             'data' => $requestResources
         ]);
     }
-
 }

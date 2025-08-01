@@ -28,7 +28,6 @@ class VoidApproval extends Controller
             case ApprovalModels::RequestBOM->name:
                 $model->notify(new RequestBOMVoidedNotification($request->bearerToken(), $model));
                 break;
-
             default:
                 break;
         }

@@ -30,7 +30,6 @@ class ApiServiceController extends Controller
             'message' => 'Suppliers Successfully Fetched.',
             'data' => $requestResources
         ]);
-
     }
     public function getItemprofilesList()
     {
@@ -47,11 +46,9 @@ class ApiServiceController extends Controller
             'message' => 'Item Profiles Successfully Fetched.',
             'data' => $requestResources
         ]);
-
     }
     public function getUomsList()
     {
-
         $fetch = UOM::get();
         if ($fetch->isEmpty()) {
             return new JsonResponse([

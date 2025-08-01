@@ -47,5 +47,4 @@ class ItemProfileResource extends JsonResource
             'is_approved' => $this->is_approved,
         ];
     }
-
 }

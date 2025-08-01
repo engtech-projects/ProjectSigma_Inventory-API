@@ -28,7 +28,6 @@ class StorePriceQuotationRequest extends FormRequest
                 'required',
                 'integer',
                 Rule::exists('request_supplier', 'id')->where('request_status', 'Approved')
-
             ],
             'items' => ['required', 'array'],
             'items.*.item_id' => [
@@ -44,7 +43,6 @@ class StorePriceQuotationRequest extends FormRequest
             'items.*.unit_price' => ['nullable', 'numeric'],
             'items.*.remarks_during_canvass' => ['nullable', 'string'],
         ];
-
     }
     protected function validateItemBelongsToProcurement($itemId): bool
     {

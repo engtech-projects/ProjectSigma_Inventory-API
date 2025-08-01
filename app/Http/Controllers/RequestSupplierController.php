@@ -60,8 +60,6 @@ class RequestSupplierController extends Controller
         ], JsonResponse::HTTP_OK);
     }
 
-
-
     public function get()
     {
         $fetch = $this->requestSupplierService->getAll();
@@ -140,7 +138,6 @@ class RequestSupplierController extends Controller
             'data' => SupplierSearchResultResource::collection($results),
         ]);
     }
-
 
     public function update(UpdateRequestSupplier $request, RequestSupplier $resource)
     {

@@ -40,5 +40,4 @@ class RequestItemProfilingService
             return ($nextPendingApproval && $userId === $nextPendingApproval['user_id']);
         });
     }
-
 }

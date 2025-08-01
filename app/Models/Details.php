@@ -46,7 +46,6 @@ class Details extends Model
         return $attributes->implode(' ') ?? '';
     }
 
-
     /**
      * ==================================================
      * MODEL RELATIONSHIPS
@@ -64,7 +63,6 @@ class Details extends Model
     {
         return $this->belongsTo(ItemProfile::class, 'item_id');
     }
-
 
     /**
      * ==================================================

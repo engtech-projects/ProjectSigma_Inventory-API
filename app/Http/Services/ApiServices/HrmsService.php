@@ -59,5 +59,4 @@ class HrmsService
 
         return $response->json("data");
     }
-
 }

@@ -52,7 +52,6 @@ class RequestSupplier extends Model
      * ==================================================
      */
 
-
     /**
      * ==================================================
      * MODEL RELATIONSHIPS
@@ -62,7 +61,6 @@ class RequestSupplier extends Model
     {
         return $this->hasMany(RequestSupplierUpload::class);
     }
-
 
     /**
      * ==================================================
@@ -88,7 +86,6 @@ class RequestSupplier extends Model
         $this->save();
         $this->refresh();
     }
-
 
     /**
      * ==================================================

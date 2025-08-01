@@ -31,13 +31,11 @@ class ApproveApproval extends Controller
                 case ApprovalModels::RequestSupplier->name:
                     $model->notify(new RequestSupplierForApprovalNotification($request->bearerToken(), $model));
                     break;
-
             }
             switch ($modelType) {
                 case ApprovalModels::RequestBOM->name:
                     $model->notify(new RequestBOMForApprovalNotification($request->bearerToken(), $model));
                     break;
-
             }
         } else {
             switch ($modelType) {

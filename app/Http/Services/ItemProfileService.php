@@ -9,7 +9,6 @@ class ItemProfileService
     public static function getSimilarItems($itemDescription)
     {
         return ItemProfile::where('item_description', "like", "%".$itemDescription."%")->isApproved()->get();
-
     }
 
     public function getItemSummary($item)
@@ -34,6 +33,4 @@ class ItemProfileService
             'color' => $item->color,
         ])->filter();
     }
-
-
 }

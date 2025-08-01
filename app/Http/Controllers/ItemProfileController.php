@@ -59,7 +59,6 @@ class ItemProfileController extends Controller
         ]);
     }
 
-
     /**
      * Display the specified resource.
      */
@@ -148,7 +147,6 @@ class ItemProfileController extends Controller
 
     public function search(SearchItemProfile $request)
     {
-
         $searchKey = $request->validated()['query'] ?? '';
 
         $query = ItemProfile::IsApproved()
@@ -194,5 +192,4 @@ class ItemProfileController extends Controller
             "data" => ItemProfileResource::collection($main)
         ]);
     }
-
 }

@@ -60,7 +60,6 @@ class ItemProfile extends Model
         'created_time_human'
     ];
 
-
     /**
      * ==================================================
      * MODEL ATTRIBUTES

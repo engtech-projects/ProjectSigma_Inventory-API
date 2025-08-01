@@ -13,7 +13,6 @@ return new class () extends Migration {
         Schema::table('price_quotations', function (Blueprint $table) {
             $table->json('metadata')->after('supplier_id')->nullable();
         });
-
     }
 
     /**
@@ -24,6 +23,5 @@ return new class () extends Migration {
         Schema::table('price_quotations', function (Blueprint $table) {
             $table->dropColumn('metadata');
         });
-
     }
 };

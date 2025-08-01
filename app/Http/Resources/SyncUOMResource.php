@@ -23,7 +23,6 @@ class SyncUOMResource extends JsonResource
                 'id' => $this->group->id,
                 'name' => $this->group->name,
             ],
-
         ];
     }
 }

@@ -43,7 +43,6 @@ class StoreItemGroupRequest extends FormRequest
                 'string',
                 'max:255',
             ],
-
         ];
     }
 }

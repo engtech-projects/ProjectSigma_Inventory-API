@@ -50,7 +50,6 @@ class RequestStock extends Model
         'metadata' => 'array'
     ];
 
-
     /**
      * ==================================================
      * MODEL ATTRIBUTES
@@ -90,7 +89,7 @@ class RequestStock extends Model
     }
     public function department()
     {
-        return $this->belongsTo(Department::class, 'section_id', 'id');
+        return $this->belongsTo(SetupDepartments::class, 'section_id', 'id');
     }
     public function currentBom()
     {
@@ -178,7 +177,6 @@ class RequestStock extends Model
                 'particulars' => null,
                 'serve_status' => 'Unserved',
                 'is_petty_cash' => true,
-
             ],
             'created_by' => auth()->user()->id,
             'request_status' => RequestStatuses::APPROVED,
@@ -211,7 +209,6 @@ class RequestStock extends Model
     private function storeItems($mrr)
     {
         foreach ($this->items as $requestItem) {
-
             $metadata = [
                 'requested_quantity' => $requestItem->quantity,
                 'specification' => $requestItem->specification,

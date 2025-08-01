@@ -71,7 +71,6 @@ class UOMController extends Controller
             'data' => $uom ? new UOMResource($uom) : null,
         ];
         return response()->json($response, $uom ? 200 : 400);
-
     }
 
     /**

@@ -19,7 +19,6 @@ class StoreRequestItemProfilingRequest extends FormRequest
         return true;
     }
 
-
     protected function prepareForValidation()
     {
         if (gettype($this->item_profiles) == "string") {

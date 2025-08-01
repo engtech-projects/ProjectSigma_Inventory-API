@@ -64,7 +64,6 @@ class ItemGroupController extends Controller
             "success" => true,
             "data" => $resource
         ]);
-
     }
 
     public function update(UpdateItemGroupRequest $request, ItemGroup $resource)
@@ -103,6 +102,4 @@ class ItemGroupController extends Controller
 
         return response()->json($response, $deleted ? 200 : 400);
     }
-
-
 }

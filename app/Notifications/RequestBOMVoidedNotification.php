@@ -23,7 +23,6 @@ class RequestBOMVoidedNotification extends Notification
     {
         $this->token = $token;
         $this->model = $model;
-
     }
 
     /**

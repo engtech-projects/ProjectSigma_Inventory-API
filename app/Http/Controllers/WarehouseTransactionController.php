@@ -49,7 +49,6 @@ class WarehouseTransactionController extends Controller
         $attributes['created_by'] = auth()->user()->id;
         $attributes['request_status'] = RequestStatuses::APPROVED;
 
-
         DB::transaction(function () use (&$warehouseTransaction, $attributes, $request) {
             $warehouseTransaction = WarehouseTransaction::create([
                 'warehouse_id' => $attributes['warehouse_id'],
@@ -79,7 +78,6 @@ class WarehouseTransactionController extends Controller
             if ($warehouseTransaction->getNextPendingApproval()) {
                 $warehouseTransaction->notify(new WarehouseTransactionForApprovalNotification($request->bearerToken(), $warehouseTransaction));
             }
-
         });
 
         return response()->json([
@@ -91,7 +89,6 @@ class WarehouseTransactionController extends Controller
             ]
         ], JsonResponse::HTTP_OK);
     }
-
 
     /**
      * Display the specified resource.
@@ -105,7 +102,6 @@ class WarehouseTransactionController extends Controller
             "data" => new WarehouseTransactionResource($resource)
         ]);
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -227,7 +223,6 @@ class WarehouseTransactionController extends Controller
                 'success' => false,
                 'data' => $resource
             ], 500);
-
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'message' => 'Warehouse transaction not found.',

@@ -54,6 +54,5 @@ class StoreWarehouseTransactionAllItemRequest extends FormRequest
             'unit_price.required' => 'The unit price is required.',
             'actual_brand_purchase.required' => 'The actual brand purchase is required.',
         ];
-
     }
 }

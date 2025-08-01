@@ -8,7 +8,6 @@ use App\Http\Controllers\ApiServiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ApiSyncController;
-use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\DetailsController;
 use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\ItemProfileBulkUploadController;
@@ -136,9 +135,6 @@ Route::middleware('auth:api')->group(function () {
         Route::get('all-request', [RequestBOMController::class, 'allRequests']);
         Route::get('my-request', [RequestBOMController::class, 'myRequests']);
         Route::get('my-approvals', [RequestBOMController::class, 'myApprovals']);
-    });
-    Route::prefix('departments')->group(function () {
-        Route::resource('resource', DepartmentsController::class)->names("departmentresource");
     });
     Route::prefix('setup')->group(function () {
         // to be used later

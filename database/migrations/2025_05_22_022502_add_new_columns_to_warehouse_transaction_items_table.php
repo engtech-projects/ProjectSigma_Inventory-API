@@ -22,7 +22,6 @@ return new class () extends Migration {
     {
         Schema::table('warehouse_transaction_items', function (Blueprint $table) {
             $table->dropColumn(['metadata']);
-
         });
     }
 };
