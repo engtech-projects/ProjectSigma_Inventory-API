@@ -4,17 +4,18 @@ namespace App\Models;
 
 use App\Http\Services\ItemProfileService;
 use App\Http\Traits\HasConversionUnit;
+use App\Traits\ModelHelpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Details extends Model
+class RequestBomDetails extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use HasConversionUnit;
+    use ModelHelpers;
 
-    protected $table = 'details';
     protected $fillable = [
         'request_bom_id',
         'item_id',
@@ -22,7 +23,6 @@ class Details extends Model
         'unit_price',
         'quantity',
     ];
-
     public $appends = [
         'unit',
         'item_summary',
@@ -34,7 +34,6 @@ class Details extends Model
      * MODEL ATTRIBUTES
      * ==================================================
      */
-
     public function getUnitAttribute()
     {
         return UOM::where('group_id', $this->uom->group_id)->get();
@@ -63,10 +62,4 @@ class Details extends Model
     {
         return $this->belongsTo(ItemProfile::class, 'item_id');
     }
-
-    /**
-     * ==================================================
-     * DYNAMIC SCOPES
-     * ==================================================
-     */
 }
