@@ -8,7 +8,6 @@ use App\Http\Controllers\ApiServiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ApiSyncController;
-use App\Http\Controllers\DetailsController;
 use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\ItemProfileBulkUploadController;
 use App\Http\Controllers\UOMController;
@@ -126,11 +125,6 @@ Route::middleware('auth:api')->group(function () {
         Route::resource('resource', RequestBOMController::class)->names("requestBomresource");
         Route::get('current', [RequestBomController::class, 'getCurrentBom']);
         Route::get('list', [RequestBomController::class, 'getList']);
-
-        Route::prefix('details')->group(function () {
-            Route::resource('resource', DetailsController::class)->names("bomDetailsresource");
-        });
-
         Route::get('all-request', [RequestBOMController::class, 'allRequests']);
         Route::get('my-request', [RequestBOMController::class, 'myRequests']);
         Route::get('my-approvals', [RequestBOMController::class, 'myApprovals']);

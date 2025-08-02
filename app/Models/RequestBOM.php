@@ -106,13 +106,13 @@ class RequestBOM extends Model
     }
     public function details()
     {
-        return $this->hasMany(Details::class, 'request_bom_id');
+        return $this->hasMany(RequestBomDetails::class, 'request_bom_id', 'id');
     }
     public function items(): HasManyThrough
     {
         return $this->hasManyThrough(
             ItemProfile::class,
-            Details::class,
+            RequestBomDetails::class,
             'request_bom_id',
             'id',
             'id',

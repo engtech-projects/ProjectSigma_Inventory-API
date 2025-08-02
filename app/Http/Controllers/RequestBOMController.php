@@ -13,12 +13,12 @@ use App\Http\Requests\UpdateRequestBOMRequest;
 use App\Http\Resources\CurrentBOMResource;
 use App\Http\Resources\RequestBOMResource;
 use App\Http\Resources\RequestBOMResourceList;
-use App\Models\Details;
 use App\Notifications\RequestBOMForApprovalNotification;
 use App\Traits\HasApproval;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Services\RequestBOMService;
+use App\Models\RequestBomDetails;
 
 class RequestBOMController extends Controller
 {
@@ -81,7 +81,7 @@ class RequestBOMController extends Controller
 
             foreach ($attributes['details'] as $requestData) {
                 $requestData['request_bom_id'] = $requestBOM->id;
-                Details::create($requestData);
+                RequestBomDetails::create($requestData);
             }
             if ($requestBOM->getNextPendingApproval()) {
                 $requestBOM->notify(new RequestBOMForApprovalNotification($request->bearerToken(), $requestBOM));
