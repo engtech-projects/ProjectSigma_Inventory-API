@@ -14,7 +14,7 @@ class WarehouseSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('warehouse')->upsert(
+        DB::table('setup_warehouses')->upsert(
             [
                 [
                     'id' => 1,
