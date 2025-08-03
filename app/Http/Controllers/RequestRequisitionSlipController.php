@@ -8,7 +8,7 @@ use App\Models\RequestRequisitionSlip;
 use App\Http\Requests\StoreRequestRequisitionSlipRequest;
 use App\Http\Resources\RequisitionSlipDetailedResource;
 use App\Http\Resources\RequisitionSlipListingResource;
-use App\Models\RequestStockItem;
+use App\Models\RequestRequisitionSlipItems;
 use App\Models\SetupDepartments;
 use App\Models\SetupProjects;
 use App\Notifications\RequestStockForApprovalNotification;
@@ -68,7 +68,7 @@ class RequestRequisitionSlipController extends Controller
                     }
                     $requisitionSlip = RequestRequisitionSlip::create($attributes);
                     foreach ($attributes['items'] as $item) {
-                        RequestStockItem::create([
+                        RequestRequisitionSlipItems::create([
                             'request_stock_id' => $requisitionSlip->id,
                             'quantity' => $item['quantity'],
                             'unit' => $item['unit'],

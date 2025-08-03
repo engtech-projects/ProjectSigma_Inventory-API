@@ -97,7 +97,7 @@ class RequestRequisitionSlip extends Model
     }
     public function items()
     {
-        return $this->hasMany(RequestStockItem::class, 'request_stock_id');
+        return $this->hasMany(RequestRequisitionSlipItems::class);
     }
     public function section()
     {
@@ -121,7 +121,7 @@ class RequestRequisitionSlip extends Model
     {
         return $this->hasManyThrough(
             ItemProfile::class,
-            RequestStockItem::class,
+            RequestRequisitionSlipItems::class,
             'request_stock_id',
             'id',
             'id',
