@@ -23,7 +23,7 @@ class PriceQuotationDetailedResource extends JsonResource
             'supplier_address' => $this->supplier?->company_address,
             'supplier_contact_person' => $this->supplier?->contact_person_name,
             'supplier_contact_person_number' => $this->supplier?->contact_person_number,
-            'reference_no' => $this->requestProcurement?->requestStock?->reference_no,
+            'reference_no' => $this->requestProcurement?->requisitionSlip?->reference_no,
             'quotation_no' => $this->quotation_no,
             'quotation_date' => $this->created_at_date_human,
             'items' => PriceQuotationItemDetailedResource::collection($this->items),

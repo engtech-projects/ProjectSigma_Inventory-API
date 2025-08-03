@@ -33,7 +33,7 @@ class StoreWarehouseTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'warehouse_id' => 'required|exists:warehouse,id',
+            'warehouse_id' => 'required|exists:setup_warehouses,id',
             'transaction_type' => 'required|in:Receiving,Transfer,Withdraw,Return',
             'charging_type' => 'nullable|string',
             'charging_id' => 'nullable|integer',

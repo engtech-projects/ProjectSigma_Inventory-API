@@ -3,15 +3,15 @@
 namespace App\Enums;
 
 use App\Models\RequestItemProfiling;
-use App\Models\RequestStock;
 use App\Models\RequestSupplier;
 use App\Models\RequestBOM;
+use App\Models\RequestRequisitionSlip;
 
 enum ApprovalModels: string
 {
     case RequestItemProfiling = RequestItemProfiling::class;
     case RequestSupplier = RequestSupplier::class;
-    case RequestStock = RequestStock::class;
+    case RequestRequisitionSlip = RequestRequisitionSlip::class;
     case RequestBOM = RequestBOM::class;
 
     public static function toArray(): array

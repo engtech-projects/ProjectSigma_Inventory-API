@@ -10,7 +10,6 @@ trait CheckAccessibility
     public function checkUserAccess($allowedAccessibilities)
     {
         $userAccessibilities = Auth::user()->accessibility_names;
-        dd(auth()->user()->load("employee"));
         if (Auth::user()->type == UserTypes::ADMINISTRATOR->value) {
             return true;
         }

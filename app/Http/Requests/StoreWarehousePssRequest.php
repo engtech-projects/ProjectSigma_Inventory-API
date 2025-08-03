@@ -23,7 +23,7 @@ class StoreWarehousePssRequest extends FormRequest
     {
         return [
             'user_id' => 'required',
-            'warehouse_id' => 'required|exists:warehouse,id',
+            'warehouse_id' => 'required|exists:setup_warehouses,id',
         ];
     }
 }

@@ -14,7 +14,6 @@ use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
 use App\Http\Controllers\RequestBOMController;
 use App\Http\Controllers\RequestItemProfilingController;
-use App\Http\Controllers\RequestStockController;
 use App\Http\Controllers\RequestSupplierController;
 use App\Http\Controllers\RequestSupplierUploadController;
 use App\Http\Controllers\UOMGroupController;
@@ -28,6 +27,7 @@ use App\Http\Controllers\PriceQuotationItemController;
 use App\Http\Controllers\SetupListsController;
 use App\Http\Controllers\RequestProcurementCanvasserController;
 use App\Http\Controllers\RequestProcurementController;
+use App\Http\Controllers\RequestRequisitionSlipController;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -110,15 +110,13 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('transaction-item')->group(function () {
             Route::resource('resource', WarehouseTransactionItemController::class)->names("warehouseTransactionItemresource");
         });
-
-        // Route::resource('stocks/{warehouse_id}', [RequestStockController::class, 'store']);
     });
 
-    Route::prefix('request-stock')->group(function () {
-        Route::resource('resource', RequestStockController::class)->names("requestStockresource");
-        Route::get('all-request', [RequestStockController::class, 'allRequests']);
-        Route::get('my-request', [RequestStockController::class, 'myRequests']);
-        Route::get('my-approvals', [RequestStockController::class, 'myApprovals']);
+    Route::prefix('request-requisition-slip')->group(function () {
+        Route::resource('resource', RequestRequisitionSlipController::class)->names("requisitionSlipRouteResource");
+        Route::get('all-request', [RequestRequisitionSlipController::class, 'allRequests']);
+        Route::get('my-request', [RequestRequisitionSlipController::class, 'myRequests']);
+        Route::get('my-approvals', [RequestRequisitionSlipController::class, 'myApprovals']);
     });
 
     Route::prefix('bom')->group(function () {

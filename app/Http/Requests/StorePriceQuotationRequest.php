@@ -49,7 +49,7 @@ class StorePriceQuotationRequest extends FormRequest
         $procurementId = $this->route('requestProcurement')->id;
         // Check if the item exists in any request stock that belongs to this requisition slip
         return RequestStockItem::where('item_id', $itemId)
-            ->whereHas('requestStock.requestProcurement', function ($query) use ($procurementId) {
+            ->whereHas('requisitionSlip.requestProcurement', function ($query) use ($procurementId) {
                 $query->where('id', $procurementId);
             })
             ->exists();

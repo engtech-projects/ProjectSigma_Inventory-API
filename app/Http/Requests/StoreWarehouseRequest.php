@@ -22,7 +22,7 @@ class StoreWarehouseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255|unique:warehouse,name',
+            'name' => 'required|string|max:255|unique:setup_warehouses,name',
             'location' => 'required|string|max:255',
             'owner_type' => 'required|in:Project,Department',
             'owner_id' => 'nullable|integer',

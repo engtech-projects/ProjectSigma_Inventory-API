@@ -30,6 +30,6 @@ class PriceQuotationItem extends Model
 
     public function getRequestStockItemAttribute()
     {
-        return $this->priceQuotation?->requestProcurement?->requestStock?->items?->firstWhere('item_id', $this->item_id);
+        return $this->priceQuotation?->requestProcurement?->requisitionSlip?->items?->firstWhere('item_id', $this->item_id);
     }
 }
