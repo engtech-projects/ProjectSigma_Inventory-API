@@ -1,16 +1,9 @@
 <?php
 
-namespace App\Enums;
+namespace App\Enums\Traits;
 
-// USED FOR WHOLE REQUEST NOT FOR INDIVIDUAL APPROVAL
-enum RequestStatuses: string
+trait EnumHelper
 {
-    case APPROVED = 'Approved';
-    case PENDING = "Pending";
-    case DENIED = "Denied";
-    case CANCELLED = "Cancelled";
-    case VOIDED = "Voided";
-
     public static function toArray(): array
     {
         $array = [];
