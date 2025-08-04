@@ -21,6 +21,7 @@ class WarehouseStockTransactions extends Model
         'item_id',
         'quantity',
         'uom_id', // UOM ID SHOULD BE SAME OF PARENT FOR STOCKOUT
+        'uom_conversion',
         'parent_item_id',
         'referenceable_type',
         'referenceable_id',
@@ -28,6 +29,7 @@ class WarehouseStockTransactions extends Model
     ];
     protected $casts = [
         'metadata' => 'array',
+        'uom_conversion' => 'array',
     ];
 
     /**

@@ -13,29 +13,13 @@ trait HasConversionUnit
 
     public function getConvertableUnitsAttribute()
     {
-        $uom = $this->uom instanceof UOM ? $this->uom : UOM::find($this->uom);
-
-        if (!$uom || !$uom->group_id) {
-            return [];
-        }
-
-        return UOM::where('group_id', $uom->group_id)
-            ->get()
-            ->map(function ($uom) {
-                return [
-                    'id' => $uom->id,
-                    'name' => $uom->name,
-                    'symbol' => $uom->symbol,
-                    'conversion' => $uom->conversion,
-                ];
-            })
-            ->toArray();
+        return $this->uom->group->uoms;
     }
-    public function getConvertedQuantity($toUomId)
+    public function getConvertedQuantity(UOM $toUom)
     {
-        if ($this->{$this->uomIdColumn} === $toUomId) {
+        if ($this->{$this->uomIdColumn} === $toUom->id) {
             return $this->{$this->quantityColumn};
         }
-        return UomConversionService::convert($this->{$this->quantityColumn}, $this->{$this->uomIdColumn}, $toUomId);
+        return UomConversionService::convert($this->{$this->quantityColumn}, $this->{$this->uomIdColumn}, $toUom->conversion);
     }
 }

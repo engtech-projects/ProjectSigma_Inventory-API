@@ -5,7 +5,6 @@ namespace App\Observers;
 use App\Enums\StockTransactionTypes;
 use App\Models\WarehouseStocksSummary;
 use App\Models\WarehouseStockTransactions;
-use Illuminate\Support\Facades\DB;
 
 class WarehouseStockTransactionsObserver
 {
@@ -14,26 +13,34 @@ class WarehouseStockTransactionsObserver
      */
     public function created(WarehouseStockTransactions $warehouseStockTransactions): void
     {
-        $currentWarehouseStockSummary = WarehouseStocksSummary::where(
+        // Get current warehouse stock summary or create a new one if it doesn't exist
+        $warehouseSummary = WarehouseStocksSummary::where(
             [
                 'warehouse_id' => $warehouseStockTransactions->warehouse_id,
                 'item_id' => $warehouseStockTransactions->item_id,
             ]
         )->first();
-        if(!$currentWarehouseStockSummary) {
-            $currentWarehouseStockSummary = new WarehouseStocksSummary();
-            $currentWarehouseStockSummary->warehouse_id = $warehouseStockTransactions->warehouse_id;
-            $currentWarehouseStockSummary->item_id = $warehouseStockTransactions->item_id;
-            $currentWarehouseStockSummary->uom_id = $warehouseStockTransactions->uom_id;
+        if(!$warehouseSummary) {
+            $warehouseSummary = new WarehouseStocksSummary();
+            $warehouseSummary->warehouse_id = $warehouseStockTransactions->warehouse_id;
+            $warehouseSummary->item_id = $warehouseStockTransactions->item_id;
+            $warehouseSummary->uom_id = $warehouseStockTransactions->uom_id;
         }
-        $summaryUom = $currentWarehouseStockSummary->uom_id;
+        // get the new quantity based on the transaction type
+        // and convert it to the summary's UOM if necessary
+        $summaryUom = $warehouseSummary->uom_id;
+        $quantity = $warehouseStockTransactions->qty;
         if($summaryUom != $warehouseStockTransactions->uom_id) {
-            $conversion = $warehouseStockTransactions->item-> uomConversion($warehouseStockTransactions->uom_id, $summaryUom);
-            $currentWarehouseStockSummary->stock_in += $warehouseStockTransactions->qty * $conversion;
-        } else {
-            $currentWarehouseStockSummary->stock_in += $warehouseStockTransactions->qty;
+            $quantity = $warehouseStockTransactions->getConvertedQuantity($summaryUom);
         }
-
+        if($warehouseStockTransactions->type === StockTransactionTypes::STOCKIN) {
+            $warehouseSummary->quantity += $quantity;
+        } else {
+            $warehouseSummary->quantity -= $quantity;
+        }
+        $warehouseSummary->metadata->put('last_transaction_id', $warehouseStockTransactions->id);
+        $warehouseSummary->updated_at = now();
+        $warehouseSummary->save();
     }
 
     /**

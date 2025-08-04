@@ -21,7 +21,7 @@ return new class extends Migration
                 ->constrained('item_profile', 'id', 'wss_item')
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
-            $table->decimal('total_quantity', 10, 2)
+            $table->decimal('quantity', 10, 2)
                 ->comment('Total quantity of the item in the warehouse');
             $table->foreignId('uom_id')
                 ->constrained('setup_uom', 'id', 'wss_uom')
