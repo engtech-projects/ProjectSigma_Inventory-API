@@ -162,9 +162,8 @@ class RequestRequisitionSlip extends Model
             'warehouse_id' => $this->warehouse_id,
             'transaction_type' => TransactionTypes::RECEIVING,
             'transaction_date' => now()->format('Y-m-d H:i:s'),
-            'charging_id' => $this->id,
+            'charging_id' => null,
             'charging_type' => null,
-            'approvals' => $this->approvals,
             'metadata' => [
                 'rs_id' => $this->id,
                 'po_id' => null,
@@ -176,8 +175,9 @@ class RequestRequisitionSlip extends Model
                 'serve_status' => 'Unserved',
                 'is_petty_cash' => true,
             ],
-            'created_by' => auth()->user()->id,
+            'approvals' => $this->approvals,
             'request_status' => RequestStatuses::APPROVED,
+            'created_by' => auth()->user()->id,
         ]);
 
         $this->storeItems($mrr);

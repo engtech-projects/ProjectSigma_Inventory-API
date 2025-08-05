@@ -19,7 +19,6 @@ use App\Http\Controllers\RequestSupplierUploadController;
 use App\Http\Controllers\UOMGroupController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehousePssController;
-use App\Http\Controllers\WarehouseTransactionController;
 use App\Http\Controllers\WarehouseTransactionItemController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\PriceQuotationController;
@@ -28,6 +27,7 @@ use App\Http\Controllers\SetupListsController;
 use App\Http\Controllers\RequestProcurementCanvasserController;
 use App\Http\Controllers\RequestProcurementController;
 use App\Http\Controllers\RequestRequisitionSlipController;
+use App\Http\Controllers\TransactionMaterialReceivingController;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -101,15 +101,7 @@ Route::middleware('auth:api')->group(function () {
         Route::patch('set-pss/{warehouse}', [WarehousePssController::class, 'update']);
         Route::get('logs/{warehouse_id}', [WarehouseController::class, 'getLogs']);
         Route::get('stocks/{warehouse_id}', [WarehouseController::class, 'getStocks']);
-
-        Route::get('materials-receiving/{warehouse_id}', [WarehouseController::class, 'withMaterialsReceiving']);
-
-        Route::prefix('transaction')->group(function () {
-            Route::resource('resource', WarehouseTransactionController::class)->names("warehouseTransactionsresource");
-        });
-        Route::prefix('transaction-item')->group(function () {
-            Route::resource('resource', WarehouseTransactionItemController::class)->names("warehouseTransactionItemresource");
-        });
+        Route::get('material-receivings/{warehouse_id}', [TransactionMaterialReceivingController::class, 'transactionsByWarehouse']);
     });
 
     Route::prefix('request-requisition-slip')->group(function () {
@@ -179,10 +171,8 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('material-receiving')->group(function () {
-        Route::resource('resource', WarehouseTransactionController::class)->names("materialReceivingresource");
-        Route::patch('{id}/save-details', [WarehouseTransactionController::class, 'saveDetails']);
-        Route::get('warehouse/{warehouse_id}', [WarehouseTransactionController::class, 'getTransactionsByWarehouse']);
-        Route::get('all-request', [WarehouseTransactionController::class, 'allRequests']);
+        Route::resource('resource', TransactionMaterialReceivingController::class)->names("materialReceivingresource")
+        ->only(['index', 'update', 'show']);
         Route::prefix('item')->group(function () {
             Route::resource('resource', WarehouseTransactionItemController::class)->names("materialReceivingItemResource");
             Route::patch('{resource}/accept-all', [WarehouseTransactionItemController::class, 'acceptAll']);

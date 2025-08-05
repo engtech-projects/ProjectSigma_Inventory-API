@@ -4,6 +4,7 @@ namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
 use App\Guards\AuthTokenGuard;
+use App\Models\TransactionMaterialReceiving;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -12,6 +13,7 @@ use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
 use App\Models\WarehouseTransaction;
+use App\Policies\TransactionMaterialReceivingPolicy;
 use App\Policies\WarehouseTransactionPolicy;
 
 class AuthServiceProvider extends ServiceProvider
@@ -23,7 +25,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         User::class => UserPolicy::class,
-        WarehouseTransaction::class => WarehouseTransactionPolicy::class,
+        TransactionMaterialReceiving::class => TransactionMaterialReceivingPolicy::class,
     ];
 
     /**
