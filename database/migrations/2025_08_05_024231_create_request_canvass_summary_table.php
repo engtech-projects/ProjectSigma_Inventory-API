@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\RequestStatuses;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,7 +19,7 @@ return new class () extends Migration {
             ->onUpdate('cascade');
             $table->json('metadata')->nullable();
             $table->json('approvals');
-            $table->string('request_status');
+            $table->enum('request_status', RequestStatuses::toArray());
             $table->string('created_by');
             $table->timestamps();
             $table->softDeletes();
