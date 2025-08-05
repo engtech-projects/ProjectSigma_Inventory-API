@@ -154,30 +154,26 @@ class RequestRequisitionSlip extends Model
         $this->save();
         $this->refresh();
     }
-    // create MRR
+    // Todo: MOVE TO MRR SERVICE
     public function createPettyCashMRR()
     {
-        $mrr = WarehouseTransaction::create([
-            'reference_no' => '',
-            'warehouse_id' => $this->warehouse_id,
-            'transaction_type' => TransactionTypes::RECEIVING,
-            'transaction_date' => now()->format('Y-m-d H:i:s'),
-            'charging_id' => null,
-            'charging_type' => null,
+        $mrr = TransactionMaterialReceiving::create([
+            'reference_no' => null,
+            'suplier_id' => null,
+            'reference' => '',
+            'terms_of_payment' => '',
+            'particulars' => '',
+            'transaction_date' => now(),
             'metadata' => [
-                'rs_id' => $this->id,
-                'po_id' => null,
-                'supplier_id' => null,
-                'reference' => $this->reference_no,
-                'equipment_no' => $this->equipment_no,
-                'terms_of_payment' => null,
-                'particulars' => null,
+                'project_code' => '',
+                'equipment' => '',
+                'source_po' => '',
+                'total_net_of_vat_cost' => 0,
+                'total_input_vat' => 0,
+                'grand_total' => 0,
                 'serve_status' => 'Unserved',
                 'is_petty_cash' => true,
             ],
-            'approvals' => $this->approvals,
-            'request_status' => RequestStatuses::APPROVED,
-            'created_by' => auth()->user()->id,
         ]);
 
         $this->storeItems($mrr);
@@ -185,6 +181,7 @@ class RequestRequisitionSlip extends Model
         return $mrr;
     }
 
+    // Todo: MOVE TO MRR SERVICE
     private function storeItems($mrr)
     {
         foreach ($this->items as $requestItem) {
@@ -198,7 +195,7 @@ class RequestRequisitionSlip extends Model
                 'ext_price' => null,
             ];
 
-            WarehouseTransactionItem::create([
+            TransactionMaterialReceivingItem::create([
                 'item_id' => $requestItem->item_id,
                 'warehouse_transaction_id' => $mrr->id,
                 'parent_id' => null,
@@ -214,23 +211,20 @@ class RequestRequisitionSlip extends Model
             'serve_status' => 'unserved'
         ]);
     }
-
+    // Todo: MOVE TO MRR SERVICE
     private function generateMRRReferenceNumber()
     {
         $year = now()->year;
-        $lastMRR = WarehouseTransaction::where('transaction_type', TransactionTypes::RECEIVING)
-            ->whereYear('created_at', $year)
+        $lastMRR = TransactionMaterialReceiving::whereYear('created_at', $year)
             ->where('reference_no', 'like', "MRR-{$year}-%")
             ->orderBy('reference_no', 'desc')
             ->first();
-
         if ($lastMRR) {
             $lastNumber = (int) substr($lastMRR->reference_no, -4);
             $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
         } else {
             $newNumber = '0001';
         }
-
         return "MRR-{$year}-CENTRAL-{$newNumber}";
     }
 }

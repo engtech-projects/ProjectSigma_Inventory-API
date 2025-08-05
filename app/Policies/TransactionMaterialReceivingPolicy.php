@@ -10,12 +10,9 @@ class TransactionMaterialReceivingPolicy
 {
     public function isEvaluator(User $user, TransactionMaterialReceiving $transaction): Response
     {
-        $metadata = $transaction->metadata ?? [];
-
-        if (isset($metadata['evaluated_by']) && $metadata['evaluated_by'] !== $user->id) {
+        if ($transaction->evaluated_by_id && $transaction->evaluated_by_id !== $user->id) {
             return Response::deny('You are not authorized to evaluate this transaction. Another evaluator has already started processing this transaction.');
         }
-
         return Response::allow();
     }
     /**

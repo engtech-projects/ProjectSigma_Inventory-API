@@ -24,8 +24,6 @@ class WarehouseStocksResource extends JsonResource
             'item_name' => $this->item->item_description,
             'item_summary' => $this->item->name_summary,
             'quantity' => $this->quantity . ' ' . $this->item->uom_full_name,
-            'warehouse_transaction_id' => $this-> warehouse_transaction_id,
-            'parent_id' => $this-> parent_id,
         ];
     }
 }

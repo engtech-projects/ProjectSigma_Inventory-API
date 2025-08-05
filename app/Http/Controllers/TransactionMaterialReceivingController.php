@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\TransactionMaterialReceiving;
-use App\Http\Requests\StoreTransactionMaterialReceivingRequest;
-use App\Http\Requests\TransactionMaterialReceivingIndexFilterRequest;
 use App\Http\Requests\UpdateTransactionMaterialReceivingRequest;
 use App\Http\Resources\MaterialReceivingListingResource;
 use App\Http\Resources\WarehouseTransactionResource;

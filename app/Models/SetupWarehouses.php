@@ -45,19 +45,6 @@ class SetupWarehouses extends Model
             'user_id'
         );
     }
-    public function transactionItems()
-    {
-        return $this->hasManyThrough(WarehouseTransactionItem::class, WarehouseTransaction::class);
-    }
-    public function warehouseTransactions()
-    {
-        return $this->hasMany(WarehouseTransaction::class);
-    }
-
-    public function requisitionSlips()
-    {
-        return $this->hasMany(RequestRequisitionSlip::class);
-    }
     public function owner()
     {
         return $this->morphTo();
@@ -69,6 +56,10 @@ class SetupWarehouses extends Model
     public function department()
     {
         return $this->morphTo(__FUNCTION__, 'owner_type', 'owner_id', "id");
+    }
+    public function stockSummary()
+    {
+        return $this->hasMany(WarehouseStocksSummary::class, 'warehouse_id');
     }
     /**
     * ==================================================

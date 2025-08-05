@@ -12,9 +12,7 @@ use App\Policies\UserPolicy;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
-use App\Models\WarehouseTransaction;
 use App\Policies\TransactionMaterialReceivingPolicy;
-use App\Policies\WarehouseTransactionPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
