@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\RequestStatuses;
 use App\Enums\RSRemarksEnums;
 use App\Enums\TransactionTypes;
+use App\Http\Services\MrrService;
 use App\Traits\HasApproval;
 use App\Traits\HasReferenceNumber;
 use App\Traits\ModelHelpers;
@@ -147,84 +148,18 @@ class RequestRequisitionSlip extends Model
     {
         $this->request_status = RequestStatuses::APPROVED;
         if ($this->remarks == RSRemarksEnums::PETTYCASH->value) {
-            $this->createPettyCashMRR();
+            $mrrService = new MrrService(new TransactionMaterialReceiving());
+            $mrrService->createPettyCashMrrFromRequestRequisitionSlip($this);
         } elseif ($this->remarks == RSRemarksEnums::PURCHASEORDER->value) {
             $this->createProcurementRequest();
         }
         $this->save();
         $this->refresh();
     }
-    // Todo: MOVE TO MRR SERVICE
-    public function createPettyCashMRR()
-    {
-        $mrr = TransactionMaterialReceiving::create([
-            'reference_no' => null,
-            'suplier_id' => null,
-            'reference' => '',
-            'terms_of_payment' => '',
-            'particulars' => '',
-            'transaction_date' => now(),
-            'metadata' => [
-                'project_code' => '',
-                'equipment' => '',
-                'source_po' => '',
-                'total_net_of_vat_cost' => 0,
-                'total_input_vat' => 0,
-                'grand_total' => 0,
-                'serve_status' => 'Unserved',
-                'is_petty_cash' => true,
-            ],
-        ]);
-
-        $this->storeItems($mrr);
-
-        return $mrr;
-    }
-
-    // Todo: MOVE TO MRR SERVICE
-    private function storeItems($mrr)
-    {
-        foreach ($this->items as $requestItem) {
-            $metadata = [
-                'requested_quantity' => $requestItem->quantity,
-                'specification' => $requestItem->specification,
-                'actual_brand_purchase' => $requestItem->preferred_brand,
-                'unit_price' => null, // Editable field
-                'remarks' => null, // Editable field
-                'status' => null,
-                'ext_price' => null,
-            ];
-
-            TransactionMaterialReceivingItem::create([
-                'item_id' => $requestItem->item_id,
-                'warehouse_transaction_id' => $mrr->id,
-                'parent_id' => null,
-                'metadata' => $metadata,
-                'quantity' => 0,
-                'uom' => $requestItem->unit,
-            ]);
-        }
-    }
     public function createProcurementRequest()
     {
         return $this->requestProcurement()->create([
             'serve_status' => 'unserved'
         ]);
-    }
-    // Todo: MOVE TO MRR SERVICE
-    private function generateMRRReferenceNumber()
-    {
-        $year = now()->year;
-        $lastMRR = TransactionMaterialReceiving::whereYear('created_at', $year)
-            ->where('reference_no', 'like', "MRR-{$year}-%")
-            ->orderBy('reference_no', 'desc')
-            ->first();
-        if ($lastMRR) {
-            $lastNumber = (int) substr($lastMRR->reference_no, -4);
-            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
-        } else {
-            $newNumber = '0001';
-        }
-        return "MRR-{$year}-CENTRAL-{$newNumber}";
     }
 }

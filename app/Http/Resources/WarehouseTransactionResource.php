@@ -21,8 +21,6 @@ class WarehouseTransactionResource extends JsonResource
             'transaction_date' => $this->transaction_date,
             'transaction_type' => $this->transaction_type,
             'metadata' => $this->metadata,
-            'charging_type' => $this->charging_type,
-            'charging_id' => $this->charging_id,
             'project_code' => $this->project_code,
             'created_by' => $this->created_by,
             'request_status' => $this->request_status,
@@ -30,8 +28,6 @@ class WarehouseTransactionResource extends JsonResource
             'grand_total' => $this->grand_total,
             'warehouse' => $this->warehouse_name,
             'supplier' => $this->supplier_company_name,
-            "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
-            "next_approval" => $this->getNextPendingApproval(),
         ];
     }
 }

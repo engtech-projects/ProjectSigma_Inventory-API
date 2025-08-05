@@ -34,6 +34,7 @@ class TransactionMaterialReceivingController extends Controller
             "success" => true,
             "data" => new WarehouseTransactionResource($resource)
         ]);
+        // TODO: change resource to MrrDetailed Resource
     }
 
     /**
@@ -64,5 +65,6 @@ class TransactionMaterialReceivingController extends Controller
             'message' => 'Successfully fetched.',
             'success' => true,
         ]);
+        // TODO: change resource to MrrListingResource
     }
 }
