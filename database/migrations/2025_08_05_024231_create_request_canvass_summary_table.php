@@ -19,13 +19,7 @@ return new class () extends Migration {
             ->onUpdate('cascade');
             $table->json('metadata')->nullable();
             $table->json('approvals');
-            $table->enum('request_status', [
-                'Approved',
-                'Pending',
-                'Denied',
-                'Cancelled',
-                'Voided'
-            ]);
+            $table->enum('request_status', RequestStatuses::toArray());
             $table->string('created_by');
             $table->timestamps();
             $table->softDeletes();
