@@ -233,5 +233,4 @@ class RequestRequisitionSlip extends Model
 
         return "MRR-{$year}-CENTRAL-{$newNumber}";
     }
-
 }

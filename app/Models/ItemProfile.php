@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Http\Services\ItemProfileService;
-use App\Http\Traits\HasConversionUnit;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
