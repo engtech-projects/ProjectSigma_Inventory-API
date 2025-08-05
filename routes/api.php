@@ -67,6 +67,7 @@ Route::middleware('auth:api')->group(function () {
         Route::resource('resource', UOMController::class)->names("uomresource");
         Route::get('group', [UOMGroupController::class, 'get']);
         Route::get('all', [UOMController::class, 'get']);
+        Route::get('list', [UOMController::class, 'list']);
     });
     Route::prefix('uom-group')->group(function () {
         Route::resource('resource', UOMGroupController::class)->names("uomGroupresource");
