@@ -73,29 +73,16 @@ class WarehouseTransaction extends Model
     }
     public function getProjectCodeAttribute(): ?string
     {
-        $requestStock = RequestStock::find($this->charging_id, ['id', 'reference_no', 'section_id', 'section_type']);
-
-        if (!$requestStock || !$requestStock->section_type || !$requestStock->section_id) {
-            return null;
-        }
-
-        switch ($requestStock->section_type) {
-            case 'Project':
-                $project = SetupProjects::find($requestStock->section_id, ['project_code']);
-                return $project?->project_code;
-            case 'Department':
-                $department = SetupDepartments::find($requestStock->section_id, ['department_name']);
-                return $department?->department_name;
-            default:
-                return null;
-        }
+        return $this->project?->project_code ?? null;
     }
     public function getRSReferenceNoAttribute(): ?string
     {
-        return RequestStock::where('id', $this->charging_id)->value('reference_no');
+        return $this->requisitionSlip?->reference_no ?? null;
     }
     public function getSupplierCompanyNameAttribute(): string
     {
+        // Assuming metadata contains supplier_id
+        // TO ADJUST WAREHOUSE TRANSACTIONS MOVED OUT OF THIS MODEL
         return $this->metadata['supplier_id']
             ? RequestSupplier::where('id', $this->metadata['supplier_id'])->value('company_name')
             : 'Unknown Company';
@@ -120,7 +107,7 @@ class WarehouseTransaction extends Model
     }
     public function warehouse()
     {
-        return $this->belongsTo(SetupWarehouses::class);
+        return $this->belongsTo(SetupWarehouses::class, 'warehouse_id');
     }
     public function items()
     {
@@ -131,14 +118,13 @@ class WarehouseTransaction extends Model
         return $this->hasManyThrough(WarehouseTransactionItem::class, WarehouseTransaction::class);
     }
 
-    public function requestStock()
+    public function requisitionSlip()
     {
-        return $this->belongsTo(RequestStock::class, 'charging_id')
-            ->where('charging_type', RequestStock::class);
+        return $this->belongsTo(RequestRequisitionSlip::class, 'metadata.rs_id', 'id');
     }
     public function supplier()
     {
-        return $this->belongsTo(RequestSupplier::class, 'supplier_id');
+        return $this->belongsTo(RequestSupplier::class, 'metadata.supplier_id',);
     }
 
     /**

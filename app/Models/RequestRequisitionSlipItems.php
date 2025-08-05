@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class RequestStockItem extends Model
+class RequestRequisitionSlipItems extends Model
 {
     use HasFactory;
 
@@ -49,9 +49,9 @@ class RequestStockItem extends Model
     {
         return $this->belongsTo(UOM::class);
     }
-    public function requestStock()
+    public function requisitionSlip()
     {
-        return $this->belongsTo(RequestStock::class);
+        return $this->belongsTo(RequestRequisitionSlip::class);
     }
     public function itemProfile()
     {

@@ -9,7 +9,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
-class StoreRequestStockRequest extends FormRequest
+class StoreRequestRequisitionSlipRequest extends FormRequest
 {
     use HasApprovalValidation;
 
@@ -34,7 +34,7 @@ class StoreRequestStockRequest extends FormRequest
     {
         return [
             'request_for' => 'required|string|max:255',
-            'warehouse_id' => 'required|numeric|exists:warehouse,id',
+            'warehouse_id' => 'required|numeric|exists:setup_warehouses,id',
             'section_id' => 'required|integer',
             'section_type' => [
                 'nullable',

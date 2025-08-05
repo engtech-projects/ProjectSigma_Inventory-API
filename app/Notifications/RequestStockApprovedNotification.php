@@ -59,9 +59,9 @@ class RequestStockApprovedNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => "A supplier request has been APPROVED.",
+            'message' => "Your Requisition Slip has been APPROVED and is now ready for processing.",
             'module' => "Inventory",
-            'request_type' => ApprovalModels::RequestStock->name,
+            'request_type' => ApprovalModels::RequestRequisitionSlip->name,
             'request_id' => $this->model->id,
             'action' => "Approve"
         ];

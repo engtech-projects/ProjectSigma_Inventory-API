@@ -119,10 +119,6 @@ class RequestBOM extends Model
             'item_id'
         );
     }
-    public function requestStock()
-    {
-        return $this->belongsTo(RequestStock::class);
-    }
 
     /**
      * ==================================================

@@ -1,19 +1,9 @@
 <?php
 
-namespace App\Enums;
+namespace App\Enums\Traits;
 
-use App\Models\RequestItemProfiling;
-use App\Models\RequestSupplier;
-use App\Models\RequestBOM;
-use App\Models\RequestRequisitionSlip;
-
-enum ApprovalModels: string
+trait EnumHelper
 {
-    case RequestItemProfiling = RequestItemProfiling::class;
-    case RequestSupplier = RequestSupplier::class;
-    case RequestRequisitionSlip = RequestRequisitionSlip::class;
-    case RequestBOM = RequestBOM::class;
-
     public static function toArray(): array
     {
         $array = [];

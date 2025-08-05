@@ -54,9 +54,9 @@ class SetupWarehouses extends Model
         return $this->hasMany(WarehouseTransaction::class);
     }
 
-    public function requestStocks()
+    public function requisitionSlips()
     {
-        return $this->hasMany(RequestStock::class);
+        return $this->hasMany(RequestRequisitionSlip::class);
     }
     public function owner()
     {

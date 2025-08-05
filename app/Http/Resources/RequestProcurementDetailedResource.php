@@ -16,8 +16,8 @@ class RequestProcurementDetailedResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'requisition_slip' => $this->requestStock
-                ? new RequisitionSlipDetailedResource($this->requestStock)
+            'requisition_slip' => $this->requisitionSlip
+                ? new RequisitionSlipDetailedResource($this->requisitionSlip)
                 : null,
             'status' => $this->serve_status,
             'canvasser' => new CanvasserResource($this->canvasser),

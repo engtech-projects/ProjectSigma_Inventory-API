@@ -6,6 +6,7 @@ use App\Enums\RequestStatuses;
 use App\Http\Resources\WarehouseTransactionResourceList;
 use App\Models\WarehouseTransaction;
 use App\Http\Requests\StoreWarehouseTransactionRequest;
+use App\Http\Resources\MaterialReceivingListingResource;
 use App\Http\Resources\WarehouseTransactionResource;
 use App\Http\Services\WarehouseTransactionService;
 use App\Models\WarehouseTransactionItem;
@@ -30,14 +31,13 @@ class WarehouseTransactionController extends Controller
      */
     public function index()
     {
-        $main = WarehouseTransaction::with(['items.uomRelationship', 'items.item'])->paginate(10);
-        $collection = WarehouseTransactionResource::collection($main)->response()->getData(true);
-
-        return new JsonResponse([
-            "success" => true,
-            "message" => "Successfully fetched.",
-            "data" => $collection,
-        ], JsonResponse::HTTP_OK);
+        $main = WarehouseTransaction::latest()
+        ->paginate(config('app.pagination.per_page', 10));
+        return MaterialReceivingListingResource::collection($main)
+        ->additional([
+            'message' => 'Successfully fetched.',
+            'success' => true,
+        ]);
     }
 
     /**

@@ -27,9 +27,9 @@ class RequestProcurement extends Model
         'serve_status',
     ];
 
-    public function requestStock()
+    public function requisitionSlip()
     {
-        return $this->belongsTo(RequestStock::class, 'request_requisition_slip_id');
+        return $this->belongsTo(RequestRequisitionSlip::class, 'request_requisition_slip_id');
     }
 
     public function canvasser()

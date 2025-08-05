@@ -7,21 +7,19 @@ use App\Enums\RSRemarksEnums;
 use App\Enums\TransactionTypes;
 use App\Traits\HasApproval;
 use App\Traits\HasReferenceNumber;
+use App\Traits\ModelHelpers;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Notifications\Notifiable;
 
-class RequestStock extends Model
+class RequestRequisitionSlip extends Model
 {
     use HasFactory;
-    use Notifiable;
     use SoftDeletes;
+    use ModelHelpers;
     use HasApproval;
     use HasReferenceNumber;
-
-    protected $table = 'request_stocks';
 
     protected $fillable = [
         'reference_no',
@@ -99,7 +97,7 @@ class RequestStock extends Model
     }
     public function items()
     {
-        return $this->hasMany(RequestStockItem::class);
+        return $this->hasMany(RequestRequisitionSlipItems::class);
     }
     public function section()
     {
@@ -123,22 +121,26 @@ class RequestStock extends Model
     {
         return $this->hasManyThrough(
             ItemProfile::class,
-            RequestStockItem::class,
+            RequestRequisitionSlipItems::class,
             'request_stock_id',
             'id',
             'id',
             'item_id'
         );
     }
-
     public function requestProcurement()
     {
         return $this->hasOne(RequestProcurement::class, 'request_requisition_slip_id');
     }
-
     /**
      * ==================================================
      * LOCAL SCOPES
+     * ==================================================
+     */
+
+    /**
+     * ==================================================
+     * MODEL FUNCTIONS
      * ==================================================
      */
     public function completeRequestStatus()
@@ -185,25 +187,6 @@ class RequestStock extends Model
         return $mrr;
     }
 
-    private function generateMRRReferenceNumber()
-    {
-        $year = now()->year;
-        $lastMRR = WarehouseTransaction::where('transaction_type', TransactionTypes::RECEIVING)
-            ->whereYear('created_at', $year)
-            ->where('reference_no', 'like', "MRR-{$year}-%")
-            ->orderBy('reference_no', 'desc')
-            ->first();
-
-        if ($lastMRR) {
-            $lastNumber = (int) substr($lastMRR->reference_no, -4);
-            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
-        } else {
-            $newNumber = '0001';
-        }
-
-        return "MRR-{$year}-CENTRAL-{$newNumber}";
-    }
-
     private function storeItems($mrr)
     {
         foreach ($this->items as $requestItem) {
@@ -227,8 +210,6 @@ class RequestStock extends Model
             ]);
         }
     }
-
-    // create procurement request
     public function createProcurementRequest()
     {
         return $this->requestProcurement()->create([
@@ -236,9 +217,23 @@ class RequestStock extends Model
         ]);
     }
 
-    /**
-     * ==================================================
-     * DYNAMIC SCOPES
-     * ==================================================
-     */
+    private function generateMRRReferenceNumber()
+    {
+        $year = now()->year;
+        $lastMRR = WarehouseTransaction::where('transaction_type', TransactionTypes::RECEIVING)
+            ->whereYear('created_at', $year)
+            ->where('reference_no', 'like', "MRR-{$year}-%")
+            ->orderBy('reference_no', 'desc')
+            ->first();
+
+        if ($lastMRR) {
+            $lastNumber = (int) substr($lastMRR->reference_no, -4);
+            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        } else {
+            $newNumber = '0001';
+        }
+
+        return "MRR-{$year}-CENTRAL-{$newNumber}";
+    }
+
 }

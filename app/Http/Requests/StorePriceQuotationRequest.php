@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\RequestStockItem;
+use App\Models\RequestRequisitionSlipItems;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -48,8 +48,8 @@ class StorePriceQuotationRequest extends FormRequest
     {
         $procurementId = $this->route('requestProcurement')->id;
         // Check if the item exists in any request stock that belongs to this requisition slip
-        return RequestStockItem::where('item_id', $itemId)
-            ->whereHas('requestStock.requestProcurement', function ($query) use ($procurementId) {
+        return RequestRequisitionSlipItems::where('item_id', $itemId)
+            ->whereHas('requisitionSlip.requestProcurement', function ($query) use ($procurementId) {
                 $query->where('id', $procurementId);
             })
             ->exists();

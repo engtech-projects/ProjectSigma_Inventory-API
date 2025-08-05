@@ -4,85 +4,72 @@ namespace App\Http\Controllers;
 
 use App\Enums\AssignTypes;
 use App\Enums\RequestStatuses;
-use App\Http\Requests\StoreRequestStockRequest;
-use App\Http\Resources\RequestStockResourceList;
-use App\Models\RequestStock;
-use App\Models\RequestStockItem;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use App\Http\Services\RequestStockService;
-use App\Notifications\RequestStockForApprovalNotification;
-use App\Traits\HasApproval;
-use App\Http\Resources\RequestStocksResource;
+use App\Models\RequestRequisitionSlip;
+use App\Http\Requests\StoreRequestRequisitionSlipRequest;
+use App\Http\Resources\RequisitionSlipDetailedResource;
+use App\Http\Resources\RequisitionSlipListingResource;
+use App\Models\RequestRequisitionSlipItems;
 use App\Models\SetupDepartments;
 use App\Models\SetupProjects;
+use App\Notifications\RequestStockForApprovalNotification;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
-class RequestStockController extends Controller
+class RequestRequisitionSlipController extends Controller
 {
-    use HasApproval;
-    protected $requestStockService;
-    public function __construct(RequestStockService $requestStockService)
-    {
-        $this->requestStockService = $requestStockService;
-    }
-
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-        $main = RequestStock::with(['project', 'items', 'currentBom', 'department'])->paginate(10);
-        $collection = RequestStocksResource::collection($main)->response()->getData(true);
-
-        return new JsonResponse([
+        $main = RequestRequisitionSlip::latest()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequisitionSlipListingResource::collection($main)
+        ->additional([
             "success" => true,
-            "message" => "Request Stocks Successfully Fetched.",
-            "data" => $collection,
-        ], JsonResponse::HTTP_OK);
+            "message" => "Request Requisition Slips Successfully Fetched.",
+        ]);
     }
 
-    public function store(StoreRequestStockRequest $request)
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreRequestRequisitionSlipRequest $request)
     {
         $attributes = $request->validated();
         $sectionId = $attributes['section_id'];
-
         if ($attributes['type_of_request'] === 'Consolidated Request for the month of' && !empty($attributes['month'])) {
             $attributes['type_of_request'] = $attributes['type_of_request'] . ' ' . $attributes['month'];
             unset($attributes['month']);
         }
-
         if ($attributes["section_type"] == AssignTypes::DEPARTMENT->value) {
             $attributes["section_type"] = AssignTypes::DEPARTMENT->value;
         } elseif ($attributes["section_type"] == AssignTypes::PROJECT->value) {
             $attributes["section_type"] = AssignTypes::PROJECT->value;
         }
-
         $attributes['request_status'] = RequestStatuses::PENDING;
         $attributes['created_by'] = auth()->user()->id;
-
         // Generate reference number with retry logic
         if ($attributes["section_type"] == AssignTypes::DEPARTMENT->value) {
             $this->generateDepartmentReferenceNumber($attributes, $sectionId);
         } else {
             $this->generateProjectReferenceNumber($attributes, $sectionId);
         }
-
         // Execute transaction with retry logic
         $maxRetries = 5;
         $attempt = 0;
-
         do {
             try {
                 return DB::transaction(function () use ($attributes, $request) {
-                    $duplicatedAttr = RequestStock::where('reference_no', $attributes['reference_no'])
+                    $duplicatedAttr = RequestRequisitionSlip::where('reference_no', $attributes['reference_no'])
                         ->first();
-
                     if ($duplicatedAttr) {
                         throw new \Exception('The reference number has already been taken.');
                     }
-
-                    $requestStock = RequestStock::create($attributes);
-
+                    $requisitionSlip = RequestRequisitionSlip::create($attributes);
                     foreach ($attributes['items'] as $item) {
-                        RequestStockItem::create([
-                            'request_stock_id' => $requestStock->id,
+                        RequestRequisitionSlipItems::create([
+                            'request_stock_id' => $requisitionSlip->id,
                             'quantity' => $item['quantity'],
                             'unit' => $item['unit'],
                             'item_id' => $item['item_id'],
@@ -91,11 +78,9 @@ class RequestStockController extends Controller
                             'reason' => $item['reason'],
                         ]);
                     }
-
-                    if ($requestStock->getNextPendingApproval()) {
-                        $requestStock->notify(new RequestStockForApprovalNotification($request->bearerToken(), $requestStock));
+                    if ($requisitionSlip->getNextPendingApproval()) {
+                        $requisitionSlip->notify(new RequestStockForApprovalNotification($request->bearerToken(), $requisitionSlip));
                     }
-
                     return new JsonResponse([
                         'success' => true,
                         'message' => 'Requisition Slip Successfully Submitted.',
@@ -110,14 +95,12 @@ class RequestStockController extends Controller
                             'message' => 'Unable to generate unique reference number after ' . $maxRetries . ' attempts',
                         ], JsonResponse::HTTP_CONFLICT);
                     }
-
                     // Regenerate reference number for department type
                     if ($attributes["section_type"] == AssignTypes::DEPARTMENT->value) {
                         $this->generateDepartmentReferenceNumber($attributes, $sectionId);
                     } elseif ($attributes["section_type"] == AssignTypes::PROJECT->value) {
                         $this->generateProjectReferenceNumber($attributes, $sectionId);
                     }
-
                     // Short delay before retry
                     usleep(100000); // 100ms
                 } else {
@@ -137,14 +120,14 @@ class RequestStockController extends Controller
         $departmentCode = strtoupper(implode('-', array_map('ucwords', explode(' ', SetupDepartments::findOrFail($sectionId)->department_name))));
 
         $baseRef = "RS{$departmentCode}";
-        $increment = RequestStock::where('reference_no', 'regexp', "^{$baseRef}-[0-9]+$")->count() + 1;
+        $increment = RequestRequisitionSlip::where('reference_no', 'regexp', "^{$baseRef}-[0-9]+$")->count() + 1;
         $attributes['reference_no'] = $baseRef . '-' . str_pad($increment, 7, '0', STR_PAD_LEFT);
     }
 
     private function generateProjectReferenceNumber(array &$attributes, int $sectionId): void
     {
         $projectCode = SetupProjects::findOrFail($sectionId)->project_code;
-        $latest    = RequestStock::where('reference_no', 'regexp', "^RS{$projectCode}-[0-9]+$")
+        $latest    = RequestRequisitionSlip::where('reference_no', 'regexp', "^RS{$projectCode}-[0-9]+$")
             ->orderBy('reference_no', 'desc')
             ->lockForUpdate()
             ->value('reference_no');
@@ -152,92 +135,51 @@ class RequestStockController extends Controller
         $attributes['reference_no'] = "RS{$projectCode}-" . str_pad($next, 7, '0', STR_PAD_LEFT);
     }
 
-    public function show(RequestStock $resource)
+    /**
+     * Display the specified resource.
+     */
+    public function show(RequestRequisitionSlip $resource)
     {
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,
-            "data" => new RequestStocksResource($resource)
+            "data" => new RequisitionSlipDetailedResource($resource)
         ]);
-    }
-
-    public function destroy(RequestStock $resource)
-    {
-        if (!$resource) {
-            return response()->json([
-                'message' => 'Request Stock not found.',
-                'success' => false,
-                'data' => null
-            ], 404);
-        }
-
-        $deleted = $resource->delete();
-
-        $response = [
-            'message' => $deleted ? 'Request Stock successfully deleted.' : 'Failed to delete Request Stock.',
-            'success' => $deleted,
-            'data' => $resource
-        ];
-
-        return response()->json($response, $deleted ? 200 : 400);
     }
 
     public function myRequests()
     {
-        $myRequest = $this->requestStockService->getMyRequest();
-
-        if ($myRequest->isEmpty()) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'No data found.',
-            ], JsonResponse::HTTP_OK);
-        }
-        $requestResources = RequestStockResourceList::collection($myRequest)->response()->getData(true);
-
-        return new JsonResponse([
-            'message' => 'My Request Fetched.',
-            'success' => true,
-            'data' => $requestResources
+        $fetchData = RequestRequisitionSlip::latest()
+        ->myRequests()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequisitionSlipListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request Requisition Slips Successfully Fetched.",
         ]);
     }
 
     public function allRequests()
     {
-        $myRequest = $this->requestStockService->getAllRequest();
-
-        if ($myRequest->isEmpty()) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'No data found.',
-            ], JsonResponse::HTTP_OK);
-        }
-
-        $requestResources = RequestStockResourceList::collection($myRequest)->response()->getData(true);
-
-        return new JsonResponse([
-            'message' => 'All Request Fetched.',
-            'success' => true,
-            'data' => $requestResources
+        $fetchData = RequestRequisitionSlip::latest()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequisitionSlipListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request Requisition Slips Successfully Fetched.",
         ]);
     }
 
     public function myApprovals()
     {
-        $myApproval = $this->requestStockService->getMyApprovals();
-
-        if ($myApproval->isEmpty()) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'No data found.',
-            ], JsonResponse::HTTP_OK);
-        }
-
-        $requestResources = RequestStockResourceList::collection($myApproval)->response()->getData(true);
-
-        return new JsonResponse([
-            'message' => 'My Approvals Fetched.',
-            'success' => true,
-            'data' => $requestResources
+        $fetchData = RequestRequisitionSlip::latest()
+        ->myApprovals()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequisitionSlipListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request Requisition Slips Successfully Fetched.",
         ]);
     }
+
 }
