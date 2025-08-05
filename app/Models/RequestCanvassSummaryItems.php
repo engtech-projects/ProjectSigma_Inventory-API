@@ -20,7 +20,6 @@ class RequestCanvassSummaryItems extends Model
 
     protected $casts = [
         'metadata' => 'array',
-        'approvals' => 'array',
     ];
 
 
