@@ -16,8 +16,8 @@ return new class () extends Migration {
             ->constrained('request_canvass_summary')
             ->onDelete('restrict')
             ->onUpdate('cascade');
-            $table->foreignId('price_quotation_item_id')
-            ->constrained('price_quotation_items')
+            $table->foreignId('item_id')
+            ->constrained('item_profile')
             ->onDelete('restrict')
             ->onUpdate('cascade');
             $table->decimal('unit_price', 12, 2);
