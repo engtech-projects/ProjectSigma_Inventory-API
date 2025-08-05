@@ -124,7 +124,7 @@ class WarehouseTransaction extends Model
     }
     public function supplier()
     {
-        return $this->belongsTo(RequestSupplier::class, 'metadata.supplier_id',);
+        return $this->belongsTo(RequestSupplier::class, 'metadata.supplier_id', );
     }
 
     /**

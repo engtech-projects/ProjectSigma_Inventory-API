@@ -181,5 +181,4 @@ class RequestRequisitionSlipController extends Controller
             "message" => "Request Requisition Slips Successfully Fetched.",
         ]);
     }
-
 }
