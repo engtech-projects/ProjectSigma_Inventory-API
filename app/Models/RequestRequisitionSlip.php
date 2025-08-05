@@ -157,10 +157,8 @@ class RequestRequisitionSlip extends Model
     // create MRR
     public function createPettyCashMRR()
     {
-        $mrrReferenceNo = $this->generateMRRReferenceNumber();
-
         $mrr = WarehouseTransaction::create([
-            'reference_no' => $mrrReferenceNo,
+            'reference_no' => '',
             'warehouse_id' => $this->warehouse_id,
             'transaction_type' => TransactionTypes::RECEIVING,
             'transaction_date' => now()->format('Y-m-d H:i:s'),
