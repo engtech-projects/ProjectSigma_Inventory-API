@@ -22,7 +22,6 @@ class RequestCanvassSummaryItems extends Model
         'metadata' => 'array',
     ];
 
-
     /**
      * ==================================================
      * MODEL RELATIONSHIPS
