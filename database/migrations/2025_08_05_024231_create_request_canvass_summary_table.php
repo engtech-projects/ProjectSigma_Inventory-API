@@ -17,6 +17,11 @@ return new class () extends Migration {
             ->constrained('price_quotations')
             ->onDelete('restrict')
             ->onUpdate('cascade');
+            $table->string('cs_number');
+            $table->string('terms_of_payment');
+            $table->string('availability');
+            $table->string('delivery_terms');
+            $table->string('remarks');
             $table->json('metadata')->nullable();
             $table->json('approvals');
             $table->enum('request_status', RequestStatuses::toArray());

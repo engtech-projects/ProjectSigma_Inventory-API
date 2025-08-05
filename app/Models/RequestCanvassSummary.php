@@ -13,6 +13,11 @@ class RequestCanvassSummary extends Model
 
     protected $fillable = [
         'price_quotation_id',
+        'cs_number',
+        'terms_of_payment',
+        'availability',
+        'delivery_terms',
+        'remarks',
         'metadata',
         'approvals',
         'request_status',
