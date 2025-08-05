@@ -98,6 +98,16 @@ class ApiSyncController extends Controller
             'success' => true,
         ]);
     }
+    public function syncAccessibilities(Request $request)
+    {
+        if (!ApiHrmsSyncJob::dispatch('syncAccessibilities')) {
+            throw new \Exception("Accessibility sync failed.");
+        }
+        return response()->json([
+            'message' => 'Successfully synced all accessibilities.',
+            'success' => true,
+        ]);
+    }
     // Project Monitoring
     public function syncAllProjectMonitoring(Request $request)
     {

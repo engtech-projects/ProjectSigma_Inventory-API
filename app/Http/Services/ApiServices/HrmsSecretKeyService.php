@@ -2,6 +2,7 @@
 
 namespace App\Http\Services\ApiServices;
 
+use App\Models\SetupAccessibilities;
 use Illuminate\Support\Facades\Http;
 use App\Models\SetupDepartments;
 use App\Models\SetupEmployees;
@@ -25,51 +26,13 @@ class HrmsSecretKeyService
         }
     }
 
-    public static function getDepartments($token)
-    {
-        $response = Http::withToken($token)
-            ->acceptJson()
-            ->get(config('services.url.hrms_api_url') . '/api/department/list/v2');
-
-        if (!$response->successful()) {
-            return false;
-        }
-        return $response->json("data");
-    }
-    public static function getUsers($token)
-    {
-        $response = Http::withToken($token)
-            ->acceptJson()
-            ->get(config('services.url.hrms_api_url') . '/api/users');
-
-        if (!$response->successful()) {
-            return false;
-        }
-        return $response->json("data");
-    }
-    public static function getEmployees($token)
-    {
-        $response = Http::withToken($token)
-            ->acceptJson()
-            ->get(config('services.url.hrms_api_url') . '/api/employee/resource');
-
-        if (!$response->successful()) {
-            return false;
-        }
-        return $response->json("data");
-    }
-
     public function syncAll()
     {
         $syncEmployees = $this->syncEmployees();
         $syncUsers = $this->syncUsers();
         $syncDepartments = $this->syncDepartments();
-
-        if ($syncEmployees && $syncUsers && $syncDepartments) {
-            return $syncDepartments;
-        }
-
-        return false;
+        $syncAccessibilities = $this->syncAccessibilities();
+        return $syncEmployees && $syncUsers && $syncDepartments && $syncAccessibilities;
     }
 
     public function syncEmployees()
@@ -157,6 +120,23 @@ class HrmsSecretKeyService
         );
         return true;
     }
+    public function syncAccessibilities()
+    {
+        $accessibilities = $this->getAllAccessibilities();
+        SetupAccessibilities::upsert(
+            $accessibilities,
+            [
+                'id',
+            ],
+            [
+                'accessibilities_name',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ]
+        );
+        return true;
+    }
 
     public function getAllEmployees()
     {
@@ -191,6 +171,10 @@ class HrmsSecretKeyService
             ]);
             return [];
         }
+        Log::channel("HrmsService")->error('Failed to fetch users from monitoring API', [
+            'status' => $response->status(),
+            'body'   => $response->body(),
+        ]);
         $data = $response->json();
         if (!isset($data['data']) || !is_array($data['data'])) {
             Log::channel("HrmsService")->warning('Unexpected response format from users API', ['response' => $data]);
@@ -218,6 +202,25 @@ class HrmsSecretKeyService
         $data = $response->json();
         if (!isset($data['data']) || !is_array($data['data'])) {
             Log::channel("HrmsService")->warning('Unexpected response format from departments API', ['response' => $data]);
+            return [];
+        }
+        return $data['data'];
+    }
+    public function getAllAccessibilities()
+    {
+        $response = Http::withToken($this->authToken)
+            ->acceptJson()
+            ->get($this->apiUrl . '/api/sigma/sync-list/accessibilities');
+        if (!$response->successful()) {
+            Log::channel("HrmsService")->error('Failed to fetch accessibilities from monitoring API', [
+                'status' => $response->status(),
+                'body'   => $response->body(),
+            ]);
+            return [];
+        }
+        $data = $response->json();
+        if (!isset($data['data']) || !is_array($data['data'])) {
+            Log::channel("HrmsService")->warning('Unexpected response format from accessibilities API', ['response' => $data]);
             return [];
         }
         return $data['data'];

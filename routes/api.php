@@ -146,6 +146,7 @@ Route::middleware('auth:api')->group(function () {
                 Route::post('/employees', [ApiSyncController::class, 'syncEmployees']);
                 Route::post('/users', [ApiSyncController::class, 'syncUsers']);
                 Route::post('/departments', [ApiSyncController::class, 'syncDepartments']);
+                Route::post('/accessibilities', [ApiSyncController::class, 'syncAccessibilities']);
             });
         });
         Route::prefix('lists')->group(function () {
