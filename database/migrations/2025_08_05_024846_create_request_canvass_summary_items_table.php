@@ -14,11 +14,11 @@ return new class () extends Migration
         Schema::create('request_canvass_summary_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('request_canvass_summary_id')
-            ->constrained()
+            ->constrained('request_canvass_summary')
             ->onDelete('restrict')
             ->onUpdate('cascade');
             $table->foreignId('price_quotation_item_id')
-            ->constrained()
+            ->constrained('price_quotation_items')
             ->onDelete('restrict')
             ->onUpdate('cascade');
             $table->decimal('unit_price', 12, 2);
