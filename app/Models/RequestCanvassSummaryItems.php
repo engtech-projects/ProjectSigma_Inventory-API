@@ -14,8 +14,15 @@ class RequestCanvassSummaryItems extends Model
     protected $fillable = [
         'request_canvass_summary_id',
         'price_quotation_item_id',
+        'metadata',
         'unit_price',
     ];
+
+    protected $casts = [
+        'metadata' => 'array',
+        'approvals' => 'array',
+    ];
+
 
     /**
      * ==================================================

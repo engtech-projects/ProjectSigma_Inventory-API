@@ -13,7 +13,7 @@ return new class () extends Migration
     {
         Schema::create('request_canvass_summary', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('price_quotation_id')->constrained()->onDeleteRestrict()->onUpdateRestrict();
+            $table->foreignId('price_quotation_id')->constrained()->onDeleteRestrict()->onUpdateRestrict()->cascadeOnUpdate();
             $table->json('metadata')->nullable();
             $table->json('approvals');
             $table->string('request_status');

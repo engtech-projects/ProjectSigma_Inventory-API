@@ -13,8 +13,8 @@ return new class () extends Migration
     {
         Schema::create('request_canvass_summary_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('request_canvass_summary_id')->constrained()->onDeleteRestrict()->onUpdateRestrict();
-            $table->foreignId('price_quotation_item_id')->constrained()->onDeleteRestrict()->onUpdateRestrict();
+            $table->foreignId('request_canvass_summary_id')->constrained()->onDeleteRestrict()->onUpdateRestrict()->cascadeOnUpdate();
+            $table->foreignId('price_quotation_item_id')->constrained()->onDeleteRestrict()->onUpdateRestrict()->cascadeOnUpdate();
             $table->decimal('unit_price', 12, 2);
             $table->json('metadata')->nullable();
             $table->timestamps();
