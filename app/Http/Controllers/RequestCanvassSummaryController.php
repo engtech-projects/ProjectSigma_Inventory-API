@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 
 class RequestCanvassSummaryController extends Controller
 {
-
     public function index()
     {
         //
@@ -15,7 +14,7 @@ class RequestCanvassSummaryController extends Controller
 
     public function show(RequestCanvassSummary $requestCanvassSummary)
     {
-       //
+        //
     }
 
     public function store(Request $request)
@@ -27,5 +26,4 @@ class RequestCanvassSummaryController extends Controller
     {
         //
     }
-
 }

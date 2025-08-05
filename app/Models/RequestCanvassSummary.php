@@ -32,5 +32,4 @@ class RequestCanvassSummary extends Model
     {
         return $this->belongsTo(PriceQuotation::class);
     }
-
 }
