@@ -130,7 +130,7 @@ class WarehouseController extends Controller
         $parseDateTo = $date_to ? Carbon::parse($date_to)->endOfDay() : null;
         $warehouse = WarehouseStockTransactions::with(['item', 'uomRelationship', 'transaction'])
             ->where('warehouse_id', $warehouse_id)
-            ->whereBetween('created_at', [$parseDateFrom, $parseDateTo])->get()
+            ->whereBetween('created_at', [$parseDateFrom, $parseDateTo])
             ->where("referenceable_type", $transaction_type)
             ->latest()
             ->get();

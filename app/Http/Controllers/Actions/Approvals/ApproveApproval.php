@@ -50,7 +50,7 @@ class ApproveApproval extends Controller
                 ApprovalModels::RequestBOM->name => RequestBOMApprovedNotification::class,
             ];
             if (isset($notificationMap[$modelType])) {
-                User::find($model->created_by)->notify(new $notificationMap[$modelType]($model));
+                User::find($model->created_by)->notify(new $notificationMap[$modelType]($request->bearerToken(), $model));
             }
         }
         return new JsonResponse(["success" => $result["success"], "message" => $result['message']], $result["status_code"]);

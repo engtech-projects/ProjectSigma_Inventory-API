@@ -13,7 +13,7 @@ trait HasConversionUnit
 
     public function getConvertableUnitsAttribute()
     {
-        return $this->uom->group->uoms;
+        return $this->uom->group?->uoms;
     }
     public function getConvertedQuantity(UOM $toUom)
     {
