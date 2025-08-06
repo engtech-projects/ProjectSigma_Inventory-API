@@ -25,6 +25,9 @@ class WarehouseStockTransactionsObserver
             $warehouseSummary->warehouse_id = $warehouseStockTransactions->warehouse_id;
             $warehouseSummary->item_id = $warehouseStockTransactions->item_id;
             $warehouseSummary->uom_id = $warehouseStockTransactions->uom_id;
+            $warehouseSummary->metadata = [
+                'last_transaction_id' => $warehouseStockTransactions->id
+            ];
         }
         // get the new quantity based on the transaction type
         // and convert it to the summary's UOM if necessary
@@ -38,7 +41,10 @@ class WarehouseStockTransactionsObserver
         } else {
             $warehouseSummary->quantity -= $quantity;
         }
-        $warehouseSummary->metadata->put('last_transaction_id', $warehouseStockTransactions->id);
+        $warehouseSummary->metadata = [
+            ...$warehouseSummary->metadata,
+            'last_transaction_id' => $warehouseStockTransactions->id
+        ];
         $warehouseSummary->updated_at = now();
         $warehouseSummary->save();
     }

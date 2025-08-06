@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Enums\RequestStatuses;
 use App\Enums\RSRemarksEnums;
-use App\Enums\TransactionTypes;
+use App\Http\Services\MrrService;
 use App\Traits\HasApproval;
 use App\Traits\HasReferenceNumber;
 use App\Traits\ModelHelpers;
@@ -122,7 +122,7 @@ class RequestRequisitionSlip extends Model
         return $this->hasManyThrough(
             ItemProfile::class,
             RequestRequisitionSlipItems::class,
-            'request_stock_id',
+            'request_requisition_slip_id',
             'id',
             'id',
             'item_id'
@@ -147,90 +147,18 @@ class RequestRequisitionSlip extends Model
     {
         $this->request_status = RequestStatuses::APPROVED;
         if ($this->remarks == RSRemarksEnums::PETTYCASH->value) {
-            $this->createPettyCashMRR();
+            $mrrService = new MrrService(new TransactionMaterialReceiving());
+            $mrrService->createPettyCashMrrFromRequestRequisitionSlip($this);
         } elseif ($this->remarks == RSRemarksEnums::PURCHASEORDER->value) {
             $this->createProcurementRequest();
         }
         $this->save();
         $this->refresh();
     }
-    // create MRR
-    public function createPettyCashMRR()
-    {
-        $mrr = WarehouseTransaction::create([
-            'reference_no' => '',
-            'warehouse_id' => $this->warehouse_id,
-            'transaction_type' => TransactionTypes::RECEIVING,
-            'transaction_date' => now()->format('Y-m-d H:i:s'),
-            'charging_id' => $this->id,
-            'charging_type' => null,
-            'approvals' => $this->approvals,
-            'metadata' => [
-                'rs_id' => $this->id,
-                'po_id' => null,
-                'supplier_id' => null,
-                'reference' => $this->reference_no,
-                'equipment_no' => $this->equipment_no,
-                'terms_of_payment' => null,
-                'particulars' => null,
-                'serve_status' => 'Unserved',
-                'is_petty_cash' => true,
-            ],
-            'created_by' => auth()->user()->id,
-            'request_status' => RequestStatuses::APPROVED,
-        ]);
-
-        $this->storeItems($mrr);
-
-        return $mrr;
-    }
-
-    private function storeItems($mrr)
-    {
-        foreach ($this->items as $requestItem) {
-            $metadata = [
-                'requested_quantity' => $requestItem->quantity,
-                'specification' => $requestItem->specification,
-                'actual_brand_purchase' => $requestItem->preferred_brand,
-                'unit_price' => null, // Editable field
-                'remarks' => null, // Editable field
-                'status' => null,
-                'ext_price' => null,
-            ];
-
-            WarehouseTransactionItem::create([
-                'item_id' => $requestItem->item_id,
-                'warehouse_transaction_id' => $mrr->id,
-                'parent_id' => null,
-                'metadata' => $metadata,
-                'quantity' => 0,
-                'uom' => $requestItem->unit,
-            ]);
-        }
-    }
     public function createProcurementRequest()
     {
         return $this->requestProcurement()->create([
             'serve_status' => 'unserved'
         ]);
-    }
-
-    private function generateMRRReferenceNumber()
-    {
-        $year = now()->year;
-        $lastMRR = WarehouseTransaction::where('transaction_type', TransactionTypes::RECEIVING)
-            ->whereYear('created_at', $year)
-            ->where('reference_no', 'like', "MRR-{$year}-%")
-            ->orderBy('reference_no', 'desc')
-            ->first();
-
-        if ($lastMRR) {
-            $lastNumber = (int) substr($lastMRR->reference_no, -4);
-            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
-        } else {
-            $newNumber = '0001';
-        }
-
-        return "MRR-{$year}-CENTRAL-{$newNumber}";
     }
 }

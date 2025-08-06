@@ -3,18 +3,21 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Gate;
 
-class RejectWarehouseTransactionItemRequest extends FormRequest
+class TransactionMaterialReceivingItemAcceptAllRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     */
     public function authorize(): bool
     {
         $resource = $this->route('resource');
         if (!$resource) {
             return false;
         }
-        $transaction = $resource->transaction;
+        $transaction = $resource->transactionMaterialReceiving;
         $response = Gate::inspect('isEvaluator', $transaction);
         if ($response->denied()) {
             throw new HttpResponseException(
@@ -26,10 +29,15 @@ class RejectWarehouseTransactionItemRequest extends FormRequest
         return true;
     }
 
-    public function rules()
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
     {
         return [
-            'remarks' => 'required|string|max:500'
+            //
         ];
     }
 }

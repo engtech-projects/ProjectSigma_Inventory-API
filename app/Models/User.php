@@ -90,6 +90,11 @@ class User extends Model implements AuthenticatableContract
         return 'users.' . $this->id;
     }
 
+    /**
+    * ==================================================
+    * MODEL RELATIONSHIPS
+    * ==================================================
+    */
     public function procurementRequests()
     {
         return $this->belongsToMany(RequestProcurement::class, 'request_procurement_canvassers', 'user_id', 'request_procurement_id');
@@ -101,22 +106,12 @@ class User extends Model implements AuthenticatableContract
     }
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    // protected $hidden = [
-    //     'password',
-    //     'remember_token',
-    // ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    // protected $casts = [
-    //     'email_verified_at' => 'datetime',
-    //     'password' => 'hashed',
-    // ];
+    * ==================================================
+    * MODEL ATTRIBUTES
+    * ==================================================
+    */
+    public function getAccessibilityNamesAttribute()
+    {
+        return SetupAccessibilities::whereIn("id", $this->accessibilities)->get()->pluck("accessibilities_name");
+    }
 }

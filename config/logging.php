@@ -71,7 +71,13 @@ return [
             'days' => 14,
             'replace_placeholders' => true,
         ],
-
+        'HrmsService' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/hrms-api/laravel.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 14,
+            'replace_placeholders' => true,
+        ],
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

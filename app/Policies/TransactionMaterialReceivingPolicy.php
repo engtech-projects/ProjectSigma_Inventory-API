@@ -2,23 +2,19 @@
 
 namespace App\Policies;
 
+use App\Models\TransactionMaterialReceiving;
 use App\Models\User;
-use App\Models\WarehouseTransaction;
 use Illuminate\Auth\Access\Response;
 
-class WarehouseTransactionPolicy
+class TransactionMaterialReceivingPolicy
 {
-    public function isEvaluator(User $user, WarehouseTransaction $transaction): Response
+    public function isEvaluator(User $user, TransactionMaterialReceiving $transaction): Response
     {
-        $metadata = $transaction->metadata ?? [];
-
-        if (isset($metadata['evaluated_by']) && $metadata['evaluated_by'] !== $user->id) {
+        if ($transaction->evaluated_by_id && $transaction->evaluated_by_id !== $user->id) {
             return Response::deny('You are not authorized to evaluate this transaction. Another evaluator has already started processing this transaction.');
         }
-
         return Response::allow();
     }
-
     /**
      * Determine whether the user can view any models.
      */
@@ -30,7 +26,7 @@ class WarehouseTransactionPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, WarehouseTransaction $warehouseTransaction): bool
+    public function view(User $user, TransactionMaterialReceiving $transactionMaterialReceiving): bool
     {
         //
     }
@@ -46,7 +42,7 @@ class WarehouseTransactionPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, WarehouseTransaction $warehouseTransaction): bool
+    public function update(User $user, TransactionMaterialReceiving $transactionMaterialReceiving): bool
     {
         //
     }
@@ -54,7 +50,7 @@ class WarehouseTransactionPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, WarehouseTransaction $warehouseTransaction): bool
+    public function delete(User $user, TransactionMaterialReceiving $transactionMaterialReceiving): bool
     {
         //
     }
@@ -62,7 +58,7 @@ class WarehouseTransactionPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, WarehouseTransaction $warehouseTransaction): bool
+    public function restore(User $user, TransactionMaterialReceiving $transactionMaterialReceiving): bool
     {
         //
     }
@@ -70,7 +66,7 @@ class WarehouseTransactionPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, WarehouseTransaction $warehouseTransaction): bool
+    public function forceDelete(User $user, TransactionMaterialReceiving $transactionMaterialReceiving): bool
     {
         //
     }

@@ -19,9 +19,6 @@ class MaterialReceivingListingResource extends JsonResource
             'reference_no' => $this->reference_no,
             'warehouse' => $this->warehouse_name,
             'transaction_date' => $this->transaction_date,
-            'transaction_type' => $this->transaction_type,
-            "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
-            "next_approval" => $this->getNextPendingApproval(),
         ];
     }
 }

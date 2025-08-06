@@ -17,6 +17,7 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
     'artisan' => (bool) env('ENABLE_ARTISAN_ROUTES', false),
+    'force_https' => (bool) env('FORCE_HTTPS', false),
     'pagination' => [
         'per_page' => (int) env('PAGINATION_PER_PAGE', 15),
     ],

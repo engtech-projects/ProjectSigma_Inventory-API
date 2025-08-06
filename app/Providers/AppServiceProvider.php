@@ -24,7 +24,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        URL::forceScheme('https');
+        if (config('app.force_https', false)) {
+            URL::forceScheme('https');
+        }
         Relation::morphMap([
             OwnerType::PROJECT->value => SetupProjects::class,
             OwnerType::DEPARTMENT->value => SetupDepartments::class,
