@@ -24,12 +24,12 @@ return new class () extends Migration {
             $table->string('specification')->nullable();
             $table->string('actual_brand_purchase')->nullable();
             $table->decimal('requested_quantity', 10, 2);
-            $table->decimal('quantity', 10, 2);
+            $table->decimal('quantity', 10, 2)->nullable();
             $table->foreignId('uom_id')
                 ->constrained('setup_uom', 'id', 'tmri_uomid')
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
-            $table->decimal('unit_price', 10, 2);
+            $table->decimal('unit_price', 10, 2)->nullable();
             $table->enum('serve_status', ServeStatus::toArray());
             $table->text('remarks')->nullable();
             $table->json('metadata')->nullable();

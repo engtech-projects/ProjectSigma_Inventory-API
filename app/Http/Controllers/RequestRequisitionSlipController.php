@@ -69,7 +69,7 @@ class RequestRequisitionSlipController extends Controller
                     $requisitionSlip = RequestRequisitionSlip::create($attributes);
                     foreach ($attributes['items'] as $item) {
                         RequestRequisitionSlipItems::create([
-                            'request_stock_id' => $requisitionSlip->id,
+                            'request_requisition_slip_id' => $requisitionSlip->id,
                             'quantity' => $item['quantity'],
                             'unit' => $item['unit'],
                             'item_id' => $item['item_id'],

@@ -6,6 +6,7 @@ use App\Enums\ServeStatus;
 use App\Models\RequestRequisitionSlip;
 use App\Models\TransactionMaterialReceiving;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class MrrService
 {
@@ -17,6 +18,7 @@ class MrrService
     public function createPettyCashMrrFromRequestRequisitionSlip(RequestRequisitionSlip $requestRequisitionSlip)
     {
         DB::transaction(function () use ($requestRequisitionSlip) {
+            Log::info($requestRequisitionSlip);
             $this->model->warehouse_id = $requestRequisitionSlip->warehouse_id;
             $this->model->reference_no = $this->generateNewMrrReferenceNumber();
             $this->model->supplier_id = null;
@@ -29,8 +31,10 @@ class MrrService
                 'is_petty_cash' => true,
                 'rs_id' => $requestRequisitionSlip->id
             ];
+            $this->model->save();
             $mappedItems = $requestRequisitionSlip->items->map(function ($item) use ($requestRequisitionSlip) {
                 return [
+                    'transaction_material_receiving_id' => $this->model->id,
                     'item_id' => $item->item_id,
                     'specification' => $item->specification,
                     'actual_brand_purchased' => null,
@@ -47,7 +51,6 @@ class MrrService
                 ];
             });
             $this->model->items()->createMany($mappedItems->toArray());
-            $this->model->save();
         });
     }
     private function generateNewMrrReferenceNumber()

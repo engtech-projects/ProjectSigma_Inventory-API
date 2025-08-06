@@ -122,7 +122,7 @@ class RequestRequisitionSlip extends Model
         return $this->hasManyThrough(
             ItemProfile::class,
             RequestRequisitionSlipItems::class,
-            'request_stock_id',
+            'request_requisition_slip_id',
             'id',
             'id',
             'item_id'

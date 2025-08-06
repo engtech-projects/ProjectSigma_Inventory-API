@@ -142,7 +142,7 @@ class WarehouseController extends Controller
             ->where('warehouse_id', $warehouse_id)
             ->whereBetween('created_at', [$parseDateFrom, $parseDateTo])->get()
             ->where("referenceable_type", $transaction_type)
-            ->orderBy('created_at', 'desc')
+            ->latest()
             ->get();
         $returnData = WarehouseLogsResource::collection($warehouse);
         return new JsonResponse([
