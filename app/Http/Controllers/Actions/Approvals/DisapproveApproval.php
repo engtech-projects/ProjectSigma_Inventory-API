@@ -39,7 +39,7 @@ class DisapproveApproval extends Controller
             ApprovalModels::RequestBOM->name => RequestBOMDeniedNotification::class,
         ];
         if (isset($notificationMap[$modelType])) {
-            User::find($model->created_by)->notify(new $notificationMap[$modelType]($model));
+            User::find($model->created_by)->notify(new $notificationMap[$modelType]($request->bearerToken(), $model));
         }
         return new JsonResponse(["success" => $result["success"], "message" => $result['message']], JsonResponse::HTTP_OK);
     }
