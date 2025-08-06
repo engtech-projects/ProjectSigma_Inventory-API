@@ -49,7 +49,7 @@ class RequestRequisitionSlipItems extends Model
     }
     public function requisitionSlip()
     {
-        return $this->belongsTo(RequestRequisitionSlip::class);
+        return $this->belongsTo(RequestRequisitionSlip::class, 'request_requisition_slip_id', 'id');
     }
     public function itemProfile()
     {
