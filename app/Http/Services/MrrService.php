@@ -56,8 +56,7 @@ class MrrService
     private function generateNewMrrReferenceNumber()
     {
         $year = now()->year;
-        $lastMRR = TransactionMaterialReceiving::whereYear('created_at', $year)
-            ->orderByRaw('MAX(SPLIT(reference_no, \'-\')[2])')
+        $lastMRR = TransactionMaterialReceiving::orderByRaw('SUBSTRING_INDEX(reference_no, \'-\', -1) DESC')
             ->first();
         $lastRefNo = $lastMRR ? collect(explode('-', $lastMRR->reference_no))->last() : 0;
         $newNumber = str_pad($lastRefNo + 1, 6, '0', STR_PAD_LEFT);
