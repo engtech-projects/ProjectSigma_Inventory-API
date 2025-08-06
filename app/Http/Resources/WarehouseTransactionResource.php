@@ -19,7 +19,6 @@ class WarehouseTransactionResource extends JsonResource
             'reference_no' => $this->reference_no,
             'reference' => $this->rs_reference_no,
             'transaction_date' => $this->transaction_date,
-            'transaction_type' => $this->transaction_type,
             'metadata' => $this->metadata,
             'project_code' => $this->project_code,
             'created_by' => $this->created_by,

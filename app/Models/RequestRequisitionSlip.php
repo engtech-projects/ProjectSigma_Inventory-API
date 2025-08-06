@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\RequestStatuses;
 use App\Enums\RSRemarksEnums;
-use App\Enums\TransactionTypes;
 use App\Http\Services\MrrService;
 use App\Traits\HasApproval;
 use App\Traits\HasReferenceNumber;

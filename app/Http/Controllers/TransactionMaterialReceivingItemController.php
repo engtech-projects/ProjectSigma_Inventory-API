@@ -8,7 +8,6 @@ use App\Http\Requests\TransactionMaterialReceivingItemAcceptSomeRequest;
 use App\Http\Requests\TransactionMaterialReceivingItemRejectRequest;
 use App\Models\TransactionMaterialReceivingItem;
 use App\Http\Requests\UpdateTransactionMaterialReceivingItemRequest;
-use App\Models\TransactionMaterialReceiving;
 
 class TransactionMaterialReceivingItemController extends Controller
 {

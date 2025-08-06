@@ -18,14 +18,16 @@ return new class () extends Migration {
                 ->onUpdate('cascade');
             $table->string('reference_no')->unique();
             $table->foreignId('supplier_id')
+                ->nullable()
                 ->constrained('request_supplier')
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
-            $table->string('reference');
-            $table->string('terms_of_payment');
-            $table->string('particulars');
+            $table->string('reference')->nullable();
+            $table->string('terms_of_payment')->nullable();
+            $table->string('particulars')->nullable();
             $table->date('transaction_date');
             $table->foreignId('evaluated_by_id')
+                ->nullable()
                 ->constrained('users')
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
