@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ServeStatus;
+use App\Enums\StockTransactionTypes;
 use App\Http\Requests\TransactionMaterialReceivingItemAcceptAllRequest;
 use App\Http\Requests\TransactionMaterialReceivingItemAcceptSomeRequest;
 use App\Http\Requests\TransactionMaterialReceivingItemRejectRequest;
 use App\Models\TransactionMaterialReceivingItem;
 use App\Http\Requests\UpdateTransactionMaterialReceivingItemRequest;
+use Illuminate\Support\Facades\DB;
 
 class TransactionMaterialReceivingItemController extends Controller
 {
@@ -29,6 +31,7 @@ class TransactionMaterialReceivingItemController extends Controller
     }
     public function acceptAll(TransactionMaterialReceivingItem $resource, TransactionMaterialReceivingItemAcceptAllRequest $request)
     {
+        $request->validated();
         if($resource->is_processed) {
             return response()->json([
                 'message' => 'Item has already been processed.',
@@ -43,10 +46,21 @@ class TransactionMaterialReceivingItemController extends Controller
                 'data' => $resource
             ]);
         }
-        $resource->quantity = $resource->requested_quantity;
-        $resource->serve_status = ServeStatus::SERVED;
-        $resource->save();
-        // CREATE A WAREHOUSESTOCKTRANSACTION
+        DB::transaction(function () use ($resource) {
+            $resource->quantity = $resource->requested_quantity;
+            $resource->serve_status = ServeStatus::SERVED;
+            $resource->save();
+            $resource->warehouseStockTransactions()->create([
+                'warehouse_id' => $resource->transactionMaterialReceiving->warehouse_id,
+                'type' => StockTransactionTypes::STOCKIN,
+                'item_id' => $resource->item_id,
+                'quantity' => $resource->quantity,
+                'uom_id' => $resource->uom_id,
+                'metadata' => [
+                    'is_petty_cash' => $resource->transactionMaterialReceiving->isPettyCash
+                ]
+            ]);
+        });
     }
     public function acceptSome(TransactionMaterialReceivingItem $resource, TransactionMaterialReceivingItemAcceptSomeRequest $request)
     {
@@ -65,11 +79,22 @@ class TransactionMaterialReceivingItemController extends Controller
                 'data' => $resource
             ]);
         }
-        $resource->quantity = $validatedData['quantity'];
-        $resource->remarks = $validatedData['remarks'];
-        $resource->serve_status = ServeStatus::SERVED;
-        $resource->save();
-        // CREATE A WAREHOUSESTOCKTRANSACTION
+        DB::transaction(function () use ($resource, $validatedData) {
+            $resource->quantity = $validatedData['quantity'];
+            $resource->remarks = $validatedData['remarks'];
+            $resource->serve_status = ServeStatus::SERVED;
+            $resource->save();
+            $resource->warehouseStockTransactions()->create([
+                'warehouse_id' => $resource->transactionMaterialReceiving->warehouse_id,
+                'type' => StockTransactionTypes::STOCKIN,
+                'item_id' => $resource->item_id,
+                'quantity' => $resource->quantity,
+                'uom_id' => $resource->uom_id,
+                'metadata' => [
+                    'is_petty_cash' => $resource->transactionMaterialReceiving->isPettyCash
+                ]
+            ]);
+        });
         // TO BE UPDATED LATER FOR TRANSFER TO RETURN ITEMS FOR THE NOT ACCEPTED ITEMS
     }
     public function reject(TransactionMaterialReceivingItem $resource, TransactionMaterialReceivingItemRejectRequest $request)

@@ -49,6 +49,10 @@ class TransactionMaterialReceiving extends Model
     {
         return $this->hasMany(TransactionMaterialReceivingItem::class);
     }
+    public function warehouseStockTransactions()
+    {
+        return $this->morphMany(WarehouseStockTransactions::class, 'referenceable');
+    }
     /**
      * ==================================================
      * MODEL ATTRIBUTES
