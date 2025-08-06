@@ -6,7 +6,6 @@ use App\Models\TransactionMaterialReceiving;
 use App\Http\Requests\UpdateTransactionMaterialReceivingRequest;
 use App\Http\Resources\MaterialReceivingDetailedResource;
 use App\Http\Resources\MaterialReceivingListingResource;
-use App\Http\Resources\WarehouseTransactionResource;
 use App\Models\SetupWarehouses;
 
 class TransactionMaterialReceivingController extends Controller
