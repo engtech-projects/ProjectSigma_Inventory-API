@@ -22,6 +22,7 @@ class RequestCanvassSummary extends Model
         'created_by',
         'metadata',
         'approvals',
+        'request_status',
     ];
     protected $casts = [
         'metadata' => 'array',
