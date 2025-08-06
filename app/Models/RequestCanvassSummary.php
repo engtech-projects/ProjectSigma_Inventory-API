@@ -11,6 +11,7 @@ class RequestCanvassSummary extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $table = "request_canvass_summary";
     protected $fillable = [
         'price_quotation_id',
         'cs_number',
@@ -18,10 +19,9 @@ class RequestCanvassSummary extends Model
         'availability',
         'delivery_terms',
         'remarks',
+        'created_by',
         'metadata',
         'approvals',
-        'request_status',
-        'created_by',
     ];
     protected $casts = [
         'metadata' => 'array',
@@ -36,5 +36,10 @@ class RequestCanvassSummary extends Model
     public function priceQuotation()
     {
         return $this->belongsTo(PriceQuotation::class);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(RequestCanvassSummaryItems::class);
     }
 }

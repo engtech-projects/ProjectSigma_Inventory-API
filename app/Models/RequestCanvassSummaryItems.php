@@ -13,7 +13,7 @@ class RequestCanvassSummaryItems extends Model
 
     protected $fillable = [
         'request_canvass_summary_id',
-        'price_quotation_item_id',
+        'item_id',
         'metadata',
         'unit_price',
     ];
@@ -35,5 +35,26 @@ class RequestCanvassSummaryItems extends Model
     public function requestCanvassSummary()
     {
         return $this->belongsTo(RequestCanvassSummary::class);
+    }
+
+    public function itemProfile()
+    {
+        return $this->belongsTo(ItemProfile::class, 'item_id');
+    }
+
+    /**
+     * ==================================================
+     * MODEL ATTRIBUTES
+     * ==================================================
+     */
+
+    public function getItemNameAttribute()
+    {
+        return $this->itemProfile?->item_name;
+    }
+
+    public function getItemCodeAttribute()
+    {
+        return $this->itemProfile?->item_code;
     }
 }

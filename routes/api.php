@@ -24,6 +24,7 @@ use App\Http\Controllers\WarehouseTransactionItemController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\PriceQuotationController;
 use App\Http\Controllers\PriceQuotationItemController;
+use App\Http\Controllers\RequestCanvassSummaryController;
 use App\Http\Controllers\SetupListsController;
 use App\Http\Controllers\RequestProcurementCanvasserController;
 use App\Http\Controllers\RequestProcurementController;
@@ -204,6 +205,9 @@ Route::middleware('auth:api')->group(function () {
         Route::get('price-quotation/{priceQuotation}', [PriceQuotationController::class, 'show']);
         Route::resource('price-quotation-item', PriceQuotationItemController::class)
             ->only(['update']);
+        Route::prefix('canvass-summary')->group(function () {
+            Route::resource('resource', RequestCanvassSummaryController::class)->names("requestCanvassSummary");
+        });
     });
 
     if (config()->get('app.artisan') == 'true') {
