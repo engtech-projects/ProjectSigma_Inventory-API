@@ -57,17 +57,10 @@ class MrrService
     {
         $year = now()->year;
         $lastMRR = TransactionMaterialReceiving::whereYear('created_at', $year)
-            ->where('reference_no', 'like', "MRR-{$year}-%")
-            ->orderBy('reference_no', 'desc')
+            ->orderByRaw('MAX(SPLIT(reference_no, \'-\')[2])')
             ->first();
-        $lastNumber = 0;
-        if ($lastMRR) {
-            $lastNumber = (int) substr($lastMRR->reference_no, -4);
-            $newNumber = str_pad($lastNumber + 1, 7, '0', STR_PAD_LEFT);
-        } else {
-            $newNumber = '000001';
-        }
-
+        $lastRefNo = $lastMRR ? collect(explode('-', $lastMRR->reference_no))->last() : 0;
+        $newNumber = str_pad($lastRefNo + 1, 6, '0', STR_PAD_LEFT);
         return "MRR-{$year}-{$newNumber}";
     }
 }
