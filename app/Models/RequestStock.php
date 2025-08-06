@@ -193,7 +193,7 @@ class RequestStock extends Model
     {
         $year = now()->year;
         $lastMRR = WarehouseTransaction::where('transaction_type', TransactionTypes::RECEIVING)
-            ->orderByRaw('MAX(SPLIT(reference_no, \'-\')[2])')
+            ->orderByRaw('SUBSTRING_INDEX(reference_no, \'-\', -1) DESC')
             ->first();
         $lastRefNo = $lastMRR ? collect(explode('-', $lastMRR->reference_no))->last() : 0;
         $newNumber = str_pad($lastRefNo + 1, 6, '0', STR_PAD_LEFT);
