@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Gate;
 
 class TransactionMaterialReceivingItemAcceptAllRequest extends FormRequest
 {
@@ -15,7 +17,7 @@ class TransactionMaterialReceivingItemAcceptAllRequest extends FormRequest
         if (!$resource) {
             return false;
         }
-        $transaction = $resource->transaction;
+        $transaction = $resource->transactionMaterialReceiving;
         $response = Gate::inspect('isEvaluator', $transaction);
         if ($response->denied()) {
             throw new HttpResponseException(

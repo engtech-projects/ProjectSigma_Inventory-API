@@ -22,7 +22,7 @@ class UpdateTransactionMaterialReceivingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'supplier_id' => ['nullable', 'exists:suppliers,id', 'integer'],
+            'supplier_id' => ['nullable', 'exists:request_supplier,id', 'integer'],
             'terms_of_payment' => ['nullable', 'string', 'max:255'],
             'particulars' => ['nullable', 'string', 'max:1000'],
             'reference' => ['nullable', 'string', 'max:255'],

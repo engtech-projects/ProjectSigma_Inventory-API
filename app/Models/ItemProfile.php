@@ -109,7 +109,7 @@ class ItemProfile extends Model
     }
     public function getConvertableUnitsAttribute()
     {
-        return $this->uomName->group->uoms;
+        return $this->uomName->group?->uoms;
     }
     /**
      * ==================================================

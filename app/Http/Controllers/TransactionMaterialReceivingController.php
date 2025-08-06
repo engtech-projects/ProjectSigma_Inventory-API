@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TransactionMaterialReceiving;
 use App\Http\Requests\UpdateTransactionMaterialReceivingRequest;
+use App\Http\Resources\MaterialReceivingDetailedResource;
 use App\Http\Resources\MaterialReceivingListingResource;
 use App\Http\Resources\WarehouseTransactionResource;
 use App\Models\SetupWarehouses;
@@ -32,9 +33,8 @@ class TransactionMaterialReceivingController extends Controller
         return response()->json([
             "message" => "Successfully fetched.",
             "success" => true,
-            "data" => new WarehouseTransactionResource($resource)
+            "data" => new MaterialReceivingDetailedResource($resource)
         ]);
-        // TODO: change resource to MrrDetailed Resource
     }
 
     /**
@@ -65,6 +65,5 @@ class TransactionMaterialReceivingController extends Controller
             'message' => 'Successfully fetched.',
             'success' => true,
         ]);
-        // TODO: change resource to MrrListingResource
     }
 }

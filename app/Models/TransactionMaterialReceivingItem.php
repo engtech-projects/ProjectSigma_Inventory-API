@@ -60,4 +60,12 @@ class TransactionMaterialReceivingItem extends Model
     {
         return $this->serve_status == ServeStatus::SERVED->value;
     }
+    public function getItemCodeAttribute()
+    {
+        return $this->item->item_code;
+    }
+    public function getItemDescriptionAttribute()
+    {
+        return $this->item->item_description;
+    }
 }

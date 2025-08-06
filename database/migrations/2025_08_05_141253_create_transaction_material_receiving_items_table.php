@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ReceivingAcceptanceStatus;
 use App\Enums\ServeStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -30,6 +31,7 @@ return new class () extends Migration {
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
             $table->decimal('unit_price', 10, 2)->nullable();
+            $table->enum("acceptance_status", ReceivingAcceptanceStatus::toArray())->default(ReceivingAcceptanceStatus::PENDING);
             $table->enum('serve_status', ServeStatus::toArray());
             $table->text('remarks')->nullable();
             $table->json('metadata')->nullable();

@@ -7,7 +7,6 @@ use App\Http\Requests\GetLogsRequest;
 use App\Http\Requests\StoreWarehouseRequest;
 use App\Http\Requests\UpdateWarehouseRequest;
 use App\Http\Resources\WarehouseLogsResource;
-use App\Http\Resources\WarehouseMaterialsReceivingResource;
 use App\Http\Resources\WarehouseResource;
 use App\Http\Resources\WarehouseStocksResource;
 use App\Http\Traits\CheckAccessibility;
@@ -79,15 +78,6 @@ class WarehouseController extends Controller
             "message" => "Unauthorized Access.",
             "success" => false
         ], 403);
-    }
-
-    public function withMaterialsReceiving(SetupWarehouses $warehouse_id)
-    {
-        return response()->json([
-            "message" => "Materials Receiving under " . $warehouse_id->name . " Warehouse successfully fetched.",
-            "success" => true,
-            "warehouse" => new WarehouseMaterialsReceivingResource($warehouse_id)
-        ]);
     }
 
     /**
