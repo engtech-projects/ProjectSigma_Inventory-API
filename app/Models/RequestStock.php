@@ -172,7 +172,7 @@ class RequestStock extends Model
                 'rs_id' => $this->id,
                 'po_id' => null,
                 'supplier_id' => null,
-                'reference' => $this->reference_no,
+                'reference' => '',
                 'equipment_no' => $this->equipment_no,
                 'terms_of_payment' => null,
                 'particulars' => null,
@@ -193,19 +193,12 @@ class RequestStock extends Model
     {
         $year = now()->year;
         $lastMRR = WarehouseTransaction::where('transaction_type', TransactionTypes::RECEIVING)
-            ->whereYear('created_at', $year)
-            ->where('reference_no', 'like', "MRR-{$year}-%")
-            ->orderBy('reference_no', 'desc')
+            ->orderByRaw('MAX(SPLIT(reference_no, \'-\')[2])')
             ->first();
+        $lastRefNo = $lastMRR ? collect(explode('-', $lastMRR->reference_no))->last() : 0;
+        $newNumber = str_pad($lastRefNo + 1, 6, '0', STR_PAD_LEFT);
 
-        if ($lastMRR) {
-            $lastNumber = (int) substr($lastMRR->reference_no, -4);
-            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
-        } else {
-            $newNumber = '0001';
-        }
-
-        return "MRR-{$year}-CENTRAL-{$newNumber}";
+        return "MRR-{$year}-{$newNumber}";
     }
 
     private function storeItems($mrr)
