@@ -21,6 +21,8 @@ class RequestRequisitionSlip extends Model
     use HasApproval;
     use HasReferenceNumber;
 
+    protected $table = "request_requisition_slips";
+
     protected $fillable = [
         'reference_no',
         'request_for',

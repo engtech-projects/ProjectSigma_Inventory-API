@@ -9,7 +9,7 @@ class RequestRequisitionSlipItems extends Model
 {
     use HasFactory;
 
-    protected $table = 'request_stocks_items';
+    protected $table = 'request_requisition_slip_items';
 
     protected $fillable = [
         'request_stock_id',
