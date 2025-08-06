@@ -16,4 +16,14 @@ class SetupProjects extends Model
         'project_code',
         'status',
     ];
+
+    /**
+     *
+     * MODEL RELATIONSHIPS
+     *
+     */
+    public function warehouse()
+    {
+        return $this->morphOne(SetupWarehouses::class, 'owner');
+    }
 }

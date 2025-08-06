@@ -55,9 +55,10 @@ class TransactionMaterialReceivingController extends Controller
         ]);
     }
 
-    public function transactionsByWarehouse(SetupWarehouses $warehouse)
+    public function materialReceivingByWarehouse(SetupWarehouses $warehouse)
     {
-        $main = TransactionMaterialReceiving::where('warehouse_id', $warehouse->id)->latest()
+        $main = TransactionMaterialReceiving::where('warehouse_id', $warehouse->id)
+        ->latest()
         ->paginate(config('app.pagination.per_page', 10));
         return MaterialReceivingListingResource::collection($main)
         ->additional([

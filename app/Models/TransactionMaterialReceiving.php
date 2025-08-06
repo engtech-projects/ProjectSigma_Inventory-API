@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\ReceivingAcceptanceStatus;
+use App\Enums\ServeStatus;
 use App\Traits\ModelHelpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -65,5 +67,9 @@ class TransactionMaterialReceiving extends Model
     public function getWarehouseNameAttribute()
     {
         return $this->warehouse->name;
+    }
+    public function getServeStatusAttribute()
+    {
+        return $this->items->where('acceptance_status', '=', ReceivingAcceptanceStatus::PENDING->value)->isEmpty() ? ServeStatus::SERVED->value : ServeStatus::UNSERVED->value;
     }
 }

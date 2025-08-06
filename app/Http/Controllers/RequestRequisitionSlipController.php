@@ -11,6 +11,7 @@ use App\Http\Resources\RequisitionSlipListingResource;
 use App\Models\RequestRequisitionSlipItems;
 use App\Models\SetupDepartments;
 use App\Models\SetupProjects;
+use App\Models\SetupWarehouses;
 use App\Notifications\RequestStockForApprovalNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -43,96 +44,61 @@ class RequestRequisitionSlipController extends Controller
             unset($attributes['month']);
         }
         if ($attributes["section_type"] == AssignTypes::DEPARTMENT->value) {
-            $attributes["section_type"] = AssignTypes::DEPARTMENT->value;
+            $attributes["warehouse_id"] = 1; // DEFAULT WAREHOUSE FOR ALL DEPARTMENTS
         } elseif ($attributes["section_type"] == AssignTypes::PROJECT->value) {
-            $attributes["section_type"] = AssignTypes::PROJECT->value;
+            $attributes["warehouse_id"] = SetupProjects::find($attributes["section_id"])->warehouse->id;
         }
         $attributes['request_status'] = RequestStatuses::PENDING;
         $attributes['created_by'] = auth()->user()->id;
-        // Generate reference number with retry logic
-        if ($attributes["section_type"] == AssignTypes::DEPARTMENT->value) {
-            $this->generateDepartmentReferenceNumber($attributes, $sectionId);
-        } else {
-            $this->generateProjectReferenceNumber($attributes, $sectionId);
-        }
-        // Execute transaction with retry logic
-        $maxRetries = 5;
-        $attempt = 0;
-        do {
-            try {
-                return DB::transaction(function () use ($attributes, $request) {
-                    $duplicatedAttr = RequestRequisitionSlip::where('reference_no', $attributes['reference_no'])
-                        ->first();
-                    if ($duplicatedAttr) {
-                        throw new \Exception('The reference number has already been taken.');
-                    }
-                    $requisitionSlip = RequestRequisitionSlip::create($attributes);
-                    foreach ($attributes['items'] as $item) {
-                        RequestRequisitionSlipItems::create([
-                            'request_requisition_slip_id' => $requisitionSlip->id,
-                            'quantity' => $item['quantity'],
-                            'unit' => $item['unit'],
-                            'item_id' => $item['item_id'],
-                            'specification' => $item['specification'],
-                            'preferred_brand' => $item['preferred_brand'],
-                            'reason' => $item['reason'],
-                        ]);
-                    }
-                    if ($requisitionSlip->getNextPendingApproval()) {
-                        $requisitionSlip->notify(new RequestStockForApprovalNotification($request->bearerToken(), $requisitionSlip));
-                    }
-                    return new JsonResponse([
-                        'success' => true,
-                        'message' => 'Requisition Slip Successfully Submitted.',
-                    ], JsonResponse::HTTP_OK);
-                });
-            } catch (\Illuminate\Database\QueryException $e) {
-                if ($e->errorInfo[1] == 1062) { // Duplicate entry error
-                    $attempt++;
-                    if ($attempt >= $maxRetries) {
-                        return new JsonResponse([
-                            'success' => false,
-                            'message' => 'Unable to generate unique reference number after ' . $maxRetries . ' attempts',
-                        ], JsonResponse::HTTP_CONFLICT);
-                    }
-                    // Regenerate reference number for department type
-                    if ($attributes["section_type"] == AssignTypes::DEPARTMENT->value) {
-                        $this->generateDepartmentReferenceNumber($attributes, $sectionId);
-                    } elseif ($attributes["section_type"] == AssignTypes::PROJECT->value) {
-                        $this->generateProjectReferenceNumber($attributes, $sectionId);
-                    }
-                    // Short delay before retry
-                    usleep(100000); // 100ms
-                } else {
-                    throw $e; // Re-throw if it's not a duplicate key error
-                }
-            } catch (\Exception $e) {
-                return new JsonResponse([
-                    'success' => false,
-                    'message' => $e->getMessage(),
-                ], JsonResponse::HTTP_CONFLICT);
+        $mappedItems = collect($attributes['items'])->map(function ($item) {
+            return [
+                'quantity' => $item['quantity'],
+                'unit' => $item['unit'],
+                'item_id' => $item['item_id'],
+                'specification' => $item['specification'],
+                'preferred_brand' => $item['preferred_brand'],
+                'reason' => $item['reason'],
+            ];
+        });
+        unset($attributes['items']);
+        $requisitionSlip = new RequestRequisitionSlip();
+        DB::transaction(function () use (&$requisitionSlip, $mappedItems, $attributes) {
+            $requisitionSlip->fill($attributes);
+            if ($requisitionSlip->section_type == AssignTypes::DEPARTMENT->value) {
+                $requisitionSlip->reference_no = $this->generateDepartmentReferenceNumber($requisitionSlip->section_id);
+            } else {
+                $requisitionSlip->reference_no = $this->generateProjectReferenceNumber($requisitionSlip->section_id);
             }
-        } while ($attempt < $maxRetries);
+            $requisitionSlip->save();
+            $requisitionSlip->items()->createMany($mappedItems->toArray());
+        });
+        if ($requisitionSlip->getNextPendingApproval()) {
+            $requisitionSlip->notify(new RequestStockForApprovalNotification($request->bearerToken(), $requisitionSlip));
+        }
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Requisition Slip Successfully Submitted.',
+        ], JsonResponse::HTTP_OK);
     }
 
-    private function generateDepartmentReferenceNumber(array &$attributes, int $sectionId): void
+    private function generateDepartmentReferenceNumber($departmentId)
     {
-        $departmentCode = strtoupper(implode('-', array_map('ucwords', explode(' ', SetupDepartments::findOrFail($sectionId)->department_name))));
-
+        $departmentCode = SetupDepartments::findOrFail($departmentId)->code;
         $baseRef = "RS{$departmentCode}";
-        $increment = RequestRequisitionSlip::where('reference_no', 'regexp', "^{$baseRef}-[0-9]+$")->count() + 1;
-        $attributes['reference_no'] = $baseRef . '-' . str_pad($increment, 7, '0', STR_PAD_LEFT);
+        $latestRs = RequestRequisitionSlip::orderByRaw('SUBSTRING_INDEX(reference_no, \'-\', -1) DESC')
+            ->first();
+        $lastRefNo = $latestRs ? collect(explode('-', $latestRs->reference_no))->last() : 0;
+        return $baseRef . '-' . str_pad($lastRefNo + 1, 7, '0', STR_PAD_LEFT);
     }
 
-    private function generateProjectReferenceNumber(array &$attributes, int $sectionId): void
+    private function generateProjectReferenceNumber($projectId)
     {
-        $projectCode = SetupProjects::findOrFail($sectionId)->project_code;
-        $latest    = RequestRequisitionSlip::where('reference_no', 'regexp', "^RS{$projectCode}-[0-9]+$")
-            ->orderBy('reference_no', 'desc')
-            ->lockForUpdate()
-            ->value('reference_no');
-        $next      = $latest ? ((int)substr($latest, strlen("RS{$projectCode}-")) + 1) : 1;
-        $attributes['reference_no'] = "RS{$projectCode}-" . str_pad($next, 7, '0', STR_PAD_LEFT);
+        $projectCode = SetupProjects::findOrFail($projectId)->project_code;
+        $baseRef = "RS{$projectCode}";
+        $latestRs = RequestRequisitionSlip::orderByRaw('SUBSTRING_INDEX(reference_no, \'-\', -1) DESC')
+            ->first();
+        $lastRefNo = $latestRs ? collect(explode('-', $latestRs->reference_no))->last() : 0;
+        return $baseRef . '-' . str_pad($lastRefNo + 1, 7, '0', STR_PAD_LEFT);
     }
 
     /**

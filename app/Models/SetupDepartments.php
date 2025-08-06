@@ -15,6 +15,6 @@ class SetupDepartments extends Model
 
     protected $fillable = [
         'code',
-        'name',
+        'department_name',
     ];
 }

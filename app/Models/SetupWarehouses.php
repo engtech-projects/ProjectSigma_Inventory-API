@@ -61,6 +61,7 @@ class SetupWarehouses extends Model
     {
         return $this->hasMany(WarehouseStocksSummary::class, 'warehouse_id');
     }
+
     /**
     * ==================================================
     * LOCAL SCOPES

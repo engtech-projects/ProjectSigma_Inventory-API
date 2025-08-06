@@ -33,22 +33,20 @@ class StoreRequestRequisitionSlipRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'request_for' => 'required|string|max:255',
-            'warehouse_id' => 'required|numeric|exists:setup_warehouses,id',
-            'section_id' => 'required|integer',
             'section_type' => [
                 'nullable',
                 'string',
                 new Enum(AssignTypes::class),
             ],
+            'section_id' => 'required|integer',
             'office_project_address' => 'required|string|max:255',
+            'request_for' => 'required|string|max:255',
             'date_prepared' => 'required|date',
             'date_needed' => 'required|date',
             'equipment_no' => [
                 'string',
                 'max:255',
             ],
-            'remarks' => ['nullable', 'string', new Enum(RSRemarksEnums::class)],
             // Updated type_of_request validation
             'type_of_request' => [
                 'required',
@@ -92,6 +90,7 @@ class StoreRequestRequisitionSlipRequest extends FormRequest
                 // Remove this validation since it's handled in frontend
                 // 'required_if:type_of_request,Consolidated Request for the month of'
             ],
+            'remarks' => ['nullable', 'string', new Enum(RSRemarksEnums::class)],
             'is_approved' => 'boolean',
             'contact_no' => 'nullable|integer',
             'current_smr' => 'nullable|string|max:255',
@@ -116,8 +115,6 @@ class StoreRequestRequisitionSlipRequest extends FormRequest
             'items.required' => 'At least one item must be specified.',
             'items.*.item_id.exists' => 'The selected item does not exist.',
             'items.*.quantity.min' => 'The quantity must be at least 1.',
-            'reference_no.unique' => 'The reference number has already been taken.',
-            'equipment_no.unique' => 'The equipment number has already been taken.',
             'month.required_if' => 'The month field is required when type of request is "Consolidated Request for the month of".',
         ];
     }

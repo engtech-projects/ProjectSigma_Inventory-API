@@ -97,7 +97,7 @@ class RequestRequisitionSlip extends Model
     }
     public function items()
     {
-        return $this->hasMany(RequestRequisitionSlipItems::class);
+        return $this->hasMany(RequestRequisitionSlipItems::class, 'request_requisition_slip_id', 'id');
     }
     public function section()
     {
@@ -131,6 +131,10 @@ class RequestRequisitionSlip extends Model
     public function requestProcurement()
     {
         return $this->hasOne(RequestProcurement::class, 'request_requisition_slip_id');
+    }
+    public function warehouse()
+    {
+        return $this->belongsTo(SetupWarehouses::class, 'warehouse_id');
     }
     /**
      * ==================================================

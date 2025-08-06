@@ -103,7 +103,7 @@ Route::middleware('auth:api')->group(function () {
         Route::patch('set-pss/{warehouse}', [WarehousePssController::class, 'update']);
         Route::get('logs/{warehouse_id}', [WarehouseController::class, 'getLogs']);
         Route::get('stocks/{warehouse}', [WarehouseController::class, 'getStocks']);
-        Route::get('material-receivings/{warehouse_id}', [TransactionMaterialReceivingController::class, 'materialReceivingByWarehouse']);
+        Route::get('material-receivings/{warehouse}', [TransactionMaterialReceivingController::class, 'materialReceivingByWarehouse']);
     });
 
     Route::prefix('request-requisition-slip')->group(function () {

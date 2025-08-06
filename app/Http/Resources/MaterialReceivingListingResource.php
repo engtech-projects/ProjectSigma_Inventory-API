@@ -19,6 +19,7 @@ class MaterialReceivingListingResource extends JsonResource
             'reference_no' => $this->reference_no,
             'warehouse' => $this->warehouse_name,
             'transaction_date' => $this->transaction_date,
+            'serve_status' => $this->serve_status,
         ];
     }
 }
