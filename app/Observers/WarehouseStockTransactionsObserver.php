@@ -25,6 +25,7 @@ class WarehouseStockTransactionsObserver
             $warehouseSummary->warehouse_id = $warehouseStockTransactions->warehouse_id;
             $warehouseSummary->item_id = $warehouseStockTransactions->item_id;
             $warehouseSummary->uom_id = $warehouseStockTransactions->uom_id;
+            $warehouseSummary->quantity = 0;
             $warehouseSummary->metadata = [
                 'last_transaction_id' => $warehouseStockTransactions->id
             ];
