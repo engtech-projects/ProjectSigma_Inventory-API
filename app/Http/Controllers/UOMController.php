@@ -71,7 +71,6 @@ class UOMController extends Controller
             'data' => $uom ? new UOMResource($uom) : null,
         ];
         return response()->json($response, $uom ? 200 : 400);
-
     }
 
     /**
@@ -129,5 +128,15 @@ class UOMController extends Controller
         ];
 
         return response()->json($response, $deleted ? 200 : 400);
+    }
+    public function list()
+    {
+        $uom = UOM::get();
+
+        return response()->json([
+            'message' => 'Unit of Measurements Successfully Fetched.',
+            'success' => true,
+            'data' => $uom,
+        ]);
     }
 }

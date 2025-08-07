@@ -66,5 +66,4 @@ class ItemProfileBulkUploadController extends Controller
             ], 500);
         }
     }
-
 }

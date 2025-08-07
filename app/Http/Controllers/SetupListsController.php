@@ -6,64 +6,67 @@ use App\Http\Resources\DepartmentListResource;
 use App\Http\Resources\EmployeeListResource;
 use App\Http\Resources\ProjectListResource;
 use App\Http\Resources\UsersListResource;
-use App\Models\Department;
-use App\Models\Employee;
-use App\Models\Project;
+use App\Http\Resources\WarehouseListResource;
+use App\Models\SetupDepartments;
+use App\Models\SetupEmployees;
+use App\Models\SetupProjects;
+use App\Models\SetupWarehouses;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
 
 class SetupListsController extends Controller
 {
     public function getDepartmentList()
     {
-        $fetch = Department::orderBy('created_at', 'DESC')
-            ->paginate();
-        $requestResources = DepartmentListResource::collection($fetch)->response()->getData(true);
-        return new JsonResponse([
+        $fetch = SetupDepartments::latest()
+        ->paginate(config('app.pagination.per_page'));
+        return DepartmentListResource::collection($fetch)
+        ->additional([
             'success' => true,
-            'message' => 'Department Successfully Fetched.',
-            'data' => $requestResources
+            'message' => 'Departments Successfully Fetched.',
         ]);
-
     }
 
     public function getEmployeeList()
     {
-        $fetch = Employee::orderBy('created_at', 'DESC')
-            ->paginate();
-        $requestResources = EmployeeListResource::collection($fetch)->response()->getData(true);
-        return new JsonResponse([
+        $fetch = SetupEmployees::orderBy('family_name', 'ASC')
+        ->paginate(config('app.pagination.per_page'));
+        return EmployeeListResource::collection($fetch)
+        ->additional([
             'success' => true,
-            'message' => 'Employee Successfully Fetched.',
-            'data' => $requestResources
+            'message' => 'Employees Successfully Fetched.',
         ]);
-
     }
 
     public function getUsersList()
     {
-        $fetch = User::orderBy('created_at', 'DESC')
-            ->paginate();
-        $requestResources = UsersListResource::collection($fetch)->response()->getData(true);
-        return new JsonResponse([
+        $fetch = User::with("employee")
+            ->latest()
+            ->paginate(config('app.pagination.per_page'));
+        return UsersListResource::collection($fetch)
+        ->additional([
             'success' => true,
             'message' => 'Users Successfully Fetched.',
-            'data' => $requestResources
-        ]);
-
+        ])->response()->getData(true);
     }
 
     public function getProjectList()
     {
-        $fetch = Project::orderBy('created_at', 'DESC')
-            ->paginate();
-        $requestResources = ProjectListResource::collection($fetch)->response()->getData(true);
-        return new JsonResponse([
+        $fetch = SetupProjects::latest()
+        ->paginate(config('app.pagination.per_page'));
+        return ProjectListResource::collection($fetch)
+        ->additional([
             'success' => true,
             'message' => 'Projects Successfully Fetched.',
-            'data' => $requestResources
         ]);
-
     }
-
+    public function getWarehouseList()
+    {
+        $fetch = SetupWarehouses::latest()
+        ->paginate(config('app.pagination.per_page'));
+        return WarehouseListResource::collection($fetch)
+        ->additional([
+            'success' => true,
+            'message' => 'Projects Successfully Fetched.',
+        ]);
+    }
 }

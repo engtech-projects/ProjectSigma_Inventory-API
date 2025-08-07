@@ -16,14 +16,13 @@ class RequestProcurementDetailedResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'requisition_slip' => $this->requestStock
-                ? new RequisitionSlipDetailedResource($this->requestStock)
+            'requisition_slip' => $this->requisitionSlip
+                ? new RequisitionSlipDetailedResource($this->requisitionSlip)
                 : null,
             'status' => $this->serve_status,
             'canvasser' => new CanvasserResource($this->canvasser),
             "price_quotations" => PriceQuotationListingResource::collection($this->priceQuotations),
             "price_quotation_count" => $this->priceQuotations->count(),
-
         ];
     }
 }

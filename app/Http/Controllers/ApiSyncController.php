@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Services\ApiServices\AccountingSecretKeyService;
 use App\Jobs\ApiHrmsSyncJob;
 use App\Jobs\ApiProjectsSyncJob;
 use Illuminate\Http\Request;
@@ -96,6 +95,16 @@ class ApiSyncController extends Controller
         }
         return response()->json([
             'message' => 'Successfully synced all users.',
+            'success' => true,
+        ]);
+    }
+    public function syncAccessibilities(Request $request)
+    {
+        if (!ApiHrmsSyncJob::dispatch('syncAccessibilities')) {
+            throw new \Exception("Accessibility sync failed.");
+        }
+        return response()->json([
+            'message' => 'Successfully synced all accessibilities.',
             'success' => true,
         ]);
     }

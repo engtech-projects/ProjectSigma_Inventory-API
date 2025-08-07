@@ -18,7 +18,6 @@ class RequestItemProfiling extends Model
     use SoftDeletes;
     use HasApproval;
 
-
     protected $table = 'request_itemprofiling';
     protected $fillable = [
         'approvals',
@@ -33,7 +32,6 @@ class RequestItemProfiling extends Model
     public $appends = [
         'profile_summary'
     ];
-
 
     /**
      * ==================================================
@@ -66,8 +64,6 @@ class RequestItemProfiling extends Model
         $this->refresh();
     }
 
-
-
     /**
     * ==================================================
     * MODEL RELATIONSHIPS
@@ -85,11 +81,9 @@ class RequestItemProfiling extends Model
         );
     }
 
-
     /**
     * ==================================================
     * DYNAMIC SCOPES
     * ==================================================
     */
-
 }

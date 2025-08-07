@@ -19,7 +19,6 @@ return new class () extends Migration {
             $table->boolean('is_standard');
             $table->timestamps();
             $table->softDeletes();
-
         });
     }
 

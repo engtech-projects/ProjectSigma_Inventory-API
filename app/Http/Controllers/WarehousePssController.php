@@ -6,7 +6,7 @@ use App\Http\Requests\StoreWarehousePssRequest;
 use App\Http\Requests\UpdateWarehousePssRequest;
 use App\Http\Resources\WarehousePssResource;
 use App\Http\Resources\WarehouseResource;
-use App\Models\Warehouse;
+use App\Models\SetupWarehouses;
 use App\Models\WarehousePss;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -69,36 +69,20 @@ class WarehousePssController extends Controller
      * Update the specified resource in storage.
      */
 
-    public function update(UpdateWarehousePssRequest $request, Warehouse $warehouse)
+    public function update(UpdateWarehousePssRequest $request, SetupWarehouses $warehouse)
     {
-        $userId = $request->input('user_id');
-        $currentPss = $warehouse->warehousePss;
-        $currentUserId = $currentPss->user_id;
-        if ($userId) {
-            $intUserId = intval($userId);
-            if ($intUserId === $currentUserId) {
-                return response()->json([
-                    'message' => 'The user is already assigned as PSS to this warehouse.',
-                    'success' => false,
-                    "data" => new WarehouseResource($warehouse)
-                ]);
-            }
-            DB::transaction(function () use ($userId, $warehouse) {
-                WarehousePss::where("warehouse_id", $warehouse->id)->delete();
-                WarehousePss::create([
-                    'warehouse_id' => $warehouse->id,
-                    'user_id' => $userId,
-                ]);
-            });
-            return response()->json([
-                'message' => 'Successfully assigned new PSS',
-                'success' => true,
-                "data" => new WarehouseResource($warehouse->load('warehousePss'))
-            ]);
-        }
+        $validated = $request->validated();
+        DB::transaction(function () use ($validated, $warehouse) {
+            WarehousePss::updateOrCreate(
+                ['warehouse_id' => $warehouse->id],
+                ['user_id' => $validated['user_id']]
+            );
+        });
+        $warehouse->refresh();
         return response()->json([
-            "message" => "Failed to assigned.",
-            "success" => false,
+            'message' => 'Successfully set PSS',
+            'success' => true,
+            "data" => new WarehouseResource($warehouse->load('warehousePss'))
         ]);
     }
     /**

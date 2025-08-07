@@ -18,7 +18,6 @@ class SetupUomSeeder extends Seeder
                 // Length
                 // base unit: Meter
                 [
-
                     'id' => 1,
                     'group_id' => 1,
                     'name' => 'Meter',
@@ -269,7 +268,6 @@ class SetupUomSeeder extends Seeder
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
                 ],
-
 
                 // Force
                 // base unit: Newton

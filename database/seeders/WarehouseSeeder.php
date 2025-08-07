@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\OwnerType;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -13,13 +14,13 @@ class WarehouseSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('warehouse')->upsert(
+        DB::table('setup_warehouses')->upsert(
             [
                 [
                     'id' => 1,
                     'name' => 'Main Warehouse',
                     'location' => 'Main Office',
-                    'owner_type' => 'Department',
+                    'owner_type' => OwnerType::DEPARTMENT->value,
                     'deleted_at' => null,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),

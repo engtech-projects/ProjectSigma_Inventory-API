@@ -19,7 +19,6 @@ class RequestBOM extends Model
     use SoftDeletes;
     use HasApproval;
 
-
     protected $table = 'request_bom';
     protected $fillable = [
         'assignment_id',
@@ -45,7 +44,6 @@ class RequestBOM extends Model
      * MODEL ATTRIBUTES
      * ==================================================
      */
-
 
     public function scopeLatestVersion(Builder $query): Builder
     {
@@ -89,8 +87,6 @@ class RequestBOM extends Model
         return self::whereKey($requestBOMId)->value('assignment_type') ?? '';
     }
 
-
-
     /**
      * ==================================================
      * MODEL RELATIONSHIPS
@@ -100,37 +96,29 @@ class RequestBOM extends Model
     {
         return $this->morphTo();
     }
-
+    public function project()
+    {
+        return $this->morphTo(__FUNCTION__, 'assignment_type', 'assignment_id', "id");
+    }
+    public function department()
+    {
+        return $this->morphTo(__FUNCTION__, 'assignment_type', 'assignment_id', "id");
+    }
     public function details()
     {
-        return $this->hasMany(Details::class, 'request_bom_id');
+        return $this->hasMany(RequestBomDetails::class, 'request_bom_id', 'id');
     }
-
     public function items(): HasManyThrough
     {
         return $this->hasManyThrough(
             ItemProfile::class,
-            Details::class,
+            RequestBomDetails::class,
             'request_bom_id',
             'id',
             'id',
             'item_id'
         );
     }
-    public function department()
-    {
-        return $this->belongsTo(Department::class, 'assignment_id');
-    }
-
-    public function projects()
-    {
-        return $this->belongsTo(Project::class, 'id', 'assignment_id');
-    }
-    public function requestStock()
-    {
-        return $this->belongsTo(RequestStock::class);
-    }
-
 
     /**
      * ==================================================

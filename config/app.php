@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -18,6 +17,10 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
     'artisan' => (bool) env('ENABLE_ARTISAN_ROUTES', false),
+    'force_https' => (bool) env('FORCE_HTTPS', false),
+    'pagination' => [
+        'per_page' => (int) env('PAGINATION_PER_PAGE', 15),
+    ],
     /*
     |--------------------------------------------------------------------------
     | Application Environment
@@ -184,5 +187,4 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
-
 ];

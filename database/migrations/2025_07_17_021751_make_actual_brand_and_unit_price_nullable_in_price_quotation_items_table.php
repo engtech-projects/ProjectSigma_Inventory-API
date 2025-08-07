@@ -15,7 +15,6 @@ return new class () extends Migration {
             $table->string('actual_brand')->nullable()->change();
             $table->decimal('unit_price', 12, 2)->nullable()->change();
         });
-
     }
 
     /**

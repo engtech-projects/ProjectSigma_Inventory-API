@@ -9,7 +9,6 @@ return new class () extends Migration {
     public function up()
     {
         Schema::table('item_profile', function (Blueprint $table) {
-
             $table->string('thickness')->nullable()->change();
             $table->string('length')->nullable()->change();
             $table->string('width')->nullable()->change();

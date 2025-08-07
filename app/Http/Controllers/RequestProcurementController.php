@@ -19,7 +19,7 @@ class RequestProcurementController extends Controller
      */
     public function index()
     {
-        $procurements = RequestProcurement::with('requestStock')->paginate(10);
+        $procurements = RequestProcurement::with('requisitionSlip')->paginate(10);
         return RequestProcurementListingResource::collection($procurements)
             ->additional([
                 'success' => true,
@@ -50,7 +50,7 @@ class RequestProcurementController extends Controller
         $user = Auth::user();
         $userAccessibilitiesNames = $user->accessibilities_name;
         $isUserSetCanvasser = $this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_PROCUREMENT_PROCUREMENTREQUESTS_SETCANVASSER->value]) || Auth::user()->type == UserTypes::ADMINISTRATOR->value;
-        $procurements = RequestProcurement::with('requestStock')
+        $procurements = RequestProcurement::with('requisitionSlip')
         ->isUnserved()
         ->when($isUserSetCanvasser, function ($query) use ($userId) {
             return $query->isCanvasser($userId);

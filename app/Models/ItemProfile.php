@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Http\Services\ItemProfileService;
-use App\Http\Traits\HasConversionUnit;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,7 +14,6 @@ class ItemProfile extends Model
 {
     use HasFactory;
     use SoftDeletes;
-    use HasConversionUnit;
 
     protected $table = 'item_profile';
     protected $fillable = [
@@ -56,10 +54,8 @@ class ItemProfile extends Model
 
     public $appends = [
         'item_summary',
-        'convertable_units',
         'created_time_human'
     ];
-
 
     /**
      * ==================================================
@@ -111,7 +107,10 @@ class ItemProfile extends Model
     {
         return optional($this->created_at)->format('F j, Y');
     }
-
+    public function getConvertableUnitsAttribute()
+    {
+        return $this->uomName->group?->uoms;
+    }
     /**
      * ==================================================
      * MODEL RELATIONSHIPS

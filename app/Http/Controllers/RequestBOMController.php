@@ -13,14 +13,12 @@ use App\Http\Requests\UpdateRequestBOMRequest;
 use App\Http\Resources\CurrentBOMResource;
 use App\Http\Resources\RequestBOMResource;
 use App\Http\Resources\RequestBOMResourceList;
-use App\Models\Department;
-use App\Models\Details;
-use App\Models\Project;
 use App\Notifications\RequestBOMForApprovalNotification;
 use App\Traits\HasApproval;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Services\RequestBOMService;
+use App\Models\RequestBomDetails;
 
 class RequestBOMController extends Controller
 {
@@ -56,9 +54,9 @@ class RequestBOMController extends Controller
         $attributes['created_by'] = auth()->user()->id;
 
         if ($attributes["assignment_type"] == AssignTypes::DEPARTMENT->value) {
-            $attributes["assignment_type"] = class_basename(Department::class);
+            $attributes["assignment_type"] = AssignTypes::DEPARTMENT->value;
         } elseif ($attributes["assignment_type"] == AssignTypes::PROJECT->value) {
-            $attributes["assignment_type"] = class_basename(Project::class);
+            $attributes["assignment_type"] = AssignTypes::PROJECT->value;
         }
 
         $assignmentType = $attributes["assignment_type"];
@@ -83,7 +81,7 @@ class RequestBOMController extends Controller
 
             foreach ($attributes['details'] as $requestData) {
                 $requestData['request_bom_id'] = $requestBOM->id;
-                Details::create($requestData);
+                RequestBomDetails::create($requestData);
             }
             if ($requestBOM->getNextPendingApproval()) {
                 $requestBOM->notify(new RequestBOMForApprovalNotification($request->bearerToken(), $requestBOM));
@@ -95,7 +93,6 @@ class RequestBOMController extends Controller
             'message' => 'Request BOM Successfully Saved.',
         ], JsonResponse::HTTP_OK);
     }
-
 
     /**
      * Display the specified resource.
@@ -184,8 +181,6 @@ class RequestBOMController extends Controller
             'data' => $requestResource,
         ]);
     }
-
-
 
     public function getList(GetListBOM $request)
     {

@@ -21,6 +21,5 @@ class WarehousePssResource extends JsonResource
             'name' => $this->name,
             'user' => HrmsService::getEmployeeDetails($request->bearerToken(), [$this->id])[0] ?? null,
         ];
-
     }
 }

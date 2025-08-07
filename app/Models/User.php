@@ -3,10 +3,13 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Traits\ModelHelpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -16,11 +19,13 @@ class User extends Model implements AuthenticatableContract
     use HasFactory;
     use Authorizable;
     use Notifiable;
+    use ModelHelpers;
+    use SoftDeletes;
 
     protected $table = 'users';
 
     protected $fillable = [
-        'hrms_id',
+        'employee_id',
         'type',
         'accessibilities',
         'name',
@@ -28,16 +33,16 @@ class User extends Model implements AuthenticatableContract
         'email_verified_at',
     ];
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    // protected $fillable = [
-    //     'name',
-    //     'email',
-    //     'password',
-    // ];
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'accessibilities' => 'array',
+    ];
+
     public function getAuthIdentifierName()
     {
         return [
@@ -85,6 +90,11 @@ class User extends Model implements AuthenticatableContract
         return 'users.' . $this->id;
     }
 
+    /**
+    * ==================================================
+    * MODEL RELATIONSHIPS
+    * ==================================================
+    */
     public function procurementRequests()
     {
         return $this->belongsToMany(RequestProcurement::class, 'request_procurement_canvassers', 'user_id', 'request_procurement_id');
@@ -92,26 +102,16 @@ class User extends Model implements AuthenticatableContract
 
     public function employee()
     {
-        return $this->hasOne(Employee::class, 'user_id');
+        return $this->belongsTo(SetupEmployees::class, 'employee_id', 'id');
     }
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    // protected $hidden = [
-    //     'password',
-    //     'remember_token',
-    // ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    // protected $casts = [
-    //     'email_verified_at' => 'datetime',
-    //     'password' => 'hashed',
-    // ];
+    * ==================================================
+    * MODEL ATTRIBUTES
+    * ==================================================
+    */
+    public function getAccessibilityNamesAttribute()
+    {
+        return SetupAccessibilities::whereIn("id", $this->accessibilities)->get()->pluck("accessibilities_name");
+    }
 }

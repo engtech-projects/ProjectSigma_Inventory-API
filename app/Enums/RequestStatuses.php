@@ -2,6 +2,7 @@
 
 namespace App\Enums;
 
+// USED FOR WHOLE REQUEST NOT FOR INDIVIDUAL APPROVAL
 enum RequestStatuses: string
 {
     case APPROVED = 'Approved';

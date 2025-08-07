@@ -17,6 +17,7 @@ class ProjectListResource extends JsonResource
         return [
             'id' => $this->id,
             'project_code' => $this->project_code,
+            'status' => $this->status,
         ];
     }
 }

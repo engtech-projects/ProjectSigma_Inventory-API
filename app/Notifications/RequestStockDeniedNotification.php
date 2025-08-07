@@ -23,7 +23,6 @@ class RequestStockDeniedNotification extends Notification
     {
         $this->token = $token;
         $this->model = $model;
-
     }
 
     /**
@@ -62,7 +61,7 @@ class RequestStockDeniedNotification extends Notification
         return [
             'message' => "A supplier request has been DENIED.",
             'module' => "Inventory",
-            'request_type' => ApprovalModels::RequestStock->name,
+            'request_type' => ApprovalModels::RequestRequisitionSlip->name,
             'request_id' => $this->model->id,
             'action' => "View"
         ];

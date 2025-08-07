@@ -51,8 +51,10 @@ class RequestSupplier extends Model
      * MODEL ATTRIBUTES
      * ==================================================
      */
-
-
+    public function getCodeNameAttribute()
+    {
+        return '[' . $this->supplier_code . '] ' . $this->company_name;
+    }
     /**
      * ==================================================
      * MODEL RELATIONSHIPS
@@ -62,7 +64,6 @@ class RequestSupplier extends Model
     {
         return $this->hasMany(RequestSupplierUpload::class);
     }
-
 
     /**
      * ==================================================
@@ -88,7 +89,6 @@ class RequestSupplier extends Model
         $this->save();
         $this->refresh();
     }
-
 
     /**
      * ==================================================

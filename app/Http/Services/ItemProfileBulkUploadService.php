@@ -145,7 +145,6 @@ class ItemProfileBulkUploadService
 
                 // Validate UOM fields
                 foreach ($uomFields as $uomField) {
-
                     if (!empty($filteredData[$uomField]['value'])) {
                         $uomValue = $filteredData[$uomField]['value'];
                         $isValid = $validUOMs->filter(function ($uom) use ($uomValue) {

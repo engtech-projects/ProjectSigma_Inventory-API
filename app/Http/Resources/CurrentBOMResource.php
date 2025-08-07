@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Details;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -18,23 +17,7 @@ class CurrentBOMResource extends JsonResource
         return [
             'id' => $this->id,
             'assignment_type' => $this->assignment_type,
-            'details' => Details::where('request_bom_id', $this->id)
-                ->get(['id', 'request_bom_id', 'item_id', 'uom_id', 'unit_price', 'quantity'])
-                ->map(function ($detail) {
-                    return [
-                        'id' => $detail->id,
-                        'request_bom_id' => $detail->request_bom_id,
-                        'item_code' => $detail->items->item_code,
-                        'item_id' => $detail->item_id,
-                        'item_summary' => $detail->getItemSummaryAttribute(),
-                        'uom_id' => $detail->uom_id,
-                        'unit' => $detail->uom->name,
-                        'price' => $detail->unit_price,
-                        'quantity' => $detail->quantity,
-                        'convertable_units' => $detail->convertable_units,
-                        'amount' => number_format($detail->unit_price * $detail->quantity, 2),
-                    ];
-                })->toArray(),
+            'details' => RequestBomDetailsDetailedResource::collection($this->details),
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
         ];

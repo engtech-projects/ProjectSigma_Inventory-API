@@ -3,8 +3,8 @@
 namespace App\Http\Services\ApiServices;
 
 use App\Enums\OwnerType;
-use App\Models\Project;
-use App\Models\Warehouse;
+use App\Models\SetupProjects;
+use App\Models\SetupWarehouses;
 use DateTime;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -37,9 +37,10 @@ class ProjectMonitoringSecretKeyService
         $projects = $this->getAllProjects();
         $mappedProjects = array_map(fn ($project) => [
             "id" => $project['id'],
-            "project_monitoring_id" => $project['id'],
             "project_code" => $project['code'],
             "status" => $project['status'],
+            "created_at" => new DateTime($project['created_at']),
+            "updated_at" => new DateTime($project['updated_at']),
             "deleted_at" => $project["deleted_at"] ? new DateTime($project['deleted_at']) : null,
         ], $projects);
         $warehouses = array_map(fn ($project) => [
@@ -47,21 +48,24 @@ class ProjectMonitoringSecretKeyService
             "owner_type" => OwnerType::PROJECT->value,
             "name" => $project['code'],
             "location" => $project['code'],
+            "created_at" => new DateTime($project['created_at']),
+            "updated_at" => new DateTime($project['updated_at']),
             "deleted_at" => $project["deleted_at"] ? new DateTime($project['deleted_at']) : null,
         ], $projects);
-        Project::upsert(
+        SetupProjects::upsert(
             $mappedProjects,
             [
-                'project_monitoring_id',
+                'id',
             ],
             [
-                'project_monitoring_id',
                 'project_code',
                 'status',
+                'created_at',
+                'updated_at',
                 'deleted_at'
             ]
         );
-        Warehouse::upsert(
+        SetupWarehouses::upsert(
             $warehouses,
             [
                 'owner_id',
@@ -70,6 +74,8 @@ class ProjectMonitoringSecretKeyService
             [
                 'name',
                 'location',
+                'created_at',
+                'updated_at',
                 'deleted_at'
             ]
         );

@@ -8,29 +8,27 @@ use App\Http\Controllers\ApiServiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ApiSyncController;
-use App\Http\Controllers\DepartmentsController;
-use App\Http\Controllers\DetailsController;
 use App\Http\Controllers\ItemGroupController;
 use App\Http\Controllers\ItemProfileBulkUploadController;
 use App\Http\Controllers\UOMController;
 use App\Http\Controllers\ItemProfileController;
-use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\RequestBOMController;
 use App\Http\Controllers\RequestItemProfilingController;
-use App\Http\Controllers\RequestStockController;
 use App\Http\Controllers\RequestSupplierController;
 use App\Http\Controllers\RequestSupplierUploadController;
 use App\Http\Controllers\UOMGroupController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehousePssController;
-use App\Http\Controllers\WarehouseTransactionController;
-use App\Http\Controllers\WarehouseTransactionItemController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\PriceQuotationController;
 use App\Http\Controllers\PriceQuotationItemController;
+use App\Http\Controllers\RequestCanvassSummaryController;
 use App\Http\Controllers\SetupListsController;
 use App\Http\Controllers\RequestProcurementCanvasserController;
 use App\Http\Controllers\RequestProcurementController;
+use App\Http\Controllers\RequestRequisitionSlipController;
+use App\Http\Controllers\TransactionMaterialReceivingController;
+use App\Http\Controllers\TransactionMaterialReceivingItemController;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -70,6 +68,7 @@ Route::middleware('auth:api')->group(function () {
         Route::resource('resource', UOMController::class)->names("uomresource");
         Route::get('group', [UOMGroupController::class, 'get']);
         Route::get('all', [UOMController::class, 'get']);
+        Route::get('list', [UOMController::class, 'list']);
     });
     Route::prefix('uom-group')->group(function () {
         Route::resource('resource', UOMGroupController::class)->names("uomGroupresource");
@@ -103,42 +102,24 @@ Route::middleware('auth:api')->group(function () {
         Route::get('overview/{warehouse}', [WarehouseController::class, 'show']);
         Route::patch('set-pss/{warehouse}', [WarehousePssController::class, 'update']);
         Route::get('logs/{warehouse_id}', [WarehouseController::class, 'getLogs']);
-        Route::get('stocks/{warehouse_id}', [WarehouseController::class, 'getStocks']);
-
-        Route::get('materials-receiving/{warehouse_id}', [WarehouseController::class, 'withMaterialsReceiving']);
-
-        Route::prefix('transaction')->group(function () {
-            Route::resource('resource', WarehouseTransactionController::class)->names("warehouseTransactionsresource");
-        });
-        Route::prefix('transaction-item')->group(function () {
-            Route::resource('resource', WarehouseTransactionItemController::class)->names("warehouseTransactionItemresource");
-        });
-
-        // Route::resource('stocks/{warehouse_id}', [RequestStockController::class, 'store']);
+        Route::get('stocks/{warehouse}', [WarehouseController::class, 'getStocks']);
+        Route::get('material-receivings/{warehouse}', [TransactionMaterialReceivingController::class, 'materialReceivingByWarehouse']);
     });
 
-    Route::prefix('request-stock')->group(function () {
-        Route::resource('resource', RequestStockController::class)->names("requestStockresource");
-        Route::get('all-request', [RequestStockController::class, 'allRequests']);
-        Route::get('my-request', [RequestStockController::class, 'myRequests']);
-        Route::get('my-approvals', [RequestStockController::class, 'myApprovals']);
+    Route::prefix('request-requisition-slip')->group(function () {
+        Route::resource('resource', RequestRequisitionSlipController::class)->names("requisitionSlipRouteResource");
+        Route::get('all-request', [RequestRequisitionSlipController::class, 'allRequests']);
+        Route::get('my-request', [RequestRequisitionSlipController::class, 'myRequests']);
+        Route::get('my-approvals', [RequestRequisitionSlipController::class, 'myApprovals']);
     });
 
     Route::prefix('bom')->group(function () {
         Route::resource('resource', RequestBOMController::class)->names("requestBomresource");
         Route::get('current', [RequestBomController::class, 'getCurrentBom']);
         Route::get('list', [RequestBomController::class, 'getList']);
-
-        Route::prefix('details')->group(function () {
-            Route::resource('resource', DetailsController::class)->names("bomDetailsresource");
-        });
-
         Route::get('all-request', [RequestBOMController::class, 'allRequests']);
         Route::get('my-request', [RequestBOMController::class, 'myRequests']);
         Route::get('my-approvals', [RequestBOMController::class, 'myApprovals']);
-    });
-    Route::prefix('departments')->group(function () {
-        Route::resource('resource', DepartmentsController::class)->names("departmentresource");
     });
     Route::prefix('setup')->group(function () {
         // to be used later
@@ -167,6 +148,7 @@ Route::middleware('auth:api')->group(function () {
                 Route::post('/employees', [ApiSyncController::class, 'syncEmployees']);
                 Route::post('/users', [ApiSyncController::class, 'syncUsers']);
                 Route::post('/departments', [ApiSyncController::class, 'syncDepartments']);
+                Route::post('/accessibilities', [ApiSyncController::class, 'syncAccessibilities']);
             });
         });
         Route::prefix('lists')->group(function () {
@@ -174,6 +156,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/employee', [SetupListsController::class, 'getEmployeeList']);
             Route::get('/users', [SetupListsController::class, 'getUsersList']);
             Route::get('/project', [SetupListsController::class, 'getProjectlist']);
+            Route::get('/warehouse', [SetupListsController::class, 'getWarehouseList']);
         });
     });
     Route::prefix('request-supplier')->group(function () {
@@ -191,20 +174,14 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('material-receiving')->group(function () {
-        Route::resource('resource', WarehouseTransactionController::class)->names("materialReceivingresource");
-        Route::patch('{id}/save-details', [WarehouseTransactionController::class, 'saveDetails']);
-        Route::get('warehouse/{warehouse_id}', [WarehouseTransactionController::class, 'getTransactionsByWarehouse']);
-        Route::get('all-request', [WarehouseTransactionController::class, 'allRequests']);
+        Route::resource('resource', TransactionMaterialReceivingController::class)->names("materialReceivingresource")
+        ->only(['index', 'update', 'show']);
         Route::prefix('item')->group(function () {
-            Route::resource('resource', WarehouseTransactionItemController::class)->names("materialReceivingItemResource");
-            Route::patch('{resource}/accept-all', [WarehouseTransactionItemController::class, 'acceptAll']);
-            Route::patch('{resource}/accept-with-details', [WarehouseTransactionItemController::class, 'acceptWithDetails']);
-            Route::patch('{resource}/reject', [WarehouseTransactionItemController::class, 'reject']);
+            Route::resource('resource', TransactionMaterialReceivingItemController::class)->names("materialReceivingItemresource");
+            Route::patch('{resource}/accept-all', [TransactionMaterialReceivingItemController::class, 'acceptAll']);
+            Route::patch('{resource}/accept-some', [TransactionMaterialReceivingItemController::class, 'acceptSome']);
+            Route::patch('{resource}/reject', [TransactionMaterialReceivingItemController::class, 'reject']);
         });
-    });
-
-    Route::prefix('project')->group(function () {
-        Route::resource('resource', ProjectsController::class)->names("projectsResource");
     });
 
     Route::prefix('export')->group(function () {
@@ -219,6 +196,12 @@ Route::middleware('auth:api')->group(function () {
         Route::get('price-quotation/{priceQuotation}', [PriceQuotationController::class, 'show']);
         Route::resource('price-quotation-item', PriceQuotationItemController::class)
             ->only(['update']);
+        Route::prefix('canvass-summary')->group(function () {
+            Route::resource('resource', RequestCanvassSummaryController::class)->names("requestCanvassSummary");
+            Route::get('my-request', [RequestCanvassSummaryController::class, 'myRequests']);
+            Route::get('my-approvals', [RequestCanvassSummaryController::class, 'myApprovals']);
+            Route::get('{requestCanvassSummary}', [RequestCanvassSummaryController::class, 'show']);
+        });
     });
 
     if (config()->get('app.artisan') == 'true') {

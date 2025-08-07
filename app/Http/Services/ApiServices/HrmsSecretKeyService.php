@@ -2,14 +2,12 @@
 
 namespace App\Http\Services\ApiServices;
 
+use App\Models\SetupAccessibilities;
 use Illuminate\Support\Facades\Http;
-use App\Models\Department;
-use App\Models\Employee;
+use App\Models\SetupDepartments;
+use App\Models\SetupEmployees;
 use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class HrmsSecretKeyService
 {
@@ -28,84 +26,23 @@ class HrmsSecretKeyService
         }
     }
 
-    public static function getDepartments($token)
-    {
-        $response = Http::withToken($token)
-            ->acceptJson()
-            ->get(config('services.url.hrms_api_url') . '/api/department/list/v2');
-
-        if (!$response->successful()) {
-            return false;
-        }
-        return $response->json("data");
-    }
-    public static function getUsers($token)
-    {
-        $response = Http::withToken($token)
-            ->acceptJson()
-            ->get(config('services.url.hrms_api_url') . '/api/users');
-
-        if (!$response->successful()) {
-            return false;
-        }
-        return $response->json("data");
-    }
-    public static function getEmployees($token)
-    {
-        $response = Http::withToken($token)
-            ->acceptJson()
-            ->get(config('services.url.hrms_api_url') . '/api/employee/resource');
-
-        if (!$response->successful()) {
-            return false;
-        }
-        return $response->json("data");
-    }
-
     public function syncAll()
     {
         $syncEmployees = $this->syncEmployees();
         $syncUsers = $this->syncUsers();
         $syncDepartments = $this->syncDepartments();
-
-        if ($syncEmployees && $syncUsers && $syncDepartments) {
-            return $syncDepartments;
-        }
-
-        return false;
+        $syncAccessibilities = $this->syncAccessibilities();
+        return $syncEmployees && $syncUsers && $syncDepartments && $syncAccessibilities;
     }
 
     public function syncEmployees()
     {
-        $response = $this->getAllEmployees();
-        $processedEmployees = array_map(fn ($employee) => [
-            'id' => $employee['id'],
-            'hrms_id' => $employee['id'],
-            'first_name' => $employee['first_name'],
-            'middle_name' => $employee['middle_name'],
-            'family_name' => $employee['family_name'],
-            'name_suffix' => $employee['name_suffix'],
-            'nick_name' => $employee['nick_name'],
-            'gender' => $employee['gender'],
-            'date_of_birth' => Carbon::parse($employee['date_of_birth']),
-            'place_of_birth' => $employee['place_of_birth'],
-            'citizenship' => $employee['citizenship'],
-            'blood_type' => $employee['blood_type'],
-            'civil_status' => $employee['civil_status'],
-            'date_of_marriage' => $employee['date_of_marriage'],
-            'telephone_number' => $employee['telephone_number'],
-            'mobile_number' => $employee['mobile_number'],
-            'email' => $employee['email'],
-            'religion' => $employee['religion'],
-            'weight' => $employee['weight'],
-            'height' => $employee['height'],
-        ], $response);
+        $employees = $this->getAllEmployees();
 
-        Employee::upsert(
-            $processedEmployees,
+        SetupEmployees::upsert(
+            $employees,
             ['id'],
             [
-                'id',
                 'first_name',
                 'middle_name',
                 'family_name',
@@ -124,6 +61,9 @@ class HrmsSecretKeyService
                 'religion',
                 'weight',
                 'height',
+                'created_at',
+                'updated_at',
+                'deleted_at',
             ]
         );
         return true;
@@ -132,29 +72,23 @@ class HrmsSecretKeyService
     public function syncUsers()
     {
         $users = $this->getAllUsers();
-        $users = array_map(fn ($user) => [
-            "id" => $user['id'],
-            "hrms_id" => $user['id'],
-            "type" => $user['type'],
-            "accessibilities" => "",
-            "name" => $user['name'],
-            "email" => $user['email'],
-            "email_verified_at" => $user['email_verified_at'],
-            "password" => Hash::make(Str::random(10)),
-        ], $users);
         User::upsert(
             $users,
             [
                 'id',
             ],
             [
-                'hrms_id',
-                'type',
-                'accessibilities',
-                'name',
-                'email',
-                'email_verified_at',
-                'password',
+                "name",
+                "email",
+                "email_verified_at",
+                "password",
+                "remember_token",
+                "type",
+                "accessibilities",
+                "employee_id",
+                "created_at",
+                "updated_at",
+                "deleted_at",
             ]
         );
         return true;
@@ -165,18 +99,40 @@ class HrmsSecretKeyService
         $departments = $this->getAllDepartments();
         $departments = array_map(fn ($department) => [
             "id" => $department['id'],
-            "hrms_id" => $department['id'],
+            "code" => $department['code'],
             "department_name" => $department['department_name'],
+            "created_at" => $department['created_at'],
+            "updated_at" => $department['updated_at'],
+            "deleted_at" => $department['deleted_at'],
         ], $departments);
-
-        Department::upsert(
+        SetupDepartments::upsert(
             $departments,
             [
                 'id',
             ],
             [
-                'hrms_id',
+                'code',
                 'department_name',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ]
+        );
+        return true;
+    }
+    public function syncAccessibilities()
+    {
+        $accessibilities = $this->getAllAccessibilities();
+        SetupAccessibilities::upsert(
+            $accessibilities,
+            [
+                'id',
+            ],
+            [
+                'accessibilities_name',
+                'created_at',
+                'updated_at',
+                'deleted_at',
             ]
         );
         return true;
@@ -215,6 +171,10 @@ class HrmsSecretKeyService
             ]);
             return [];
         }
+        Log::channel("HrmsService")->error('Failed to fetch users from monitoring API', [
+            'status' => $response->status(),
+            'body'   => $response->body(),
+        ]);
         $data = $response->json();
         if (!isset($data['data']) || !is_array($data['data'])) {
             Log::channel("HrmsService")->warning('Unexpected response format from users API', ['response' => $data]);
@@ -242,6 +202,25 @@ class HrmsSecretKeyService
         $data = $response->json();
         if (!isset($data['data']) || !is_array($data['data'])) {
             Log::channel("HrmsService")->warning('Unexpected response format from departments API', ['response' => $data]);
+            return [];
+        }
+        return $data['data'];
+    }
+    public function getAllAccessibilities()
+    {
+        $response = Http::withToken($this->authToken)
+            ->acceptJson()
+            ->get($this->apiUrl . '/api/sigma/sync-list/accessibilities');
+        if (!$response->successful()) {
+            Log::channel("HrmsService")->error('Failed to fetch accessibilities from monitoring API', [
+                'status' => $response->status(),
+                'body'   => $response->body(),
+            ]);
+            return [];
+        }
+        $data = $response->json();
+        if (!isset($data['data']) || !is_array($data['data'])) {
+            Log::channel("HrmsService")->warning('Unexpected response format from accessibilities API', ['response' => $data]);
             return [];
         }
         return $data['data'];

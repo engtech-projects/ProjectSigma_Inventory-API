@@ -67,5 +67,4 @@ class PriceQuotationController extends Controller
             'data' => new PriceQuotationDetailedResource($priceQuotation)
         ]);
     }
-
 }

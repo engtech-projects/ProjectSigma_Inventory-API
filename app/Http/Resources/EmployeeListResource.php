@@ -17,6 +17,9 @@ class EmployeeListResource extends JsonResource
         return [
             'id' => $this->id,
             'fullname_last' => $this->fullname_last,
+            'sex' => $this->gender,
+            'date_of_birth' => $this->date_of_birth ? $this->date_of_birth->format('Y-m-d') : null,
+            'age' => $this->age,
         ];
     }
 }

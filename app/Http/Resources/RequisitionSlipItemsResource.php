@@ -17,7 +17,7 @@ class RequisitionSlipItemsResource extends JsonResource
         return [
             "id" => $this->id,
             "item_id" => $this->item_id,
-            "request_stock_id" => $this->request_stock_id,
+            "request_requisition_slip_id" => $this->request_requisition_slip_id,
             "quantity" => $this->quantity,
             "unit" => $this->unit,
             "specification" => $this->specification,
