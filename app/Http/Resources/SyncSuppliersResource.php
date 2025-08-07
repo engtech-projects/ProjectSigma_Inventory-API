@@ -18,7 +18,10 @@ class SyncSuppliersResource extends JsonResource
             'id' => $this->id,
             'supplier_code' => $this->supplier_code,
             'company_name' => $this->company_name,
-            'contact_person_name' => $this->contact_person_name
+            'contact_person_name' => $this->contact_person_name,
+            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+            'deleted_at' => $this->deleted_at->format('Y-m-d H:i:s'),
         ];
     }
 }

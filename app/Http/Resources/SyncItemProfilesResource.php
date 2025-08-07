@@ -19,7 +19,10 @@ class SyncItemProfilesResource extends JsonResource
             'item_name_summary' => $this->name_summary,
             'uom' => $this->uom,
             'uom_name' => $this->uom_full_name,
-            'status' => $this->active_status
+            'status' => $this->active_status,
+            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+            'deleted_at' => $this->deleted_at->format('Y-m-d H:i:s'),
         ];
     }
 }
