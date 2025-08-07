@@ -15,13 +15,7 @@ class RequestCanvassSummaryResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'price_quotation' => $this->priceQuotation,
-            'items' => $this->items,
-            'metadata' => $this->metadata,
-            'approvals' => $this->approvals,
-            'request_status' => $this->request_status,
-            'created_by' => $this->created_by,
+            ...parent::toArray($request),
         ];
     }
 }
