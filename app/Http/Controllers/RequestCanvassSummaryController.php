@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\RequestStatuses;
 use App\Http\Requests\StoreCanvassSummary;
+use App\Http\Resources\RequestCanvassSummaryListingResource;
 use App\Http\Resources\RequestCanvassSummaryResource;
 use App\Models\RequestCanvassSummary;
 use App\Models\RequestCanvassSummaryItems;
@@ -19,16 +20,10 @@ class RequestCanvassSummaryController extends Controller
     use ModelHelpers;
     use HasCSNumber;
 
-    public function show(RequestCanvassSummary $requestCanvassSummary)
+    public function index()
     {
-        $requestCanvassSummary->load([
-            'priceQuotation',
-        ]);
-        return new JsonResponse([
-            "success" => true,
-            "message" => "Successfully fetched.",
-            "data" => new RequestCanvassSummaryResource($requestCanvassSummary),
-        ], JsonResponse::HTTP_OK);
+        $requestCanvassSummaries = RequestCanvassSummary::latest()->get();
+        return RequestCanvassSummaryResource::collection($requestCanvassSummaries);
     }
 
     public function store(StoreCanvassSummary $request)
@@ -64,5 +59,52 @@ class RequestCanvassSummaryController extends Controller
             'message' => 'Canvass summary created successfully.',
             'data' => new RequestCanvassSummaryResource($summary),
         ], JsonResponse::HTTP_CREATED);
+    }
+    public function show(RequestCanvassSummary $requestCanvassSummary)
+    {
+        $requestCanvassSummary->load([
+            'priceQuotation',
+            'items.itemProfile',
+        ]);
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Successfully fetched.",
+            "data" => new RequestCanvassSummaryResource($requestCanvassSummary)
+        ]);
+    }
+
+    public function myRequests()
+    {
+        $fetchData = RequestCanvassSummary::latest()
+        ->myRequests()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestCanvassSummaryListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request Canvass Summaries Successfully Fetched.",
+        ]);
+    }
+
+    public function allRequests()
+    {
+        $fetchData = RequestCanvassSummary::latest()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestCanvassSummaryListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request Canvass Summaries Successfully Fetched.",
+        ]);
+    }
+
+    public function myApprovals()
+    {
+        $fetchData = RequestCanvassSummary::latest()
+        ->myApprovals()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestCanvassSummaryListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request Canvass Summaries Successfully Fetched.",
+        ]);
     }
 }

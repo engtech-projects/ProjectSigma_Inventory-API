@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Enums\RequestStatuses;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasApproval;
 
 class RequestCanvassSummary extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use HasApproval;
 
     protected $table = "request_canvass_summary";
     protected $fillable = [
@@ -42,5 +45,17 @@ class RequestCanvassSummary extends Model
     public function items()
     {
         return $this->hasMany(RequestCanvassSummaryItems::class);
+    }
+
+    /**
+     * ==================================================
+     * MODEL FUNCTIONS
+     * ==================================================
+     */
+    public function completeRequestStatus()
+    {
+        $this->request_status = RequestStatuses::APPROVED;
+        $this->save();
+        $this->refresh();
     }
 }
