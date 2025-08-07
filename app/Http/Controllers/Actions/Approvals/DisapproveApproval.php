@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\DisapproveApprovalRequest;
 use App\Models\User;
 use App\Notifications\RequestBOMDeniedNotification;
+use App\Notifications\RequestCanvassSummaryDeniedNotification;
 use App\Notifications\RequestItemProfilingDeniedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +38,7 @@ class DisapproveApproval extends Controller
         $notificationMap = [
             ApprovalModels::RequestItemProfiling->name => RequestItemProfilingDeniedNotification::class,
             ApprovalModels::RequestBOM->name => RequestBOMDeniedNotification::class,
+            ApprovalModels::RequestCanvassSummary->name => RequestCanvassSummaryDeniedNotification::class,
         ];
         if (isset($notificationMap[$modelType])) {
             User::find($model->created_by)->notify(new $notificationMap[$modelType]($request->bearerToken(), $model));

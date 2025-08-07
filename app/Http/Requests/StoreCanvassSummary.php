@@ -27,7 +27,6 @@ class StoreCanvassSummary extends FormRequest
     {
         return [
             'price_quotation_id' => ['required', 'exists:price_quotations,id'],
-            'cs_number' => ['required', 'string'],
             'items' => ['required', 'array'],
             'items.*.item_id' => [
                 'required',

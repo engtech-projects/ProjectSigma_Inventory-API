@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Enums\RequestStatuses;
 use App\Http\Requests\StoreCanvassSummary;
+use App\Http\Resources\RequestCanvassSummaryListingResource;
 use App\Http\Resources\RequestCanvassSummaryResource;
 use App\Models\RequestCanvassSummary;
 use App\Models\RequestCanvassSummaryItems;
+use App\Notifications\RequestCanvassSummaryForApprovalNotification;
 use App\Traits\HasApproval;
 use App\Traits\HasCSNumber;
 use App\Traits\ModelHelpers;
@@ -19,16 +21,14 @@ class RequestCanvassSummaryController extends Controller
     use ModelHelpers;
     use HasCSNumber;
 
-    public function show(RequestCanvassSummary $requestCanvassSummary)
+    public function index()
     {
-        $requestCanvassSummary->load([
-            'priceQuotation',
-        ]);
-        return new JsonResponse([
+        $requestCanvassSummaries = RequestCanvassSummary::latest()->paginate(config('app.pagination.per_page', 10));
+        return RequestCanvassSummaryListingResource::collection($requestCanvassSummaries)
+        ->additional([
             "success" => true,
-            "message" => "Successfully fetched.",
-            "data" => new RequestCanvassSummaryResource($requestCanvassSummary),
-        ], JsonResponse::HTTP_OK);
+            "message" => "Request Canvass Summaries Successfully Fetched.",
+        ]);
     }
 
     public function store(StoreCanvassSummary $request)
@@ -59,10 +59,49 @@ class RequestCanvassSummaryController extends Controller
             'priceQuotation',
             'items.itemProfile'
         ]);
+        if ($summary->getNextPendingApproval()) {
+            $summary->notify(new RequestCanvassSummaryForApprovalNotification($request->bearerToken(), $summary));
+        }
         return new JsonResponse([
             'success' => true,
             'message' => 'Canvass summary created successfully.',
             'data' => new RequestCanvassSummaryResource($summary),
         ], JsonResponse::HTTP_CREATED);
+    }
+    public function show(RequestCanvassSummary $requestCanvassSummary)
+    {
+        $requestCanvassSummary->load([
+            'priceQuotation',
+            'items.itemProfile',
+        ]);
+        return new JsonResponse([
+            "success" => true,
+            "message" => "Successfully fetched.",
+            "data" => new RequestCanvassSummaryResource($requestCanvassSummary)
+        ]);
+    }
+
+    public function myRequests()
+    {
+        $fetchData = RequestCanvassSummary::latest()
+        ->myRequests()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestCanvassSummaryListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request Canvass Summaries Successfully Fetched.",
+        ]);
+    }
+
+    public function myApprovals()
+    {
+        $fetchData = RequestCanvassSummary::latest()
+        ->myApprovals()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestCanvassSummaryListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request Canvass Summaries Successfully Fetched.",
+        ]);
     }
 }

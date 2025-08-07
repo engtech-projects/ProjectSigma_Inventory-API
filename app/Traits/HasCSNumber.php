@@ -19,9 +19,9 @@ trait HasCSNumber
 
         $latestSeries = 0;
 
-        if ($latest && !empty($latest->metadata['cs_number'])) {
+        if ($latest && !empty($latest->cs_number)) {
             // Extract the last 4-digit series from metadata
-            preg_match('/(\d{4})$/', $latest->metadata['cs_number'], $matches);
+            preg_match('/(\d{4})$/', $latest->cs_number, $matches);
             $latestSeries = isset($matches[1]) ? (int) $matches[1] : 0;
         }
 
@@ -30,9 +30,8 @@ trait HasCSNumber
         return "{$prefix}-{$newSeries}";
     }
 
-    public function csNumber(array $metadata): array
+    public function csNumber(RequestCanvassSummary $request): string
     {
-        $metadata['cs_number'] = $this->generateCsNumber();
-        return $metadata;
+        return $this->generateCsNumber($request);
     }
 }
