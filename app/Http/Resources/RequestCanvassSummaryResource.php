@@ -16,9 +16,8 @@ class RequestCanvassSummaryResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'price_quotation_id' => $this->price_quotation_id,
-            'price_quotation' => new PriceQuotationListingResource($this->whenLoaded('priceQuotation')),
-            'items' => ItemProfileResource::collection($this->whenLoaded('items')),
+            'price_quotation' => $this->priceQuotation,
+            'items' => $this->items,
             'metadata' => $this->metadata,
             'approvals' => $this->approvals,
             'request_status' => $this->request_status,
