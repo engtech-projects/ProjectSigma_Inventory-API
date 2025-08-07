@@ -179,7 +179,7 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('item')->group(function () {
             Route::resource('resource', TransactionMaterialReceivingItemController::class)->names("materialReceivingItemresource");
             Route::patch('{resource}/accept-all', [TransactionMaterialReceivingItemController::class, 'acceptAll']);
-            Route::patch('{resource}/accept-some', [TransactionMaterialReceivingItemController::class, 'acceptWithDetails']);
+            Route::patch('{resource}/accept-some', [TransactionMaterialReceivingItemController::class, 'acceptSome']);
             Route::patch('{resource}/reject', [TransactionMaterialReceivingItemController::class, 'reject']);
         });
     });
