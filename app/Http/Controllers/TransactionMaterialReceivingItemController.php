@@ -38,7 +38,7 @@ class TransactionMaterialReceivingItemController extends Controller
                 'message' => 'Item has already been processed.',
                 'success' => false,
                 'data' => $resource
-            ]);
+            ], 400);
         }
         if($resource->transactionMaterialReceiving->isPettyCash) {
             if ($resource->transactionMaterialReceiving->supplier_id == null) {
@@ -46,49 +46,49 @@ class TransactionMaterialReceivingItemController extends Controller
                     'message' => 'Supplier has not been updated yet.',
                     'success' => false,
                     'data' => $resource
-                ]);
+                ], 400);
             }
             if ($resource->transactionMaterialReceiving->reference == null) {
                 return response()->json([
                     'message' => 'Reference has not been updated yet.',
                     'success' => false,
                     'data' => $resource
-                ]);
+                ], 400);
             }
             if ($resource->transactionMaterialReceiving->terms_of_payment == null) {
                 return response()->json([
                     'message' => 'Terms of payment have not been updated yet.',
                     'success' => false,
                     'data' => $resource
-                ]);
+                ], 400);
             }
             if ($resource->transactionMaterialReceiving->particulars == null) {
                 return response()->json([
                     'message' => 'Particulars have not been updated yet.',
                     'success' => false,
                     'data' => $resource
-                ]);
+                ], 400);
             }
             if ($resource->specification == null) {
                 return response()->json([
                     'message' => 'Item specification has not been updated yet.',
                     'success' => false,
                     'data' => $resource
-                ]);
+                ], 400);
             }
             if ($resource->actual_brand_purchase == null) {
                 return response()->json([
                     'message' => 'Actual brand purchased has not been updated yet.',
                     'success' => false,
                     'data' => $resource
-                ]);
+                ], 400);
             }
             if ($resource->unit_price == null) {
                 return response()->json([
                     'message' => 'Unit price has not been updated yet.',
                     'success' => false,
                     'data' => $resource
-                ]);
+                ], 400);
             }
         }
         DB::transaction(function () use ($resource) {
@@ -121,7 +121,7 @@ class TransactionMaterialReceivingItemController extends Controller
                 'message' => 'Item has already been processed.',
                 'success' => false,
                 'data' => $resource
-            ]);
+            ], 400);
         }
         if($resource->transactionMaterialReceiving->isPettyCash) {
             if ($resource->transactionMaterialReceiving->supplier_id == null) {
@@ -129,49 +129,49 @@ class TransactionMaterialReceivingItemController extends Controller
                     'message' => 'Supplier has not been updated yet.',
                     'success' => false,
                     'data' => $resource
-                ]);
+                ], 400);
             }
             if ($resource->transactionMaterialReceiving->reference == null) {
                 return response()->json([
                     'message' => 'Reference has not been updated yet.',
                     'success' => false,
                     'data' => $resource
-                ]);
+                ], 400);
             }
             if ($resource->transactionMaterialReceiving->terms_of_payment == null) {
                 return response()->json([
                     'message' => 'Terms of payment have not been updated yet.',
                     'success' => false,
                     'data' => $resource
-                ]);
+                ], 400);
             }
             if ($resource->transactionMaterialReceiving->particulars == null) {
                 return response()->json([
                     'message' => 'Particulars have not been updated yet.',
                     'success' => false,
                     'data' => $resource
-                ]);
+                ], 400);
             }
             if ($resource->specification == null) {
                 return response()->json([
                     'message' => 'Item specification has not been updated yet.',
                     'success' => false,
                     'data' => $resource
-                ]);
+                ], 400);
             }
             if ($resource->actual_brand_purchase == null) {
                 return response()->json([
                     'message' => 'Actual brand purchased has not been updated yet.',
                     'success' => false,
                     'data' => $resource
-                ]);
+                ], 400);
             }
             if ($resource->unit_price == null) {
                 return response()->json([
                     'message' => 'Unit price has not been updated yet.',
                     'success' => false,
                     'data' => $resource
-                ]);
+                ], 400);
             }
         }
         DB::transaction(function () use ($resource, $validatedData) {
@@ -206,14 +206,14 @@ class TransactionMaterialReceivingItemController extends Controller
                 'message' => 'Item has already been processed.',
                 'success' => false,
                 'data' => $resource
-            ]);
+            ], 400);
         }
         if($resource->transactionMaterialReceiving->isPettyCash && ($resource->specification == null || $resource->actual_brand_purchased == null || $resource->unit_price == null)) {
             return response()->json([
                 'message' => 'Item detaills has not been updated yet.',
                 'success' => false,
                 'data' => $resource
-            ]);
+            ], 400);
         }
         $resource->quantity = 0;
         $resource->remarks = $validatedData['remarks'];
