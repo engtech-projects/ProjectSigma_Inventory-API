@@ -8,6 +8,7 @@ use App\Http\Resources\RequestCanvassSummaryListingResource;
 use App\Http\Resources\RequestCanvassSummaryResource;
 use App\Models\RequestCanvassSummary;
 use App\Models\RequestCanvassSummaryItems;
+use App\Notifications\RequestCanvassSummaryForApprovalNotification;
 use App\Traits\HasApproval;
 use App\Traits\HasCSNumber;
 use App\Traits\ModelHelpers;
@@ -22,8 +23,13 @@ class RequestCanvassSummaryController extends Controller
 
     public function index()
     {
-        $requestCanvassSummaries = RequestCanvassSummary::latest()->get();
-        return RequestCanvassSummaryResource::collection($requestCanvassSummaries);
+
+        $requestCanvassSummaries = RequestCanvassSummary::latest()->paginate(config('app.pagination.per_page', 10));
+        return RequestCanvassSummaryListingResource::collection($requestCanvassSummaries)
+        ->additional([
+            "success" => true,
+            "message" => "Request Canvass Summaries Successfully Fetched.",
+        ]);
     }
 
     public function store(StoreCanvassSummary $request)
@@ -54,6 +60,9 @@ class RequestCanvassSummaryController extends Controller
             'priceQuotation',
             'items.itemProfile'
         ]);
+        if ($summary->getNextPendingApproval()) {
+            $summary->notify(new RequestCanvassSummaryForApprovalNotification($request->bearerToken(), $summary));
+        }
         return new JsonResponse([
             'success' => true,
             'message' => 'Canvass summary created successfully.',
@@ -77,17 +86,6 @@ class RequestCanvassSummaryController extends Controller
     {
         $fetchData = RequestCanvassSummary::latest()
         ->myRequests()
-        ->paginate(config('app.pagination.per_page', 10));
-        return RequestCanvassSummaryListingResource::collection($fetchData)
-        ->additional([
-            "success" => true,
-            "message" => "Request Canvass Summaries Successfully Fetched.",
-        ]);
-    }
-
-    public function allRequests()
-    {
-        $fetchData = RequestCanvassSummary::latest()
         ->paginate(config('app.pagination.per_page', 10));
         return RequestCanvassSummaryListingResource::collection($fetchData)
         ->additional([
