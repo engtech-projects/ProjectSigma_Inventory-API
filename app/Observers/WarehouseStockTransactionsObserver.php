@@ -32,11 +32,11 @@ class WarehouseStockTransactionsObserver
         // get the new quantity based on the transaction type
         // and convert it to the summary's UOM if necessary
         $summaryUom = $warehouseSummary->uom_id;
-        $quantity = $warehouseStockTransactions->qty;
+        $quantity = $warehouseStockTransactions->quantity;
         if($summaryUom != $warehouseStockTransactions->uom_id) {
             $quantity = $warehouseStockTransactions->getConvertedQuantity($summaryUom);
         }
-        if($warehouseStockTransactions->type === StockTransactionTypes::STOCKIN) {
+        if($warehouseStockTransactions->type === StockTransactionTypes::STOCKIN->value) {
             $warehouseSummary->quantity += $quantity;
         } else {
             $warehouseSummary->quantity -= $quantity;

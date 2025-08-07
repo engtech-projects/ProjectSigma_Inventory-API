@@ -64,7 +64,7 @@ class WarehouseController extends Controller
     public function show(SetupWarehouses $warehouse)
     {
         $user = Auth::user();
-        $warehouse->load('warehousePss');
+        $warehouse->load('warehousePss.employee');
         $isPssUser = $warehouse->warehousePss?->id === $user->id;
         $isPssManager = $this->checkUserAccess([AccessibilityInventory::INVENTORY_WAREHOUSE_PSSMANAGER->value]);
         if ($isPssManager || $isPssUser) {
