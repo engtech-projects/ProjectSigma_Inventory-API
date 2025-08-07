@@ -6,6 +6,7 @@ use App\Models\RequestItemProfiling;
 use App\Models\RequestSupplier;
 use App\Models\RequestBOM;
 use App\Models\RequestRequisitionSlip;
+use App\Models\RequestCanvassSummary;
 
 enum ApprovalModels: string
 {
@@ -13,6 +14,7 @@ enum ApprovalModels: string
     case RequestSupplier = RequestSupplier::class;
     case RequestRequisitionSlip = RequestRequisitionSlip::class;
     case RequestBOM = RequestBOM::class;
+    case RequestCanvassSummary = RequestCanvassSummary::class;
 
     public static function toArray(): array
     {
