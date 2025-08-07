@@ -23,7 +23,6 @@ class RequestCanvassSummaryController extends Controller
 
     public function index()
     {
-
         $requestCanvassSummaries = RequestCanvassSummary::latest()->paginate(config('app.pagination.per_page', 10));
         return RequestCanvassSummaryListingResource::collection($requestCanvassSummaries)
         ->additional([
