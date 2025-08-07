@@ -128,10 +128,14 @@ class WarehouseController extends Controller
         $transaction_type = $validated['transaction_type'] ?? null;
         $parseDateFrom = $date_from ? Carbon::parse($date_from)->startOfDay() : null;
         $parseDateTo = $date_to ? Carbon::parse($date_to)->endOfDay() : null;
-        $warehouse = WarehouseStockTransactions::with(['item', 'uomRelationship', 'transaction'])
+        $warehouse = WarehouseStockTransactions::with(['item', 'uom', 'referenceable'])
             ->where('warehouse_id', $warehouse_id)
-            ->whereBetween('created_at', [$parseDateFrom, $parseDateTo])
-            ->where("referenceable_type", $transaction_type)
+            ->when($parseDateFrom && $parseDateTo, function ($query) use ($parseDateFrom, $parseDateTo) {
+                $query->whereBetween('created_at', [$parseDateFrom, $parseDateTo]);
+            })
+            ->when($transaction_type, function ($query) use ($transaction_type) {
+                $query->where("referenceable_type", $transaction_type);
+            })
             ->latest()
             ->get();
         $returnData = WarehouseLogsResource::collection($warehouse);

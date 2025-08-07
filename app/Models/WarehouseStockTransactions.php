@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\StockTransactionTypes;
 use App\Http\Traits\HasConversionUnit;
 use App\Observers\WarehouseStockTransactionsObserver;
 use App\Traits\ModelHelpers;
@@ -32,7 +33,6 @@ class WarehouseStockTransactions extends Model
     ];
     protected $casts = [
         'metadata' => 'array',
-        'uom_conversion' => 'array',
     ];
 
     /**
@@ -59,5 +59,15 @@ class WarehouseStockTransactions extends Model
     public function referenceable()
     {
         return $this->morphTo();
+    }
+    /**
+    * ==================================================
+    * MODEL ATTRIBUTES
+    * ==================================================
+    */
+    public function getMovementAttribute()
+    {
+        $movementIcon = $this->type == StockTransactionTypes::STOCKIN->value ? '+' : '-';
+        return $movementIcon." ".$this->quantity." ". $this->item->uom_full_name;
     }
 }
