@@ -37,7 +37,7 @@ class WarehouseStockTransactionsObserver
         if($summaryUom != $warehouseStockTransactions->uom_id) {
             $quantity = $warehouseStockTransactions->getConvertedQuantity($summaryUom);
         }
-        if($warehouseStockTransactions->type === StockTransactionTypes::STOCKIN->value) {
+        if($warehouseStockTransactions->type == StockTransactionTypes::STOCKIN) {
             $warehouseSummary->quantity += $quantity;
         } else {
             $warehouseSummary->quantity -= $quantity;
