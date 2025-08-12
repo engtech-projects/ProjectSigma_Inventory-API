@@ -208,13 +208,6 @@ class TransactionMaterialReceivingItemController extends Controller
                 'data' => $resource
             ], 400);
         }
-        if($resource->transactionMaterialReceiving->isPettyCash && ($resource->specification == null || $resource->actual_brand_purchased == null || $resource->unit_price == null)) {
-            return response()->json([
-                'message' => 'Item detaills has not been updated yet.',
-                'success' => false,
-                'data' => $resource
-            ], 400);
-        }
         $resource->quantity = 0;
         $resource->remarks = $validatedData['remarks'];
         $resource->acceptance_status = ReceivingAcceptanceStatus::REJECTED->value;
