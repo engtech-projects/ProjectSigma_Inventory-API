@@ -49,7 +49,7 @@ class PriceQuotation extends Model
 
     public function canvassSummary()
     {
-        return $this->hasOne(RequestCanvassSummary::class);
+        return $this->hasMany(RequestCanvassSummary::class);
     }
 
     public function priceQuotationItems()

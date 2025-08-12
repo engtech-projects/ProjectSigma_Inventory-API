@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\HasApproval;
+use App\Traits\ModelHelpers;
 
 class RequestCanvassSummary extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use HasApproval;
-
+    use ModelHelpers;
     protected $table = "request_canvass_summary";
     protected $fillable = [
         'price_quotation_id',

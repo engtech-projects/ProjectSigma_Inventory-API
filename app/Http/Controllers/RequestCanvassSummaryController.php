@@ -50,7 +50,6 @@ class RequestCanvassSummaryController extends Controller
                 RequestCanvassSummaryItems::create([
                     'request_canvass_summary_id' => $summary->id,
                     'item_id' => $item['item_id'],
-                    'unit_price' => $item['unit_price'],
                 ]);
             }
             return $summary;
@@ -77,7 +76,7 @@ class RequestCanvassSummaryController extends Controller
         return new JsonResponse([
             "success" => true,
             "message" => "Successfully fetched.",
-            "data" => new RequestCanvassSummaryResource($requestCanvassSummary)
+            "data" => new RequestCanvassSummaryListingResource($requestCanvassSummary)
         ]);
     }
 
