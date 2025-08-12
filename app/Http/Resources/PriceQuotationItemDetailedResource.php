@@ -24,6 +24,7 @@ class PriceQuotationItemDetailedResource extends JsonResource
             'brand' => $this->actual_brand,
             'price' => $this->unit_price,
             'remarks' => $this->remarks_during_canvass,
+            'total_amount' => $this->total_amount,
         ];
     }
 }

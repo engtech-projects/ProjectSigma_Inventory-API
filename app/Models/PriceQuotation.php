@@ -62,9 +62,16 @@ class PriceQuotation extends Model
      * MODEL ATTRIBUTES
      * ==================================================
      */
+    public function getGrandTotalAmountAttribute()
+    {
+        return $this->priceQuotationItems->sum(function ($item) {
+            $qty = $item->requestStockItem?->quantity ?? 0;
+            return $item->unit_price * $qty;
+        });
+    }
     public function getTotalAmountAttribute()
     {
-        return $this->priceQuotationItems()->sum('unit_price');
+        return $this->priceQuotationItems->sum('unit_price');
     }
 
     /**

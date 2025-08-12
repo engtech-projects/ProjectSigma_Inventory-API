@@ -32,4 +32,10 @@ class PriceQuotationItem extends Model
     {
         return $this->priceQuotation?->requestProcurement?->requisitionSlip?->items?->firstWhere('item_id', $this->item_id);
     }
+
+    public function getTotalAmountAttribute()
+    {
+        $qty = $this->requestStockItem?->quantity ?? 0;
+        return $this->unit_price * $qty;
+    }
 }
