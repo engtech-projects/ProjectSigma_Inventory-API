@@ -26,7 +26,6 @@ class PriceQuotationForCanvassResource extends JsonResource
             'reference_no' => $this->requestProcurement?->requisitionSlip?->reference_no,
             'quotation_no' => $this->quotation_no,
             'quotation_date' => $this->created_at_date_human,
-            'total_amount' => $this->total_amount,
             'grand_total' => $this->grand_total_amount,
             'items' => PriceQuotationItemDetailedResource::collection($this->items),
         ];
