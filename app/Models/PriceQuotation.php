@@ -47,6 +47,26 @@ class PriceQuotation extends Model
         return $this->belongsTo(RequestSupplier::class, 'supplier_id');
     }
 
+    public function canvassSummary()
+    {
+        return $this->hasOne(RequestCanvassSummary::class);
+    }
+
+    public function priceQuotationItems()
+    {
+        return $this->hasMany(PriceQuotationItem::class);
+    }
+
+    /**
+     * ==================================================
+     * MODEL ATTRIBUTES
+     * ==================================================
+     */
+    public function getTotalAmountAttribute()
+    {
+        return $this->priceQuotationItems()->sum('unit_price');
+    }
+
     /**
      * ==================================================
      * MODEL SCOPES
