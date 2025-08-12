@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Enums\StockTransactionTypes;
+use App\Models\UOM;
 use App\Models\WarehouseStocksSummary;
 use App\Models\WarehouseStockTransactions;
 
@@ -32,12 +33,16 @@ class WarehouseStockTransactionsObserver
         }
         // get the new quantity based on the transaction type
         // and convert it to the summary's UOM if necessary
-        $summaryUom = $warehouseSummary->uom_id;
+        $summaryUom = UOM::find($warehouseSummary->uom_id);
         $quantity = $warehouseStockTransactions->quantity;
-        if($summaryUom != $warehouseStockTransactions->uom_id) {
-            $quantity = $warehouseStockTransactions->getConvertedQuantity($summaryUom);
+        if($summaryUom->id != $warehouseStockTransactions->uom_id) {
+            try {
+                $quantity = $warehouseStockTransactions->getConvertedQuantity($summaryUom);
+            } catch (\Exception $e) {
+                throw $e;
+            }
         }
-        if($warehouseStockTransactions->type == StockTransactionTypes::STOCKIN) {
+        if($warehouseStockTransactions->type == StockTransactionTypes::STOCKIN->value) {
             $warehouseSummary->quantity += $quantity;
         } else {
             $warehouseSummary->quantity -= $quantity;

@@ -20,6 +20,9 @@ trait HasConversionUnit
         if ($this->{$this->uomIdColumn} === $toUom->id) {
             return $this->{$this->quantityColumn};
         }
-        return UomConversionService::convert($this->{$this->quantityColumn}, $this->{$this->uomIdColumn}, $toUom->conversion);
+        if ($this->uom->conversion == 0 || $toUom->conversion == 0) {
+            throw new \InvalidArgumentException('UOM conversion is not configured');
+        }
+        return UomConversionService::convert($this->{$this->quantityColumn}, $this->uom->conversion, $toUom->conversion);
     }
 }
