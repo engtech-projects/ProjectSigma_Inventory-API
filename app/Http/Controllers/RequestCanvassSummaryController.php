@@ -6,6 +6,7 @@ use App\Enums\RequestStatuses;
 use App\Http\Requests\StoreCanvassSummary;
 use App\Http\Resources\RequestCanvassSummaryListingResource;
 use App\Http\Resources\RequestCanvassSummaryResource;
+use App\Models\PriceQuotationItem;
 use App\Models\RequestCanvassSummary;
 use App\Models\RequestCanvassSummaryItems;
 use App\Notifications\RequestCanvassSummaryForApprovalNotification;
@@ -46,10 +47,13 @@ class RequestCanvassSummaryController extends Controller
                 'created_by' => auth()->user()->id,
                 'request_status' => RequestStatuses::PENDING,
             ]);
+            $quotationItems = PriceQuotationItem::where('price_quotation_id', $validated['price_quotation_id'])
+                ->pluck('unit_price', 'item_id');
             foreach ($validated['items'] as $item) {
                 RequestCanvassSummaryItems::create([
                     'request_canvass_summary_id' => $summary->id,
                     'item_id' => $item['item_id'],
+                    'unit_price' => $quotationItems[$item['item_id']] ?? 0,
                 ]);
             }
             return $summary;
