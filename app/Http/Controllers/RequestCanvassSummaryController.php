@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\RequestStatuses;
 use App\Http\Requests\StoreCanvassSummary;
+use App\Http\Resources\RequestCanvassSummaryDetailedResource;
 use App\Http\Resources\RequestCanvassSummaryListingResource;
 use App\Http\Resources\RequestCanvassSummaryResource;
 use App\Models\PriceQuotationItem;
@@ -80,7 +81,7 @@ class RequestCanvassSummaryController extends Controller
         return new JsonResponse([
             "success" => true,
             "message" => "Successfully fetched.",
-            "data" => new RequestCanvassSummaryListingResource($requestCanvassSummary)
+            "data" => new RequestCanvassSummaryDetailedResource($requestCanvassSummary)
         ]);
     }
 

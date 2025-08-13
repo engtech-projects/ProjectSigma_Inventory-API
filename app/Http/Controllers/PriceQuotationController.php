@@ -26,9 +26,8 @@ class PriceQuotationController extends Controller
                     $query->orderBy('id');
                 },
             ])
-            ->orderBy('created_at', 'desc')
+            ->latest()
             ->get();
-
         return response()->json([
             'success' => true,
             'message' => 'Price quotations retrieved successfully.',
