@@ -21,6 +21,7 @@ class RequestCanvassSummaryListingResource extends JsonResource
             'availability' => $this->availability,
             'delivery_terms' => $this->delivery_terms,
             'remarks' => $this->remarks,
+            'date' => $this->createdAtDateHuman,
             'price_quotation' => $this->priceQuotation,
             'supplier' => $this->priceQuotation->supplier,
             'items' => $this->items,
