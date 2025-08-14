@@ -25,7 +25,7 @@ return new class () extends Migration {
             $table->enum('processing_status', PurchaseOrderProcessingStatus::toArray())->nullable();
             $table->json('metadata')
                 ->nullable()
-                ->description('Additional metadata for the request, such as vat details per item, etc.');
+                ->comment('Additional metadata for the request, such as VAT details per item, etc.');
             $table->foreignId('created_by')
                 ->constrained('users')
                 ->onDelete('restrict')

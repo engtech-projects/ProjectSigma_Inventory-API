@@ -31,7 +31,6 @@ class RequestPurchaseOrder extends Model
         'transaction_date' => 'date',
         'metadata' => 'json',
         'approvals' => 'json',
-        'processing_status' => 'string',
     ];
     /**
      * ==================================================
