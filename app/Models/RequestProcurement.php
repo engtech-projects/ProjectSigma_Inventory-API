@@ -63,6 +63,13 @@ class RequestProcurement extends Model
 
     public function canvassSummaries()
     {
-        return $this->hasMany(RequestCanvassSummary::class, 'price_quotation_id', 'id');
+        return $this->hasManyThrough(
+            RequestCanvassSummary::class,
+            PriceQuotation::class,
+            'request_procurement_id',
+            'price_quotation_id',
+            'id',
+            'id'
+        );
     }
 }
