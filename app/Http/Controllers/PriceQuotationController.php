@@ -27,7 +27,7 @@ class PriceQuotationController extends Controller
                 },
             ])
             ->latest()
-            ->paginate(config('app.pagination.per_page', 10));
+            ->get();
         return PriceQuotationForCanvassResource::collection($priceQuotations)
         ->additional([
             "success" => true,
