@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PriceQuotation;
 use App\Http\Requests\StorePriceQuotationRequest;
 use App\Http\Resources\PriceQuotationDetailedResource;
+use App\Http\Resources\PriceQuotationForCanvassResource;
 use App\Models\RequestProcurement;
 use App\Traits\HasReferenceNumber;
 use App\Traits\ModelHelpers;
@@ -15,6 +16,24 @@ class PriceQuotationController extends Controller
 {
     use HasReferenceNumber;
     use ModelHelpers;
+
+    public function quotations(RequestProcurement $requestProcurement)
+    {
+        $priceQuotations = $requestProcurement->priceQuotations()
+            ->with([
+                'supplier',
+                'items' => function ($query) {
+                    $query->orderBy('id');
+                },
+            ])
+            ->latest()
+            ->paginate(config('app.pagination.per_page', 10));
+        return PriceQuotationForCanvassResource::collection($priceQuotations)
+        ->additional([
+            "success" => true,
+            "message" => "Price quotations retrieved successfully.",
+        ]);
+    }
 
     /**
      * Store a newly created resource in storage.
