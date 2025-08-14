@@ -27,11 +27,11 @@ class PriceQuotationController extends Controller
                 },
             ])
             ->latest()
-            ->get();
-        return response()->json([
-            'success' => true,
-            'message' => 'Price quotations retrieved successfully.',
-            'data' => PriceQuotationForCanvassResource::collection($priceQuotations)
+            ->paginate(config('app.pagination.per_page', 10));
+        return PriceQuotationForCanvassResource::collection($priceQuotations)
+        ->additional([
+            "success" => true,
+            "message" => "Price quotations retrieved successfully.",
         ]);
     }
 
