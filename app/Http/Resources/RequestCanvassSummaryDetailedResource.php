@@ -22,9 +22,11 @@ class RequestCanvassSummaryDetailedResource extends JsonResource
             'availability' => $this->availability,
             'delivery_terms' => $this->delivery_terms,
             'remarks' => $this->remarks,
-            'price_quotation' => $this->priceQuotation,
-            'supplier' => $this->priceQuotation->supplier,
-            'items' => $this->items,
+            'price_quotation_id' => $this->priceQuotation->id,
+            'supplier' => new RequestSupplierDetailedResource($this->priceQuotation->supplier),
+            'items' => CanvassSummaryItemDetailedResource::collection($this->items),
+
+
         ];
     }
 }
