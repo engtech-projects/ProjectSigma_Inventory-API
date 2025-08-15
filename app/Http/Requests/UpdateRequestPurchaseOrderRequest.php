@@ -13,7 +13,13 @@ class UpdateRequestPurchaseOrderRequest extends FormRequest
     {
         return true;
     }
-
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'name_on_receipt' => isset($this->name_on_receipt) ? trim((string) $this->name_on_receipt) : $this->name_on_receipt,
+            'delivered_to' => isset($this->delivered_to) ? trim((string) $this->delivered_to) : $this->delivered_to,
+        ]);
+    }
     /**
      * Get the validation rules that apply to the request.
      *
@@ -23,11 +29,13 @@ class UpdateRequestPurchaseOrderRequest extends FormRequest
     {
         return [
             'name_on_receipt' => [
+                'sometimes',
                 'nullable',
                 'string',
                 'max:255',
             ],
             'delivered_to' => [
+                'sometimes',
                 'nullable',
                 'string',
                 'max:255',

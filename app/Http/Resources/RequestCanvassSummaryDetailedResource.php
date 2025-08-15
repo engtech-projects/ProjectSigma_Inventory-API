@@ -16,7 +16,7 @@ class RequestCanvassSummaryDetailedResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'date' => $this->createdAtDateHuman,
+            'date' => $this->created_at_date_human,
             'cs_number' => $this->cs_number,
             'terms_of_payment' => $this->terms_of_payment,
             'availability' => $this->availability,

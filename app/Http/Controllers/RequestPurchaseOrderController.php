@@ -14,7 +14,7 @@ class RequestPurchaseOrderController extends Controller
      */
     public function index()
     {
-        $requestPurchaseOrders = RequestPurchaseOrder::all();
+        $requestPurchaseOrders = RequestPurchaseOrder::paginate(config('app.pagination.per_page', 15));
         return RequestPurchaseOrderListingResource::collection($requestPurchaseOrders)
         ->additional([
             'message' => 'Request Purchase Orders retrieved successfully.',
@@ -27,11 +27,11 @@ class RequestPurchaseOrderController extends Controller
      */
     public function show(RequestPurchaseOrder $requestPurchaseOrder)
     {
-        return response()->json([
-            'message' => 'Request Purchase Order retrieved successfully.',
-            'success' => true,
-            'data' => new RequestPurchaseOrderDetailedResource($requestPurchaseOrder),
-        ]);
+        return (new RequestPurchaseOrderDetailedResource($requestPurchaseOrder))
+            ->additional([
+                'message' => 'Request Purchase Order retrieved successfully.',
+                'success' => true,
+            ]);
     }
 
     /**
@@ -41,10 +41,10 @@ class RequestPurchaseOrderController extends Controller
     {
         $validatedData = $request->validated();
         $requestPurchaseOrder->update($validatedData);
-        return response()->json([
-            'message' => 'Request Purchase Order updated successfully.',
-            'success' => true,
-            'data' => $requestPurchaseOrder,
-        ]);
+        return (new RequestPurchaseOrderDetailedResource($requestPurchaseOrder))
+            ->additional([
+                'message' => 'Request Purchase Order updated successfully.',
+                'success' => true,
+            ]);
     }
 }
