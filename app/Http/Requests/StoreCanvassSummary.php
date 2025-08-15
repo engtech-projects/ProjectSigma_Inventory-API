@@ -38,7 +38,6 @@ class StoreCanvassSummary extends FormRequest
                     }
                 }
             ],
-            'items.*.unit_price' => 'required|numeric',
             'terms_of_payment' => 'required|string',
             'availability' => 'required|string',
             'delivery_terms' => 'required|string',

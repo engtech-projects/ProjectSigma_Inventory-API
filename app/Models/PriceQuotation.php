@@ -49,6 +49,16 @@ class PriceQuotation extends Model
 
     /**
      * ==================================================
+     * MODEL ATTRIBUTES
+     * ==================================================
+     */
+    public function getGrandTotalAmountAttribute()
+    {
+        return $this->items->sum('total_amount');
+    }
+
+    /**
+     * ==================================================
      * MODEL SCOPES
      * ==================================================
      */

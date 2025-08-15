@@ -20,10 +20,7 @@ class RequestCanvassSummaryResource extends JsonResource
             'terms_of_payment' => $this->terms_of_payment,
             'availability' => $this->availability,
             'delivery_terms' => $this->delivery_terms,
-            'remarks' => $this->remarks,
-            'price_quotation' => $this->priceQuotation,
-            'supplier' => $this->priceQuotation->supplier,
-            'items' => $this->items,
+            'created_at' => $this->createdAtDateHuman,
         ];
     }
 }

@@ -37,7 +37,7 @@ class MrrService
                     'transaction_material_receiving_id' => $this->model->id,
                     'item_id' => $item->item_id,
                     'specification' => $item->specification,
-                    'actual_brand_purchased' => null,
+                    'actual_brand_purchase' => null,
                     'requested_quantity' => $item->quantity,
                     'quantity' => $item->quantity,
                     'uom_id' => $item->unit,
