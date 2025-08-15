@@ -24,7 +24,7 @@ class RequestCanvassSummaryDetailedResource extends JsonResource
             'remarks' => $this->remarks,
             'price_quotation_id' => $this->priceQuotation->id,
             'supplier' => new RequestSupplierDetailedResource($this->priceQuotation->supplier),
-            'items' => ItemDetailedResource::collection($this->items),
+            'items' => CanvassSummaryItemDetailedResource::collection($this->items),
 
 
         ];
