@@ -23,14 +23,15 @@ class RequestCanvassSummaryDetailedResource extends JsonResource
             'delivery_terms' => $this->delivery_terms,
             'remarks' => $this->remarks,
             'price_quotation_id' => $this->priceQuotation->id,
-            'supplier' => $this->priceQuotation->supplier->only('id', 'company_name', 'company_address', 'contact_person_name', 'contact_person_number'),
-            'items' => $this->priceQuotation->items
-                ->whereIn(
-                    'item_id',
-                    $this->items->pluck('item_id')->all()
-                )
-                ->values()
-                ->toArray(),
+            'supplier' => new RequestSupplierDetailedResource($this->priceQuotation->supplier),
+            'items' => $this->items->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'item_id' => $item->item_id,
+                    'unit_price' => $item->unit_price,
+                ];
+            }),
+
 
         ];
     }
