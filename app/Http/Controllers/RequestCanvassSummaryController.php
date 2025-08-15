@@ -85,10 +85,9 @@ class RequestCanvassSummaryController extends Controller
         ]);
     }
 
-    public function myRequests()
+    public function allRequests()
     {
         $fetchData = RequestCanvassSummary::latest()
-        ->myRequests()
         ->paginate(config('app.pagination.per_page', 10));
         return RequestCanvassSummaryListingResource::collection($fetchData)
         ->additional([
