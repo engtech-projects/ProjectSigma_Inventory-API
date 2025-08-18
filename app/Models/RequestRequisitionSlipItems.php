@@ -71,5 +71,4 @@ class RequestRequisitionSlipItems extends Model
             'item_id'            // Local key on price_quotation_items
         );
     }
-
 }

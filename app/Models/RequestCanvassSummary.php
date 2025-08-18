@@ -68,5 +68,4 @@ class RequestCanvassSummary extends Model
             return $unitPrice * $quantity;
         });
     }
-
 }

@@ -76,5 +76,4 @@ class RequestCanvassSummaryItems extends Model
     {
         return $this->requisitionSlipItem?->quantity;
     }
-
 }

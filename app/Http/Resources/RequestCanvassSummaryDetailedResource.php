@@ -30,7 +30,6 @@ class RequestCanvassSummaryDetailedResource extends JsonResource
             'grand_total_amount' => $this->grand_total_amount,
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
-
         ];
     }
 }

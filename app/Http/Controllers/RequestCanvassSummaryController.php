@@ -80,7 +80,6 @@ class RequestCanvassSummaryController extends Controller
             'priceQuotation.priceQuotationItems',
             'items.itemProfile',
             'items.requisitionSlipItem',
-
         ]);
         return new JsonResponse([
             "success" => true,
