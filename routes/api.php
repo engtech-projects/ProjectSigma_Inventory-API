@@ -200,7 +200,7 @@ Route::middleware('auth:api')->group(function () {
             ->only(['update']);
         Route::prefix('canvass-summary')->group(function () {
             Route::resource('resource', RequestCanvassSummaryController::class)->names("requestCanvassSummary");
-            Route::get('my-request', [RequestCanvassSummaryController::class, 'myRequests']);
+            Route::get('all-request', [RequestCanvassSummaryController::class, 'allRequests']);
             Route::get('my-approvals', [RequestCanvassSummaryController::class, 'myApprovals']);
             Route::get('{requestCanvassSummary}', [RequestCanvassSummaryController::class, 'show']);
         });

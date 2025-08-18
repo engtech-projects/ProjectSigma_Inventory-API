@@ -75,8 +75,10 @@ class RequestCanvassSummaryController extends Controller
     public function show(RequestCanvassSummary $requestCanvassSummary)
     {
         $requestCanvassSummary->load([
-            'priceQuotation',
+            'items',
+            'priceQuotation.requestProcurement.requisitionSlip.items.itemProfile',
             'items.itemProfile',
+            'items.requisitionSlipItem',
         ]);
         return new JsonResponse([
             "success" => true,
@@ -85,10 +87,9 @@ class RequestCanvassSummaryController extends Controller
         ]);
     }
 
-    public function myRequests()
+    public function allRequests()
     {
         $fetchData = RequestCanvassSummary::latest()
-        ->myRequests()
         ->paginate(config('app.pagination.per_page', 10));
         return RequestCanvassSummaryListingResource::collection($fetchData)
         ->additional([
