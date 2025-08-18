@@ -16,6 +16,8 @@ class RequestCanvassSummaryDetailedResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'project_code' => optional($this->priceQuotation->requestProcurement->requisitionSlip)->project_department_name,
+            'reference_number' => optional($this->priceQuotation->requestProcurement->requisitionSlip)->reference_no,
             'date' => $this->createdAtDateHuman,
             'cs_number' => $this->cs_number,
             'terms_of_payment' => $this->terms_of_payment,
@@ -25,7 +27,9 @@ class RequestCanvassSummaryDetailedResource extends JsonResource
             'price_quotation_id' => $this->priceQuotation->id,
             'supplier' => new RequestSupplierDetailedResource($this->priceQuotation->supplier),
             'items' => CanvassSummaryItemDetailedResource::collection($this->items),
-
+            'grand_total_amount' => $this->grand_total_amount,
+            "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
+            "next_approval" => $this->getNextPendingApproval(),
 
         ];
     }

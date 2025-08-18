@@ -41,6 +41,10 @@ class RequestCanvassSummaryItems extends Model
     {
         return $this->belongsTo(ItemProfile::class, 'item_id');
     }
+    public function requisitionSlipItem()
+    {
+        return $this->belongsTo(RequestRequisitionSlipItems::class);
+    }
 
     /**
      * ==================================================
@@ -57,4 +61,20 @@ class RequestCanvassSummaryItems extends Model
     {
         return $this->itemProfile?->item_code;
     }
+
+    public function getRequisitionSlipItemAttribute()
+    {
+        return $this->requestCanvassSummary
+            ->priceQuotation
+            ->requestProcurement
+            ->requisitionSlip
+            ->requisitionSlipItems
+            ->firstWhere('item_id', $this->item_id);
+    }
+
+    public function getQuantityAttribute()
+    {
+        return $this->requisitionSlipItem?->quantity;
+    }
+
 }

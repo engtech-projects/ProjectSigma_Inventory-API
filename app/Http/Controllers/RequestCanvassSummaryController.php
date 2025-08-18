@@ -75,8 +75,12 @@ class RequestCanvassSummaryController extends Controller
     public function show(RequestCanvassSummary $requestCanvassSummary)
     {
         $requestCanvassSummary->load([
-            'priceQuotation',
+            'items',
+            'priceQuotation.requestProcurement.requisitionSlip.requisitionSlipItems.itemProfile',
+            'priceQuotation.priceQuotationItems',
             'items.itemProfile',
+            'items.requisitionSlipItem',
+
         ]);
         return new JsonResponse([
             "success" => true,
