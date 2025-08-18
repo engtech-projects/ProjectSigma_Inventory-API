@@ -38,67 +38,21 @@ class TransactionMaterialReceivingItemController extends Controller
                 'message' => 'Item has already been processed.',
                 'success' => false,
                 'data' => $resource
-            ]);
+            ], 400);
         }
         if($resource->transactionMaterialReceiving->isPettyCash) {
-            if ($resource->transactionMaterialReceiving->supplier_id == null) {
-                return response()->json([
-                    'message' => 'Supplier has not been updated yet.',
-                    'success' => false,
-                    'data' => $resource
-                ]);
-            }
-            if ($resource->transactionMaterialReceiving->reference == null) {
-                return response()->json([
-                    'message' => 'Reference has not been updated yet.',
-                    'success' => false,
-                    'data' => $resource
-                ]);
-            }
-            if ($resource->transactionMaterialReceiving->terms_of_payment == null) {
-                return response()->json([
-                    'message' => 'Terms of payment have not been updated yet.',
-                    'success' => false,
-                    'data' => $resource
-                ]);
-            }
-            if ($resource->transactionMaterialReceiving->particulars == null) {
-                return response()->json([
-                    'message' => 'Particulars have not been updated yet.',
-                    'success' => false,
-                    'data' => $resource
-                ]);
-            }
-            if ($resource->specification == null) {
-                return response()->json([
-                    'message' => 'Item specification has not been updated yet.',
-                    'success' => false,
-                    'data' => $resource
-                ]);
-            }
-            if ($resource->actual_brand_purchase == null) {
-                return response()->json([
-                    'message' => 'Actual brand purchased has not been updated yet.',
-                    'success' => false,
-                    'data' => $resource
-                ]);
-            }
-            if ($resource->unit_price == null) {
-                return response()->json([
-                    'message' => 'Unit price has not been updated yet.',
-                    'success' => false,
-                    'data' => $resource
-                ]);
+            if ($resp = $this->ensurePettyCashHeadersComplete($resource)) {
+                return $resp;
             }
         }
         DB::transaction(function () use ($resource) {
             $resource->quantity = $resource->requested_quantity;
             $resource->acceptance_status = ReceivingAcceptanceStatus::ACCEPTED->value;
-            $resource->serve_status = ServeStatus::SERVED;
+            $resource->serve_status = ServeStatus::SERVED->value;
             $resource->save();
             $resource->transactionMaterialReceiving->warehouseStockTransactions()->create([
                 'warehouse_id' => $resource->transactionMaterialReceiving->warehouse_id,
-                'type' => StockTransactionTypes::STOCKIN,
+                'type' => StockTransactionTypes::STOCKIN->value,
                 'item_id' => $resource->item_id,
                 'quantity' => $resource->quantity,
                 'uom_id' => $resource->uom_id,
@@ -121,68 +75,22 @@ class TransactionMaterialReceivingItemController extends Controller
                 'message' => 'Item has already been processed.',
                 'success' => false,
                 'data' => $resource
-            ]);
+            ], 400);
         }
         if($resource->transactionMaterialReceiving->isPettyCash) {
-            if ($resource->transactionMaterialReceiving->supplier_id == null) {
-                return response()->json([
-                    'message' => 'Supplier has not been updated yet.',
-                    'success' => false,
-                    'data' => $resource
-                ]);
-            }
-            if ($resource->transactionMaterialReceiving->reference == null) {
-                return response()->json([
-                    'message' => 'Reference has not been updated yet.',
-                    'success' => false,
-                    'data' => $resource
-                ]);
-            }
-            if ($resource->transactionMaterialReceiving->terms_of_payment == null) {
-                return response()->json([
-                    'message' => 'Terms of payment have not been updated yet.',
-                    'success' => false,
-                    'data' => $resource
-                ]);
-            }
-            if ($resource->transactionMaterialReceiving->particulars == null) {
-                return response()->json([
-                    'message' => 'Particulars have not been updated yet.',
-                    'success' => false,
-                    'data' => $resource
-                ]);
-            }
-            if ($resource->specification == null) {
-                return response()->json([
-                    'message' => 'Item specification has not been updated yet.',
-                    'success' => false,
-                    'data' => $resource
-                ]);
-            }
-            if ($resource->actual_brand_purchase == null) {
-                return response()->json([
-                    'message' => 'Actual brand purchased has not been updated yet.',
-                    'success' => false,
-                    'data' => $resource
-                ]);
-            }
-            if ($resource->unit_price == null) {
-                return response()->json([
-                    'message' => 'Unit price has not been updated yet.',
-                    'success' => false,
-                    'data' => $resource
-                ]);
+            if ($resp = $this->ensurePettyCashHeadersComplete($resource)) {
+                return $resp;
             }
         }
         DB::transaction(function () use ($resource, $validatedData) {
             $resource->quantity = $validatedData['quantity'];
             $resource->remarks = $validatedData['remarks'];
             $resource->acceptance_status = ReceivingAcceptanceStatus::ACCEPTED->value;
-            $resource->serve_status = ServeStatus::SERVED;
+            $resource->serve_status = ServeStatus::SERVED->value;
             $resource->save();
             $resource->transactionMaterialReceiving->warehouseStockTransactions()->create([
                 'warehouse_id' => $resource->transactionMaterialReceiving->warehouse_id,
-                'type' => StockTransactionTypes::STOCKIN,
+                'type' => StockTransactionTypes::STOCKIN->value,
                 'item_id' => $resource->item_id,
                 'quantity' => $resource->quantity,
                 'uom_id' => $resource->uom_id,
@@ -206,19 +114,12 @@ class TransactionMaterialReceivingItemController extends Controller
                 'message' => 'Item has already been processed.',
                 'success' => false,
                 'data' => $resource
-            ]);
-        }
-        if($resource->transactionMaterialReceiving->isPettyCash && ($resource->specification == null || $resource->actual_brand_purchased == null || $resource->unit_price == null)) {
-            return response()->json([
-                'message' => 'Item detaills has not been updated yet.',
-                'success' => false,
-                'data' => $resource
-            ]);
+            ], 400);
         }
         $resource->quantity = 0;
         $resource->remarks = $validatedData['remarks'];
         $resource->acceptance_status = ReceivingAcceptanceStatus::REJECTED->value;
-        $resource->serve_status = ServeStatus::SERVED;
+        $resource->serve_status = ServeStatus::SERVED->value;
         $resource->save();
         // TO BE UPDATED LATER FOR TRANSFER TO RETURN ITEMS
         return response()->json([
@@ -226,5 +127,24 @@ class TransactionMaterialReceivingItemController extends Controller
             'success' => true,
             'data' => $resource->refresh(),
         ]);
+    }
+    private function ensurePettyCashHeadersComplete(TransactionMaterialReceivingItem $resource)
+    {
+        $mrr = $resource->transactionMaterialReceiving;
+        $checks = [
+            [$mrr->supplier_id !== null, 'Supplier has not been updated yet.'],
+            [$mrr->reference !== null, 'Reference has not been updated yet.'],
+            [$mrr->terms_of_payment !== null, 'Terms of payment have not been updated yet.'],
+            [$mrr->particulars !== null, 'Particulars have not been updated yet.'],
+            [$resource->specification !== null, 'Item specification has not been updated yet.'],
+            [$resource->actual_brand_purchase !== null, 'Actual brand purchased has not been updated yet.'],
+            [$resource->unit_price !== null, 'Unit price has not been updated yet.'],
+        ];
+        foreach ($checks as [$ok, $message]) {
+            if (!$ok) {
+                return response()->json(['message' => $message, 'success' => false, 'data' => $resource], 400);
+            }
+        }
+        return null;
     }
 }

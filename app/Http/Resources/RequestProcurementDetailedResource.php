@@ -21,8 +21,9 @@ class RequestProcurementDetailedResource extends JsonResource
                 : null,
             'status' => $this->serve_status,
             'canvasser' => new CanvasserResource($this->canvasser),
-            "price_quotations" => PriceQuotationListingResource::collection($this->priceQuotations),
             "price_quotation_count" => $this->priceQuotations->count(),
+            'price_quotations' => PriceQuotationListingResource::collection($this->whenLoaded('priceQuotations')),
+            'canvass_summaries' => RequestCanvassSummaryListingResource::collection($this->whenLoaded('canvassSummaries')),
         ];
     }
 }

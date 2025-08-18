@@ -21,6 +21,7 @@ class PriceQuotationItem extends Model
     ];
     protected $casts = [
         'metadata' => 'array',
+        'unit_price' => 'decimal:2',
     ];
 
     public function priceQuotation()
@@ -31,5 +32,12 @@ class PriceQuotationItem extends Model
     public function getRequestStockItemAttribute()
     {
         return $this->priceQuotation?->requestProcurement?->requisitionSlip?->items?->firstWhere('item_id', $this->item_id);
+    }
+
+    public function getTotalAmountAttribute()
+    {
+        $unit = (float) ($this->unit_price ?? 0);
+        $qty = (float) ($this->requestStockItem?->quantity ?? 0);
+        return round($unit * $qty, 2);
     }
 }
