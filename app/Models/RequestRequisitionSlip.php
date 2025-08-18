@@ -136,10 +136,6 @@ class RequestRequisitionSlip extends Model
     {
         return $this->belongsTo(SetupWarehouses::class, 'warehouse_id');
     }
-    public function requisitionSlipItems()
-    {
-        return $this->hasMany(RequestRequisitionSlipItems::class, 'request_requisition_slip_id', 'id');
-    }
 
     /**
      * ==================================================

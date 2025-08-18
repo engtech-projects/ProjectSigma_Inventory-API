@@ -76,8 +76,7 @@ class RequestCanvassSummaryController extends Controller
     {
         $requestCanvassSummary->load([
             'items',
-            'priceQuotation.requestProcurement.requisitionSlip.requisitionSlipItems.itemProfile',
-            'priceQuotation.priceQuotationItems',
+            'priceQuotation.requestProcurement.requisitionSlip.items.itemProfile',
             'items.itemProfile',
             'items.requisitionSlipItem',
         ]);
