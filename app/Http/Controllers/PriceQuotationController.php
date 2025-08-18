@@ -79,6 +79,7 @@ class PriceQuotationController extends Controller
         $priceQuotation->load([
             'supplier',
             'items',
+            'requestProcurement.requisitionSlip.items'
         ]);
         return response()->json([
             'success' => true,
