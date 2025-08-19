@@ -63,7 +63,7 @@ class RequestCanvassSummary extends Model
     public function getGrandTotalAmountAttribute(): float
     {
         return $this->items->sum(function ($item) {
-            $quantity = $item->requisition_slip_item?->quantity ?? 0;
+            $quantity = $item->quantity ?? 0;
             $unitPrice = $item->unit_price ?? 0;
             return $unitPrice * $quantity;
         });

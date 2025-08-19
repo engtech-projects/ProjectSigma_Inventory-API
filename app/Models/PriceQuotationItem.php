@@ -23,6 +23,7 @@ class PriceQuotationItem extends Model
         'metadata' => 'array',
         'unit_price' => 'decimal:2',
     ];
+    protected $appends = ['is_quoted'];
 
     public function priceQuotation()
     {
@@ -39,5 +40,18 @@ class PriceQuotationItem extends Model
         $unit = (float) ($this->unit_price ?? 0);
         $qty = (float) ($this->requestStockItem?->quantity ?? 0);
         return round($unit * $qty, 2);
+    }
+    public function getUnitPriceAttribute($value)
+    {
+        return $value ?? 0;
+    }
+
+    public function getQuantityAttribute($value)
+    {
+        return $value ?? 0;
+    }
+    public function getIsQuotedAttribute()
+    {
+        return $this->unit_price > 0;
     }
 }
