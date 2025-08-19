@@ -34,7 +34,7 @@ class StoreCanvassSummary extends FormRequest
                 function ($attribute, $value, $fail) {
                     $priceQuotationId = $this->input('price_quotation_id');
                     if (!$this->itemExistsInQuotation($priceQuotationId, $value)) {
-                        $fail("Item ID {$value} is not listed under the given price quotation.");
+                        $fail("The item(s) selected is not listed under the selected quotation");
                     }
                 }
             ],
