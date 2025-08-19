@@ -35,10 +35,7 @@ class RequestProcurementController extends Controller
             'priceQuotations' => function ($query) {
                 $query->latest();
             },
-            'canvasser',
-            'canvassSummaries' => function ($query) {
-                $query->latest();
-            }
+            'canvasser'
         ]);
         return new JsonResponse([
             'success' => true,

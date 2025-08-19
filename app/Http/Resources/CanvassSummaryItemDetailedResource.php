@@ -23,7 +23,6 @@ class CanvassSummaryItemDetailedResource extends JsonResource
             'unit'           => $requisitionItem?->uom_name,
             'unit_price'     => $this->unit_price,
             'total_amount'   => $this->total_amount,
-            'test'   => 'test',
         ];
     }
 }
