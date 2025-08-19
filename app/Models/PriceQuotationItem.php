@@ -23,7 +23,6 @@ class PriceQuotationItem extends Model
         'metadata' => 'array',
         'unit_price' => 'decimal:2',
     ];
-    protected $appends = ['is_quoted'];
 
     public function priceQuotation()
     {
