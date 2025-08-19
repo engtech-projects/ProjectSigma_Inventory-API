@@ -194,12 +194,13 @@ Route::middleware('auth:api')->group(function () {
         Route::get('unserved', [RequestProcurementController::class, 'unservedRequests']);
         Route::post('{requestProcurement}/create-price-quotation', [PriceQuotationController::class, 'store']);
         Route::get('price-quotation/{priceQuotation}', [PriceQuotationController::class, 'show']);
-        Route::get('quotations-for-canvass/{requestProcurement}', [PriceQuotationController::class, 'quotations']);
+        Route::get('quotations-for-canvass/{requestProcurement}', [PriceQuotationController::class, 'quotations'])
+            ->name('procurement-request.quotations-for-canvass');
         Route::resource('price-quotation-item', PriceQuotationItemController::class)
             ->only(['update']);
         Route::prefix('canvass-summary')->group(function () {
             Route::resource('resource', RequestCanvassSummaryController::class)->names("requestCanvassSummary");
-            Route::get('my-request', [RequestCanvassSummaryController::class, 'myRequests']);
+            Route::get('all-request', [RequestCanvassSummaryController::class, 'allRequests']);
             Route::get('my-approvals', [RequestCanvassSummaryController::class, 'myApprovals']);
             Route::get('{requestCanvassSummary}', [RequestCanvassSummaryController::class, 'show']);
         });

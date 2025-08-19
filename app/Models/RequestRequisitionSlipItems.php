@@ -60,4 +60,15 @@ class RequestRequisitionSlipItems extends Model
     {
         return $this->morphTo();
     }
+    public function requisitionSlipItem()
+    {
+        return $this->hasOneThrough(
+            RequestRequisitionSlipItems::class,
+            PriceQuotationItem::class,
+            'id',                // Foreign key on price_quotation_items
+            'item_id',           // Foreign key on requisition_slip_items
+            'price_quotation_item_id', // Local key on canvass_summary_items
+            'item_id'            // Local key on price_quotation_items
+        );
+    }
 }

@@ -14,6 +14,7 @@ class CanvassSummaryItemDetailedResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $requisitionItem = $this->requisitionSlipItem;
         return [
             'item_id'        => $this->item_id,
             'quantity'       => $this->quantity,
@@ -22,7 +23,6 @@ class CanvassSummaryItemDetailedResource extends JsonResource
             'unit'           => $requisitionItem?->uom_name,
             'unit_price'     => $this->unit_price,
             'total_amount'   => $this->total_amount,
-            'test'   => 'test',
         ];
     }
 }

@@ -47,16 +47,6 @@ class PriceQuotation extends Model
         return $this->belongsTo(RequestSupplier::class, 'supplier_id');
     }
 
-    public function canvassSummary()
-    {
-        return $this->hasMany(RequestCanvassSummary::class);
-    }
-
-    public function priceQuotationItems()
-    {
-        return $this->hasMany(PriceQuotationItem::class);
-    }
-
     /**
      * ==================================================
      * MODEL ATTRIBUTES
