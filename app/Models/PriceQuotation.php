@@ -64,7 +64,10 @@ class PriceQuotation extends Model
      */
     public function getGrandTotalAmountAttribute()
     {
-        return $this->priceQuotationItems->sum('total_amount');
+        // return $this->items->sum('total_amount');
+        return $this->items->filter(function ($item) {
+            return $item->is_quoted; // uses the accessor above
+        })->sum('total_amount');
     }
 
     /**

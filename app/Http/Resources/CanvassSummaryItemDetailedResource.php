@@ -15,10 +15,14 @@ class CanvassSummaryItemDetailedResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "id" => $this->id,
-            'item_id' => $this->item_id,
-            'unit_price' => $this->unit_price,
-            'total_amount' => optional($this->requestCanvassSummary->priceQuotation)->grand_total_amount ?? $this->requestCanvassSummary->sum('unit_price'),
+            'item_id'        => $this->item_id,
+            'quantity'       => $this->quantity,
+            'item_description' => $this->itemProfile?->item_description,
+            'specification'  => $requisitionItem?->specification,
+            'unit'           => $requisitionItem?->uom_name,
+            'unit_price'     => $this->unit_price,
+            'total_amount'   => $this->total_amount,
+            'test'   => 'test',
         ];
     }
 }

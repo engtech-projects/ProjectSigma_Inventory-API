@@ -41,7 +41,7 @@ class StoreCanvassSummary extends FormRequest
             'terms_of_payment' => 'required|string',
             'availability' => 'required|string',
             'delivery_terms' => 'required|string',
-            'remarks' => 'required|string',
+            'remarks' => 'nullable|string',
             ...$this->storeApprovals(),
         ];
     }

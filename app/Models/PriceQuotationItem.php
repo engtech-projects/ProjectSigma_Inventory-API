@@ -22,6 +22,7 @@ class PriceQuotationItem extends Model
     protected $casts = [
         'metadata' => 'array',
     ];
+    protected $appends = ['is_quoted'];
 
     public function priceQuotation()
     {
@@ -37,5 +38,18 @@ class PriceQuotationItem extends Model
     {
         $qty = $this->requestStockItem?->quantity ?? 0;
         return $this->unit_price * $qty;
+    }
+    public function getUnitPriceAttribute($value)
+    {
+        return $value ?? 0;
+    }
+
+    public function getQuantityAttribute($value)
+    {
+        return $value ?? 0;
+    }
+    public function getIsQuotedAttribute()
+    {
+        return $this->unit_price > 0;
     }
 }

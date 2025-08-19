@@ -59,4 +59,13 @@ class RequestCanvassSummary extends Model
         $this->save();
         $this->refresh();
     }
+
+    public function getGrandTotalAmountAttribute(): float
+    {
+        return $this->items->sum(function ($item) {
+            $quantity = $item->quantity ?? 0;
+            $unitPrice = $item->unit_price ?? 0;
+            return $unitPrice * $quantity;
+        });
+    }
 }
