@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\RequestStatuses;
+use App\Http\Services\PurchaseOrderService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -58,6 +59,7 @@ class RequestCanvassSummary extends Model
         $this->request_status = RequestStatuses::APPROVED;
         $this->save();
         $this->refresh();
+        app(PurchaseOrderService::class)->createPurchaseOrderFromCanvass($this);
     }
 
     public function getGrandTotalAmountAttribute(): float
