@@ -25,9 +25,9 @@ class RequestPurchaseOrderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(RequestPurchaseOrder $requestPurchaseOrder)
+    public function show(RequestPurchaseOrder $resource)
     {
-        return (new RequestPurchaseOrderDetailedResource($requestPurchaseOrder))
+        return (new RequestPurchaseOrderDetailedResource($resource))
             ->additional([
                 'message' => 'Request Purchase Order retrieved successfully.',
                 'success' => true,
@@ -37,11 +37,11 @@ class RequestPurchaseOrderController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRequestPurchaseOrderRequest $request, RequestPurchaseOrder $requestPurchaseOrder)
+    public function update(UpdateRequestPurchaseOrderRequest $request, RequestPurchaseOrder $resource)
     {
         $validatedData = $request->validated();
-        $requestPurchaseOrder->update($validatedData);
-        return (new RequestPurchaseOrderDetailedResource($requestPurchaseOrder))
+        $resource->update($validatedData);
+        return (new RequestPurchaseOrderDetailedResource($resource))
             ->additional([
                 'message' => 'Request Purchase Order updated successfully.',
                 'success' => true,

@@ -26,6 +26,7 @@ use App\Http\Controllers\RequestCanvassSummaryController;
 use App\Http\Controllers\SetupListsController;
 use App\Http\Controllers\RequestProcurementCanvasserController;
 use App\Http\Controllers\RequestProcurementController;
+use App\Http\Controllers\RequestPurchaseOrderController;
 use App\Http\Controllers\RequestRequisitionSlipController;
 use App\Http\Controllers\TransactionMaterialReceivingController;
 use App\Http\Controllers\TransactionMaterialReceivingItemController;
@@ -203,6 +204,9 @@ Route::middleware('auth:api')->group(function () {
             Route::get('all-request', [RequestCanvassSummaryController::class, 'allRequests']);
             Route::get('my-approvals', [RequestCanvassSummaryController::class, 'myApprovals']);
             Route::get('{requestCanvassSummary}', [RequestCanvassSummaryController::class, 'show']);
+        });
+        Route::prefix('purchase-order')->group(function () {
+            Route::resource('resource', RequestPurchaseOrderController::class)->names("requestPurchaseOrder");
         });
     });
 
