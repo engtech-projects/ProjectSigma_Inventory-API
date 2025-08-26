@@ -76,26 +76,21 @@ class RequestCanvassSummary extends Model
         if (!$this->relationLoaded('priceQuotation') || !$this->priceQuotation->relationLoaded('requestProcurement')) {
             return collect([]);
         }
-
         $procurement = $this->priceQuotation->requestProcurement;
         $quotations = $procurement->priceQuotations()->with([
             'supplier',
             'items' => fn($q) => $q->orderBy('id')
         ])->latest()->take(3)->get();
-
         $procurement->loadMissing('requisitionSlip.items.itemProfile');
         $reqItems = $procurement->requisitionSlip->items->keyBy('item_id');
-
         $quotations->each(function ($q) use ($reqItems) {
             $q->items = $reqItems->map(function ($ri) use ($q) {
                 return $q->items->keyBy('item_id')->get($ri->item_id, new PriceQuotationItem([
                     'item_id' => $ri->item_id,
-                    'unit_price' => 0,
-                    'quantity' => 0
+                    'unit_price' => null,
                 ]));
             })->values();
         });
-
         return $quotations->filter(function ($q) {
             return $q->supplier;
         });

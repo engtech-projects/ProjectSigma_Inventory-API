@@ -31,10 +31,6 @@ class RequestCanvassSummaryDetailedResource extends JsonResource
             'delivery_terms' => $this->delivery_terms,
             'remarks' => $this->remarks,
             'price_quotation_id' => $this->whenLoaded('priceQuotation', fn () => $this->priceQuotation->id),
-            // 'supplier' => $this->whenLoaded(
-            //     'priceQuotation',
-            //     fn () => new RequestSupplierDetailedResource($this->priceQuotation->supplier)
-            // ),
             'suppliers' => PriceQuotationForCanvassResource::collection($this->ordered_suppliers),
             'items' => $this->whenLoaded(
                 'items',
