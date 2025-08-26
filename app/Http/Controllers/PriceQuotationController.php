@@ -6,6 +6,7 @@ use App\Models\PriceQuotation;
 use App\Http\Requests\StorePriceQuotationRequest;
 use App\Http\Resources\PriceQuotationDetailedResource;
 use App\Http\Resources\PriceQuotationForCanvassResource;
+use App\Models\PriceQuotationItem;
 use App\Models\RequestProcurement;
 use App\Traits\HasReferenceNumber;
 use App\Traits\ModelHelpers;
@@ -25,16 +26,26 @@ class PriceQuotationController extends Controller
                 'items' => function ($query) {
                     $query->orderBy('id');
                 },
+                'requestProcurement.requisitionSlip.items.itemProfile',
             ])
             ->latest()
             ->get();
-        return PriceQuotationForCanvassResource::collection($priceQuotations)
-        ->additional([
+        $requisitionItems = $requestProcurement->requisitionSlip->items->keyBy('item_id');
+        $priceQuotations->each(function ($quotation) use ($requisitionItems) {
+            $quotationItems = $quotation->items->keyBy('item_id');
+            $quotation->items = $requisitionItems->map(function ($reqItem) use ($quotationItems) {
+                return $quotationItems->get($reqItem->item_id) ?? new PriceQuotationItem([
+                    'item_id'    => $reqItem->item_id,
+                    'unit_price' => 0,
+                    'quantity'   => 0,
+                ]);
+            })->values();
+        });
+        return PriceQuotationForCanvassResource::collection($priceQuotations)->additional([
             "success" => true,
-            "message" => "Price quotations retrieved successfully.",
+            "message" => "Price quotations for canvass successfully fetched.",
         ]);
     }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -83,7 +94,7 @@ class PriceQuotationController extends Controller
         ]);
         return response()->json([
             'success' => true,
-            'message' => 'Price quotation retrieved successfully.',
+            'message' => 'Price quotation retrieved successfully',
             'data' => new PriceQuotationDetailedResource($priceQuotation)
         ]);
     }

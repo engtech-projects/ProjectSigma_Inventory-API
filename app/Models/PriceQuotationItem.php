@@ -40,4 +40,17 @@ class PriceQuotationItem extends Model
         $qty = (float) ($this->requestStockItem?->quantity ?? 0);
         return round($unit * $qty, 2);
     }
+    public function getUnitPriceAttribute($value)
+    {
+        return $value ?? 0;
+    }
+
+    public function getQuantityAttribute($value)
+    {
+        return $value ?? 0;
+    }
+    public function getIsQuotedAttribute()
+    {
+        return $this->unit_price > 0;
+    }
 }

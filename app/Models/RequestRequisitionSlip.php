@@ -136,6 +136,7 @@ class RequestRequisitionSlip extends Model
     {
         return $this->belongsTo(SetupWarehouses::class, 'warehouse_id');
     }
+
     /**
      * ==================================================
      * LOCAL SCOPES
