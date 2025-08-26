@@ -16,6 +16,7 @@ class SyncItemProfilesResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'item_code' => $this->item_code,
             'item_name_summary' => $this->name_summary,
             'uom' => $this->uom,
             'uom_name' => $this->uom_full_name,
