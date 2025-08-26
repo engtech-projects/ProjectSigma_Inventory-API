@@ -79,7 +79,7 @@ class RequestCanvassSummary extends Model
         $procurement = $this->priceQuotation->requestProcurement;
         $quotations = $procurement->priceQuotations()->with([
             'supplier',
-            'items' => fn($q) => $q->orderBy('id')
+            'items' => fn ($q) => $q->orderBy('id')
         ])->latest()->take(3)->get();
         $procurement->loadMissing('requisitionSlip.items.itemProfile');
         $reqItems = $procurement->requisitionSlip->items->keyBy('item_id');
