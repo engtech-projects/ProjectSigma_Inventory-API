@@ -19,10 +19,10 @@ class SyncUOMResource extends JsonResource
             'group_id' => $this->group_id,
             'name' => $this->name,
             'symbol' => $this->symbol,
-            'uom_group' => [
+            'uom_group' => $this->group ? [
                 'id' => $this->group?->id,
                 'name' => $this->group?->name,
-            ],
+            ] : null,
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
             'deleted_at' => $this->deleted_at?->format('Y-m-d H:i:s'),
