@@ -53,7 +53,9 @@ class RequestPurchaseOrder extends Model
     {
         return match ($this->processing_status) {
             PurchaseOrderProcessingStatus::PENDING => PurchaseOrderProcessingStatus::PREPAYMENT,
-            PurchaseOrderProcessingStatus::PREPAYMENT => PurchaseOrderProcessingStatus::ISSUED,
+            PurchaseOrderProcessingStatus::PREPAYMENT => PurchaseOrderProcessingStatus::SUBMITTED_TO_SUPPLIER,
+            PurchaseOrderProcessingStatus::SUBMITTED_TO_SUPPLIER => PurchaseOrderProcessingStatus::PREPAYMENT_PROCESSING,
+            PurchaseOrderProcessingStatus::PREPAYMENT_PROCESSING => PurchaseOrderProcessingStatus::ISSUED,
             PurchaseOrderProcessingStatus::ISSUED => PurchaseOrderProcessingStatus::ITEMS_RECEIVED,
             PurchaseOrderProcessingStatus::ITEMS_RECEIVED => PurchaseOrderProcessingStatus::CHANGES,
             PurchaseOrderProcessingStatus::CHANGES => PurchaseOrderProcessingStatus::TURNED_OVER,
