@@ -37,27 +37,14 @@ class UpdatePurchaseProcessingStatusRequest extends FormRequest
         $validator->after(function ($validator) {
             $po = $this->route('requestPurchaseOrder');
             $newStatus = PurchaseOrderProcessingStatus::from($this->input('processing_status'));
+            if ($po->isServed()) {
+                $validator->errors()->add('processing_status', 'No further transactions allowed. This PO has already been served.');
+                return;
+            }
             if ($po->processing_status === $newStatus) {
                 $validator->errors()->add('processing_status', 'Status is currently set to ' . $newStatus->value);
-            } elseif (!$po->canTransitionTo($newStatus)) {
-                $validNextStatuses = $po->getValidNextStatuses();
-                if (!empty($validNextStatuses)) {
-                    $validStatusNames = array_map(
-                        fn ($statusValue) =>
-                        PurchaseOrderProcessingStatus::from($statusValue)->value,
-                        $validNextStatuses
-                    );
-                    $validator->errors()->add(
-                        'processing_status',
-                        'Invalid status transition. From ' . $po->processing_status->value .
-                        ', you can only move to: ' . implode(', ', $validStatusNames)
-                    );
-                } else {
-                    $validator->errors()->add(
-                        'processing_status',
-                        'No further transitions available from ' . $po->processing_status->value
-                    );
-                }
+            } elseif (!$po->canTransitionTo) {
+                $validator->errors()->add('processing_status', 'Invalid status transition. Valid next states are: ' . implode(', ', array_map(fn($s) => PurchaseOrderProcessingStatus::from($s)->value, $po->getValidNextStatuses())));
             }
         });
     }

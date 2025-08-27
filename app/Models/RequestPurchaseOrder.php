@@ -35,34 +35,34 @@ class RequestPurchaseOrder extends Model
         'processing_status' => PurchaseOrderProcessingStatus::class,
     ];
 
-    protected static function getWorkflow(): array
+    public function getWorkflowAttribute()
     {
-        return [
+        return collect([
             PurchaseOrderProcessingStatus::PENDING->value => [
                 PurchaseOrderProcessingStatus::PREPAYMENT->value,
-                PurchaseOrderProcessingStatus::ISSUED->value
+                PurchaseOrderProcessingStatus::ISSUED->value,
             ],
             PurchaseOrderProcessingStatus::PREPAYMENT->value => [
-                PurchaseOrderProcessingStatus::ISSUED->value
+                PurchaseOrderProcessingStatus::ISSUED->value,
             ],
             PurchaseOrderProcessingStatus::ISSUED->value => [
-                PurchaseOrderProcessingStatus::ITEMS_RECEIVED->value
+                PurchaseOrderProcessingStatus::ITEMS_RECEIVED->value,
             ],
             PurchaseOrderProcessingStatus::ITEMS_RECEIVED->value => [
                 PurchaseOrderProcessingStatus::CHANGES->value,
-                PurchaseOrderProcessingStatus::TURNED_OVER->value
+                PurchaseOrderProcessingStatus::TURNED_OVER->value,
             ],
             PurchaseOrderProcessingStatus::CHANGES->value => [
-                PurchaseOrderProcessingStatus::TURNED_OVER->value
+                PurchaseOrderProcessingStatus::TURNED_OVER->value,
             ],
             PurchaseOrderProcessingStatus::TURNED_OVER->value => [
-                PurchaseOrderProcessingStatus::POSTPAYMENT->value
+                PurchaseOrderProcessingStatus::POSTPAYMENT->value,
             ],
             PurchaseOrderProcessingStatus::POSTPAYMENT->value => [
-                PurchaseOrderProcessingStatus::SERVED->value
+                PurchaseOrderProcessingStatus::SERVED->value,
             ],
             PurchaseOrderProcessingStatus::SERVED->value => [],
-        ];
+        ])->toArray();
     }
 
     /**
@@ -77,36 +77,48 @@ class RequestPurchaseOrder extends Model
 
     /**
      * ==================================================
+     * MODEL ATTRIBUTES
+     * ==================================================
+     */
+
+    public function getIsPrepaymentAttribute(): bool
+    {
+        return $this->requestCanvassSummary
+            ? strtolower($this->requestCanvassSummary->terms_of_payment) === 'prepayment in full'
+            : false;
+    }
+
+    public function getCanTransitionToAttribute(): bool
+    {
+        $workflow = $this->workflow;
+        $validNextStatuses = $workflow[$this->processing_status->value] ?? [];
+        if ($this->isPrepayment && in_array($this->processing_status->value, [PurchaseOrderProcessingStatus::TURNED_OVER->value, PurchaseOrderProcessingStatus::POSTPAYMENT->value])) {
+            $validNextStatuses[] = PurchaseOrderProcessingStatus::SERVED->value;
+        }
+        $newStatus = request()->input('processing_status', $this->processing_status->value);
+        return in_array($newStatus, $validNextStatuses, true);
+    }
+
+    /**
+     * ==================================================
      * MODEL HELPERS
      * ==================================================
      */
     public function getNextStatus(): ?PurchaseOrderProcessingStatus
     {
-        $workflow = self::getWorkflow();
+        $workflow = $this->workflow;
         $nextStatuses = $workflow[$this->processing_status->value] ?? [];
         return !empty($nextStatuses) ? PurchaseOrderProcessingStatus::from($nextStatuses[0]) : null;
     }
 
-    public function canTransitionTo(PurchaseOrderProcessingStatus $newStatus): bool
-    {
-        $workflow = self::getWorkflow();
-        $validNextStatuses = $workflow[$this->processing_status->value] ?? [];
-        if ($newStatus === PurchaseOrderProcessingStatus::SERVED && $this->isPrepayment()) {
-            $validNextStatuses[] = PurchaseOrderProcessingStatus::TURNED_OVER->value;
-        }
-
-        return in_array($newStatus->value, $validNextStatuses, true);
-    }
-
     public function getValidNextStatuses(): array
     {
-        $workflow = self::getWorkflow();
-        return $workflow[$this->processing_status->value] ?? [];
-    }
-
-    public function isPrepayment(): bool
-    {
-        return $this->processing_status === PurchaseOrderProcessingStatus::PREPAYMENT;
+        $workflow = $this->workflow;
+        $validNextStatuses = $workflow[$this->processing_status->value] ?? [];
+        if ($this->isPrepayment && in_array($this->processing_status->value, [PurchaseOrderProcessingStatus::TURNED_OVER->value, PurchaseOrderProcessingStatus::POSTPAYMENT->value])) {
+            $validNextStatuses[] = PurchaseOrderProcessingStatus::SERVED->value;
+        }
+        return array_unique($validNextStatuses);
     }
 
     public function isServed(): bool
