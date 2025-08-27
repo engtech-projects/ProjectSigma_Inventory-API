@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PurchaseOrderProcessingStatus;
 use App\Traits\HasApproval;
 use App\Traits\ModelHelpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,6 +32,7 @@ class RequestPurchaseOrder extends Model
         'transaction_date' => 'date',
         'metadata' => 'json',
         'approvals' => 'json',
+        'processing_status' => PurchaseOrderProcessingStatus::class,
     ];
     /**
      * ==================================================
@@ -40,5 +42,31 @@ class RequestPurchaseOrder extends Model
     public function requestCanvassSummary()
     {
         return $this->belongsTo(RequestCanvassSummary::class, 'request_canvass_summary_id');
+    }
+
+    /**
+     * ==================================================
+     * MODEL HELPERS
+     * ==================================================
+     */
+    public function getNextStatus(): ?PurchaseOrderProcessingStatus
+    {
+        return match ($this->processing_status) {
+            PurchaseOrderProcessingStatus::PENDING => PurchaseOrderProcessingStatus::PREPAYMENT,
+            PurchaseOrderProcessingStatus::PREPAYMENT => PurchaseOrderProcessingStatus::ISSUED,
+            PurchaseOrderProcessingStatus::ISSUED => PurchaseOrderProcessingStatus::ITEMS_RECEIVED,
+            PurchaseOrderProcessingStatus::ITEMS_RECEIVED => PurchaseOrderProcessingStatus::CHANGES,
+            PurchaseOrderProcessingStatus::CHANGES => PurchaseOrderProcessingStatus::TURNED_OVER,
+            PurchaseOrderProcessingStatus::TURNED_OVER => PurchaseOrderProcessingStatus::POSTPAYMENT,
+            PurchaseOrderProcessingStatus::POSTPAYMENT => PurchaseOrderProcessingStatus::SERVED,
+            PurchaseOrderProcessingStatus::SERVED => null,
+            default => null,
+        };
+    }
+
+    public function canTransitionTo(PurchaseOrderProcessingStatus $newStatus): bool
+    {
+        $nextStatus = $this->getNextStatus();
+        return $nextStatus === $newStatus;
     }
 }
