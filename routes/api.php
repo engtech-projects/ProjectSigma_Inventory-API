@@ -207,7 +207,7 @@ Route::middleware('auth:api')->group(function () {
         });
         Route::prefix('purchase-order')->group(function () {
             Route::resource('resource', RequestPurchaseOrderController::class)->names("requestPurchaseOrder");
-            Route::patch('{requestPurchaseOrder}/update-status', [RequestPurchaseOrderController::class, 'updateStatus']);
+            Route::patch('{requestPurchaseOrder}/update-processing-status', [RequestPurchaseOrderController::class, 'updateProcessingStatus']);
         });
     });
 

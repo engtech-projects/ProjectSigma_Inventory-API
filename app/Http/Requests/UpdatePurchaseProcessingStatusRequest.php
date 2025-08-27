@@ -41,7 +41,24 @@ class UpdatePurchaseProcessingStatusRequest extends FormRequest
             if ($po->processing_status === $newStatus) {
                 $validator->errors()->add('processing_status', 'Status is currently set to ' . $newStatus->value);
             } elseif (!$po->canTransitionTo($newStatus)) {
-                $validator->errors()->add('processing_status', 'Invalid status transition. Can only advance to the next status: ' . ($po->getNextStatus()?->value ?? 'none'));
+                $validNextStatuses = $po->getValidNextStatuses();
+                if (!empty($validNextStatuses)) {
+                    $validStatusNames = array_map(
+                        fn ($statusValue) =>
+                        PurchaseOrderProcessingStatus::from($statusValue)->value,
+                        $validNextStatuses
+                    );
+                    $validator->errors()->add(
+                        'processing_status',
+                        'Invalid status transition. From ' . $po->processing_status->value .
+                        ', you can only move to: ' . implode(', ', $validStatusNames)
+                    );
+                } else {
+                    $validator->errors()->add(
+                        'processing_status',
+                        'No further transitions available from ' . $po->processing_status->value
+                    );
+                }
             }
         });
     }

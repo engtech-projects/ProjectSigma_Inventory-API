@@ -34,6 +34,37 @@ class RequestPurchaseOrder extends Model
         'approvals' => 'json',
         'processing_status' => PurchaseOrderProcessingStatus::class,
     ];
+
+    protected static function getWorkflow(): array
+    {
+        return [
+            PurchaseOrderProcessingStatus::PENDING->value => [
+                PurchaseOrderProcessingStatus::PREPAYMENT->value,
+                PurchaseOrderProcessingStatus::ISSUED->value
+            ],
+            PurchaseOrderProcessingStatus::PREPAYMENT->value => [
+                PurchaseOrderProcessingStatus::ISSUED->value
+            ],
+            PurchaseOrderProcessingStatus::ISSUED->value => [
+                PurchaseOrderProcessingStatus::ITEMS_RECEIVED->value
+            ],
+            PurchaseOrderProcessingStatus::ITEMS_RECEIVED->value => [
+                PurchaseOrderProcessingStatus::CHANGES->value,
+                PurchaseOrderProcessingStatus::TURNED_OVER->value
+            ],
+            PurchaseOrderProcessingStatus::CHANGES->value => [
+                PurchaseOrderProcessingStatus::TURNED_OVER->value
+            ],
+            PurchaseOrderProcessingStatus::TURNED_OVER->value => [
+                PurchaseOrderProcessingStatus::POSTPAYMENT->value
+            ],
+            PurchaseOrderProcessingStatus::POSTPAYMENT->value => [
+                PurchaseOrderProcessingStatus::SERVED->value
+            ],
+            PurchaseOrderProcessingStatus::SERVED->value => [],
+        ];
+    }
+
     /**
      * ==================================================
      * MODEL RELATIONSHIPS
@@ -51,24 +82,35 @@ class RequestPurchaseOrder extends Model
      */
     public function getNextStatus(): ?PurchaseOrderProcessingStatus
     {
-        return match ($this->processing_status) {
-            PurchaseOrderProcessingStatus::PENDING => PurchaseOrderProcessingStatus::PREPAYMENT,
-            PurchaseOrderProcessingStatus::PREPAYMENT => PurchaseOrderProcessingStatus::SUBMITTED_TO_SUPPLIER,
-            PurchaseOrderProcessingStatus::SUBMITTED_TO_SUPPLIER => PurchaseOrderProcessingStatus::PREPAYMENT_PROCESSING,
-            PurchaseOrderProcessingStatus::PREPAYMENT_PROCESSING => PurchaseOrderProcessingStatus::ISSUED,
-            PurchaseOrderProcessingStatus::ISSUED => PurchaseOrderProcessingStatus::ITEMS_RECEIVED,
-            PurchaseOrderProcessingStatus::ITEMS_RECEIVED => PurchaseOrderProcessingStatus::CHANGES,
-            PurchaseOrderProcessingStatus::CHANGES => PurchaseOrderProcessingStatus::TURNED_OVER,
-            PurchaseOrderProcessingStatus::TURNED_OVER => PurchaseOrderProcessingStatus::POSTPAYMENT,
-            PurchaseOrderProcessingStatus::POSTPAYMENT => PurchaseOrderProcessingStatus::SERVED,
-            PurchaseOrderProcessingStatus::SERVED => null,
-            default => null,
-        };
+        $workflow = self::getWorkflow();
+        $nextStatuses = $workflow[$this->processing_status->value] ?? [];
+        return !empty($nextStatuses) ? PurchaseOrderProcessingStatus::from($nextStatuses[0]) : null;
     }
 
     public function canTransitionTo(PurchaseOrderProcessingStatus $newStatus): bool
     {
-        $nextStatus = $this->getNextStatus();
-        return $nextStatus === $newStatus;
+        $workflow = self::getWorkflow();
+        $validNextStatuses = $workflow[$this->processing_status->value] ?? [];
+        if ($newStatus === PurchaseOrderProcessingStatus::SERVED && $this->isPrepayment()) {
+            $validNextStatuses[] = PurchaseOrderProcessingStatus::TURNED_OVER->value;
+        }
+
+        return in_array($newStatus->value, $validNextStatuses, true);
+    }
+
+    public function getValidNextStatuses(): array
+    {
+        $workflow = self::getWorkflow();
+        return $workflow[$this->processing_status->value] ?? [];
+    }
+
+    public function isPrepayment(): bool
+    {
+        return $this->processing_status === PurchaseOrderProcessingStatus::PREPAYMENT;
+    }
+
+    public function isServed(): bool
+    {
+        return $this->processing_status === PurchaseOrderProcessingStatus::SERVED;
     }
 }

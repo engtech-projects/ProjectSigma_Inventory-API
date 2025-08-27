@@ -50,13 +50,11 @@ class RequestPurchaseOrderController extends Controller
             ]);
     }
 
-    public function updateStatus(UpdatePurchaseProcessingStatusRequest $request, RequestPurchaseOrder $requestPurchaseOrder)
+    public function updateProcessingStatus(UpdatePurchaseProcessingStatusRequest $request, RequestPurchaseOrder $requestPurchaseOrder)
     {
         $newStatus = PurchaseOrderProcessingStatus::from($request->validated('processing_status'));
-
         $requestPurchaseOrder->processing_status = $newStatus;
         $requestPurchaseOrder->save();
-
         return (new RequestPurchaseOrderDetailedResource($requestPurchaseOrder))
             ->additional([
                 'message' => 'Purchase Order status updated successfully to ' . $newStatus->value,
