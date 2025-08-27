@@ -37,7 +37,6 @@ class UpdatePurchaseProcessingStatusRequest extends FormRequest
         $validator->after(function ($validator) {
             $po = $this->route('requestPurchaseOrder');
             $newStatus = PurchaseOrderProcessingStatus::from($this->input('processing_status'));
-
             if ($po->processing_status === $newStatus) {
                 $validator->errors()->add('processing_status', 'Status is currently set to ' . $newStatus->value);
             } elseif (!$po->canTransitionTo($newStatus)) {
