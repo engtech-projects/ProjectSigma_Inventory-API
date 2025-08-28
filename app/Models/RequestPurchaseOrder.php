@@ -58,14 +58,14 @@ class RequestPurchaseOrder extends Model
             : false;
     }
 
-    public function getWorkflowAttribute()
+    public function getProcessingFlowAttribute()
     {
         return [
-            PurchaseOrderProcessingStatus::PENDING->value => array_filter([
+            PurchaseOrderProcessingStatus::PENDING->value => [
                 $this->is_prepayment
                     ? PurchaseOrderProcessingStatus::PREPAYMENT->value
                     : PurchaseOrderProcessingStatus::ISSUED->value,
-            ]),
+            ],
             PurchaseOrderProcessingStatus::PREPAYMENT->value => [
                 PurchaseOrderProcessingStatus::ISSUED->value,
             ],
@@ -81,17 +81,18 @@ class RequestPurchaseOrder extends Model
             ],
             PurchaseOrderProcessingStatus::TURNED_OVER->value => [
                 PurchaseOrderProcessingStatus::POSTPAYMENT->value,
-            ],
-            PurchaseOrderProcessingStatus::POSTPAYMENT->value => array_filter([
                 PurchaseOrderProcessingStatus::SERVED->value,
-            ]),
+            ],
+            PurchaseOrderProcessingStatus::POSTPAYMENT->value => [
+                PurchaseOrderProcessingStatus::SERVED->value,
+            ],
             PurchaseOrderProcessingStatus::SERVED->value => [],
         ];
     }
 
     public function getAllowedNextStatusesAttribute(): array
     {
-        $workflow = $this->workflow;
+        $workflow = $this->processing_flow;
         return $workflow[$this->processing_status->value] ?? [];
     }
 
@@ -101,7 +102,7 @@ class RequestPurchaseOrder extends Model
      * ==================================================
      */
 
-    public function isServed(): bool
+    public function getIsServedAttribute(): bool
     {
         return $this->processing_status === PurchaseOrderProcessingStatus::SERVED;
     }

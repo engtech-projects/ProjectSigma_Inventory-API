@@ -37,7 +37,7 @@ class UpdatePurchaseProcessingStatusRequest extends FormRequest
         $validator->after(function ($validator) {
             $po = $this->route('requestPurchaseOrder');
             $newStatus = PurchaseOrderProcessingStatus::from($this->input('processing_status'));
-            if ($po->isServed()) {
+            if ($po->is_served) {
                 $validator->errors()->add(
                     'processing_status',
                     'No further transactions allowed. This PO has already been served.'
