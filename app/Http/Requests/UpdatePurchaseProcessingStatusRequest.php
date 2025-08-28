@@ -38,13 +38,25 @@ class UpdatePurchaseProcessingStatusRequest extends FormRequest
             $po = $this->route('requestPurchaseOrder');
             $newStatus = PurchaseOrderProcessingStatus::from($this->input('processing_status'));
             if ($po->isServed()) {
-                $validator->errors()->add('processing_status', 'No further transactions allowed. This PO has already been served.');
+                $validator->errors()->add(
+                    'processing_status',
+                    'No further transactions allowed. This PO has already been served.'
+                );
                 return;
             }
             if ($po->processing_status === $newStatus) {
-                $validator->errors()->add('processing_status', 'Status is currently set to ' . $newStatus->value);
-            } elseif (!$po->canTransitionTo) {
-                $validator->errors()->add('processing_status', 'Invalid status transition. Valid next states are: ' . implode(', ', array_map(fn($s) => PurchaseOrderProcessingStatus::from($s)->value, $po->getValidNextStatuses())));
+                $validator->errors()->add(
+                    'processing_status',
+                    'Status is currently set to ' . $newStatus->value
+                );
+                return;
+            }
+            if (!in_array($newStatus->value, $po->allowed_next_statuses, true)) {
+                $validNext = implode(', ', $po->allowed_next_statuses);
+                $validator->errors()->add(
+                    'processing_status',
+                    "Invalid status transition. Valid next states are: $validNext"
+                );
             }
         });
     }
