@@ -97,12 +97,6 @@ class RequestPurchaseOrder extends Model
         return $workflow[$this->processing_status->value] ?? [];
     }
 
-    /**
-     * ==================================================
-     * MODEL HELPERS
-     * ==================================================
-     */
-
     public function getIsServedAttribute(): bool
     {
         return $this->processing_status === PurchaseOrderProcessingStatus::SERVED;
