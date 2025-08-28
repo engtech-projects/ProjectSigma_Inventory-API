@@ -56,7 +56,6 @@ class RequestPurchaseOrderController extends Controller
         $requestPurchaseOrder->update([
             'processing_status' => $newStatus,
         ]);
-
         return (new RequestPurchaseOrderDetailedResource($requestPurchaseOrder))
             ->additional([
                 'message' => 'Purchase Order status updated successfully to ' . $newStatus->value,

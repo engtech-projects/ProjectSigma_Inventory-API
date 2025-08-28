@@ -80,8 +80,9 @@ class RequestPurchaseOrder extends Model
                 PurchaseOrderProcessingStatus::TURNED_OVER->value,
             ],
             PurchaseOrderProcessingStatus::TURNED_OVER->value => [
-                PurchaseOrderProcessingStatus::POSTPAYMENT->value,
-                PurchaseOrderProcessingStatus::SERVED->value,
+                $this->is_prepayment
+                    ? PurchaseOrderProcessingStatus::SERVED->value
+                    : PurchaseOrderProcessingStatus::POSTPAYMENT->value,
             ],
             PurchaseOrderProcessingStatus::POSTPAYMENT->value => [
                 PurchaseOrderProcessingStatus::SERVED->value,

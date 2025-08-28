@@ -12,17 +12,13 @@ class PurchaseOrderService
     public static function createPurchaseOrderFromCanvass(RequestCanvassSummary $requestCanvassSummary)
     {
         return DB::transaction(function () use ($requestCanvassSummary) {
-            $terms = strtolower($requestCanvassSummary->terms_of_payment ?? '');
-            $processingStatus = $terms === strtolower('Prepayment in Full')
-                ? PurchaseOrderProcessingStatus::PREPAYMENT
-                : PurchaseOrderProcessingStatus::PENDING;
             return RequestPurchaseOrder::create([
                 'transaction_date' => now(),
                 'po_number' => static::generatePoNumber(),
                 'request_canvass_summary_id' => $requestCanvassSummary->id,
                 'name_on_receipt' => null,
                 'delivered_to' => null,
-                'processing_status' => $processingStatus,
+                'processing_status' => PurchaseOrderProcessingStatus::PENDING,
                 'metadata' => $requestCanvassSummary->metadata ?? [],
                 'created_by' => $requestCanvassSummary->created_by,
                 'request_status' => $requestCanvassSummary->request_status,
