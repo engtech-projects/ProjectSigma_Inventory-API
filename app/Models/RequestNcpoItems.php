@@ -46,7 +46,7 @@ class RequestNcpoItems extends Model
 
     public function item()
     {
-        return $this->belongsTo(ItemProfile::class, 'item_id');
+        return $this->belongsTo(PriceQuotationItem::class, 'item_id');
     }
 
     public function supplier()
