@@ -20,7 +20,7 @@ class RequestNcpoItems extends Model
         'changed_item_description',
         'changed_specification',
         'changed_qty',
-        'changed_uom',
+        'changed_uom_id',
         'changed_unit_price',
         'changed_brand',
         'new_total',
