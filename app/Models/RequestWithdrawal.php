@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasApproval;
 
 class RequestWithdrawal extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
+    use HasApproval;
 
     protected $fillable = [
         'date_time',
@@ -31,7 +34,11 @@ class RequestWithdrawal extends Model
         'approvals' => 'array',
     ];
 
-    // Relationships
+    /**
+    * ==================================================
+    * MODEL RELATIONS
+    * ==================================================
+    */
     public function warehouse()
     {
         return $this->belongsTo(SetupWarehouses::class, 'warehouse_id');
@@ -40,10 +47,5 @@ class RequestWithdrawal extends Model
     public function chargeable()
     {
         return $this->morphTo();
-    }
-
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'created_by');
     }
 }
