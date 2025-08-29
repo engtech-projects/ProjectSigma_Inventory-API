@@ -13,7 +13,6 @@ return new class () extends Migration {
         Schema::create('request_withdrawal_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('request_withdrawal_id')->constrained('request_withdrawals')->restrictOnDelete()->cascadeOnUpdate();
-            ;
             $table->foreignId('item_id')->constrained('item_profile')->restrictOnDelete()->cascadeOnUpdate();
             $table->decimal('quantity', 12, 2);
             $table->foreignId('uom_id')->constrained('setup_uom')->restrictOnDelete()->cascadeOnUpdate();
