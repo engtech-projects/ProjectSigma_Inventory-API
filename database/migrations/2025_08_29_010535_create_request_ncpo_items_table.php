@@ -15,18 +15,19 @@ return new class () extends Migration
             $table->id();
             $table->foreignId('request_ncpo_id')
             ->constrained()
-            ->onDelete('restrict')
-            ->onUpdate('cascade');
+            ->restrictOnDelete()
+            ->cascadeOnUpdate();
             $table->foreignId('item_id')
             ->constrained('item_profile')
-            ->onDelete('restrict')
-            ->onUpdate('cascade');
+            ->restrictOnDelete()
+            ->cascadeOnUpdate();
             $table->foreignId('changed_supplier_id')
             ->nullable()
             ->constrained('request_supplier')
-            ->onDelete('set null');
-            $table->text('changed_item_description')->nullable();
-            $table->text('changed_specification')->nullable();
+            ->restrictOnDelete()
+            ->cascadeOnUpdate();
+            $table->string('changed_item_description')->nullable();
+            $table->string('changed_specification')->nullable();
             $table->decimal('changed_qty', 10, 2)->nullable();
             $table->string('changed_uom')->nullable();
             $table->decimal('changed_unit_price', 10, 2)->nullable();
