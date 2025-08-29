@@ -20,7 +20,7 @@ class RequestNcpoItems extends Model
         'changed_item_description',
         'changed_specification',
         'changed_qty',
-        'changed_uom',
+        'changed_uom_id',
         'changed_unit_price',
         'changed_brand',
         'new_total',
@@ -49,8 +49,13 @@ class RequestNcpoItems extends Model
         return $this->belongsTo(ItemProfile::class, 'item_id');
     }
 
-    public function supplier()
+    public function changedSupplier()
     {
         return $this->belongsTo(RequestSupplier::class, 'changed_supplier_id');
+    }
+
+    public function changedUom()
+    {
+        return $this->belongsTo(UOM::class, 'changed_uom_id');
     }
 }
