@@ -13,8 +13,6 @@ class RequestNcpoItems extends Model
     use SoftDeletes;
     use ModelHelpers;
 
-    protected $table = 'request_ncpo_items';
-
     protected $fillable = [
         'request_ncpo_id',
         'item_id',
@@ -27,6 +25,7 @@ class RequestNcpoItems extends Model
         'changed_brand',
         'new_total',
         'cancel_item',
+        'metadata'
     ];
 
     protected $casts = [
@@ -46,7 +45,7 @@ class RequestNcpoItems extends Model
 
     public function item()
     {
-        return $this->belongsTo(PriceQuotationItem::class, 'item_id');
+        return $this->belongsTo(ItemProfile::class, 'item_id');
     }
 
     public function supplier()

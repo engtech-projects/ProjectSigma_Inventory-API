@@ -13,12 +13,18 @@ return new class () extends Migration
     {
         Schema::create('request_ncpo_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('request_ncpo_id')->constrained()->onDelete('cascade');
-            $table->foreignId('item_id')
-            ->constrained('price_quotation_items')
+            $table->foreignId('request_ncpo_id')
+            ->constrained()
             ->onDelete('restrict')
             ->onUpdate('cascade');
-            $table->foreignId('changed_supplier_id')->nullable()->constrained('request_supplier')->onDelete('set null');
+            $table->foreignId('item_id')
+            ->constrained('item_profile')
+            ->onDelete('restrict')
+            ->onUpdate('cascade');
+            $table->foreignId('changed_supplier_id')
+            ->nullable()
+            ->constrained('request_supplier')
+            ->onDelete('set null');
             $table->text('changed_item_description')->nullable();
             $table->text('changed_specification')->nullable();
             $table->decimal('changed_qty', 10, 2)->nullable();
@@ -27,6 +33,7 @@ return new class () extends Migration
             $table->string('changed_brand')->nullable();
             $table->decimal('new_total', 10, 2)->nullable();
             $table->boolean('cancel_item')->default(false);
+            $table->json('metadata')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasApproval;
 use App\Traits\ModelHelpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,8 +13,7 @@ class RequestNCPO extends Model
     use HasFactory;
     use SoftDeletes;
     use ModelHelpers;
-
-    protected $table = 'request_ncpos';
+    use HasApproval;
 
     protected $fillable = [
         'date',

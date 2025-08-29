@@ -15,12 +15,16 @@ return new class () extends Migration
             $table->id();
             $table->date('date');
             $table->string('ncpo_no')->unique();
-            $table->foreignId('po_id')->constrained('request_purchase_orders')->onDelete('cascade');
+            $table->foreignId('po_id')
+            ->constrained('request_purchase_orders')
+            ->onDelete('restrict')
+            ->onUpdate('cascade');
             $table->text('justification');
             $table->foreignId('created_by')
                 ->constrained('users')
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
+            $table->json('metadata')->nullable();
             $table->json('approvals')->nullable();
             $table->timestamps();
             $table->softDeletes();
