@@ -43,5 +43,4 @@ class RequestNCPO extends Model
     {
         return $this->hasMany(RequestNcpoItems::class);
     }
-
 }
