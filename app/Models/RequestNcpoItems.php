@@ -31,6 +31,7 @@ class RequestNcpoItems extends Model
     protected $casts = [
         'new_total' => 'float',
         'cancel_item' => 'boolean',
+        'metadata' => 'array',
     ];
 
     /**

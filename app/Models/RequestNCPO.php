@@ -26,6 +26,7 @@ class RequestNCPO extends Model
     protected $casts = [
         'date' => 'date',
         'approvals' => 'array',
+        'metadata' => 'array',
     ];
 
     /**
