@@ -14,6 +14,13 @@ class RequestNcpoListingResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'po_id' => $this->po_id,
+            'date' => $this->date,
+            'ncpo_no' => $this->ncpo_no,
+            'justification' => $this->justification,
+            'created_at' => $this->createdAtDateHuman,
+        ];
     }
 }

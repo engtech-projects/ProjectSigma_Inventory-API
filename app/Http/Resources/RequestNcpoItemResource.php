@@ -27,5 +27,6 @@ class RequestNcpoItemResource extends JsonResource
             'cancel_item' => $this->cancel_item,
             'new_total' => $this->new_total,
         ];
+
     }
 }

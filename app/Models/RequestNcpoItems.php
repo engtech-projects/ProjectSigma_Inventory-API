@@ -62,6 +62,8 @@ class RequestNcpoItems extends Model
         if ($this->cancel_item) {
             return 0;
         }
-        return ($this->changed_qty ?? 0) * ($this->changed_unit_price ?? 0);
+        $qty = $this->changed_qty ?? $this->qty;
+        $unitPrice = $this->changed_unit_price ?? $this->unit_price;
+        return $qty * $unitPrice;
     }
 }

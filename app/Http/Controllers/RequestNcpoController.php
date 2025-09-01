@@ -43,67 +43,37 @@ class RequestNcpoController extends Controller
                 'created_by' => auth()->user()->id,
                 'approvals' => $validated['approvals'],
             ]);
-            $itemsData = [];
-            foreach ($validated['items'] as $item) {
-                $newTotal = ($item['changed_qty'] ?? 0) * ($item['changed_unit_price'] ?? 0);
-                if ($item['cancel_item'] ?? false) {
-                    $newTotal = 0;
-                }
-                $itemsData[] = array_merge($item, [
+            $ncpo->items()->createMany(
+                collect($validated['items'])->map(fn ($item) => [
+                    ...$item,
                     'request_ncpo_id' => $ncpo->id,
-                    'new_total' => $newTotal,
-                ]);
-            }
-            $ncpo->ncpoItems()->createMany($itemsData);
-            return $ncpo;
+                ])->toArray()
+            );
+            return $ncpo->load('items');
         });
         //for notification
         // if ($ncpo->getNextPendingApproval()) {
         //     $ncpo->notify(new RequestNCPOForApprovalNotification($request->bearerToken(), $ncpo));
         // }
-        return new JsonResponse([
-            'success' => true,
+        return (new RequestNcpoResource($ncpo))
+        ->additional([
             'message' => 'Request NCPO created successfully.',
-            'data' => new RequestNcpoResource($ncpo),
-        ], JsonResponse::HTTP_CREATED);
+            'success' => true,
+        ]);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(RequestNcpo $request_ncpo)
+    public function show(RequestNcpo $resource)
     {
-        $request_ncpo->load([
-            'ncpoItems.itemProfile',
+        $resource->load([
+            'items.item',
             'purchaseOrder',
         ]);
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'Request NCPO retrieved successfully.',
-            'data' => new RequestNcpoResource($request_ncpo),
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateNCPORequest $request, RequestNCPO $resource)
-    {
-        $validated = $request->validated();
-        $resource = DB::transaction(function () use ($validated, $resource) {
-            $resource->update(['justification' => $validated['justification']]);
-
-            foreach ($validated['items'] as $item) {
-                $resource->ncpoItems()->updateOrCreate(
-                    ['item_id' => $item['item_id']],
-                    $item
-                );
-            }
-            return $resource;
-        });
-        return (new RequestNcpoDetailedResource($resource->load('ncpoItems')))
+        return (new RequestNcpoDetailedResource($resource))
             ->additional([
-                'message' => 'Request NCPO updated successfully.',
+                'message' => 'Request NCPO retrieved successfully.',
                 'success' => true,
             ]);
     }

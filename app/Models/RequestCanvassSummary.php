@@ -50,7 +50,7 @@ class RequestCanvassSummary extends Model
     }
     public function purchaseOrder()
     {
-        return $this->belongsTo(RequestPurchaseOrder::class);
+        return $this->hasOne(RequestPurchaseOrder::class);
     }
 
     /**

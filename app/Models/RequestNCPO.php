@@ -24,6 +24,7 @@ class RequestNCPO extends Model
         'justification',
         'created_by',
         'approvals',
+        'metadata',
     ];
     protected $casts = [
         'date' => 'date',
@@ -41,8 +42,17 @@ class RequestNCPO extends Model
         return $this->belongsTo(RequestPurchaseOrder::class, 'po_id');
     }
 
-    public function ncpoItems()
+    public function items()
     {
         return $this->hasMany(RequestNcpoItems::class, 'request_ncpo_id');
+    }
+    /**
+     * ==================================================
+     * MODEL ATTRIBUTE
+     * ==================================================
+     */
+    public function getNewPoTotalAttribute()
+    {
+        return $this->items->sum(fn ($item) => $item->new_total);
     }
 }
