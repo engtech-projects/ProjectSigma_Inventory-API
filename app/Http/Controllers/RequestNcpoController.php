@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreNcpoRequest;
-use App\Http\Requests\UpdateNCPORequest;
 use App\Http\Resources\RequestNcpoDetailedResource;
 use App\Http\Resources\RequestNcpoListingResource;
 use App\Http\Resources\RequestNcpoResource;
 use App\Models\RequestNCPO;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class RequestNcpoController extends Controller
