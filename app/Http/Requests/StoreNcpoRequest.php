@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Requests;
 
 use App\Models\RequestCanvassSummaryItems;
@@ -39,7 +40,7 @@ class StoreNcpoRequest extends FormRequest
             'items.*.item_id' => [
                 'required',
                 Rule::exists('item_profile', 'id')->where('is_approved', 1),
-                fn($attr, $val, $fail) => !in_array($val, $this->validItems ?? [], true)
+                fn ($attr, $val, $fail) => !in_array($val, $this->validItems ?? [], true)
                     ? $fail("Item ID $val does not belong to the canvass summary items.")
                     : null
             ],
