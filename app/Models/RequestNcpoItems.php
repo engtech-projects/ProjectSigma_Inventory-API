@@ -23,13 +23,11 @@ class RequestNcpoItems extends Model
         'changed_uom_id',
         'changed_unit_price',
         'changed_brand',
-        'new_total',
         'cancel_item',
         'metadata'
     ];
 
     protected $casts = [
-        'new_total' => 'float',
         'cancel_item' => 'boolean',
         'metadata' => 'array',
     ];
@@ -52,5 +50,18 @@ class RequestNcpoItems extends Model
     public function supplier()
     {
         return $this->belongsTo(RequestSupplier::class, 'changed_supplier_id');
+    }
+
+    /**
+     * ==================================================
+     * MODEL ATTRIBUTE
+     * ==================================================
+     */
+    public function getNewTotalAttribute()
+    {
+        if ($this->cancel_item) {
+            return 0;
+        }
+        return ($this->changed_qty ?? 0) * ($this->changed_unit_price ?? 0);
     }
 }

@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreNcpoRequest;
+use App\Http\Requests\UpdateNCPORequest;
+use App\Http\Resources\RequestNcpoDetailedResource;
 use App\Http\Resources\RequestNcpoListingResource;
 use App\Http\Resources\RequestNcpoResource;
 use App\Models\RequestNCPO;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class RequestNcpoController extends Controller
@@ -86,8 +87,24 @@ class RequestNcpoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, RequestNcpo $request_ncpo)
+    public function update(UpdateNCPORequest $request, RequestNCPO $resource)
     {
-        //
+        $validated = $request->validated();
+        $resource = DB::transaction(function () use ($validated, $resource) {
+            $resource->update(['justification' => $validated['justification']]);
+
+            foreach ($validated['items'] as $item) {
+                $resource->ncpoItems()->updateOrCreate(
+                    ['item_id' => $item['item_id']],
+                    $item
+                );
+            }
+            return $resource;
+        });
+        return (new RequestNcpoDetailedResource($resource->load('ncpoItems')))
+            ->additional([
+                'message' => 'Request NCPO updated successfully.',
+                'success' => true,
+            ]);
     }
 }
