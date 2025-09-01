@@ -23,6 +23,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\PriceQuotationController;
 use App\Http\Controllers\PriceQuotationItemController;
 use App\Http\Controllers\RequestCanvassSummaryController;
+use App\Http\Controllers\RequestNcpoController;
 use App\Http\Controllers\SetupListsController;
 use App\Http\Controllers\RequestProcurementCanvasserController;
 use App\Http\Controllers\RequestProcurementController;
@@ -208,6 +209,9 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('purchase-order')->group(function () {
             Route::resource('resource', RequestPurchaseOrderController::class)->names("requestPurchaseOrder");
             Route::patch('{requestPurchaseOrder}/update-processing-status', [RequestPurchaseOrderController::class, 'updateProcessingStatus']);
+        });
+        Route::prefix('ncpo')->group(function () {
+            Route::resource('resource', RequestNcpoController::class)->names("requestNCPO");
         });
     });
 

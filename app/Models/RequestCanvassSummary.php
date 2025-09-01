@@ -48,6 +48,10 @@ class RequestCanvassSummary extends Model
     {
         return $this->hasMany(RequestCanvassSummaryItems::class);
     }
+    public function purchaseOrder()
+    {
+        return $this->belongsTo(RequestPurchaseOrder::class);
+    }
 
     /**
      * ==================================================
