@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PurchaseOrderProcessingStatus;
+use App\Http\Requests\UpdatePurchaseProcessingStatusRequest;
 use App\Models\RequestPurchaseOrder;
 use App\Http\Requests\UpdateRequestPurchaseOrderRequest;
 use App\Http\Resources\RequestPurchaseOrderDetailedResource;
@@ -44,6 +46,19 @@ class RequestPurchaseOrderController extends Controller
         return (new RequestPurchaseOrderDetailedResource($resource))
             ->additional([
                 'message' => 'Request Purchase Order updated successfully.',
+                'success' => true,
+            ]);
+    }
+
+    public function updateProcessingStatus(UpdatePurchaseProcessingStatusRequest $request, RequestPurchaseOrder $requestPurchaseOrder)
+    {
+        $newStatus = PurchaseOrderProcessingStatus::from($request->validated('processing_status'));
+        $requestPurchaseOrder->update([
+            'processing_status' => $newStatus,
+        ]);
+        return (new RequestPurchaseOrderDetailedResource($requestPurchaseOrder))
+            ->additional([
+                'message' => 'Purchase Order status updated successfully to ' . $newStatus->value,
                 'success' => true,
             ]);
     }
