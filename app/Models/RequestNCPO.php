@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasApproval;
+use App\Traits\HasReferenceNumber;
 use App\Traits\ModelHelpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +15,8 @@ class RequestNCPO extends Model
     use SoftDeletes;
     use ModelHelpers;
     use HasApproval;
-
+    use HasReferenceNumber;
+    protected $table = 'request_ncpos';
     protected $fillable = [
         'date',
         'ncpo_no',
@@ -22,6 +24,7 @@ class RequestNCPO extends Model
         'justification',
         'created_by',
         'approvals',
+        'metadata',
     ];
     protected $casts = [
         'date' => 'date',
@@ -41,6 +44,16 @@ class RequestNCPO extends Model
 
     public function items()
     {
-        return $this->hasMany(RequestNcpoItems::class);
+        return $this->hasMany(RequestNcpoItems::class, 'request_ncpo_id');
+    }
+
+    /**
+     * ==================================================
+     * MODEL ATTRIBUTE
+     * ==================================================
+     */
+    public function getNewPoTotalAttribute()
+    {
+        return $this->items->sum(fn ($item) => $item->new_total);
     }
 }

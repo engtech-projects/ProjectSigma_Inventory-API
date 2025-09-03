@@ -28,6 +28,10 @@ class PriceQuotationItem extends Model
     {
         return $this->belongsTo(PriceQuotation::class);
     }
+    public function item()
+    {
+        return $this->belongsTo(ItemProfile::class, 'item_id');
+    }
 
     public function getRequestStockItemAttribute()
     {
