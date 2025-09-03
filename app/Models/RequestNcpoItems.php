@@ -47,11 +47,15 @@ class RequestNcpoItems extends Model
         return $this->belongsTo(ItemProfile::class, 'item_id');
     }
 
-    public function supplier()
+    public function changedSupplier()
     {
         return $this->belongsTo(RequestSupplier::class, 'changed_supplier_id');
     }
-
+  
+    public function changedUom()
+    {
+        return $this->belongsTo(UOM::class, 'changed_uom_id');
+    }
     /**
      * ==================================================
      * MODEL METHODS
@@ -112,5 +116,4 @@ class RequestNcpoItems extends Model
         $qty = $this->changed_qty ?? $originalQty;
         $unitPrice = $this->changed_unit_price ?? $originalPrice;
         return $qty * $unitPrice;
-    }
 }
