@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\HasApproval;
-use App\Enums\OwnerType;
 
 class RequestWithdrawal extends Model
 {
@@ -56,21 +55,10 @@ class RequestWithdrawal extends Model
     }
 
     /**
-     * Accessors to get the unified chargeable name
+     * Accessors
      */
     public function getChargeableNameAttribute()
     {
-        if (!$this->chargeable) {
-            return null;
-        }
-
-        switch ($this->chargeable_type) {
-            case OwnerType::PROJECT->value:
-                return $this->chargeable->project_code ?? null;
-            case OwnerType::DEPARTMENT->value:
-                return $this->chargeable->department_name ?? null;
-            default:
-                return null;
-        }
+        return $this->chargeable?->department_name ?? $this->chargeable?->project_code ?? null;
     }
 }
