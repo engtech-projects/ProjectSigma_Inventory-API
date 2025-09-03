@@ -37,9 +37,6 @@ class StoreRequestWithdrawalRequest extends FormRequest
                     }
                 },
             ],
-            // 'created_by' => ['nullable', 'exists:users,id'], // Exists in users list
-            // Tentative for future use/ for further discussion if auto generated
-            'reference_no' => ['nullable', 'string'], // Tentative for future use/ for further discussion if auto generated
             'equipment_no' => ['nullable', 'string'],
             'smr' => ['nullable', 'string'],
             'fuel' => [
@@ -47,9 +44,7 @@ class StoreRequestWithdrawalRequest extends FormRequest
                 'string',
                 new Enum(FuelWithdrawal::class),
             ],
-            // 'metadata' => ['nullable', 'array'],
             'items' => ['required', 'array', 'min:1'],
-
             'items.*.quantity' => [
                 'required',
                 'numeric',
@@ -57,12 +52,10 @@ class StoreRequestWithdrawalRequest extends FormRequest
                     $index = explode('.', $attribute)[1];
                     $itemId = $this->items[$index]['item_id'] ?? null;
                     $warehouseId = $this->warehouse_id;
-
                     $stock = DB::table('warehouse_stock_transactions')
                         ->where('warehouse_id', $warehouseId)
                         ->where('item_id', $itemId)
                         ->value('quantity');
-
                     if ($stock !== null && $value > $stock) {
                         $fail("Quantity exceeds available stock.");
                     }

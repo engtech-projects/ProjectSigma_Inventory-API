@@ -19,38 +19,15 @@ class RequestWithdrawalController extends Controller
      */
     public function index()
     {
-        try {
-            $withdrawals = RequestWithdrawal::with(['items.item', 'warehouse'])
-                ->latest()
-                ->paginate(config('app.pagination.per_page', 10));
-
-            if ($withdrawals->isEmpty()) {
-                return response()->json([
-                    'message' => 'No Request Withdrawals found.',
-                    'success' => false,
-                    'data'    => [],
-                ], 200);
-            }
-
-            return RequestWithdrawalListingResource::collection($withdrawals)
-                ->additional([
-                    'message' => 'Request Withdrawals retrieved successfully.',
-                    'success' => true,
-                ]);
-        } catch (Throwable $e) {
-            Log::error('Error fetching withdrawals', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+        $withdrawals = RequestWithdrawal::with(['items.item', 'warehouse'])
+            ->latest()
+            ->paginate(config('app.pagination.per_page', 10));
+        return RequestWithdrawalListingResource::collection($withdrawals)
+            ->additional([
+                'message' => $withdrawals->isEmpty()?'No Request Withdrawals found.':'Request Withdrawals retrieved successfully.',
+                'success' => true,
             ]);
-
-            return response()->json([
-                'message' => 'Failed to retrieve Request Withdrawals.',
-                'success' => false,
-                'error'   => config('app.debug') ? $e->getMessage() : 'Server Error',
-            ], 500);
-        }
     }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -58,7 +35,6 @@ class RequestWithdrawalController extends Controller
     {
         try {
             $data = $request->validated();
-
             $withdrawal = DB::transaction(function () use ($data) {
                 $withdrawal = RequestWithdrawal::create([
                     'date_time'       => $data['date_time'],
@@ -73,7 +49,6 @@ class RequestWithdrawalController extends Controller
                     'approvals'       => $data['approvals'] ?? [],
                     'created_by'      => auth()->user()->id,
                 ]);
-
                 $items = collect($data['items'])->map(function ($item) use ($withdrawal) {
                     return [
                         'request_withdrawal_id' => $withdrawal->id,
@@ -86,14 +61,11 @@ class RequestWithdrawalController extends Controller
                         'updated_at'            => now(),
                     ];
                 });
-
                 if ($items->isNotEmpty()) {
                     RequestWithdrawalItem::insert($items->toArray());
                 }
-
                 return $withdrawal->fresh(['warehouse', 'chargeable', 'items.item', 'items.uom']);
             });
-
             return (new RequestWithdrawalDetailedResource($withdrawal))
                 ->additional([
                     'message' => 'Request Withdrawal created successfully.',
@@ -105,7 +77,6 @@ class RequestWithdrawalController extends Controller
                 'error'   => $e->getMessage(),
                 'trace'   => $e->getTraceAsString(),
             ]);
-
             return response()->json([
                 'message' => 'Failed to create Request Withdrawal.',
                 'success' => false,
@@ -119,31 +90,29 @@ class RequestWithdrawalController extends Controller
      */
     public function show(RequestWithdrawal $resource)
     {
-        try {
+        // try {
             $resource->load([
                 'warehouse',
                 'chargeable',
                 'items.item',
                 'items.uom',
             ]);
-
             return (new RequestWithdrawalDetailedResource($resource))
                 ->additional([
-                    'message' => 'Request Withdrawal retrieved successfully.',
+                    'message' => $resource->isNotEmpty() ? 'Request Withdrawal retrieved successfully.' : 'Request Withdrawal not found.',
                     'success' => true,
                 ]);
-        } catch (Throwable $e) {
-            Log::error('Error fetching withdrawal details', [
-                'id'    => $resource->id ?? null,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return response()->json([
-                'message' => 'Failed to retrieve Request Withdrawal.',
-                'success' => false,
-                'error'   => config('app.debug') ? $e->getMessage() : 'Server Error',
-            ], 500);
-        }
+        // } catch (Throwable $e) {
+        //     Log::error('Error fetching withdrawal details', [
+        //         'id'    => $resource->id ?? null,
+        //         'error' => $e->getMessage(),
+        //         'trace' => $e->getTraceAsString(),
+        //     ]);
+        //     return response()->json([
+        //         'message' => 'Failed to retrieve Request Withdrawal.',
+        //         'success' => false,
+        //         'error'   => config('app.debug') ? $e->getMessage() : 'Server Error',
+        //     ], 500);
+        // }
     }
 }
