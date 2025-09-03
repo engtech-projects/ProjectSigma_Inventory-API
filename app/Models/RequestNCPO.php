@@ -46,6 +46,7 @@ class RequestNCPO extends Model
     {
         return $this->hasMany(RequestNcpoItems::class, 'request_ncpo_id');
     }
+
     /**
      * ==================================================
      * MODEL ATTRIBUTE

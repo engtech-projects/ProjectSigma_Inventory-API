@@ -51,23 +51,64 @@ class RequestNcpoItems extends Model
     {
         return $this->belongsTo(RequestSupplier::class, 'changed_supplier_id');
     }
-    public function canvassSummaryItem()
+
+    /**
+     * ==================================================
+     * MODEL METHODS
+     * ==================================================
+     */
+    public function requisitionSlipItem()
     {
-        return $this->hasOne(RequestCanvassSummaryItems::class, 'item_id', 'item_id');
+        return $this->requestNcpo
+            ->purchaseOrder
+            ->requestCanvassSummary
+            ->priceQuotation
+            ->requestProcurement
+            ->requisitionSlip
+            ->items()
+            ->where('item_id', $this->item_id)
+            ->first();
     }
 
     /**
      * ==================================================
-     * MODEL ATTRIBUTE
+     * MODEL ATTRIBUTES
      * ==================================================
      */
+    public function getCanvassSummaryItemAttribute()
+    {
+        $canvassSummaryId = $this->requestNcpo?->purchaseOrder?->request_canvass_summary_id;
+
+        if (!$canvassSummaryId) {
+            return null;
+        }
+
+        return RequestCanvassSummaryItems::where('request_canvass_summary_id', $canvassSummaryId)
+            ->where('item_id', $this->item_id)
+            ->first();
+    }
+    public function getOriginalQuantityAttribute()
+    {
+        return $this->requisitionSlipItem()?->quantity ?? 0;
+    }
+
+    public function getOriginalUnitPriceAttribute()
+    {
+        return $this->canvass_summary_item?->unit_price ?? 0;
+    }
+
+    public function getOriginalTotalAttribute()
+    {
+        return $this->original_quantity * $this->original_unit_price;
+    }
+
     public function getNewTotalAttribute()
     {
         if ($this->cancel_item) {
             return 0;
         }
-        $originalQty = $this->canvassSummaryItem?->requisitionSlipItem?->quantity ?? 0;
-        $originalPrice = $this->canvassSummaryItem?->unit_price ?? 0;
+        $originalQty = $this->original_quantity;
+        $originalPrice = $this->original_unit_price;
         $qty = $this->changed_qty ?? $originalQty;
         $unitPrice = $this->changed_unit_price ?? $originalPrice;
         return $qty * $unitPrice;
