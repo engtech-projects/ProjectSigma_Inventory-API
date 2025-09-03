@@ -17,14 +17,22 @@ class RequestWithdrawalDetailedResource extends JsonResource
         return [
             'id'             => $this->id,
             'date_time'      => $this->date_time,
-            'warehouse_name' => $this->warehouse->name ?? null,
+            'warehouse_name' => $this->warehouse?->name,
             'charging_name'  => $this->chargeable_name ?? null,
             'requested_by'   => $this->created_by_user_name ?? null,
             'equipment_no'   => $this->equipment_no,
             'smr'            => $this->smr,
             'fuel'           => $this->fuel,
-            'items'          => RequestWithdrawalItemDetailedResource::collection($this->items),
-            'approvals'      => ApprovalAttributeResource::collection($this->approvals),
+            'items'          => $this->whenLoaded(
+                'items',
+                fn () => RequestWithdrawalItemDetailedResource::collection($this->items),
+                []
+            ),
+            'approvals'      => $this->whenLoaded(
+                'approvals',
+                fn () => ApprovalAttributeResource::collection($this->approvals),
+                []
+            ),
         ];
     }
 }

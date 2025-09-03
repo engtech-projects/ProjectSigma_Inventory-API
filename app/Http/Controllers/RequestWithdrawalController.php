@@ -20,7 +20,7 @@ class RequestWithdrawalController extends Controller
     public function index()
     {
         try {
-            $withdrawals = RequestWithdrawal::with(['items.item'])
+            $withdrawals = RequestWithdrawal::with(['items.item', 'warehouse'])
                 ->latest()
                 ->paginate(config('app.pagination.per_page', 10));
 
@@ -29,7 +29,7 @@ class RequestWithdrawalController extends Controller
                     'message' => 'No Request Withdrawals found.',
                     'success' => false,
                     'data'    => [],
-                ], 404);
+                ], 200);
             }
 
             return RequestWithdrawalListingResource::collection($withdrawals)
@@ -64,9 +64,7 @@ class RequestWithdrawalController extends Controller
                     'date_time'       => $data['date_time'],
                     'warehouse_id'    => $data['warehouse_id'],
                     'chargeable_id'   => $data['chargeable_id'],
-                    'chargeable_type' => $data['chargeable_type'] == OwnerType::PROJECT->value
-                        ? OwnerType::PROJECT->value
-                        : OwnerType::DEPARTMENT->value,
+                    'chargeable_type' => OwnerType::from($data['chargeable_type'])->value,
                     'equipment_no'    => $data['equipment_no'] ?? null,
                     'smr'             => $data['smr'] ?? null,
                     'fuel'            => $data['fuel'],
@@ -89,7 +87,9 @@ class RequestWithdrawalController extends Controller
                     ];
                 });
 
-                RequestWithdrawalItem::insert($items->toArray());
+                if ($items->isNotEmpty()) {
+                    RequestWithdrawalItem::insert($items->toArray());
+                }
 
                 return $withdrawal->fresh(['warehouse', 'chargeable', 'items.item', 'items.uom']);
             });
@@ -120,13 +120,6 @@ class RequestWithdrawalController extends Controller
     public function show(RequestWithdrawal $resource)
     {
         try {
-            if (!$resource) {
-                return response()->json([
-                    'message' => 'Request Withdrawal not found.',
-                    'success' => false,
-                ], 404);
-            }
-
             $resource->load([
                 'warehouse',
                 'chargeable',

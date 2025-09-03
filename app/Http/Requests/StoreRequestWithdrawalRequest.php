@@ -17,16 +17,20 @@ class StoreRequestWithdrawalRequest extends FormRequest
     {
         return [
             'date_time' => ['required', 'date'],
-            'warehouse_id' => ['required', 'exists:setup_warehouses,id'],
+            'warehouse_id' => ['bail', 'required', 'exists:setup_warehouses,id'],
             'chargeable_type' => ['required', new Enum(OwnerType::class)],
             'chargeable_id' => [
                 'required',
                 function ($attribute, $value, $fail) {
-                    if ($this->chargeable_type === OwnerType::PROJECT) {
+                    $type = OwnerType::tryFrom($this->input('chargeable_type'));
+                    if (!$type) {
+                        return $fail('Invalid chargeable type.');
+                    }
+                    if ($type === OwnerType::PROJECT) {
                         if (!DB::table('setup_projects')->where('id', $value)->exists()) {
                             $fail('Invalid Project selected.');
                         }
-                    } elseif ($this->chargeable_type === OwnerType::DEPARTMENT) {
+                    } elseif ($type === OwnerType::DEPARTMENT) {
                         if (!DB::table('setup_departments')->where('id', $value)->exists()) {
                             $fail('Invalid Department selected.');
                         }
@@ -44,22 +48,8 @@ class StoreRequestWithdrawalRequest extends FormRequest
                 new Enum(FuelWithdrawal::class),
             ],
             // 'metadata' => ['nullable', 'array'],
-            'items' => ['required', 'array'],
-            'items.*.item_id' => [
-                'required',
-                'exists:item_profile,id',
-                function ($attribute, $value, $fail) {
-                    $warehouseId = $this->warehouse_id;
-                    $stock = DB::table('warehouse_stock_transactions')
-                        ->where('warehouse_id', $warehouseId)
-                        ->where('item_id', $value)
-                        ->value('quantity');
+            'items' => ['required', 'array', 'min:1'],
 
-                    if (is_null($stock)) {
-                        $fail("Item not available in selected warehouse.");
-                    }
-                }
-            ],
             'items.*.quantity' => [
                 'required',
                 'numeric',
@@ -79,7 +69,7 @@ class StoreRequestWithdrawalRequest extends FormRequest
                 }
             ],
             'items.*.uom_id' => ['required', 'exists:setup_uom,id'],
-            'items.*.purpose_of_withdrawal' => ['nullable', 'string'],
+            'items.*.purpose_of_withdrawal' => ['nullable', 'string', 'max:500'],
             ...$this->storeApprovals(),
         ];
     }
