@@ -45,6 +45,7 @@ class StoreRequestWithdrawalRequest extends FormRequest
                 new Enum(FuelWithdrawal::class),
             ],
             'items' => ['required', 'array', 'min:1'],
+            'items.*.item_id' => ['required', 'exists:item_profile,id'],
             'items.*.quantity' => [
                 'required',
                 'numeric',

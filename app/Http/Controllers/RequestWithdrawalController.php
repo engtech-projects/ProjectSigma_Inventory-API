@@ -36,34 +36,10 @@ class RequestWithdrawalController extends Controller
         try {
             $data = $request->validated();
             $withdrawal = DB::transaction(function () use ($data) {
-                $withdrawal = RequestWithdrawal::create([
-                    'date_time'       => $data['date_time'],
-                    'warehouse_id'    => $data['warehouse_id'],
-                    'chargeable_id'   => $data['chargeable_id'],
-                    'chargeable_type' => OwnerType::from($data['chargeable_type'])->value,
-                    'equipment_no'    => $data['equipment_no'] ?? null,
-                    'smr'             => $data['smr'] ?? null,
-                    'fuel'            => $data['fuel'],
-                    'reference_no'    => $data['reference_no'] ?? null,
-                    'metadata'        => $data['metadata'] ?? null,
-                    'approvals'       => $data['approvals'] ?? [],
-                    'created_by'      => auth()->user()->id,
-                ]);
-                $items = collect($data['items'])->map(function ($item) use ($withdrawal) {
-                    return [
-                        'request_withdrawal_id' => $withdrawal->id,
-                        'item_id'               => $item['item_id'],
-                        'quantity'              => $item['quantity'],
-                        'uom_id'                => $item['uom_id'],
-                        'purpose_of_withdrawal' => $item['purpose_of_withdrawal'] ?? null,
-                        'metadata'              => $item['metadata'] ?? null,
-                        'created_at'            => now(),
-                        'updated_at'            => now(),
-                    ];
-                });
-                if ($items->isNotEmpty()) {
-                    RequestWithdrawalItem::insert($items->toArray());
-                }
+                $data['reference_no'] = $this->generateReferenceNo();
+                $data['created_by'] = auth()->user()->id;
+                $withdrawal = RequestWithdrawal::create($data);
+                $withdrawal->items()->createMany($data['items']);
                 return $withdrawal->fresh(['warehouse', 'chargeable', 'items.item', 'items.uom']);
             });
             return (new RequestWithdrawalDetailedResource($withdrawal))
@@ -90,29 +66,24 @@ class RequestWithdrawalController extends Controller
      */
     public function show(RequestWithdrawal $resource)
     {
-        // try {
-            $resource->load([
-                'warehouse',
-                'chargeable',
-                'items.item',
-                'items.uom',
+        $resource->load([
+            'warehouse',
+            'chargeable',
+            'items.item',
+            'items.uom',
+        ]);
+        return (new RequestWithdrawalDetailedResource($resource))
+            ->additional([
+                'message' => $resource ? 'Request Withdrawal retrieved successfully.' : 'Request Withdrawal not found.',
+                'success' => true,
             ]);
-            return (new RequestWithdrawalDetailedResource($resource))
-                ->additional([
-                    'message' => $resource->isNotEmpty() ? 'Request Withdrawal retrieved successfully.' : 'Request Withdrawal not found.',
-                    'success' => true,
-                ]);
-        // } catch (Throwable $e) {
-        //     Log::error('Error fetching withdrawal details', [
-        //         'id'    => $resource->id ?? null,
-        //         'error' => $e->getMessage(),
-        //         'trace' => $e->getTraceAsString(),
-        //     ]);
-        //     return response()->json([
-        //         'message' => 'Failed to retrieve Request Withdrawal.',
-        //         'success' => false,
-        //         'error'   => config('app.debug') ? $e->getMessage() : 'Server Error',
-        //     ], 500);
-        // }
+    }
+
+    private function generateReferenceNo(): string
+    {
+        $last = RequestWithdrawal::latest('id')->first();
+        $nextId = $last ? $last->id + 1 : 1;
+
+        return sprintf("RW-%s-%05d", now()->year, $nextId);
     }
 }
