@@ -48,4 +48,17 @@ class RequestWithdrawal extends Model
     {
         return $this->morphTo();
     }
+
+    public function items()
+    {
+        return $this->hasMany(RequestWithdrawalItem::class, 'request_withdrawal_id');
+    }
+
+    /**
+     * Accessors
+     */
+    public function getChargeableNameAttribute()
+    {
+        return $this->chargeable?->department_name ?? $this->chargeable?->project_code ?? null;
+    }
 }
