@@ -7,6 +7,7 @@ use App\Http\Resources\RequestNcpoDetailedResource;
 use App\Http\Resources\RequestNcpoListingResource;
 use App\Http\Resources\RequestNcpoResource;
 use App\Models\RequestNCPO;
+use App\Notifications\RequestNCPOForApprovalNotification;
 use Illuminate\Support\Facades\DB;
 
 class RequestNcpoController extends Controller
@@ -49,12 +50,11 @@ class RequestNcpoController extends Controller
             );
             return $ncpo->load('items');
         });
-        //for notification
-        // if ($ncpo->getNextPendingApproval()) {
-        //     $ncpo->notify(new RequestNCPOForApprovalNotification($request->bearerToken(), $ncpo));
-        // }
-        return (new RequestNcpoResource($ncpo))
-        ->additional([
+        if ($ncpo->getNextPendingApproval()) {
+            $ncpo->notify(new RequestNCPOForApprovalNotification($request->bearerToken(), $ncpo));
+        }
+        $ncpoResource = RequestNcpoResource::make($ncpo);
+        return $ncpoResource->additional([
             'message' => 'Request NCPO created successfully.',
             'success' => true,
         ]);
@@ -69,7 +69,7 @@ class RequestNcpoController extends Controller
             'items.item',
             'purchaseOrder',
         ]);
-        return (new RequestNcpoDetailedResource($resource))
+        return RequestNcpoDetailedResource::make($resource)
             ->additional([
                 'message' => 'Request NCPO retrieved successfully.',
                 'success' => true,

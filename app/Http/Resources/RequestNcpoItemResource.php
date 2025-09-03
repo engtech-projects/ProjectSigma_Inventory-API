@@ -20,6 +20,8 @@ class RequestNcpoItemResource extends JsonResource
             'changed_supplier_id' => $this->changed_supplier_id,
             'changed_item_description' => $this->changed_item_description,
             'changed_specification' => $this->changed_specification,
+            'original_qty' => $this->canvassSummaryItem?->requisitionSlipItem?->quantity,
+            'original_unit_price' => $this->canvassSummaryItem?->unit_price,
             'changed_qty' => $this->changed_qty,
             'changed_uom_id' => $this->changed_uom_id,
             'changed_unit_price' => $this->changed_unit_price,

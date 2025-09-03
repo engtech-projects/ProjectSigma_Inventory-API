@@ -51,6 +51,10 @@ class RequestNcpoItems extends Model
     {
         return $this->belongsTo(RequestSupplier::class, 'changed_supplier_id');
     }
+    public function canvassSummaryItem()
+    {
+        return $this->hasOne(RequestCanvassSummaryItems::class, 'item_id', 'item_id');
+    }
 
     /**
      * ==================================================
@@ -62,8 +66,10 @@ class RequestNcpoItems extends Model
         if ($this->cancel_item) {
             return 0;
         }
-        $qty = $this->changed_qty ?? $this->qty;
-        $unitPrice = $this->changed_unit_price ?? $this->unit_price;
+        $originalQty = $this->canvassSummaryItem?->requisitionSlipItem?->quantity ?? 0;
+        $originalPrice = $this->canvassSummaryItem?->unit_price ?? 0;
+        $qty = $this->changed_qty ?? $originalQty;
+        $unitPrice = $this->changed_unit_price ?? $originalPrice;
         return $qty * $unitPrice;
     }
 }
