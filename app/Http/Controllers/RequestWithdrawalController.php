@@ -6,10 +6,8 @@ use App\Models\RequestWithdrawal;
 use App\Http\Requests\StoreRequestWithdrawalRequest;
 use App\Http\Resources\RequestWithdrawalListingResource;
 use App\Http\Resources\RequestWithdrawalDetailedResource;
-use App\Models\RequestWithdrawalItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Enums\OwnerType;
 use Throwable;
 
 class RequestWithdrawalController extends Controller
@@ -24,7 +22,7 @@ class RequestWithdrawalController extends Controller
             ->paginate(config('app.pagination.per_page', 10));
         return RequestWithdrawalListingResource::collection($withdrawals)
             ->additional([
-                'message' => $withdrawals->isEmpty()?'No Request Withdrawals found.':'Request Withdrawals retrieved successfully.',
+                'message' => $withdrawals->isEmpty() ? 'No Request Withdrawals found.' : 'Request Withdrawals retrieved successfully.',
                 'success' => true,
             ]);
     }
