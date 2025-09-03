@@ -31,7 +31,7 @@ use App\Http\Controllers\RequestRequisitionSlipController;
 use App\Http\Controllers\TransactionMaterialReceivingController;
 use App\Http\Controllers\TransactionMaterialReceivingItemController;
 use App\Http\Controllers\RequestWithdrawalController;
-use App\Http\Controllers\RequestWithdrawalApprovalController;
+use App\Http\Controllers\Actions\Approvals\RequestWithdrawalMyApprovals;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -109,7 +109,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('material-receivings/{warehouse}', [TransactionMaterialReceivingController::class, 'materialReceivingByWarehouse']);
         Route::prefix('request-withdrawal')->group(function () {
             Route::apiResource('resource', RequestWithdrawalController::class);
-            Route::get('my-approvals', [RequestWithdrawalApprovalController::class, 'myApprovals']);
+            Route::get('my-approvals', RequestWithdrawalMyApprovals::class);
         });
     });
 

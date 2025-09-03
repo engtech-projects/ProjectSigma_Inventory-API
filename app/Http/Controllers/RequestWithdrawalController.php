@@ -42,7 +42,7 @@ class RequestWithdrawalController extends Controller
                 $withdrawal->items()->createMany($data['items']);
                 return $withdrawal->fresh(['warehouse', 'chargeable', 'items.item', 'items.uom']);
             });
-            return (new RequestWithdrawalDetailedResource($withdrawal))
+            return (RequestWithdrawalDetailedResource::make($withdrawal))
                 ->additional([
                     'message' => 'Request Withdrawal created successfully.',
                     'success' => true,
@@ -72,7 +72,7 @@ class RequestWithdrawalController extends Controller
             'items.item',
             'items.uom',
         ]);
-        return (new RequestWithdrawalDetailedResource($resource))
+        return (RequestWithdrawalDetailedResource::make($resource))
             ->additional([
                 'message' => $resource ? 'Request Withdrawal retrieved successfully.' : 'Request Withdrawal not found.',
                 'success' => true,

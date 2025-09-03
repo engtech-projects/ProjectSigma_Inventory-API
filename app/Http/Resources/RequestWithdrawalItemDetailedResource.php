@@ -16,7 +16,7 @@ class RequestWithdrawalItemDetailedResource extends JsonResource
     {
         return [
             'id'                   => $this->id,
-            'item_code'            => $this->whenLoaded('item', fn () => $this->item->code),
+            'item_code'            => $this->whenLoaded('item', fn () => $this->item->item_code),
             'item_name_summary'    => $this->whenLoaded('item', fn () => $this->item->name_summary),
             'unit_name'            => $this->whenLoaded('uom', fn () => $this->uom->name),
             'quantity'             => $this->quantity,
