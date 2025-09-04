@@ -36,7 +36,7 @@ class PurchaseOrderService
             $mrr->warehouse_id      = $requestPurchaseOrder->warehouse_id;
             $mrr->reference_no      = TransactionMaterialReceiving::generateNewMrrReferenceNumber();
             $mrr->supplier_id       = $requestPurchaseOrder->supplier_id;
-            $mrr->reference         = $requestPurchaseOrder->po_number;
+            $mrr->reference         = null;
             $mrr->terms_of_payment  = $requestPurchaseOrder->terms_of_payment;
             $mrr->transaction_date  = $requestPurchaseOrder->transaction_date;
             $mrr->metadata          = [
