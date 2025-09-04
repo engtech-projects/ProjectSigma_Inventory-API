@@ -28,11 +28,7 @@ class RequestWithdrawalDetailedResource extends JsonResource
                 fn () => RequestWithdrawalItemDetailedResource::collection($this->items),
                 []
             ),
-            'approvals'      => $this->whenLoaded(
-                'approvals',
-                fn () => ApprovalAttributeResource::collection($this->approvals),
-                []
-            ),
+            'approvals' => ApprovalAttributeResource::collection($this->approvals)
         ];
     }
 }
