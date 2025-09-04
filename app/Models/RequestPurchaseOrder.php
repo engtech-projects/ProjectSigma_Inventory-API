@@ -32,9 +32,7 @@ class RequestPurchaseOrder extends Model
         'transaction_date' => 'date',
         'metadata' => 'json',
         'approvals' => 'json',
-        'processing_status' => PurchaseOrderProcessingStatus::class,
-    ];
-
+        'processing_status' => PurchaseO
     /**
      * ==================================================
      * MODEL RELATIONSHIPS
@@ -44,12 +42,24 @@ class RequestPurchaseOrder extends Model
     {
         return $this->belongsTo(RequestCanvassSummary::class, 'request_canvass_summary_id');
     }
-
+    public function mrr()
+    {
+        return $this->hasOne(TransactionMaterialReceiving::class, 'po_id', 'id');
+    }
     /**
      * ==================================================
      * MODEL ATTRIBUTES
      * ==================================================
      */
+    public function getPriceQuotationAttribute()
+    {
+        return $this->requestCanvassSummary?->priceQuotation;
+    }
+
+    public function getRequisitionSlipAttribute()
+    {
+        return $this->priceQuotation?->requestProcurement?->requisitionSlip;
+    }
 
     public function getIsPrepaymentAttribute(): bool
     {
@@ -57,7 +67,6 @@ class RequestPurchaseOrder extends Model
             ? strtolower($this->requestCanvassSummary->terms_of_payment) === 'prepayment in full'
             : false;
     }
-
     public function getProcessingFlowAttribute()
     {
         return [
@@ -90,15 +99,50 @@ class RequestPurchaseOrder extends Model
             PurchaseOrderProcessingStatus::SERVED->value => [],
         ];
     }
-
     public function getAllowedNextStatusesAttribute(): array
     {
         $workflow = $this->processing_flow;
         return $workflow[$this->processing_status->value] ?? [];
     }
-
     public function getIsServedAttribute(): bool
     {
         return $this->processing_status === PurchaseOrderProcessingStatus::SERVED;
+    }
+    public function getWarehouseIdAttribute()
+    {
+        return $this->requisitionSlip?->warehouse_id;
+    }
+    public function getSupplierIdAttribute()
+    {
+        return $this->priceQuotation?->supplier_id;
+    }
+    public function getTermsOfPaymentAttribute()
+    {
+        return $this->requestCanvassSummary?->terms_of_payment;
+    }
+    public function getRsIdAttribute()
+    {
+        return $this->requisitionSlip?->id;
+    }
+
+    public function getItemsAttribute()
+    {
+        $requisitionItems = $this->requisitionSlip?->items ?? collect();
+        $pqItems          = $this->priceQuotation?->items ?? collect();
+        $csItems          = $this->requestCanvassSummary?->items ?? collect();
+        return $requisitionItems->map(function ($reqItem) use ($pqItems, $csItems) {
+            $pqItem = $pqItems->firstWhere('item_id', $reqItem->item_id);
+            $csItem = $csItems->firstWhere('item_id', $reqItem->item_id);
+            return (object) [
+                'id'                   => $reqItem->id,
+                'item_id'              => $reqItem->item_id,
+                'specification'        => $reqItem->specification,
+                'quantity'             => $reqItem->quantity,
+                'uom'                  => $reqItem->unit,
+                'remarks'              => $reqItem->remarks,
+                'actual_brand_purchase' => $pqItem?->actual_brand,
+                'unit_price'           => $csItem?->unit_price,
+            ];
+        });
     }
 }
