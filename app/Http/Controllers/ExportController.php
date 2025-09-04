@@ -13,7 +13,7 @@ class ExportController extends Controller
             $downloadUrl = ExportService::itemListExport($request);
             return response()->json([
                 "success" => true,
-                'url' => $downloadUrl,
+                'url' => url($downloadUrl),
                 'message' => "Successfully Download."
             ]);
         } catch (\Exception $e) {
