@@ -21,7 +21,7 @@ return new class ()extends Migration {
      */
     public function down(): void
     {
-        Schema::table('request_ncpo', function (Blueprint $table) {
+        Schema::table('request_ncpos', function (Blueprint $table) {
             $table->dropColumn('request_status');
         });
     }

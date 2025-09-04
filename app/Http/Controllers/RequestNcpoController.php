@@ -8,12 +8,10 @@ use App\Http\Resources\RequestNcpoListingResource;
 use App\Http\Resources\RequestNcpoResource;
 use App\Models\RequestNCPO;
 use App\Notifications\RequestNCPOForApprovalNotification;
-use App\Traits\HasApproval;
 use Illuminate\Support\Facades\DB;
 
 class RequestNcpoController extends Controller
 {
-    use HasApproval;
     /**
      * Display a listing of the resource.
      */
