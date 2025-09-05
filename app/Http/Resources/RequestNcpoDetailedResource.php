@@ -21,6 +21,7 @@ class RequestNcpoDetailedResource extends JsonResource
             'po_id' => $this->po_id,
             'justification' => $this->justification,
             'created_by' => $this->created_by,
+            'new_po_total' => $this->new_po_total,
             'items' => RequestNcpoItemResource::collection($this->items),
         ];
     }

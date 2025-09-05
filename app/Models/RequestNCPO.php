@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\RequestStatuses;
+use App\Http\Services\NcpoService;
 use App\Traits\HasApproval;
 use App\Traits\HasReferenceNumber;
 use App\Traits\ModelHelpers;
@@ -55,5 +57,18 @@ class RequestNCPO extends Model
     public function getNewPoTotalAttribute()
     {
         return $this->items->sum(fn ($item) => $item->new_total);
+    }
+
+    /**
+     * ==================================================
+     * MODEL FUNCTIONS
+     * ==================================================
+     */
+    public function completeRequestStatus()
+    {
+        $this->request_status = RequestStatuses::APPROVED;
+        $this->save();
+        $this->refresh();
+        app(NcpoService::class)->createNcpoChangesToPurchaseOrder($this);
     }
 }

@@ -47,6 +47,14 @@ class RequestPurchaseOrder extends Model
     {
         return $this->hasOne(TransactionMaterialReceiving::class, 'po_id', 'id');
     }
+    public function ncpos()
+    {
+        return $this->hasMany(RequestNCPO::class, 'po_id');
+    }
+    public function supplier()
+    {
+        return $this->belongsTo(RequestSupplier::class, 'supplier_id');
+    }
     /**
      * ==================================================
      * MODEL ATTRIBUTES
