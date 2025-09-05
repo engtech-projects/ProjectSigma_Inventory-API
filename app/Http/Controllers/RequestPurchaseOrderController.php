@@ -62,6 +62,9 @@ class RequestPurchaseOrderController extends Controller
         if ($newStatus === PurchaseOrderProcessingStatus::TURNED_OVER) {
             PurchaseOrderService::createMrrFromPurchaseOrder($requestPurchaseOrder);
         }
+        if ($newStatus === PurchaseOrderProcessingStatus::CHANGES) {
+           NcpoService::createNcpo($requestPurchaseOrder);
+        }
         return (new RequestPurchaseOrderDetailedResource($requestPurchaseOrder))
             ->additional([
                 'message' => "Processing status updated to {$newStatus->value} successfully.",

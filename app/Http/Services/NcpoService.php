@@ -6,11 +6,49 @@ use App\Models\RequestNCPO;
 use App\Models\RequestPurchaseOrder;
 use App\Models\RequestCanvassSummaryItems;
 use App\Models\RequestRequisitionSlipItems;
+use App\Notifications\RequestNCPOForApprovalNotification;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class NcpoService
 {
+    public static function createNcpo($purchaseOrder)
+    {
+        return DB::transaction(function () use ($purchaseOrder) {
+            $ncpoNo = RequestNCPO::generateReferenceNumber(
+                'ncpo_no',
+                fn ($prefix, $datePart, $number) => "{$prefix}-{$datePart}-{$number}",
+                ['prefix' => 'NCPO', 'dateFormat' => 'Y-m']
+            );
+            $ncpo = RequestNCPO::create([
+                'ncpo_no'       => $ncpoNo,
+                'date'          => now(),
+                'justification' => null,
+                'po_id'         => $purchaseOrder->id,
+                'created_by' => auth()->user()->id,
+                'approvals'     => [],
+            ]);
+            $items = $purchaseOrder->requestCanvassSummary
+                ->items()
+                ->get()
+                ->map(fn ($item) => [
+                    'item_id'             => $item->item_id,
+                    'changed_qty'         => $item->qty,
+                    'changed_uom_id'      => $item->uom_id,
+                    'changed_unit_price'  => $item->unit_price,
+                    'changed_supplier_id' => $purchaseOrder->supplier_id,
+                    'request_ncpo_id'     => $ncpo->id,
+                ])->toArray();
+
+            $ncpo->items()->createMany($items);
+
+            if ($ncpo->getNextPendingApproval()) {
+                $ncpo->notify(new RequestNCPOForApprovalNotification(request()->bearerToken(), $ncpo));
+            }
+            return $ncpo->load('items');
+        });
+    }
     /**
      * This service now focuses on computing the final purchase order details
      * by applying NCPO changes on top of original data WITHOUT modifying source tables
