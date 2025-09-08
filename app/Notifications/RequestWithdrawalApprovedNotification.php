@@ -20,7 +20,7 @@ class RequestWithdrawalApprovalNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct($token,RequestWithdrawal $model)
+    public function __construct($token, RequestWithdrawal $model)
     {
         $this->token = $token;
         $this->model = $model;
