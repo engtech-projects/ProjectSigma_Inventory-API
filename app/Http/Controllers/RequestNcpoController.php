@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\RequestNcpoDetailedResource;
 use App\Http\Resources\RequestNcpoListingResource;
-use App\Models\RequestNCPO;
+use App\Models\RequestNcpo;
 
 class RequestNcpoController extends Controller
 {
@@ -13,7 +13,7 @@ class RequestNcpoController extends Controller
      */
     public function index()
     {
-        $requestNCPOs = RequestNCPO::paginate(config('app.pagination.per_page', 15));
+        $requestNCPOs = RequestNcpo::paginate(config('app.pagination.per_page', 15));
         return RequestNcpoListingResource::collection($requestNCPOs)
         ->additional([
             'message' => 'Request NCPOs retrieved successfully.',
@@ -23,7 +23,7 @@ class RequestNcpoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(RequestNCPO $resource)
+    public function show(RequestNcpo $resource)
     {
         $resource->load([
             'items.item',
