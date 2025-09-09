@@ -4,12 +4,12 @@ namespace App\Notifications;
 
 use App\Broadcasting\HrmsNotifyNextApproverChannel;
 use App\Enums\ApprovalModels;
-use App\Models\RequestNCPO;
+use App\Models\RequestNcpo;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Notification;
 
-class RequestNCPOForApprovalNotification extends Notification
+class RequestNcpoForApprovalNotification extends Notification
 {
     use Queueable;
 
@@ -20,7 +20,7 @@ class RequestNCPOForApprovalNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct($token, RequestNCPO $model)
+    public function __construct($token, RequestNcpo $model)
     { //token model
         $this->token = $token;
         $this->model = $model;
@@ -64,7 +64,7 @@ class RequestNCPOForApprovalNotification extends Notification
         return [
             'message' => "A new NCPO request needs your approval.",
             'module' => "Inventory",
-            'request_type' => ApprovalModels::RequestNCPO->name,
+            'request_type' => ApprovalModels::RequestNcpo->name,
             'request_id' => $this->model->id,
             'action' => "View"
         ];

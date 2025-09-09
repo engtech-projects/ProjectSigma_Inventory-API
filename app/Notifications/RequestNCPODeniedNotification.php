@@ -4,12 +4,12 @@ namespace App\Notifications;
 
 use App\Broadcasting\HrmsNotifyCreatorChannel;
 use App\Enums\ApprovalModels;
-use App\Models\RequestNCPO;
+use App\Models\RequestNcpo;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Notification;
 
-class RequestNCPODeniedNotification extends Notification
+class RequestNcpoDeniedNotification extends Notification
 {
     use Queueable;
     public $requestNCPO;
@@ -19,7 +19,7 @@ class RequestNCPODeniedNotification extends Notification
 
     /**
      */
-    public function __construct($token, RequestNCPO $model)
+    public function __construct($token, RequestNcpo $model)
     {
         $this->token = $token;
         $this->model = $model;
@@ -61,7 +61,7 @@ class RequestNCPODeniedNotification extends Notification
         return [
             'message' => "An NCPO request has been DENIED.",
             'module' => "Inventory",
-            'request_type' => ApprovalModels::RequestNCPO->name,
+            'request_type' => ApprovalModels::RequestNcpo->name,
             'request_id' => $this->model->id,
             'action' => "View"
         ];

@@ -13,7 +13,7 @@ class RequestWithdrawalMyApprovals extends Controller
      */
     public function __invoke()
     {
-        $fetchData = RequestWithdrawal::with(['warehouse'])
+        $fetchData = RequestWithdrawal::with(['warehouse', 'chargeable', 'items.item'])
             ->latest()
             ->myApprovals()
             ->paginate(config('app.pagination.per_page', 10));
