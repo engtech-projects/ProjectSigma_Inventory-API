@@ -12,6 +12,7 @@ use App\Notifications\RequestBOMDeniedNotification;
 use App\Notifications\RequestCanvassSummaryDeniedNotification;
 use App\Notifications\RequestItemProfilingDeniedNotification;
 use App\Notifications\RequestNCPODeniedNotification;
+use App\Notifications\RequestWithdrawalDeniedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -41,6 +42,7 @@ class DisapproveApproval extends Controller
             ApprovalModels::RequestBOM->name => RequestBOMDeniedNotification::class,
             ApprovalModels::RequestCanvassSummary->name => RequestCanvassSummaryDeniedNotification::class,
             ApprovalModels::RequestNCPO->name => RequestNCPODeniedNotification::class,
+            ApprovalModels::RequestWithdrawal->name => RequestWithdrawalDeniedNotification::class,
         ];
         if (isset($notificationMap[$modelType])) {
             User::find($model->created_by)->notify(new $notificationMap[$modelType]($request->bearerToken(), $model));
