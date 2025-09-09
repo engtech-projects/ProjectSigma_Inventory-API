@@ -112,4 +112,21 @@ class RequestNcpoItems extends Model
         $unitPrice = $this->changed_unit_price ?? $originalPrice;
         return $qty * $unitPrice;
     }
+
+    public function getNetVatAttribute()
+    {
+        $qty = $this->changed_qty ?? 0;
+        $price = $this->changed_unit_price ?? 0;
+
+        return $qty && $price ? round(($price * $qty) / 1.12, 2) : 0;
+    }
+
+    public function getInputVatAttribute()
+    {
+        $qty = $this->changed_qty ?? 0;
+        $price = $this->changed_unit_price ?? 0;
+
+        $total = $price * $qty;
+        return $total ? round($total - ($total / 1.12), 2) : 0;
+    }
 }

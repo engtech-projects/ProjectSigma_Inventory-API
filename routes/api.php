@@ -217,8 +217,6 @@ Route::middleware('auth:api')->group(function () {
             Route::patch('{requestPurchaseOrder}/update-processing-status', [RequestPurchaseOrderController::class, 'updateProcessingStatus']);
             Route::get('/{resource}/detailed', [RequestPurchaseOrderController::class, 'showDetailed'])
                 ->name('purchase-orders.detailed');
-            Route::get('/{resource}/comparison', [RequestPurchaseOrderController::class, 'getComparison'])
-                ->name('purchase-orders.comparison');
         });
         Route::prefix('ncpo')->group(function () {
             Route::resource('resource', RequestNcpoController::class)->names("requestNCPO");

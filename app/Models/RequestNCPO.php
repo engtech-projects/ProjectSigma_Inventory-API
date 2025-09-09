@@ -58,6 +58,10 @@ class RequestNCPO extends Model
     {
         return $this->items->sum(fn ($item) => $item->new_total);
     }
+    public function getOriginalTotalAttribute()
+    {
+        return $this->purchaseOrder?->requestCanvassSummary?->grand_total_amount ?? 0;
+    }
 
     /**
      * ==================================================
@@ -69,6 +73,6 @@ class RequestNCPO extends Model
         $this->request_status = RequestStatuses::APPROVED;
         $this->save();
         $this->refresh();
-        app(NcpoService::class)->createNcpoChangesToPurchaseOrder($this);
+        app(NcpoService::class)->createNcpo($this);
     }
 }

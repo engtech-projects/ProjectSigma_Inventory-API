@@ -34,6 +34,10 @@ class RequestPurchaseOrder extends Model
         'approvals' => 'json',
         'processing_status' => PurchaseOrderProcessingStatus::class,
     ];
+    protected $appends = [
+        'net_vat',
+        'input_vat',
+    ];
     /**
      * ==================================================
      * MODEL RELATIONSHIPS

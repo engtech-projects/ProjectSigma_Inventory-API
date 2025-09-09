@@ -63,7 +63,7 @@ class RequestPurchaseOrderController extends Controller
             PurchaseOrderService::createMrrFromPurchaseOrder($requestPurchaseOrder);
         }
         if ($newStatus === PurchaseOrderProcessingStatus::CHANGES) {
-           NcpoService::createNcpo($requestPurchaseOrder);
+            NcpoService::createNcpo($requestPurchaseOrder);
         }
         return (new RequestPurchaseOrderDetailedResource($requestPurchaseOrder))
             ->additional([
@@ -87,20 +87,5 @@ class RequestPurchaseOrderController extends Controller
                 'message' => 'Detailed Purchase Order with computed values retrieved successfully.',
                 'success' => true,
             ]);
-    }
-
-    /**
-     * Get purchase order comparison (original vs computed)
-     */
-    public function getComparison(RequestPurchaseOrder $resource)
-    {
-        $ncpoService = app(NcpoService::class);
-        $comparison = $ncpoService->getDetailedComparison($resource);
-
-        return response()->json([
-            'data' => $comparison,
-            'message' => 'Purchase Order comparison retrieved successfully.',
-            'success' => true,
-        ]);
     }
 }
