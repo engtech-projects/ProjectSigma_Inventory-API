@@ -11,6 +11,8 @@ use App\Notifications\RequestBOMApprovedNotification;
 use App\Notifications\RequestBOMForApprovalNotification;
 use App\Notifications\RequestCanvassSummaryApprovalNotification;
 use App\Notifications\RequestCanvassSummaryApprovedNotification;
+use App\Notifications\RequestNcpoApprovedNotification;
+use App\Notifications\RequestNcpoForApprovalNotification;
 use App\Notifications\RequestSupplierApprovedNotification;
 use App\Notifications\RequestSupplierForApprovalNotification;
 use Carbon\Carbon;
@@ -43,6 +45,7 @@ class ApproveApproval extends Controller
                 ApprovalModels::RequestSupplier->name => RequestSupplierForApprovalNotification::class,
                 ApprovalModels::RequestBOM->name => RequestBOMForApprovalNotification::class,
                 ApprovalModels::RequestCanvassSummary->name => RequestCanvassSummaryApprovalNotification::class,
+                ApprovalModels::RequestNcpo->name => RequestNcpoForApprovalNotification::class,
             ];
             if (isset($notificationMap[$modelType])) {
                 User::find($nextApprovalUser)->notify(new $notificationMap[$modelType]($request->bearerToken(), $model));
@@ -52,6 +55,7 @@ class ApproveApproval extends Controller
                 ApprovalModels::RequestSupplier->name => RequestSupplierApprovedNotification::class,
                 ApprovalModels::RequestBOM->name => RequestBOMApprovedNotification::class,
                 ApprovalModels::RequestCanvassSummary->name => RequestCanvassSummaryApprovedNotification::class,
+                ApprovalModels::RequestNcpo->name => RequestNcpoApprovedNotification::class,
             ];
             if (isset($notificationMap[$modelType])) {
                 User::find($model->created_by)->notify(new $notificationMap[$modelType]($request->bearerToken(), $model));

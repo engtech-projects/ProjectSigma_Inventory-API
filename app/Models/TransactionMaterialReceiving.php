@@ -72,4 +72,13 @@ class TransactionMaterialReceiving extends Model
     {
         return $this->items->where('acceptance_status', '=', ReceivingAcceptanceStatus::PENDING->value)->isEmpty() ? ServeStatus::SERVED->value : ServeStatus::UNSERVED->value;
     }
+    public static function generateNewMrrReferenceNumber()
+    {
+        $year = now()->year;
+        $lastMRR = TransactionMaterialReceiving::orderByRaw('SUBSTRING_INDEX(reference_no, \'-\', -1) DESC')
+            ->first();
+        $lastRefNo = $lastMRR ? collect(explode('-', $lastMRR->reference_no))->last() : 0;
+        $newNumber = str_pad($lastRefNo + 1, 6, '0', STR_PAD_LEFT);
+        return "MRR-{$year}-{$newNumber}";
+    }
 }

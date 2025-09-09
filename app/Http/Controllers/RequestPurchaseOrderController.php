@@ -8,6 +8,7 @@ use App\Models\RequestPurchaseOrder;
 use App\Http\Requests\UpdateRequestPurchaseOrderRequest;
 use App\Http\Resources\RequestPurchaseOrderDetailedResource;
 use App\Http\Resources\RequestPurchaseOrderListingResource;
+use App\Http\Services\PurchaseOrderService;
 
 class RequestPurchaseOrderController extends Controller
 {
@@ -56,9 +57,12 @@ class RequestPurchaseOrderController extends Controller
         $requestPurchaseOrder->update([
             'processing_status' => $newStatus,
         ]);
+        if ($newStatus === PurchaseOrderProcessingStatus::TURNED_OVER) {
+            PurchaseOrderService::createMrrFromPurchaseOrder($requestPurchaseOrder);
+        }
         return (new RequestPurchaseOrderDetailedResource($requestPurchaseOrder))
             ->additional([
-                'message' => 'Purchase Order status updated successfully to ' . $newStatus->value,
+                'message' => "Processing status updated to {$newStatus->value} successfully.",
                 'success' => true,
             ]);
     }

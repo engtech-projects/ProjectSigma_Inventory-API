@@ -126,6 +126,10 @@ class ItemProfile extends Model
     {
         return $this->hasMany(RequestItemprofilingItems::class);
     }
+    public function ncpoItems()
+    {
+        return $this->hasMany(RequestNcpoItems::class, 'item_id');
+    }
 
     /**
      * ==================================================
