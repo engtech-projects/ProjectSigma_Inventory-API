@@ -17,7 +17,6 @@ class RequestWithdrawalMyApprovals extends Controller
             ->latest()
             ->myApprovals()
             ->paginate(config('app.pagination.per_page', 10));
-
         return RequestWithdrawalListingResource::collection($fetchData)
             ->additional([
                 "success" => true,
