@@ -113,20 +113,21 @@ class RequestNcpoItems extends Model
         return $qty * $unitPrice;
     }
 
-    public function getNetVatAttribute()
+    public function getNetVatAttribute(): float
     {
-        $qty = $this->changed_qty ?? 0;
-        $price = $this->changed_unit_price ?? 0;
+        $qty   = $this->changed_qty ?? $this->original_quantity ?? 0;
+        $price = $this->changed_unit_price ?? $this->original_unit_price ?? 0;
 
-        return $qty && $price ? round(($price * $qty) / 1.12, 2) : 0;
+        $total = $qty * $price;
+        return $total > 0 ? round($total / 1.12, 2) : 0;
     }
 
-    public function getInputVatAttribute()
+    public function getInputVatAttribute(): float
     {
-        $qty = $this->changed_qty ?? 0;
-        $price = $this->changed_unit_price ?? 0;
+        $qty   = $this->changed_qty ?? $this->original_quantity ?? 0;
+        $price = $this->changed_unit_price ?? $this->original_unit_price ?? 0;
 
-        $total = $price * $qty;
-        return $total ? round($total - ($total / 1.12), 2) : 0;
+        $total = $qty * $price;
+        return $total > 0 ? round($total - ($total / 1.12), 2) : 0;
     }
 }

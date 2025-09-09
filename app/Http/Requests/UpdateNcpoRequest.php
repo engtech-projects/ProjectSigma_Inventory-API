@@ -2,18 +2,16 @@
 
 namespace App\Http\Requests;
 
-use App\Models\RequestCanvassSummaryItems;
-use App\Models\RequestPurchaseOrder;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Http\Traits\HasApprovalValidation;
+use App\Models\RequestCanvassSummaryItems;
+use App\Models\RequestPurchaseOrder;
 use Illuminate\Validation\Rule;
 
-class StoreNcpoRequest extends FormRequest
+class UpdateNcpoRequest extends FormRequest
 {
     use HasApprovalValidation;
-
-    protected $validItems;
-
+    public $validItems;
     public function authorize(): bool
     {
         return true;
@@ -28,12 +26,10 @@ class StoreNcpoRequest extends FormRequest
                 : [];
         }
     }
-
     public function rules(): array
     {
         return [
             'date' => 'required|date',
-            'po_id' => 'required|exists:request_purchase_orders,id',
             'justification' => 'required|string',
             'approvals' => 'nullable|array',
             'items' => 'required|array',

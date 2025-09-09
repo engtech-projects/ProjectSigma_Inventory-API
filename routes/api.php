@@ -219,7 +219,7 @@ Route::middleware('auth:api')->group(function () {
                 ->name('purchase-orders.detailed');
         });
         Route::prefix('ncpo')->group(function () {
-            Route::resource('resource', RequestNcpoController::class)->names("requestNCPO");
+            Route::resource('resource', RequestNcpoController::class)->names("requestNcpo");
         });
     });
 

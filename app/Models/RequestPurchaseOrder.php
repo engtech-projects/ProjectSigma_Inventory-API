@@ -53,7 +53,7 @@ class RequestPurchaseOrder extends Model
     }
     public function ncpos()
     {
-        return $this->hasMany(RequestNCPO::class, 'po_id');
+        return $this->hasMany(RequestNcpo::class, 'po_id');
     }
     public function supplier()
     {
