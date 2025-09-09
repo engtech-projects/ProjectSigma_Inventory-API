@@ -39,7 +39,7 @@ class RequestNcpoItems extends Model
      */
     public function requestNcpo()
     {
-        return $this->belongsTo(RequestNCPO::class, 'request_ncpo_id');
+        return $this->belongsTo(RequestNcpo::class, 'request_ncpo_id');
     }
 
     public function item()

@@ -7,7 +7,7 @@ use App\Models\RequestSupplier;
 use App\Models\RequestBOM;
 use App\Models\RequestRequisitionSlip;
 use App\Models\RequestCanvassSummary;
-use App\Models\RequestNCPO;
+use App\Models\RequestNcpo;
 
 enum ApprovalModels: string
 {
@@ -16,7 +16,7 @@ enum ApprovalModels: string
     case RequestRequisitionSlip = RequestRequisitionSlip::class;
     case RequestBOM = RequestBOM::class;
     case RequestCanvassSummary = RequestCanvassSummary::class;
-    case RequestNCPO = RequestNCPO::class;
+    case RequestNcpo = RequestNcpo::class;
 
     public static function toArray(): array
     {

@@ -16,7 +16,7 @@ class RequestNcpoController extends Controller
         $requestNCPOs = RequestNCPO::paginate(config('app.pagination.per_page', 15));
         return RequestNcpoListingResource::collection($requestNCPOs)
         ->additional([
-            'message' => 'Request Purchase Orders retrieved successfully.',
+            'message' => 'Request NCPOs retrieved successfully.',
             'success' => true,
         ]);
     }
