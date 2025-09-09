@@ -14,6 +14,8 @@ use App\Notifications\RequestNcpoApprovedNotification;
 use App\Notifications\RequestNcpoForApprovalNotification;
 use App\Notifications\RequestSupplierApprovedNotification;
 use App\Notifications\RequestSupplierForApprovalNotification;
+use App\Notifications\RequestWithdrawalApprovedNotification;
+use App\Notifications\RequestWithdrawalForApprovalNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -44,6 +46,7 @@ class ApproveApproval extends Controller
                 ApprovalModels::RequestBOM->name => RequestBOMForApprovalNotification::class,
                 ApprovalModels::RequestCanvassSummary->name => RequestCanvassSummaryApprovalNotification::class,
                 ApprovalModels::RequestNcpo->name => RequestNcpoForApprovalNotification::class,
+                ApprovalModels::RequestWithdrawal->name => RequestWithdrawalForApprovalNotification::class,
             ];
             if (isset($notificationMap[$modelType])) {
                 $model->notifyNextApprover($notificationMap[$modelType]);
@@ -54,6 +57,7 @@ class ApproveApproval extends Controller
                 ApprovalModels::RequestBOM->name => RequestBOMApprovedNotification::class,
                 ApprovalModels::RequestCanvassSummary->name => RequestCanvassSummaryApprovedNotification::class,
                 ApprovalModels::RequestNcpo->name => RequestNcpoApprovedNotification::class,
+                ApprovalModels::RequestWithdrawal->name => RequestWithdrawalApprovedNotification::class,
             ];
             if (isset($notificationMap[$modelType])) {
                 $model->notifyCreator($notificationMap[$modelType]);
