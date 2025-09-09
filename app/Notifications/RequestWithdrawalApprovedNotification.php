@@ -9,7 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class RequestWithdrawalApprovalNotification extends Notification
+class RequestWithdrawalApprovedNotification extends Notification
 {
     use Queueable;
 
