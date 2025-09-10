@@ -7,6 +7,7 @@ use App\Http\Requests\UpdatePurchaseProcessingStatusRequest;
 use App\Models\RequestPurchaseOrder;
 use App\Http\Requests\UpdateRequestPurchaseOrderRequest;
 use App\Http\Resources\RequestPurchaseOrderDetailedResource;
+use App\Http\Resources\RequestPurchaseOrderItemsDetailedResource;
 use App\Http\Resources\RequestPurchaseOrderListingResource;
 use App\Http\Services\PurchaseOrderService;
 
@@ -63,6 +64,21 @@ class RequestPurchaseOrderController extends Controller
         return (new RequestPurchaseOrderDetailedResource($requestPurchaseOrder))
             ->additional([
                 'message' => "Processing status updated to {$newStatus->value} successfully.",
+                'success' => true,
+            ]);
+    }
+
+    public function showDetailed(RequestPurchaseOrder $resource)
+    {
+        $resource->load([
+            'requestCanvassSummary.items.itemProfile',
+            'requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip.items',
+            'ncpos.items',
+            'supplier'
+        ]);
+        return (new RequestPurchaseOrderItemsDetailedResource($resource))
+            ->additional([
+                'message' => 'Detailed Purchase Order with computed values retrieved successfully.',
                 'success' => true,
             ]);
     }

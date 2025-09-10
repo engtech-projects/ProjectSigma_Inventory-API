@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\DB;
 
 class RequestNcpoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $requestNCPOs = RequestNcpo::paginate(config('app.pagination.per_page', 15));
@@ -59,10 +56,6 @@ class RequestNcpoController extends Controller
             'success' => true,
         ]);
     }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(RequestNcpo $resource)
     {
         $resource->load([

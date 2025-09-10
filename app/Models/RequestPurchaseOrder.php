@@ -34,6 +34,10 @@ class RequestPurchaseOrder extends Model
         'approvals' => 'json',
         'processing_status' => PurchaseOrderProcessingStatus::class,
     ];
+    protected $appends = [
+        'net_vat',
+        'input_vat',
+    ];
     /**
      * ==================================================
      * MODEL RELATIONSHIPS
@@ -46,6 +50,14 @@ class RequestPurchaseOrder extends Model
     public function mrr()
     {
         return $this->hasOne(TransactionMaterialReceiving::class, 'po_id', 'id');
+    }
+    public function ncpos()
+    {
+        return $this->hasMany(RequestNcpo::class, 'po_id');
+    }
+    public function supplier()
+    {
+        return $this->belongsTo(RequestSupplier::class, 'supplier_id');
     }
     /**
      * ==================================================
