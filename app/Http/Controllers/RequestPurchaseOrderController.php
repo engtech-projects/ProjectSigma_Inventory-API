@@ -9,7 +9,6 @@ use App\Http\Requests\UpdateRequestPurchaseOrderRequest;
 use App\Http\Resources\RequestPurchaseOrderDetailedResource;
 use App\Http\Resources\RequestPurchaseOrderItemsDetailedResource;
 use App\Http\Resources\RequestPurchaseOrderListingResource;
-use App\Http\Services\NcpoService;
 use App\Http\Services\PurchaseOrderService;
 
 class RequestPurchaseOrderController extends Controller
@@ -62,9 +61,6 @@ class RequestPurchaseOrderController extends Controller
         if ($newStatus === PurchaseOrderProcessingStatus::TURNED_OVER) {
             PurchaseOrderService::createMrrFromPurchaseOrder($requestPurchaseOrder);
         }
-        if ($newStatus === PurchaseOrderProcessingStatus::CHANGES) {
-            NcpoService::createNcpo($requestPurchaseOrder);
-        }
         return (new RequestPurchaseOrderDetailedResource($requestPurchaseOrder))
             ->additional([
                 'message' => "Processing status updated to {$newStatus->value} successfully.",
@@ -74,14 +70,12 @@ class RequestPurchaseOrderController extends Controller
 
     public function showDetailed(RequestPurchaseOrder $resource)
     {
-        // Load necessary relationships for computing NCPO changes
         $resource->load([
             'requestCanvassSummary.items.itemProfile',
             'requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip.items',
             'ncpos.items',
             'supplier'
         ]);
-
         return (new RequestPurchaseOrderItemsDetailedResource($resource))
             ->additional([
                 'message' => 'Detailed Purchase Order with computed values retrieved successfully.',

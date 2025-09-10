@@ -2,47 +2,51 @@
 
 namespace App\Http\Services;
 
+use App\Enums\ServeStatus;
 use App\Models\RequestNcpo;
 use App\Models\RequestPurchaseOrder;
 use App\Models\RequestSupplier;
-use App\Notifications\RequestNcpoForApprovalNotification;
+use App\Models\TransactionMaterialReceiving;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class NcpoService
 {
-    public static function createNcpo($purchaseOrder)
+    public static function createMrrFromNcpo(RequestNcpo $requestNcpo): TransactionMaterialReceiving
     {
-        return DB::transaction(function () use ($purchaseOrder) {
-            $ncpoNo = RequestNcpo::generateReferenceNumber(
-                'ncpo_no',
-                fn ($prefix, $datePart, $number) => "{$prefix}-{$datePart}-{$number}",
-                ['prefix' => 'NCPO', 'dateFormat' => 'Y-m']
-            );
-            $ncpo = RequestNcpo::create([
-                'ncpo_no'       => $ncpoNo,
-                'date'          => now(),
-                'justification' => null,
-                'po_id'         => $purchaseOrder->id,
-                'created_by' => auth()->user()->id,
-                'approvals'     => [],
+        return DB::transaction(function () use ($requestNcpo) {
+            $mrr = new TransactionMaterialReceiving();
+            $mrr->warehouse_id      = $requestNcpo->purchaseOrder->warehouse_id;
+            $mrr->reference_no      = TransactionMaterialReceiving::generateNewMrrReferenceNumber();
+            $mrr->supplier_id       = $requestNcpo->items->first()->changed_supplier_id;
+            $mrr->reference         = $requestNcpo->ncpo_no;
+            $mrr->terms_of_payment  = $requestNcpo->purchaseOrder->terms_of_payment;
+            $mrr->transaction_date  = $requestNcpo->date;
+            $mrr->metadata          = [
+                'is_ncpo' => true,
+                'ncpo_id' => $requestNcpo->id,
+                'rs_id' => $requestNcpo->purchaseOrder->rs_id,
+            ];
+            $mrr->save();
+            $mappedItems = $requestNcpo->items->map(fn ($item) => [
+                'transaction_material_receiving_id' => $mrr->id,
+                'item_id'              => $item->item_id,
+                'specification'        => $item->changed_specification,
+                'actual_brand_purchase' => $item->changed_brand,
+                'requested_quantity'   => $item->changed_qty,
+                'quantity'             => $item->changed_qty,
+                'uom_id'               => $item->changed_uom_id,
+                'unit_price'           => $item->changed_unit_price,
+                'serve_status'         => ServeStatus::UNSERVED,
+                'remarks'              => $item->remarks,
+                'metadata'             => [
+                    'cancel_item' => $item->cancel_item ?? false,
+                    'ncpo_id' => $requestNcpo->id,
+                    'ncpo_item_ids' => $requestNcpo->items->pluck('id')->toArray(),
+                ],
             ]);
-            $items = $purchaseOrder->requestCanvassSummary
-                ->items()
-                ->get()
-                ->map(fn ($item) => [
-                    'item_id'             => $item->item_id,
-                    'changed_qty'         => $item->qty,
-                    'changed_uom_id'      => $item->uom_id,
-                    'changed_unit_price'  => null,
-                    'changed_supplier_id' => null,
-                    'request_ncpo_id'     => $ncpo->id,
-                ])->toArray();
-            $ncpo->items()->createMany($items);
-            if ($ncpo->getNextPendingApproval()) {
-                $ncpo->notify(new RequestNcpoForApprovalNotification(request()->bearerToken(), $ncpo));
-            }
-            return $ncpo->load('items');
+            $mrr->items()->createMany($mappedItems->toArray());
+            return $mrr;
         });
     }
     private function fallback($primary, $fallback)

@@ -215,7 +215,7 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('purchase-order')->group(function () {
             Route::resource('resource', RequestPurchaseOrderController::class)->names("requestPurchaseOrder");
             Route::patch('{requestPurchaseOrder}/update-processing-status', [RequestPurchaseOrderController::class, 'updateProcessingStatus']);
-            Route::get('/{resource}/detailed', [RequestPurchaseOrderController::class, 'showDetailed'])
+            Route::get('{resource}/detailed', [RequestPurchaseOrderController::class, 'showDetailed'])
                 ->name('purchase-orders.detailed');
         });
         Route::prefix('ncpo')->group(function () {

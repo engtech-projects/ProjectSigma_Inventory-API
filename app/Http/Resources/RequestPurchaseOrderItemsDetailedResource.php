@@ -11,9 +11,7 @@ class RequestPurchaseOrderItemsDetailedResource extends JsonResource
     public function toArray(Request $request): array
     {
         $ncpoService = app(NcpoService::class);
-
         $itemsWithChanges = $ncpoService->getItemsWithChanges($this->resource);
-
         return [
             'id'                => $this->id,
             'date'              => $this->transaction_date,

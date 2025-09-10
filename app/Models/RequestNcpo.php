@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PurchaseOrderProcessingStatus;
 use App\Enums\RequestStatuses;
 use App\Http\Services\NcpoService;
 use App\Traits\HasApproval;
@@ -73,6 +74,8 @@ class RequestNcpo extends Model
         $this->request_status = RequestStatuses::APPROVED;
         $this->save();
         $this->refresh();
-        app(NcpoService::class)->createNcpo($this);
+        $this->purchaseOrder->processing_status = PurchaseOrderProcessingStatus::TURNED_OVER;
+        $this->purchaseOrder->save();
+        app(NcpoService::class)->createMrrFromNcpo($this);
     }
 }
