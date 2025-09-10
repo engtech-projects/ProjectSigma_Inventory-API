@@ -7,7 +7,7 @@ use App\Models\RequestSupplier;
 use App\Models\RequestBOM;
 use App\Models\RequestRequisitionSlip;
 use App\Models\RequestCanvassSummary;
-use App\Models\RequestNCPO;
+use App\Models\RequestNcpo;
 use App\Models\RequestWithdrawal;
 
 enum ApprovalModels: string
@@ -17,7 +17,7 @@ enum ApprovalModels: string
     case RequestRequisitionSlip = RequestRequisitionSlip::class;
     case RequestBOM = RequestBOM::class;
     case RequestCanvassSummary = RequestCanvassSummary::class;
-    case RequestNCPO = RequestNCPO::class;
+    case RequestNcpo = RequestNcpo::class;
     case RequestWithdrawal = RequestWithdrawal::class;
 
     public static function toArray(): array
