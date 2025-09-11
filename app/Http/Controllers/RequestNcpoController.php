@@ -47,9 +47,8 @@ class RequestNcpoController extends Controller
             );
             return $ncpo->load('items');
         });
-        if ($ncpo->getNextPendingApproval()) {
-            $ncpo->notify(new RequestNcpoForApprovalNotification($request->bearerToken(), $ncpo));
-        }
+        $ncpo->refresh();
+        $ncpo->notifyNextApprover(RequestNcpoForApprovalNotification::class);
         $ncpoResource = RequestNcpoResource::make($ncpo);
         return $ncpoResource->additional([
             'message' => 'Request NCPO created successfully.',

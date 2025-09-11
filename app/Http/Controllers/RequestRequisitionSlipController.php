@@ -70,9 +70,8 @@ class RequestRequisitionSlipController extends Controller
             $requisitionSlip->save();
             $requisitionSlip->items()->createMany($mappedItems->toArray());
         });
-        if ($requisitionSlip->getNextPendingApproval()) {
-            $requisitionSlip->notify(new RequestStockForApprovalNotification($request->bearerToken(), $requisitionSlip));
-        }
+        $requisitionSlip->refresh();
+        $requisitionSlip->notifyNextApprover(RequestStockForApprovalNotification::class);
         return new JsonResponse([
             'success' => true,
             'message' => 'Requisition Slip Successfully Submitted.',

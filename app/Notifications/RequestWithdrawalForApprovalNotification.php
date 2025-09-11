@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Broadcasting\HrmsNotifyNextApproverChannel;
+use App\Broadcasting\HrmsNotifyUserChannel;
 use App\Enums\ApprovalModels;
 use App\Models\RequestWithdrawal;
 use Illuminate\Bus\Queueable;
@@ -33,7 +33,7 @@ class RequestWithdrawalForApprovalNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return [HrmsNotifyNextApproverChannel::class];
+        return [HrmsNotifyUserChannel::class];
     }
 
     /**

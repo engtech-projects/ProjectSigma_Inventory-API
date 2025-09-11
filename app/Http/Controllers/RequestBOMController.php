@@ -52,23 +52,19 @@ class RequestBOMController extends Controller
         $attributes = $request->validated();
         $attributes['request_status'] = RequestStatuses::PENDING;
         $attributes['created_by'] = auth()->user()->id;
-
         if ($attributes["assignment_type"] == AssignTypes::DEPARTMENT->value) {
             $attributes["assignment_type"] = AssignTypes::DEPARTMENT->value;
         } elseif ($attributes["assignment_type"] == AssignTypes::PROJECT->value) {
             $attributes["assignment_type"] = AssignTypes::PROJECT->value;
         }
-
         $assignmentType = $attributes["assignment_type"];
         $assignmentId = $attributes['assignment_id'];
-
         if ($this->requestBOMService->hasPendingRequest($assignmentType, $assignmentId, $attributes['effectivity'])) {
             return new JsonResponse([
                 'success' => false,
                 'message' => 'There is already a pending Request BOM for this assignment.',
             ], JsonResponse::HTTP_CONFLICT); // 409 Conflict
         }
-
         DB::transaction(function () use ($attributes, $request) {
             $requestBOM = RequestBOM::create([
                 'assignment_id' => $attributes['assignment_id'],
@@ -78,16 +74,13 @@ class RequestBOMController extends Controller
                 'created_by' => $attributes['created_by'],
                 'request_status' => $attributes['request_status'],
             ]);
-
             foreach ($attributes['details'] as $requestData) {
                 $requestData['request_bom_id'] = $requestBOM->id;
                 RequestBomDetails::create($requestData);
             }
-            if ($requestBOM->getNextPendingApproval()) {
-                $requestBOM->notify(new RequestBOMForApprovalNotification($request->bearerToken(), $requestBOM));
-            }
+            $requestBOM->refresh();
+            $requestBOM->notifyNextApprover(RequestBOMForApprovalNotification::class);
         });
-
         return new JsonResponse([
             'success' => true,
             'message' => 'Request BOM Successfully Saved.',

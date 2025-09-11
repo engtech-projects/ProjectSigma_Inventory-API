@@ -92,17 +92,13 @@ class RequestSupplierController extends Controller
         $validated = $request->validated();
         $validated['request_status'] = RequestStatuses::PENDING;
         $validated['created_by'] = auth()->user()->id;
-
         DB::transaction(function () use ($validated, $request) {
             $requestSupplier = RequestSupplier::create(
                 $validated
             );
-
-            if ($requestSupplier->getNextPendingApproval()) {
-                $requestSupplier->notify(new RequestSupplierForApprovalNotification($request->bearerToken(), $requestSupplier));
-            }
+            $requestSupplier->refresh();
+            $requestSupplier->notifyNextApprover(RequestSupplierForApprovalNotification::class);
         });
-
         return new JsonResponse([
             'success' => true,
             'message' => 'Supplier request successfully saved.',

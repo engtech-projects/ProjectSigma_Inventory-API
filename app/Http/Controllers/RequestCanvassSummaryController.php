@@ -63,9 +63,8 @@ class RequestCanvassSummaryController extends Controller
             'priceQuotation',
             'items.itemProfile'
         ]);
-        if ($summary->getNextPendingApproval()) {
-            $summary->notify(new RequestCanvassSummaryForApprovalNotification($request->bearerToken(), $summary));
-        }
+        $summary->refresh();
+        $summary->notifyNextApprover(RequestCanvassSummaryForApprovalNotification::class);
         return new JsonResponse([
             'success' => true,
             'message' => 'Canvass summary created successfully.',
