@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PurchaseOrderProcessingStatus;
+use App\Http\Requests\SearchPurchaseOrderRequest;
 use App\Http\Requests\UpdatePurchaseProcessingStatusRequest;
 use App\Models\RequestPurchaseOrder;
 use App\Http\Requests\UpdateRequestPurchaseOrderRequest;
@@ -10,12 +11,16 @@ use App\Http\Resources\RequestPurchaseOrderDetailedResource;
 use App\Http\Resources\RequestPurchaseOrderItemsDetailedResource;
 use App\Http\Resources\RequestPurchaseOrderListingResource;
 use App\Http\Services\PurchaseOrderService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class RequestPurchaseOrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    protected $purchaseOrderService;
+    public function __construct(PurchaseOrderService $purchaseOrderService)
+    {
+        $this->purchaseOrderService = $purchaseOrderService;
+    }
     public function index()
     {
         $requestPurchaseOrders = RequestPurchaseOrder::paginate(config('app.pagination.per_page', 15));
@@ -26,9 +31,6 @@ class RequestPurchaseOrderController extends Controller
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(RequestPurchaseOrder $resource)
     {
         return (new RequestPurchaseOrderDetailedResource($resource))
@@ -37,10 +39,6 @@ class RequestPurchaseOrderController extends Controller
                 'success' => true,
             ]);
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateRequestPurchaseOrderRequest $request, RequestPurchaseOrder $resource)
     {
         $validatedData = $request->validated();
@@ -81,5 +79,51 @@ class RequestPurchaseOrderController extends Controller
                 'message' => 'Detailed Purchase Order with computed values retrieved successfully.',
                 'success' => true,
             ]);
+    }
+    public function allRequests()
+    {
+        $myRequest = $this->purchaseOrderService->getAllRequest();
+
+        if ($myRequest->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
+        return RequestPurchaseOrderListingResource::collection($myRequest)
+        ->additional([
+            "success" => true,
+            "message" => "Request Purchase Orders Successfully Fetched.",
+        ]);
+    }
+    public function filter(SearchPurchaseOrderRequest $request)
+    {
+        $validated = $request->validated();
+
+        $rsNumber        = $validated['rs_number'] ?? null;
+        $poNumber        = $validated['po_number'] ?? null;
+        $transactionDate = $validated['transaction_date'] ?? null;
+
+        $results = RequestPurchaseOrder::with(['requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip'])
+            ->when($poNumber, function ($query, $poNumber) {
+                $query->where('po_number', 'like', "%{$poNumber}%");
+            })
+            ->when($rsNumber, function ($query, $rsNumber) {
+                $query->whereHas('requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip', function ($q) use ($rsNumber) {
+                    $q->where('reference_no', 'like', "%{$rsNumber}%");
+                });
+            })
+            ->when($transactionDate, function ($query, $transactionDate) {
+                $query->whereDate('transaction_date', $transactionDate);
+            })
+            ->orderBy('transaction_date', 'desc')
+            ->limit(15)
+            ->get();
+
+        return RequestPurchaseOrderListingResource::collection($results)
+        ->additional([
+            "success" => true,
+            "message" => "Request Purchase Orders Successfully Fetched.",
+        ]);
     }
 }

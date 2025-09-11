@@ -53,6 +53,11 @@ class RequestCanvassSummary extends Model
         return $this->hasOne(RequestPurchaseOrder::class);
     }
 
+    public function requestProcurement()
+    {
+        return $this->belongsTo(RequestProcurement::class);
+    }
+
     /**
      * ==================================================
      * MODEL FUNCTIONS
