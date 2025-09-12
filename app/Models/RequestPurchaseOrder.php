@@ -154,7 +154,6 @@ class RequestPurchaseOrder extends Model
         $requisitionItems = $this->requisitionSlip?->items ?? collect();
         $pqItems          = $this->priceQuotation?->items ?? collect();
         $csItems          = $this->requestCanvassSummary?->items ?? collect();
-
         return $csItems->map(function ($csItem) use ($requisitionItems, $pqItems) {
             $reqItem = $requisitionItems->firstWhere('item_id', $csItem->item_id);
             $pqItem  = $pqItems->firstWhere('item_id', $csItem->item_id);

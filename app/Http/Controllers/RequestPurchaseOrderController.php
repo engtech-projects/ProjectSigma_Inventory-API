@@ -37,6 +37,7 @@ class RequestPurchaseOrderController extends Controller
             ->additional([
                 'message' => 'Request Purchase Order retrieved successfully.',
                 'success' => true,
+                'ncpos' => $resource->ncpos,
             ]);
     }
     public function update(UpdateRequestPurchaseOrderRequest $request, RequestPurchaseOrder $resource)
@@ -80,31 +81,13 @@ class RequestPurchaseOrderController extends Controller
                 'success' => true,
             ]);
     }
-    public function allRequests()
+    public function allRequests(SearchPurchaseOrderRequest $request)
     {
-        $myRequest = $this->purchaseOrderService->getAllRequest();
-
-        if ($myRequest->isEmpty()) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'No data found.',
-            ], JsonResponse::HTTP_OK);
-        }
-        return RequestPurchaseOrderListingResource::collection($myRequest)
-        ->additional([
-            "success" => true,
-            "message" => "Request Purchase Orders Successfully Fetched.",
-        ]);
-    }
-    public function filter(SearchPurchaseOrderRequest $request)
-    {
-        $validated = $request->validated();
-
+        $validated       = $request->validated();
         $rsNumber        = $validated['rs_number'] ?? null;
         $poNumber        = $validated['po_number'] ?? null;
         $transactionDate = $validated['transaction_date'] ?? null;
-
-        $results = RequestPurchaseOrder::with(['requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip'])
+        $query = RequestPurchaseOrder::with(['requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip'])
             ->when($poNumber, function ($query, $poNumber) {
                 $query->where('po_number', 'like', "%{$poNumber}%");
             })
@@ -116,14 +99,18 @@ class RequestPurchaseOrderController extends Controller
             ->when($transactionDate, function ($query, $transactionDate) {
                 $query->whereDate('transaction_date', $transactionDate);
             })
-            ->orderBy('transaction_date', 'desc')
-            ->limit(15)
-            ->get();
-
+            ->orderBy('transaction_date', 'desc');
+        $results = $query->paginate(config('app.pagination.per_page', 15));
+        if ($results->isEmpty()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No data found.',
+            ], JsonResponse::HTTP_OK);
+        }
         return RequestPurchaseOrderListingResource::collection($results)
-        ->additional([
-            "success" => true,
-            "message" => "Request Purchase Orders Successfully Fetched.",
-        ]);
+            ->additional([
+                "success" => true,
+                "message" => "Request Purchase Orders Successfully Fetched.",
+            ]);
     }
 }

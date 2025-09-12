@@ -93,6 +93,6 @@ class PurchaseOrderService
     {
         $query = RequestPurchaseOrder::orderBy('created_at', 'DESC');
         $query = $this->applyFilters($query);
-        return $query->paginate(10);
+        return $query->paginate(config('app.pagination.per_page', 15));
     }
 }
