@@ -65,7 +65,7 @@ class RequestBOMController extends Controller
                 'message' => 'There is already a pending Request BOM for this assignment.',
             ], JsonResponse::HTTP_CONFLICT); // 409 Conflict
         }
-        DB::transaction(function () use ($attributes, $request) {
+        $requestBOM = DB::transaction(function () use ($attributes, $request) {
             $requestBOM = RequestBOM::create([
                 'assignment_id' => $attributes['assignment_id'],
                 'assignment_type' => $attributes['assignment_type'],
@@ -78,9 +78,9 @@ class RequestBOMController extends Controller
                 $requestData['request_bom_id'] = $requestBOM->id;
                 RequestBomDetails::create($requestData);
             }
-            $requestBOM->refresh();
-            $requestBOM->notifyNextApprover(RequestBOMForApprovalNotification::class);
+            return $requestBOM->refresh();
         });
+        $requestBOM->notifyNextApprover(RequestBOMForApprovalNotification::class);
         return new JsonResponse([
             'success' => true,
             'message' => 'Request BOM Successfully Saved.',

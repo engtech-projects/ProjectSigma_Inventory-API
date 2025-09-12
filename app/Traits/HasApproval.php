@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 trait HasApproval
 {
@@ -257,10 +256,6 @@ trait HasApproval
     public function notifyNextApprover($notificationModel)
     {
         $nextApproval = $this->getNextPendingApproval();
-        Log::channel('HrmsService')->info('HRMS Notification Before call notify', [
-            'next_approval' => $nextApproval,
-            'request' => $this->toArray(),
-        ]);
         if ($nextApproval) {
             $user = User::find($nextApproval['user_id']);
             if ($user) {

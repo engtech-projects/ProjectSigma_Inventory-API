@@ -64,7 +64,7 @@ class RequestItemProfilingController extends Controller
         $attributes = $request->validated();
         $attributes['request_status'] = RequestStatuses::PENDING;
         $attributes['created_by'] = auth()->user()->id;
-        DB::transaction(function () use ($attributes, $request) {
+        $requestItemProfiling = DB::transaction(function () use ($attributes, $request) {
             $requestItemProfiling = RequestItemProfiling::create([
                 'approvals' => $attributes['approvals'],
                 'created_by' => $attributes['created_by'],
@@ -81,9 +81,9 @@ class RequestItemProfilingController extends Controller
                     'request_itemprofiling_id' => $requestItemProfiling->id,
                 ]);
             }
-            $requestItemProfiling->refresh();
-            $requestItemProfiling->notifyNextApprover(RequestItemProfilingForApprovalNotification::class);
+            return $requestItemProfiling->refresh();
         });
+        $requestItemProfiling->notifyNextApprover(RequestItemProfilingForApprovalNotification::class);
         return new JsonResponse([
             'success' => true,
             'message' => 'Item Profiles Successfully Saved.',

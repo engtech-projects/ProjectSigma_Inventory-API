@@ -63,7 +63,6 @@ class RequestCanvassSummaryController extends Controller
             'priceQuotation',
             'items.itemProfile'
         ]);
-        $summary->refresh();
         $summary->notifyNextApprover(RequestCanvassSummaryForApprovalNotification::class);
         return new JsonResponse([
             'success' => true,
