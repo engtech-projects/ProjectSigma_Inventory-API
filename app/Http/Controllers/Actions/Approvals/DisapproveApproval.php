@@ -7,7 +7,6 @@ use Illuminate\Http\JsonResponse;
 use App\Enums\RequestApprovalStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DisapproveApprovalRequest;
-use App\Models\User;
 use App\Notifications\RequestBOMDeniedNotification;
 use App\Notifications\RequestCanvassSummaryDeniedNotification;
 use App\Notifications\RequestItemProfilingDeniedNotification;
@@ -43,7 +42,7 @@ class DisapproveApproval extends Controller
             ApprovalModels::RequestNcpo->name => RequestNcpoDeniedNotification::class,
         ];
         if (isset($notificationMap[$modelType])) {
-            User::find($model->created_by)->notify(new $notificationMap[$modelType]($request->bearerToken(), $model));
+            $model->notifyCreator($notificationMap[$modelType]);
         }
         return new JsonResponse(["success" => $result["success"], "message" => $result['message']], JsonResponse::HTTP_OK);
     }

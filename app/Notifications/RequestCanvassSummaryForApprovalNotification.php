@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Broadcasting\HrmsNotifyNextApproverChannel;
+use App\Broadcasting\HrmsNotifyUserChannel;
 use App\Enums\ApprovalModels;
 use App\Models\RequestCanvassSummary;
 use Illuminate\Bus\Queueable;
@@ -34,7 +34,7 @@ class RequestCanvassSummaryForApprovalNotification extends Notification
     public function via(object $notifiable): array
     {
         return [
-            HrmsNotifyNextApproverChannel::class,
+            HrmsNotifyUserChannel::class,
         ];
     }
 

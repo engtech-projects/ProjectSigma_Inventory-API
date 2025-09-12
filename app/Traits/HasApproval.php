@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use App\Enums\AccessibilityHrms;
+use App\Enums\AccessibilitySigma;
 use Illuminate\Support\Carbon;
 use App\Enums\RequestStatuses;
 use App\Http\Traits\CheckAccessibility;
@@ -175,7 +175,7 @@ trait HasApproval
                 $approval["status"] = RequestStatuses::APPROVED;
                 $approval["date_approved"] = Carbon::now()->format('F j, Y h:i A');
             }
-            if ($this->checkUserAccess([AccessibilityHrms::SUPERADMIN->value])) {
+            if ($this->checkUserAccess([AccessibilitySigma::SUPERADMIN->value])) {
                 $approval["remarks"] = "Approved by Super Admin";
             }
             return $approval;
@@ -224,7 +224,7 @@ trait HasApproval
         }
         $currentApproval = $this->getNextPendingApproval();
         // CHECK IF THERE IS A CURRENT APPROVAL AND IF IS FOR THE LOGGED IN USER
-        if (empty($currentApproval) || ($currentApproval['user_id'] != auth()->user()->id && !$this->checkUserAccess([AccessibilityHrms::SUPERADMIN]))) {
+        if (empty($currentApproval) || ($currentApproval['user_id'] != auth()->user()->id && !$this->checkUserAccess([AccessibilitySigma::SUPERADMIN]))) {
             return [
                 "approvals" => $this->approvals,
                 'success' => false,
@@ -251,5 +251,21 @@ trait HasApproval
     {
         $this->request_status = RequestStatuses::VOIDED;
         $this->save();
+    }
+
+    public function notifyNextApprover($notificationModel)
+    {
+        $nextApproval = $this->getNextPendingApproval();
+        if ($nextApproval) {
+            $user = User::find($nextApproval['user_id']);
+            if ($user) {
+                $user->notify(new $notificationModel(request()->bearerToken(), $this));
+            }
+        }
+    }
+
+    public function notifyCreator($notificationModel)
+    {
+        $this->created_by_user->notify(new $notificationModel(request()->bearerToken(), $this));
     }
 }
