@@ -46,7 +46,8 @@ class RequestCanvassSummary extends Model
 
     public function items()
     {
-        return $this->hasMany(RequestCanvassSummaryItems::class);
+        return $this->hasMany(RequestCanvassSummaryItems::class)
+        ->whereNotNull('unit_price');
     }
     public function purchaseOrder()
     {
@@ -79,29 +80,55 @@ class RequestCanvassSummary extends Model
             return $unitPrice * $quantity;
         });
     }
-
     public function getOrderedSuppliersAttribute()
     {
+        // Ensure relations are available
         if (!$this->relationLoaded('priceQuotation') || !$this->priceQuotation->relationLoaded('requestProcurement')) {
             return collect([]);
         }
-        $procurement = $this->priceQuotation->requestProcurement;
-        $quotations = $procurement->priceQuotations()->with([
-            'supplier',
-            'items' => fn ($q) => $q->orderBy('id')
-        ])->latest()->take(3)->get();
+
+        $procurement   = $this->priceQuotation->requestProcurement;
+        $selectedId    = $this->priceQuotation->supplier_id;
+
+        // Fetch latest 3 quotations with suppliers and items
+        $quotations = $procurement->priceQuotations()
+            ->with([
+                'supplier',
+                'items' => fn($q) => $q->orderBy('id')
+            ])
+            ->latest()
+            ->take(3)
+            ->get();
+
+        // Load requisition slip items and index by item_id
         $procurement->loadMissing('requisitionSlip.items.itemProfile');
         $reqItems = $procurement->requisitionSlip->items->keyBy('item_id');
-        $quotations->each(function ($q) use ($reqItems) {
-            $q->items = $reqItems->map(function ($ri) use ($q) {
-                return $q->items->keyBy('item_id')->get($ri->item_id, new PriceQuotationItem([
-                    'item_id' => $ri->item_id,
-                    'unit_price' => null,
-                ]));
+
+        // Normalize each quotation so every requisition item has a placeholder if missing
+        $quotations->each(function ($quotation) use ($reqItems) {
+            $quotation->items = $reqItems->map(function ($reqItem) use ($quotation) {
+                return $quotation->items->keyBy('item_id')->get(
+                    $reqItem->item_id,
+                    new PriceQuotationItem([
+                        'item_id'    => $reqItem->item_id,
+                        'unit_price' => null,
+                    ])
+                );
             })->values();
         });
-        return $quotations->filter(function ($q) {
-            return $q->supplier;
-        });
+
+        // Keep only quotations with valid suppliers
+        $quotations = $quotations->filter(fn($q) => $q->supplier);
+
+        // Reorder: put the selected supplier first
+        $quotations = $quotations->sortByDesc(fn($q) => $q->supplier_id === $selectedId)->values();
+
+        return $quotations;
     }
+
+    public function getSelectedSupplierIdAttribute()
+{
+    return $this->priceQuotation?->supplier_id;
+}
+
 }
