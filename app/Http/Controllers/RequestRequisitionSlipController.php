@@ -60,7 +60,7 @@ class RequestRequisitionSlipController extends Controller
         });
         unset($attributes['items']);
         $requisitionSlip = new RequestRequisitionSlip();
-        DB::transaction(function () use (&$requisitionSlip, $mappedItems, $attributes) {
+        $requisitionSlip = DB::transaction(function () use (&$requisitionSlip, $mappedItems, $attributes) {
             $requisitionSlip->fill($attributes);
             if ($requisitionSlip->section_type == AssignTypes::DEPARTMENT->value) {
                 $requisitionSlip->reference_no = $this->generateDepartmentReferenceNumber($requisitionSlip->section_id);
@@ -69,10 +69,9 @@ class RequestRequisitionSlipController extends Controller
             }
             $requisitionSlip->save();
             $requisitionSlip->items()->createMany($mappedItems->toArray());
+            return $requisitionSlip->refresh();
         });
-        if ($requisitionSlip->getNextPendingApproval()) {
-            $requisitionSlip->notify(new RequestStockForApprovalNotification($request->bearerToken(), $requisitionSlip));
-        }
+        $requisitionSlip->notifyNextApprover(RequestStockForApprovalNotification::class);
         return new JsonResponse([
             'success' => true,
             'message' => 'Requisition Slip Successfully Submitted.',

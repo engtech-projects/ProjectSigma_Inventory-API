@@ -83,4 +83,21 @@ class RequestCanvassSummaryItems extends Model
         $unitPrice = $this->unit_price ?? 0;
         return $unitPrice * $quantity;
     }
+    public function getNetVatAttribute(): float
+    {
+        $qty   = $this->quantity ?? 0;
+        $price = $this->unit_price ?? 0;
+
+        $total = $qty * $price;
+        return $total > 0 ? round($total / 1.12, 2) : 0;
+    }
+
+    public function getInputVatAttribute(): float
+    {
+        $qty   = $this->quantity ?? 0;
+        $price = $this->unit_price ?? 0;
+
+        $total = $qty * $price;
+        return $total > 0 ? round($total - ($total / 1.12), 2) : 0;
+    }
 }

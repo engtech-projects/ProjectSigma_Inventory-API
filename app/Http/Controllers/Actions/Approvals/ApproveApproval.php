@@ -6,7 +6,6 @@ use App\Enums\ApprovalModels;
 use Illuminate\Http\JsonResponse;
 use App\Enums\RequestApprovalStatus;
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Notifications\RequestBOMApprovedNotification;
 use App\Notifications\RequestBOMForApprovalNotification;
 use App\Notifications\RequestCanvassSummaryApprovalNotification;
@@ -40,7 +39,6 @@ class ApproveApproval extends Controller
         $result = $model->updateApproval(['status' => RequestApprovalStatus::APPROVED, "date_approved" => Carbon::now()]);
         $nextApproval = $model->getNextPendingApproval();
         if ($nextApproval) {
-            $nextApprovalUser = $nextApproval["user_id"];
             $notificationMap = [
                 ApprovalModels::RequestSupplier->name => RequestSupplierForApprovalNotification::class,
                 ApprovalModels::RequestBOM->name => RequestBOMForApprovalNotification::class,
@@ -48,7 +46,7 @@ class ApproveApproval extends Controller
                 ApprovalModels::RequestNcpo->name => RequestNcpoForApprovalNotification::class,
             ];
             if (isset($notificationMap[$modelType])) {
-                User::find($nextApprovalUser)->notify(new $notificationMap[$modelType]($request->bearerToken(), $model));
+                $model->notifyNextApprover($notificationMap[$modelType]);
             }
         } else {
             $notificationMap = [
@@ -58,7 +56,7 @@ class ApproveApproval extends Controller
                 ApprovalModels::RequestNcpo->name => RequestNcpoApprovedNotification::class,
             ];
             if (isset($notificationMap[$modelType])) {
-                User::find($model->created_by)->notify(new $notificationMap[$modelType]($request->bearerToken(), $model));
+                $model->notifyCreator($notificationMap[$modelType]);
             }
         }
         return new JsonResponse(["success" => $result["success"], "message" => $result['message']], $result["status_code"]);

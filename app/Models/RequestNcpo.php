@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\PurchaseOrderProcessingStatus;
+use App\Enums\RequestStatuses;
+use App\Http\Services\NcpoService;
 use App\Traits\HasApproval;
 use App\Traits\HasReferenceNumber;
 use App\Traits\ModelHelpers;
@@ -55,5 +58,24 @@ class RequestNcpo extends Model
     public function getNewPoTotalAttribute()
     {
         return $this->items->sum(fn ($item) => $item->new_total);
+    }
+    public function getOriginalTotalAttribute()
+    {
+        return $this->purchaseOrder?->requestCanvassSummary?->grand_total_amount ?? 0;
+    }
+
+    /**
+     * ==================================================
+     * MODEL FUNCTIONS
+     * ==================================================
+     */
+    public function completeRequestStatus()
+    {
+        $this->request_status = RequestStatuses::APPROVED;
+        $this->save();
+        $this->refresh();
+        $this->purchaseOrder->processing_status = PurchaseOrderProcessingStatus::TURNED_OVER;
+        $this->purchaseOrder->save();
+        NcpoService::createMrrFromNcpo($this);
     }
 }

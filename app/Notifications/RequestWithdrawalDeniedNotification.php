@@ -4,12 +4,12 @@ namespace App\Notifications;
 
 use App\Broadcasting\HrmsNotifyUserChannel;
 use App\Enums\ApprovalModels;
-use App\Models\RequestBOM;
+use App\Models\RequestWithdrawal;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
-use Notification;
+use Illuminate\Notifications\Notification;
 
-class RequestBOMVoidedNotification extends Notification
+class RequestWithdrawalDeniedNotification extends Notification
 {
     use Queueable;
 
@@ -19,7 +19,7 @@ class RequestBOMVoidedNotification extends Notification
 
     /**
      */
-    public function __construct($token, RequestBOM $model)
+    public function __construct($token, RequestWithdrawal $model)
     {
         $this->token = $token;
         $this->model = $model;
@@ -59,9 +59,9 @@ class RequestBOMVoidedNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => "A Request BOM has been VOIDED.",
+            'message' => "A withdrawal request has been DENIED.",
             'module' => "Inventory",
-            'request_type' => ApprovalModels::RequestBOM->name,
+            'request_type' => ApprovalModels::RequestWithdrawal->name,
             'request_id' => $this->model->id,
             'action' => "View"
         ];

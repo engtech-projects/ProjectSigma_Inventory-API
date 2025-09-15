@@ -78,11 +78,6 @@ class RequestSupplier extends Model
     {
         $query->where('request_status', RequestStatuses::PENDING);
     }
-    public function scopeAuthUserPending(Builder $query): void
-    {
-        // Assuming authUserPending logic
-        $query->where('created_by', auth()->user()->id);
-    }
     public function completeRequestStatus()
     {
         $this->request_status = RequestStatuses::APPROVED;

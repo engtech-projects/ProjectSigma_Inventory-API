@@ -47,6 +47,25 @@ class RequestPurchaseOrder extends Model
     {
         return $this->hasOne(TransactionMaterialReceiving::class, 'po_id', 'id');
     }
+    public function ncpos()
+    {
+        return $this->hasMany(RequestNcpo::class, 'po_id');
+    }
+    public function supplier()
+    {
+        return $this->belongsTo(RequestSupplier::class, 'supplier_id');
+    }
+    /**
+     * ==================================================
+     * MODEL scopes
+     * ==================================================
+     */
+    public function scopeRequestRequisitionSlip($query)
+    {
+        return $query->whereHas('requestCanvassSummary.priceQuotation.requestProcurement', function ($q) {
+            $q->whereHas('requisitionSlip');
+        });
+    }
     /**
      * ==================================================
      * MODEL ATTRIBUTES
@@ -131,18 +150,22 @@ class RequestPurchaseOrder extends Model
         $requisitionItems = $this->requisitionSlip?->items ?? collect();
         $pqItems          = $this->priceQuotation?->items ?? collect();
         $csItems          = $this->requestCanvassSummary?->items ?? collect();
-        return $requisitionItems->map(function ($reqItem) use ($pqItems, $csItems) {
-            $pqItem = $pqItems->firstWhere('item_id', $reqItem->item_id);
-            $csItem = $csItems->firstWhere('item_id', $reqItem->item_id);
+        return $csItems->map(function ($csItem) use ($requisitionItems, $pqItems) {
+            $reqItem = $requisitionItems->firstWhere('item_id', $csItem->item_id);
+            $pqItem  = $pqItems->firstWhere('item_id', $csItem->item_id);
+
             return (object) [
-                'id'                   => $reqItem->id,
-                'item_id'              => $reqItem->item_id,
-                'specification'        => $reqItem->specification,
-                'quantity'             => $reqItem->quantity,
-                'uom'                  => $reqItem->unit,
-                'remarks'              => $reqItem->remarks,
+                'id'                   => $reqItem?->id,
+                'item_id'              => $csItem->item_id,
+                'item_description'     => $reqItem?->item_description,
+                'specification'        => $reqItem?->specification,
+                'quantity'             => $reqItem?->quantity,
+                'uom'                  => $reqItem?->uom_name,
                 'actual_brand_purchase' => $pqItem?->actual_brand,
-                'unit_price'           => $csItem?->unit_price,
+                'unit_price'           => $csItem->unit_price,
+                'net_amount'           => $csItem->total_amount,
+                'net_vat'              => $csItem->net_vat,
+                'input_vat'            => $csItem->input_vat,
             ];
         });
     }

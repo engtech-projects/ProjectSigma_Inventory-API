@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\DB;
 
 class RequestNcpoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $requestNCPOs = RequestNcpo::paginate(config('app.pagination.per_page', 15));
@@ -50,19 +47,12 @@ class RequestNcpoController extends Controller
             );
             return $ncpo->load('items');
         });
-        if ($ncpo->getNextPendingApproval()) {
-            $ncpo->notify(new RequestNcpoForApprovalNotification($request->bearerToken(), $ncpo));
-        }
-        $ncpoResource = RequestNcpoResource::make($ncpo);
-        return $ncpoResource->additional([
+        $ncpo->notifyNextApprover(RequestNcpoForApprovalNotification::class);
+        return RequestNcpoResource::make($ncpo)->additional([
             'message' => 'Request NCPO created successfully.',
             'success' => true,
         ]);
     }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(RequestNcpo $resource)
     {
         $resource->load([
