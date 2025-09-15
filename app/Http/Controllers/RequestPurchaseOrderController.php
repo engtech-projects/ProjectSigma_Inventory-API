@@ -30,7 +30,7 @@ class RequestPurchaseOrderController extends Controller
             'ncpos',
             'supplier',
         ]);
-        return RequestPurchaseOrderDetailedResource::make()
+        return RequestPurchaseOrderDetailedResource::make($resource)
             ->additional([
                 'message' => 'Request Purchase Order retrieved successfully.',
                 'success' => true,
