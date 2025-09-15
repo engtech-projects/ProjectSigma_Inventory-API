@@ -92,7 +92,7 @@ class RequestSupplierController extends Controller
         $validated = $request->validated();
         $validated['request_status'] = RequestStatuses::PENDING->value;
         $validated['created_by'] = auth()->user()->id;
-        $requestSupplier = DB::transaction(function () use ($validated, $request) {
+        $requestSupplier = DB::transaction(function () use ($validated) {
             $requestSupplier = RequestSupplier::create(
                 $validated
             );
