@@ -46,6 +46,10 @@ class PriceQuotation extends Model
     {
         return $this->belongsTo(RequestSupplier::class, 'supplier_id');
     }
+    public function canvassSummaries()
+    {
+        return $this->hasMany(RequestCanvassSummary::class);
+    }
 
     /**
      * ==================================================

@@ -14,9 +14,6 @@ use Illuminate\Support\Facades\Auth;
 class RequestProcurementController extends Controller
 {
     use CheckAccessibility;
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $procurements = RequestProcurement::with('requisitionSlip')->paginate(10);
@@ -26,9 +23,6 @@ class RequestProcurementController extends Controller
                 'message' => 'Successfully fetched.',
             ]);
     }
-    /**
-     * Display the specified resource.
-     */
     public function show(RequestProcurement $resource)
     {
         $resource->load([
@@ -36,10 +30,11 @@ class RequestProcurementController extends Controller
                 $query->latest();
             },
             'canvasser',
+            'priceQuotations.canvassSummaries.purchaseOrder',
             'canvassSummaries' => function ($query) {
                 $query->latest();
             },
-            'purchaseOrders' => function ($query) {
+            'priceQuotations.canvassSummaries.purchaseOrder' => function ($query) {
                 $query->latest();
             },
         ]);
@@ -49,7 +44,6 @@ class RequestProcurementController extends Controller
             'data' => new RequestProcurementDetailedResource($resource)
         ]);
     }
-
     public function unservedRequests()
     {
         $userId = auth()->id();

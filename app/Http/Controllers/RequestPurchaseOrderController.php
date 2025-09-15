@@ -3,19 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PurchaseOrderProcessingStatus;
+use App\Http\Requests\SearchPurchaseOrderRequest;
 use App\Http\Requests\UpdatePurchaseProcessingStatusRequest;
 use App\Models\RequestPurchaseOrder;
 use App\Http\Requests\UpdateRequestPurchaseOrderRequest;
 use App\Http\Resources\RequestPurchaseOrderDetailedResource;
 use App\Http\Resources\RequestPurchaseOrderItemsDetailedResource;
 use App\Http\Resources\RequestPurchaseOrderListingResource;
-use App\Http\Services\PurchaseOrderService;
 
 class RequestPurchaseOrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $requestPurchaseOrders = RequestPurchaseOrder::paginate(config('app.pagination.per_page', 15));
@@ -26,21 +23,15 @@ class RequestPurchaseOrderController extends Controller
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(RequestPurchaseOrder $resource)
     {
         return (new RequestPurchaseOrderDetailedResource($resource))
             ->additional([
                 'message' => 'Request Purchase Order retrieved successfully.',
                 'success' => true,
+                'ncpos' => $resource->ncpos,
             ]);
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateRequestPurchaseOrderRequest $request, RequestPurchaseOrder $resource)
     {
         $validatedData = $request->validated();
@@ -81,5 +72,37 @@ class RequestPurchaseOrderController extends Controller
                 'message' => 'Detailed Purchase Order with computed values retrieved successfully.',
                 'success' => true,
             ]);
+    }
+    public function allRequests(SearchPurchaseOrderRequest $request)
+    {
+        $validated = $request->validated();
+        $results = RequestPurchaseOrder::with([
+            'requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip'
+        ])
+        ->when(
+            $validated['po_number'] ?? false,
+            fn ($q, $poNumber) =>
+            $q->where('po_number', 'like', "%{$poNumber}%")
+        )
+        ->when(
+            $validated['rs_number'] ?? false,
+            fn ($q, $rsNumber) =>
+            $q->whereHas(
+                'requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip',
+                fn ($subQuery) =>
+                $subQuery->where('reference_no', 'like', "%{$rsNumber}%")
+            )
+        )
+        ->when(
+            $validated['transaction_date'] ?? false,
+            fn ($q, $date) =>
+            $q->whereDate('transaction_date', $date)
+        )
+        ->orderByDesc('transaction_date')
+        ->paginate(config('app.pagination.per_page', 15));
+        return RequestPurchaseOrderListingResource::collection($results)->additional([
+            'success' => true,
+            'message' => 'Request Purchase Orders Successfully Fetched.',
+        ]);
     }
 }
