@@ -10,17 +10,9 @@ use App\Http\Requests\UpdateRequestPurchaseOrderRequest;
 use App\Http\Resources\RequestPurchaseOrderDetailedResource;
 use App\Http\Resources\RequestPurchaseOrderItemsDetailedResource;
 use App\Http\Resources\RequestPurchaseOrderListingResource;
-use App\Http\Services\PurchaseOrderService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class RequestPurchaseOrderController extends Controller
 {
-    protected $purchaseOrderService;
-    public function __construct(PurchaseOrderService $purchaseOrderService)
-    {
-        $this->purchaseOrderService = $purchaseOrderService;
-    }
     public function index()
     {
         $requestPurchaseOrders = RequestPurchaseOrder::paginate(config('app.pagination.per_page', 15));
@@ -83,34 +75,34 @@ class RequestPurchaseOrderController extends Controller
     }
     public function allRequests(SearchPurchaseOrderRequest $request)
     {
-        $validated       = $request->validated();
-        $rsNumber        = $validated['rs_number'] ?? null;
-        $poNumber        = $validated['po_number'] ?? null;
-        $transactionDate = $validated['transaction_date'] ?? null;
-        $query = RequestPurchaseOrder::with(['requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip'])
-            ->when($poNumber, function ($query, $poNumber) {
-                $query->where('po_number', 'like', "%{$poNumber}%");
-            })
-            ->when($rsNumber, function ($query, $rsNumber) {
-                $query->whereHas('requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip', function ($q) use ($rsNumber) {
-                    $q->where('reference_no', 'like', "%{$rsNumber}%");
-                });
-            })
-            ->when($transactionDate, function ($query, $transactionDate) {
-                $query->whereDate('transaction_date', $transactionDate);
-            })
-            ->orderBy('transaction_date', 'desc');
-        $results = $query->paginate(config('app.pagination.per_page', 15));
-        if ($results->isEmpty()) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'No data found.',
-            ], JsonResponse::HTTP_OK);
-        }
-        return RequestPurchaseOrderListingResource::collection($results)
-            ->additional([
-                "success" => true,
-                "message" => "Request Purchase Orders Successfully Fetched.",
-            ]);
+        $validated = $request->validated();
+        $results = RequestPurchaseOrder::with([
+            'requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip'
+        ])
+        ->when(
+            $validated['po_number'] ?? false,
+            fn ($q, $poNumber) =>
+            $q->where('po_number', 'like', "%{$poNumber}%")
+        )
+        ->when(
+            $validated['rs_number'] ?? false,
+            fn ($q, $rsNumber) =>
+            $q->whereHas(
+                'requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip',
+                fn ($subQuery) =>
+                $subQuery->where('reference_no', 'like', "%{$rsNumber}%")
+            )
+        )
+        ->when(
+            $validated['transaction_date'] ?? false,
+            fn ($q, $date) =>
+            $q->whereDate('transaction_date', $date)
+        )
+        ->orderByDesc('transaction_date')
+        ->paginate(config('app.pagination.per_page', 15));
+        return RequestPurchaseOrderListingResource::collection($results)->additional([
+            'success' => true,
+            'message' => 'Request Purchase Orders Successfully Fetched.',
+        ]);
     }
 }

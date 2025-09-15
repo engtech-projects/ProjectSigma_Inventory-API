@@ -16,7 +16,7 @@ class RequestPurchaseOrderListingResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'transaction_date' => $this->createdAtDateHuman,
+            'transaction_date' => $this->created_at_date_human,
             'po_number' => $this->po_number,
             'rs_number' => $this->requisitionSlip?->reference_no,
             'request_canvass_summary_id' => $this->request_canvass_summary_id,

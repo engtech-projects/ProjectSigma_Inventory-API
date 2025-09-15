@@ -74,25 +74,4 @@ class PurchaseOrderService
         $newNumber = str_pad($lastRefNo + 1, 6, '0', STR_PAD_LEFT);
         return "PO-{$year}-{$newNumber}";
     }
-
-    public function applyFilters($query)
-    {
-        if (request()->has('rs_number')) {
-            $query->where('rs_number', 'like', '%' . request()->input('rs_number') . '%');
-        }
-        if (request()->has('po_number')) {
-            $query->where('po_number', request()->input('po_number'));
-        }
-        if (request()->has('transaction_date')) {
-            $query->where('transaction_date', 'like', '%' . request()->input('transaction_date') . '%');
-        }
-        return $query;
-    }
-
-    public function getAllRequest()
-    {
-        $query = RequestPurchaseOrder::orderBy('created_at', 'DESC');
-        $query = $this->applyFilters($query);
-        return $query->paginate(config('app.pagination.per_page', 15));
-    }
 }

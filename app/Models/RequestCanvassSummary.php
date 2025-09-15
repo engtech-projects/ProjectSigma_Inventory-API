@@ -94,7 +94,7 @@ class RequestCanvassSummary extends Model
         $quotations = $procurement->priceQuotations()
             ->with([
                 'supplier',
-                'items' => fn($q) => $q->orderBy('id')
+                'items' => fn ($q) => $q->orderBy('id')
             ])
             ->latest()
             ->take(3)
@@ -118,17 +118,16 @@ class RequestCanvassSummary extends Model
         });
 
         // Keep only quotations with valid suppliers
-        $quotations = $quotations->filter(fn($q) => $q->supplier);
+        $quotations = $quotations->filter(fn ($q) => $q->supplier);
 
         // Reorder: put the selected supplier first
-        $quotations = $quotations->sortByDesc(fn($q) => $q->supplier_id === $selectedId)->values();
+        $quotations = $quotations->sortByDesc(fn ($q) => $q->supplier_id === $selectedId)->values();
 
         return $quotations;
     }
 
     public function getSelectedSupplierIdAttribute()
-{
-    return $this->priceQuotation?->supplier_id;
-}
-
+    {
+        return $this->priceQuotation?->supplier_id;
+    }
 }
