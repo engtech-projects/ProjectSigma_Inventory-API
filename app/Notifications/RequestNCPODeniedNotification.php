@@ -12,7 +12,7 @@ use Notification;
 class RequestNcpoDeniedNotification extends Notification
 {
     use Queueable;
-    public $requestNcpo;
+
     private $token;
     private $model;
     public $id;
