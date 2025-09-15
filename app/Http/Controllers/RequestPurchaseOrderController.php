@@ -28,6 +28,7 @@ class RequestPurchaseOrderController extends Controller
     {
         $resource->load([
             'ncpos',
+            'supplier',
         ]);
         return RequestPurchaseOrderDetailedResource::make()
             ->additional([
