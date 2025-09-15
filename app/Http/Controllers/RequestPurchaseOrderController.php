@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateRequestPurchaseOrderRequest;
 use App\Http\Resources\RequestPurchaseOrderDetailedResource;
 use App\Http\Resources\RequestPurchaseOrderItemsDetailedResource;
 use App\Http\Resources\RequestPurchaseOrderListingResource;
+use App\Http\Services\PurchaseOrderService;
 
 class RequestPurchaseOrderController extends Controller
 {
@@ -25,18 +26,20 @@ class RequestPurchaseOrderController extends Controller
 
     public function show(RequestPurchaseOrder $resource)
     {
-        return (new RequestPurchaseOrderDetailedResource($resource))
+        $resource->load([
+            'ncpos',
+        ]);
+        return RequestPurchaseOrderDetailedResource::make()
             ->additional([
                 'message' => 'Request Purchase Order retrieved successfully.',
                 'success' => true,
-                'ncpos' => $resource->ncpos,
             ]);
     }
     public function update(UpdateRequestPurchaseOrderRequest $request, RequestPurchaseOrder $resource)
     {
         $validatedData = $request->validated();
         $resource->update($validatedData);
-        return (new RequestPurchaseOrderDetailedResource($resource))
+        return RequestPurchaseOrderDetailedResource::make($resource)
             ->additional([
                 'message' => 'Request Purchase Order updated successfully.',
                 'success' => true,
@@ -52,7 +55,7 @@ class RequestPurchaseOrderController extends Controller
         if ($newStatus === PurchaseOrderProcessingStatus::TURNED_OVER) {
             PurchaseOrderService::createMrrFromPurchaseOrder($requestPurchaseOrder);
         }
-        return (new RequestPurchaseOrderDetailedResource($requestPurchaseOrder))
+        return RequestPurchaseOrderDetailedResource::make($requestPurchaseOrder)
             ->additional([
                 'message' => "Processing status updated to {$newStatus->value} successfully.",
                 'success' => true,
@@ -67,7 +70,7 @@ class RequestPurchaseOrderController extends Controller
             'ncpos.items',
             'supplier'
         ]);
-        return (new RequestPurchaseOrderItemsDetailedResource($resource))
+        return RequestPurchaseOrderItemsDetailedResource::make($resource)
             ->additional([
                 'message' => 'Detailed Purchase Order with computed values retrieved successfully.',
                 'success' => true,

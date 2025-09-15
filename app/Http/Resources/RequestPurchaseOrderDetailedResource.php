@@ -38,6 +38,7 @@ class RequestPurchaseOrderDetailedResource extends JsonResource
                 'contact_number' => $this->supplier->company_contact_number,
             ],
             'items' => $this->items,
+            'ncpos' => $this->whenLoaded('ncpos'),
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
         ];
