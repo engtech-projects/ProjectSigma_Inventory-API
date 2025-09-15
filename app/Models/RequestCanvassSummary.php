@@ -69,7 +69,7 @@ class RequestCanvassSummary extends Model
         $this->request_status = RequestStatuses::APPROVED;
         $this->save();
         $this->refresh();
-        app(PurchaseOrderService::class)->createPurchaseOrderFromCanvass($this);
+        PurchaseOrderService::createPurchaseOrderFromCanvass($this);
     }
 
     public function getGrandTotalAmountAttribute(): float
@@ -86,10 +86,8 @@ class RequestCanvassSummary extends Model
         if (!$this->relationLoaded('priceQuotation') || !$this->priceQuotation->relationLoaded('requestProcurement')) {
             return collect([]);
         }
-
         $procurement   = $this->priceQuotation->requestProcurement;
         $selectedId    = $this->priceQuotation->supplier_id;
-
         // Fetch latest 3 quotations with suppliers and items
         $quotations = $procurement->priceQuotations()
             ->with([
@@ -99,11 +97,9 @@ class RequestCanvassSummary extends Model
             ->latest()
             ->take(3)
             ->get();
-
         // Load requisition slip items and index by item_id
         $procurement->loadMissing('requisitionSlip.items.itemProfile');
         $reqItems = $procurement->requisitionSlip->items->keyBy('item_id');
-
         // Normalize each quotation so every requisition item has a placeholder if missing
         $quotations->each(function ($quotation) use ($reqItems) {
             $quotation->items = $reqItems->map(function ($reqItem) use ($quotation) {
@@ -116,13 +112,10 @@ class RequestCanvassSummary extends Model
                 );
             })->values();
         });
-
         // Keep only quotations with valid suppliers
         $quotations = $quotations->filter(fn ($q) => $q->supplier);
-
         // Reorder: put the selected supplier first
         $quotations = $quotations->sortByDesc(fn ($q) => $q->supplier_id === $selectedId)->values();
-
         return $quotations;
     }
 
