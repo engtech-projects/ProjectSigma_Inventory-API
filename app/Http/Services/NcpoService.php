@@ -57,46 +57,67 @@ class NcpoService
     public function getItemsWithChanges(RequestPurchaseOrder $purchaseOrder): Collection
     {
         $purchaseOrder->load([
-            'requestCanvassSummary.items.itemProfile',
-            'requestCanvassSummary.items.requisitionSlipItem',
             'ncpos.items',
-            'supplier',
         ]);
-        $canvassItems = $purchaseOrder->requestCanvassSummary->items;
-        $latestChanges = $purchaseOrder->ncpos
+        $metadata = $purchaseOrder->metadata ?? [];
+        $items = collect($metadata['items'] ?? []);
+        $originalSupplier = $metadata['supplier'] ?? [
+            'id' => null,
+            'name' => null,
+            'address' => null,
+            'contact_number' => null,
+        ];
+        $allChanges = $purchaseOrder->ncpos
             ->flatMap(fn ($ncpo) => $ncpo->items ?? collect())
             ->sortByDesc('created_at')
             ->groupBy('item_id')
             ->map(fn ($items) => $items->first());
-        $originalSupplier = [
-            'id'             => $purchaseOrder->supplier_id,
-            'name'           => $purchaseOrder->supplier?->company_name,
-            'address'        => $purchaseOrder->supplier?->company_address,
-            'contact_number' => $purchaseOrder->supplier?->company_contact_number,
-        ];
-        return $canvassItems->map(function ($canvassItem) use ($purchaseOrder, $latestChanges, $originalSupplier) {
-            $reqSlipItem = $canvassItem->requisitionSlipItem;
-            $latestChange = $latestChanges->get($canvassItem->item_id);
-            $current = [
-                'item_description' => $this->fallback($latestChange?->changed_item_description, $canvassItem->itemProfile?->item_description),
-                'specification'    => $this->fallback($latestChange?->changed_specification, $reqSlipItem?->specification),
-                'quantity'         => $this->fallback($latestChange?->changed_qty, $reqSlipItem?->quantity),
-                'uom_id'           => $this->fallback($latestChange?->changed_uom_id, $reqSlipItem?->unit),
-                'brand'            => $this->fallback($latestChange?->changed_brand, $reqSlipItem?->preferred_brand),
-                'unit_price'       => $this->fallback($latestChange?->changed_unit_price, $canvassItem->unit_price),
-                'total_amount'     => $this->fallback($latestChange?->changed_qty, $reqSlipItem?->quantity ?? 0)
-                                     * $this->fallback($latestChange?->changed_unit_price, $canvassItem->unit_price ?? 0),
-                'net_vat'          => $this->fallback($latestChange?->net_vat, $canvassItem->net_vat),
-                'input_vat'        => $this->fallback($latestChange?->input_vat, $canvassItem->input_vat),
-                'supplier'         => $latestChange
-                    ? ($this->getSupplierDetails($purchaseOrder, $latestChange)['changed'] ?? $originalSupplier)
-                    : $originalSupplier,
+        $approvedChanges = $purchaseOrder->ncpos
+            ->filter(fn ($ncpo) => strtolower($ncpo->request_status) === 'approved')
+            ->flatMap(fn ($ncpo) => $ncpo->items ?? collect())
+            ->sortByDesc('created_at')
+            ->groupBy('item_id')
+            ->map(fn ($items) => $items->first());
+        return $items->map(function ($item) use ($purchaseOrder, $allChanges, $approvedChanges, $originalSupplier) {
+            $approvedChange = $approvedChanges->get($item['item_id']);
+            $latestChange = $allChanges->get($item['item_id']);
+            $original = [
+                'item_description' => $item['item_description'] ?? null,
+                'specification' => $item['specification'] ?? null,
+                'quantity' => $item['quantity'] ?? null,
+                'uom_id' => $item['uom'] ?? null,
+                'brand' => $item['actual_brand_purchase'] ?? null,
+                'unit_price' => $item['unit_price'] ?? null,
+                'total_amount' => $item['net_amount'] ?? ($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0),
+                'net_vat' => $item['net_vat'] ?? null,
+                'input_vat' => $item['input_vat'] ?? null,
+                'supplier' => $originalSupplier,
             ];
-
-            return [
-                'item_id' => $canvassItem->item_id,
-                'current' => $current,
+            $result = [
+                'item_id' => $item['item_id'],
+                'original' => $original,
             ];
+            if ($latestChange) {
+                if ($approvedChange) {
+                    $change = $approvedChange;
+                    $result['changed'] = [
+                        'item_description' => $this->fallback($change->changed_item_description, $original['item_description']),
+                        'specification' => $this->fallback($change->changed_specification, $original['specification']),
+                        'quantity' => $this->fallback($change->changed_qty, $original['quantity']),
+                        'uom_id' => $this->fallback($change->changed_uom_id, $original['uom_id']),
+                        'brand' => $this->fallback($change->changed_brand, $original['brand']),
+                        'unit_price' => $this->fallback($change->changed_unit_price, $original['unit_price']),
+                        'total_amount' => $this->fallback($change->changed_qty, $original['quantity'] ?? 0)
+                            * $this->fallback($change->changed_unit_price, $original['unit_price'] ?? 0),
+                        'net_vat' => $this->fallback($change->net_vat, $original['net_vat']),
+                        'input_vat' => $this->fallback($change->input_vat, $original['input_vat']),
+                        'supplier' => $this->getSupplierDetails($purchaseOrder, $change)['changed'] ?? $originalSupplier,
+                    ];
+                } else {
+                    $result['changed'] = 'Pending Approval';
+                }
+            }
+            return $result;
         });
     }
 

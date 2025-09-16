@@ -18,13 +18,13 @@ class PriceQuotationItemsForCanvassDetailedResource extends JsonResource
             "item_id" => $this->item_id,
             'item_description' => $this->request_stock_item?->item_description,
             'specification' => $this->request_stock_item?->specification,
-            'qty' => $this->request_stock_item?->quantity,
+            'qty' => $this->request_stock_item?->quantity ?? 0,
             'unit' => $this->request_stock_item?->uom_name,
             'preferred_brand' => $this->request_stock_item?->preferred_brand,
-            'brand' => $this->actual_brand,
-            'price' => $this->unit_price,
-            'remarks' => $this->remarks_during_canvass,
-            'total_amount' => $this->total_amount,
+            'actual_brand' => $this->actual_brand,
+            'unit_price' => $this->unit_price ?? 0,
+            'remarks_during_canvass' => $this->remarks_during_canvass,
+            'total_amount' => $this->total_amount ?? 0,
             'is_quoted' => $this->is_quoted,
         ];
     }
