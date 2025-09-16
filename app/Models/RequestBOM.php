@@ -58,12 +58,6 @@ class RequestBOM extends Model
         $query->where('request_status', RequestStatuses::PENDING);
     }
 
-    public function scopeAuthUserPending(Builder $query): void
-    {
-        // Assuming authUserPending logic
-        $query->where('created_by', auth()->user()->id);
-    }
-
     public function completeRequestStatus()
     {
         $latestVersion = self::where('assignment_type', $this->assignment_type)

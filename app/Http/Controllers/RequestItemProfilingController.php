@@ -62,7 +62,7 @@ class RequestItemProfilingController extends Controller
     public function store(StoreRequestItemProfilingRequest $request)
     {
         $attributes = $request->validated();
-        $attributes['request_status'] = RequestStatuses::PENDING;
+        $attributes['request_status'] = RequestStatuses::PENDING->value;
         $attributes['created_by'] = auth()->user()->id;
         $requestItemProfiling = DB::transaction(function () use ($attributes, $request) {
             $requestItemProfiling = RequestItemProfiling::create([

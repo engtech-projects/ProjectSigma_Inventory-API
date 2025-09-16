@@ -31,13 +31,16 @@ class RequestPurchaseOrderDetailedResource extends JsonResource
             'availability' => $this->requestCanvassSummary?->availability,
             'delivery_terms' => $this->requestCanvassSummary?->delivery_terms,
             'total_amount' => $this->requestCanvassSummary?->grand_total_amount,
-            'supplier' => [
-                'id' => $this->supplier->id,
-                'name' => $this->supplier->company_name,
-                'address' => $this->supplier->company_address,
-                'contact_number' => $this->supplier->company_contact_number,
-            ],
+            'supplier' => $this->whenLoaded('supplier', function () {
+                return [
+                    'id' => $this->supplier->id,
+                    'name' => $this->supplier->company_name,
+                    'address' => $this->supplier->company_address,
+                    'contact_number' => $this->supplier->company_contact_number,
+                ];
+            }),
             'items' => $this->items,
+            'ncpos' => $this->whenLoaded('ncpos'),
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
         ];

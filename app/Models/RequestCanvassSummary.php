@@ -69,7 +69,7 @@ class RequestCanvassSummary extends Model
         $this->request_status = RequestStatuses::APPROVED;
         $this->save();
         $this->refresh();
-        app(PurchaseOrderService::class)->createPurchaseOrderFromCanvass($this);
+        PurchaseOrderService::createPurchaseOrderFromCanvass($this);
     }
 
     public function getGrandTotalAmountAttribute(): float

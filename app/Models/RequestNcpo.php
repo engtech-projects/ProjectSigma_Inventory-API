@@ -76,6 +76,6 @@ class RequestNcpo extends Model
         $this->refresh();
         $this->purchaseOrder->processing_status = PurchaseOrderProcessingStatus::TURNED_OVER;
         $this->purchaseOrder->save();
-        app(NcpoService::class)->createMrrFromNcpo($this);
+        NcpoService::createMrrFromNcpo($this);
     }
 }
