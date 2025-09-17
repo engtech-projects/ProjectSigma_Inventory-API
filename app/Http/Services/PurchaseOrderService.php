@@ -11,22 +11,71 @@ use Illuminate\Support\Facades\DB;
 
 class PurchaseOrderService
 {
-    public static function createPurchaseOrderFromCanvass(RequestCanvassSummary $requestCanvassSummary)
+    protected $purchaseOrder;
+
+    public function __construct(RequestPurchaseOrder $purchaseOrder)
     {
-        return DB::transaction(function () use ($requestCanvassSummary) {
-            return RequestPurchaseOrder::create([
-                'transaction_date' => now(),
-                'po_number' => static::generatePoNumber(),
-                'request_canvass_summary_id' => $requestCanvassSummary->id,
-                'name_on_receipt' => null,
-                'delivered_to' => null,
-                'processing_status' => PurchaseOrderProcessingStatus::PENDING,
-                'metadata' => $requestCanvassSummary->metadata ?? [],
-                'created_by' => $requestCanvassSummary->created_by,
-                'request_status' => $requestCanvassSummary->request_status,
-                'approvals' => $requestCanvassSummary->approvals,
-            ]);
-        });
+        $this->purchaseOrder = $purchaseOrder;
+    }
+    public function createPurchaseOrderFromCanvass(RequestCanvassSummary $canvassSummary)
+    {
+        $canvassSummary->load([
+            'priceQuotation.supplier',
+            'priceQuotation.requestProcurement.requisitionSlip',
+            'items.requisitionSlipItem.itemProfile',
+            'items.priceQuotationItem'
+        ]);
+        $priceQuotation = $canvassSummary->priceQuotation;
+        $requisitionSlip = $priceQuotation->requestProcurement->requisitionSlip;
+        $supplier = $priceQuotation->supplier;
+        $supplierData = [
+            'id' => $supplier->id,
+            'name' => $supplier->company_name,
+            'address' => $supplier->company_address,
+            'contact_number' => $supplier->company_contact_number,
+        ];
+        $items = $canvassSummary->items->map(function ($csItem) {
+            $reqItem = $csItem->requisitionSlipItem;
+            $pqItem = $csItem->priceQuotationItem;
+            return [
+                'id' => $reqItem->id ?? null,
+                'item_id' => $csItem->item_id,
+                'item_description' => $reqItem->item_description ?? '',
+                'specification' => $reqItem->specification ?? '',
+                'quantity' => $reqItem->quantity ?? 0,
+                'uom' => $reqItem->uom_name ?? '',
+                'actual_brand_purchase' => $pqItem->actual_brand ?? '',
+                'unit_price' => $csItem->unit_price ?? 0,
+                'net_amount' => $csItem->total_amount ?? 0,
+                'net_vat' => $csItem->net_vat ?? 0,
+                'input_vat' => $csItem->input_vat ?? 0,
+            ];
+        })->toArray();
+        $metadata = [
+            'rs_number' => $requisitionSlip->reference_no ?? '',
+            'equipment_no' => $requisitionSlip->equipment_no ?? '',
+            'project_code' => $requisitionSlip->project_department_name ?? '',
+            'processing_status' => PurchaseOrderProcessingStatus::PENDING->value,
+            'created_by' => $canvassSummary->created_by,
+            'terms_of_payment' => $canvassSummary->terms_of_payment ?? '',
+            'availability' => $canvassSummary->availability ?? '',
+            'delivery_terms' => $canvassSummary->delivery_terms ?? '',
+            'total_amount' => $canvassSummary->grand_total_amount ?? 0,
+            'supplier' => $supplierData,
+            'items' => $items,
+        ];
+        return $this->purchaseOrder->create([
+            'transaction_date' => now(),
+            'po_number' => static::generatePoNumber(),
+            'request_canvass_summary_id' => $canvassSummary->id,
+            'name_on_receipt' => null,
+            'delivered_to' => null,
+            'processing_status' => PurchaseOrderProcessingStatus::PENDING,
+            'metadata' => $metadata,
+            'created_by' => $canvassSummary->created_by,
+            'approvals' => $canvassSummary->approvals,
+            'request_status' => $canvassSummary->request_status,
+        ]);
     }
 
     public static function createMrrFromPurchaseOrder(RequestPurchaseOrder $requestPurchaseOrder): TransactionMaterialReceiving

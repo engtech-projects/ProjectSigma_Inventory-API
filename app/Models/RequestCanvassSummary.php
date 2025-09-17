@@ -82,39 +82,27 @@ class RequestCanvassSummary extends Model
     }
     public function getOrderedSuppliersAttribute()
     {
-        // Ensure relations are available
         if (!$this->relationLoaded('priceQuotation') || !$this->priceQuotation->relationLoaded('requestProcurement')) {
             return collect([]);
         }
-        $procurement   = $this->priceQuotation->requestProcurement;
-        $selectedId    = $this->priceQuotation->supplier_id;
-        // Fetch latest 3 quotations with suppliers and items
+        $procurement = $this->priceQuotation->requestProcurement;
+        $selectedId = $this->priceQuotation->supplier_id;
         $quotations = $procurement->priceQuotations()
             ->with([
                 'supplier',
-                'items' => fn ($q) => $q->orderBy('id')
+                'items' => fn ($q) => $q->whereNotNull('unit_price')->orderBy('id')
             ])
             ->latest()
             ->take(3)
             ->get();
-        // Load requisition slip items and index by item_id
         $procurement->loadMissing('requisitionSlip.items.itemProfile');
         $reqItems = $procurement->requisitionSlip->items->keyBy('item_id');
-        // Normalize each quotation so every requisition item has a placeholder if missing
         $quotations->each(function ($quotation) use ($reqItems) {
-            $quotation->items = $reqItems->map(function ($reqItem) use ($quotation) {
-                return $quotation->items->keyBy('item_id')->get(
-                    $reqItem->item_id,
-                    new PriceQuotationItem([
-                        'item_id'    => $reqItem->item_id,
-                        'unit_price' => null,
-                    ])
-                );
+            $quotation->items = $quotation->items->filter(function ($item) {
+                return !is_null($item->unit_price);
             })->values();
         });
-        // Keep only quotations with valid suppliers
         $quotations = $quotations->filter(fn ($q) => $q->supplier);
-        // Reorder: put the selected supplier first
         $quotations = $quotations->sortByDesc(fn ($q) => $q->supplier_id === $selectedId)->values();
         return $quotations;
     }
