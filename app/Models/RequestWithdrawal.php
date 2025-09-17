@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\RequestStatuses;
+use App\Http\Services\WithdrawalService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -54,11 +56,30 @@ class RequestWithdrawal extends Model
         return $this->hasMany(RequestWithdrawalItem::class, 'request_withdrawal_id');
     }
 
+    public function warehouseStockTransactions()
+    {
+        return $this->morphMany(WarehouseStockTransactions::class, 'referenceable');
+    }
+
     /**
      * Accessors
      */
     public function getChargeableNameAttribute()
     {
         return $this->chargeable?->department_name ?? $this->chargeable?->project_code ?? null;
+    }
+
+    /**
+     * ==================================================
+     * MODEL FUNCTIONS
+     * ==================================================
+     */
+    public function completeRequestStatus()
+    {
+        $this->request_status = RequestStatuses::APPROVED->value;
+        $withdrawalService = new WithdrawalService($this);
+        $withdrawalService->withdrawItemsFromWarehouse($this->items);
+        $this->save();
+        $this->refresh();
     }
 }
