@@ -17,7 +17,7 @@ class CanvassSummaryItemDetailedResource extends JsonResource
         $requisitionItem = $this->requisitionSlipItem;
         return [
             'item_id' => $this->item_id,
-            'quantity' => $this->quantity ?? 0,
+            'quantity' => number_format($this->quantity ?? 0, 2),
             'item_description' => $this->itemProfile?->item_description,
             'specification' => $requisitionItem?->specification,
             'unit' => $requisitionItem?->uom_name,
