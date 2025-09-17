@@ -87,10 +87,10 @@ class NcpoService
                 'quantity' => $item['quantity'] ?? null,
                 'uom_id' => $item['uom'] ?? null,
                 'brand' => $item['actual_brand_purchase'] ?? null,
-                'unit_price' => $item['unit_price'] ?? null,
-                'total_amount' => $item['net_amount'] ?? ($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0),
-                'net_vat' => $item['net_vat'] ?? null,
-                'input_vat' => $item['input_vat'] ?? null,
+                'unit_price' => number_format($item['unit_price'] ?? 0, 2),
+                'total_amount' => number_format($item['net_amount'] ?? ($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0), 2),
+                'net_vat' => number_format($item['net_vat'] ?? 0, 2),
+                'input_vat' => number_format($item['input_vat'] ?? 0, 2),
                 'supplier' => $originalSupplier,
             ];
             $result = [
@@ -106,11 +106,11 @@ class NcpoService
                         'quantity' => $this->fallback($change->changed_qty, $original['quantity']),
                         'uom_id' => $this->fallback($change->changed_uom_id, $original['uom_id']),
                         'brand' => $this->fallback($change->changed_brand, $original['brand']),
-                        'unit_price' => $this->fallback($change->changed_unit_price, $original['unit_price']),
-                        'total_amount' => $this->fallback($change->changed_qty, $original['quantity'] ?? 0)
-                            * $this->fallback($change->changed_unit_price, $original['unit_price'] ?? 0),
-                        'net_vat' => $this->fallback($change->net_vat, $original['net_vat']),
-                        'input_vat' => $this->fallback($change->input_vat, $original['input_vat']),
+                        'unit_price' => number_format($this->fallback($change->changed_unit_price, $original['unit_price']), 2),
+                        'total_amount' => number_format($this->fallback($change->changed_qty, $original['quantity'] ?? 0)
+                            * $this->fallback($change->changed_unit_price, $original['unit_price'] ?? 0), 2),
+                        'net_vat' => number_format($this->fallback($change->net_vat, $original['net_vat']), 2),
+                        'input_vat' => number_format($this->fallback($change->input_vat, $original['input_vat']), 2),
                         'supplier' => $this->getSupplierDetails($purchaseOrder, $change)['changed'] ?? $originalSupplier,
                     ];
                 } else {

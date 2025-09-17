@@ -22,9 +22,9 @@ class PriceQuotationItemsForCanvassDetailedResource extends JsonResource
             'unit' => $this->request_stock_item?->uom_name,
             'preferred_brand' => $this->request_stock_item?->preferred_brand,
             'actual_brand' => $this->actual_brand,
-            'unit_price' => $this->unit_price ?? 0,
+            'unit_price' => number_format($this->unit_price ?? 0, 2),
             'remarks_during_canvass' => $this->remarks_during_canvass,
-            'total_amount' => $this->total_amount ?? 0,
+            'total_amount' => number_format($this->total_amount ?? 0, 2),
             'is_quoted' => $this->is_quoted,
         ];
     }
