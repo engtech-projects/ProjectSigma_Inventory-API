@@ -41,8 +41,8 @@ class WithdrawalService
                     // Reduce from stock-in balance
                     $stockIn->quantity -= $deductQty;
                     $stockIn->save();
-                    $requestWithdrawalItem->warehouseStockTransactions()->create([
-                        'warehouse_id' => $stockIn->requestWithdrawal->warehouse_id,
+                    $this->model->warehouseStockTransactions()->create([
+                        'warehouse_id' => $requestWithdrawalItem->requestWithdrawal->warehouse_id,
                         'type' => StockTransactionTypes::STOCKOUT->value,
                         'item_id' => $stockIn->item_id,
                         'quantity' => $stockIn->quantity,
@@ -63,7 +63,7 @@ class WithdrawalService
             return response()->json([
                 'message' => 'Successfully accepted.',
                 'success' => true,
-                'data' => $requestWithdrawalItems->refresh(),
+                'data' => $requestWithdrawalItems,
             ]);
         });
     }
