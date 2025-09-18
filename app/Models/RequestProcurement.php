@@ -72,4 +72,14 @@ class RequestProcurement extends Model
             'id'
         );
     }
+    public function getPurchaseOrdersAttribute()
+    {
+        return $this->priceQuotations
+            ->flatMap(fn ($pq) => $pq->canvassSummaries)
+            ->map(fn ($cs) => $cs->purchaseOrder)
+            ->filter()
+            ->unique('id')
+            ->sortByDesc('created_at')
+            ->values();
+    }
 }

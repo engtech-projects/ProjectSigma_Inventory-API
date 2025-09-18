@@ -85,13 +85,15 @@ class NcpoService
                 'item_description' => $item['item_description'] ?? null,
                 'specification' => $item['specification'] ?? null,
                 'quantity' => $item['quantity'] ?? null,
-                'uom_id' => $item['uom'] ?? null,
-                'brand' => $item['actual_brand_purchase'] ?? null,
+                'uom' => $item['uom'] ?? null,
+                'actual_brand' => $item['actual_brand_purchase'] ?? null,
                 'unit_price' => number_format($item['unit_price'] ?? 0, 2),
                 'total_amount' => number_format($item['net_amount'] ?? ($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0), 2),
                 'net_vat' => number_format($item['net_vat'] ?? 0, 2),
                 'input_vat' => number_format($item['input_vat'] ?? 0, 2),
-                'supplier' => $originalSupplier,
+                'supplier_name' => $originalSupplier['name'],
+                'supplier_address' => $originalSupplier['address'],
+                'supplier_contact_number' => $originalSupplier['contact_number'],
             ];
             $result = [
                 'item_id' => $item['item_id'],
@@ -104,14 +106,16 @@ class NcpoService
                         'item_description' => $this->fallback($change->changed_item_description, $original['item_description']),
                         'specification' => $this->fallback($change->changed_specification, $original['specification']),
                         'quantity' => $this->fallback($change->changed_qty, $original['quantity']),
-                        'uom_id' => $this->fallback($change->changed_uom_id, $original['uom_id']),
-                        'brand' => $this->fallback($change->changed_brand, $original['brand']),
+                        'uom' => $change->changed_uom ? $change->changed_uom->name : $original['uom'],
+                        'actual_brand' => $this->fallback($change->changed_brand, $original['actual_brand']),
                         'unit_price' => number_format($this->fallback($change->changed_unit_price, $original['unit_price']), 2),
                         'total_amount' => number_format($this->fallback($change->changed_qty, $original['quantity'] ?? 0)
                             * $this->fallback($change->changed_unit_price, $original['unit_price'] ?? 0), 2),
                         'net_vat' => number_format($this->fallback($change->net_vat, $original['net_vat']), 2),
                         'input_vat' => number_format($this->fallback($change->input_vat, $original['input_vat']), 2),
-                        'supplier' => $this->getSupplierDetails($purchaseOrder, $change)['changed'] ?? $originalSupplier,
+                        'supplier_name' => $this->getSupplierDetails($purchaseOrder, $change)['changed']['name'] ?? $originalSupplier['name'],
+                        'supplier_address' => $this->getSupplierDetails($purchaseOrder, $change)['changed']['address'] ?? $originalSupplier['address'],
+                        'supplier_contact_number' => $this->getSupplierDetails($purchaseOrder, $change)['changed']['contact_number'] ?? $originalSupplier['contact_number'],
                     ];
                 } else {
                     $result['changed'] = 'Pending Approval';
