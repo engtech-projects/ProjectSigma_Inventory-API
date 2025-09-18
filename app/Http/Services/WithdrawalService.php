@@ -19,6 +19,7 @@ class WithdrawalService
     public function withdrawItemsFromWarehouse($requestWithdrawalItems)
     {
         DB::transaction(function () use ($requestWithdrawalItems) {
+            Log::info($requestWithdrawalItems);
             foreach ($requestWithdrawalItems as $requestWithdrawalItem) {
                 $remainingQty = $requestWithdrawalItem['quantity'];
                 // Check total available stock for this item
@@ -39,7 +40,9 @@ class WithdrawalService
                 $deductions = []; // track FIFO deductions
                 $totalDeducted = 0;
                 foreach ($stockIns as $stockIn) {
-                    if ($remainingQty <= 0) break;
+                    if ($remainingQty <= 0) {
+                        break;
+                    }
                     $deductQty = min($remainingQty, $stockIn->quantity);
                     // Reduce from stock-in balance
                     $stockIn->quantity -= $deductQty;
@@ -70,5 +73,4 @@ class WithdrawalService
             }
         });
     }
-
 }
