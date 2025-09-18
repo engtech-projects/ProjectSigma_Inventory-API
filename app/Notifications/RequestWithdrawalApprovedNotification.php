@@ -7,7 +7,7 @@ use App\Enums\ApprovalModels;
 use App\Models\RequestWithdrawal;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use Notification;
 
 class RequestWithdrawalApprovedNotification extends Notification
 {
