@@ -27,7 +27,6 @@ class RequestProcurementDetailedResource extends JsonResource
             'purchase_orders' => RequestPurchaseOrderListingResource::collection(
                 $this->purchaseOrders
             )
-
         ];
     }
 }
