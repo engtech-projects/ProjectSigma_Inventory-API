@@ -72,15 +72,14 @@ class RequestProcurement extends Model
             'id'
         );
     }
-    public function purchaseOrders()
+    public function getPurchaseOrdersAttribute()
     {
-        return $this->hasManyThrough(
-            RequestPurchaseOrder::class,
-            RequestCanvassSummary::class,
-            'price_quotation_id',
-            'request_canvass_summary_id',
-            'id',
-            'id'
-        );
+        return $this->priceQuotations
+            ->flatMap(fn ($pq) => $pq->canvassSummaries)
+            ->map(fn ($cs) => $cs->purchaseOrder)
+            ->filter()
+            ->unique('id')
+            ->sortByDesc('created_at')
+            ->values();
     }
 }

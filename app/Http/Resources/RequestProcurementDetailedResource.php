@@ -24,13 +24,10 @@ class RequestProcurementDetailedResource extends JsonResource
             "price_quotation_count" => $this->priceQuotations->count(),
             'price_quotations' => PriceQuotationListingResource::collection($this->whenLoaded('priceQuotations')),
             'canvass_summaries' => RequestCanvassSummaryListingResource::collection($this->whenLoaded('canvassSummaries')),
-            'purchase_orders' => $this->priceQuotations
-            ->flatMap(fn ($pq) => $pq->canvassSummaries
-                ->map(fn ($cs) => $cs->purchaseOrder
-                    ? new RequestPurchaseOrderListingResource($cs->purchaseOrder)
-                    : null)
-                ->filter())
-            ->values(),
+            'purchase_orders' => RequestPurchaseOrderListingResource::collection(
+                $this->purchaseOrders
+            )
+
         ];
     }
 }
