@@ -59,7 +59,7 @@ class StoreRequestWithdrawalRequest extends FormRequest
                         ->where('type', StockTransactionTypes::STOCKIN->value)
                         ->where('item_id', $itemId)
                         ->sum('quantity');
-                    if ($stock !== null && $value > $stock) {
+                    if ($value > $stock) {
                         $fail("Quantity exceeds available stock.");
                     }
                 }
