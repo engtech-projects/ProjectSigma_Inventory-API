@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Http\Traits\HasApprovalValidation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
+use App\Enums\StockTransactionTypes;
 use Illuminate\Support\Facades\DB;
 use App\Enums\FuelWithdrawal;
 use App\Enums\OwnerType;
@@ -55,9 +56,10 @@ class StoreRequestWithdrawalRequest extends FormRequest
                     $warehouseId = $this->warehouse_id;
                     $stock = DB::table('warehouse_stock_transactions')
                         ->where('warehouse_id', $warehouseId)
+                        ->where('type', StockTransactionTypes::STOCKIN->value)
                         ->where('item_id', $itemId)
-                        ->value('quantity');
-                    if ($stock !== null && $value > $stock) {
+                        ->sum('quantity');
+                    if ($value > $stock) {
                         $fail("Quantity exceeds available stock.");
                     }
                 }
