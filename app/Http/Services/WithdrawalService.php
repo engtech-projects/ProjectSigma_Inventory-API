@@ -35,7 +35,7 @@ class WithdrawalService
                 [$deductions, $totalDeducted] = $this->deductStockFIFO($item['item_id'], $remainingQty);
                 // Record Stock Out transaction
                 $this->model->warehouseStockTransactions()->create([
-                    'warehouse_id'   => $item->requestWithdrawal->warehouse_id,
+                    'warehouse_id'   => $this->model->warehouse_id,
                     'type'           => StockTransactionTypes::STOCKOUT->value,
                     'parent_item_id' => $item['item_id'],
                     'item_id'        => $item['item_id'],
@@ -57,6 +57,7 @@ class WithdrawalService
     private function getTotalAvailable(int $itemId): int
     {
         return WarehouseStockTransactions::where('item_id', $itemId)
+            ->where('warehouse_id', $this->model->warehouse_id)
             ->where('type', StockTransactionTypes::STOCKIN->value)
             ->where('quantity', '>', 0)
             ->sum('quantity');
@@ -69,6 +70,7 @@ class WithdrawalService
     private function deductStockFIFO(int $itemId, int $remainingQty): array
     {
         $stockIns = WarehouseStockTransactions::where('item_id', $itemId)
+            ->where('warehouse_id', $this->model->warehouse_id)
             ->where('type', StockTransactionTypes::STOCKIN->value)
             ->where('quantity', '>', 0)
             ->orderBy('created_at', 'asc')
