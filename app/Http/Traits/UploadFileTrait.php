@@ -2,7 +2,7 @@
 
 namespace App\Http\Traits;
 
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
 trait UploadFileTrait
@@ -10,10 +10,9 @@ trait UploadFileTrait
     public function uploadFile($file, $fileLocation, $newName = null)
     {
         if (!file_exists($fileLocation)) {
-            Storage::disk('public')->makeDirectory($fileLocation, 0755, true);
+            Storage::disk('public')->makeDirectory($fileLocation);
         }
-        $hashmake = Hash::make('secret');
-        $hashname = substr(hash('sha256', $hashmake), 0, 20);
+        $hashname = Str::random(20);
         $outputFileName = $newName ?? $file->getClientOriginalName();
         $file->storePubliclyAs($fileLocation . $hashname, $outputFileName, 'public');
         return $fileLocation . $hashname . "/" . $outputFileName;
@@ -22,10 +21,9 @@ trait UploadFileTrait
     public function uploadFileStoragedisk($file, $fileLocation, $filename)
     {
         if (!file_exists($fileLocation)) {
-            Storage::disk('public')->makeDirectory($fileLocation, 0755, true);
+            Storage::disk('public')->makeDirectory($fileLocation);
         }
-        $hashmake = Hash::make('secret');
-        $hashname = substr(hash('sha256', $hashmake), 0, 20);
+        $hashname = Str::random(20);
         $outputFile = $fileLocation . $hashname . "/" . $filename;
         Storage::disk('public')->put($outputFile, $file);
         return $outputFile;
@@ -36,8 +34,7 @@ trait UploadFileTrait
         $oldfileUniqueFolder = explode("/", $oldFile);
         array_pop($oldfileUniqueFolder);
         Storage::deleteDirectory("public/" . implode("/", $oldfileUniqueFolder)); // DELETE OLD FILE
-        $hashmake = Hash::make('secret');
-        $hashname = substr(hash('sha256', $hashmake), 0, 20);
+        $hashname = Str::random(20);
         $outputFileName = $file->getClientOriginalName();
         $file->storePubliclyAs($fileLocation . $hashname, $outputFileName, 'public');
         return $fileLocation . $hashname . "/" . $outputFileName;
