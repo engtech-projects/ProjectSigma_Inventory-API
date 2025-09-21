@@ -170,7 +170,6 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('request-supplier')->group(function () {
         Route::resource('resource', RequestSupplierController::class)->names("requestSupplierresource");
         Route::resource('uploads', RequestSupplierUploadController::class)->names("supplierUploadresource");
-        Route::get('list', [RequestSupplierController::class, 'list']);
         Route::get('all-request', [RequestSupplierController::class, 'allRequests']);
         Route::get('my-request', [RequestSupplierController::class, 'myRequests']);
         Route::get('my-approvals', [RequestSupplierController::class, 'myApprovals']);
