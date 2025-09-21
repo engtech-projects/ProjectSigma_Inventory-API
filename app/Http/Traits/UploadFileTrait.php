@@ -9,23 +9,37 @@ trait UploadFileTrait
 {
     public function uploadFile($file, $fileLocation, $newName = null)
     {
+        if (!file_exists($fileLocation)) {
+            Storage::disk('public')->makeDirectory($fileLocation, 0755, true);
+        }
         $hashmake = Hash::make('secret');
         $hashname = substr(hash('sha256', $hashmake), 0, 20);
-        $originalName = $newName ?? $file->getClientOriginalName();
-        $file->storePubliclyAs($fileLocation . $hashname . "/", $originalName, 'public');
-        return $fileLocation . $hashname . "/" . $originalName;
+        $outputFileName = $newName ?? $file->getClientOriginalName();
+        $file->storePubliclyAs($fileLocation . $hashname, $outputFileName, 'public');
+        return $fileLocation . $hashname . "/" . $outputFileName;
+    }
+
+    public function uploadFileStoragedisk($file, $fileLocation, $filename)
+    {
+        if (!file_exists($fileLocation)) {
+            Storage::disk('public')->makeDirectory($fileLocation, 0755, true);
+        }
+        $hashmake = Hash::make('secret');
+        $hashname = substr(hash('sha256', $hashmake), 0, 20);
+        $outputFile = $fileLocation . $hashname . "/" . $filename;
+        Storage::disk('public')->put($outputFile, $file);
+        return $outputFile;
     }
 
     public function replaceUploadFile($oldFile, $file, $fileLocation)
     {
-        $oldAttachment = explode("/", $oldFile);
+        $oldfileUniqueFolder = explode("/", $oldFile);
+        array_pop($oldfileUniqueFolder);
+        Storage::deleteDirectory("public/" . implode("/", $oldfileUniqueFolder)); // DELETE OLD FILE
         $hashmake = Hash::make('secret');
         $hashname = substr(hash('sha256', $hashmake), 0, 20);
-        $originalName = $file->getClientOriginalName();
-        $file->storePubliclyAs($fileLocation . $hashname, $originalName, 'public');
-        // FILE LOCATION MUST FOLLOW THE SAME STRUCTURE OF public/*/*/*hashedname/*originalname
-        // NOT TESTED MIGHT DELETE ANOTHER FILE
-        Storage::deleteDirectory("public/" . $oldAttachment[0] . "/" . $oldAttachment[1] . "/" . $oldAttachment[2]);
-        return $fileLocation . $hashname . "/" . $originalName;
+        $outputFileName = $file->getClientOriginalName();
+        $file->storePubliclyAs($fileLocation . $hashname, $outputFileName, 'public');
+        return $fileLocation . $hashname . "/" . $outputFileName;
     }
 }

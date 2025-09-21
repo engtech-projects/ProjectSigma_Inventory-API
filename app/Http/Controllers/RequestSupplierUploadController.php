@@ -42,36 +42,29 @@ class RequestSupplierUploadController extends Controller
     public function store(StoreRequestSupplierUpload $request)
     {
         $validated = $request->validated();
-
-        DB::beginTransaction();
-
-        try {
-            $fileLocation = $this->uploadFile(
+        $fileUploaded = DB::transaction(function () use ($validated) {
+            $fileLocation = $this->uploadFileStoragedisk(
                 $validated['file'],
-                RequestSupplierUpload::SUPPLIER_ATTACHMENTS_DIR
+                RequestSupplierUpload::SUPPLIER_ATTACHMENTS_DIR,
+                $validated['file']->getClientOriginalName()
             );
-
             $upload = new RequestSupplierUpload();
             $upload->request_supplier_id = $validated['request_supplier_id'];
             $upload->attachment_name = $validated['attachment_name'];
             $upload->file_location = $fileLocation;
-            $upload->save();
-
-            DB::commit();
-
+            return $upload->save();
+        });
+        if (!$fileUploaded) {
             return response()->json([
-                "message" => "Successfully uploaded file.",
-                "success" => true,
-                "data" => $upload,
-            ], 201);
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            return response()->json([
-                "message" => "Failed to upload file. " . $e->getMessage(),
+                "message" => "Failed to upload file.",
                 "success" => false,
             ], 500);
         }
+        return response()->json([
+            "message" => "Successfully uploaded file.",
+            "success" => true,
+            "data" => $fileUploaded,
+        ], 201);
     }
 
     /**
