@@ -16,9 +16,12 @@ class RequestNcpoListingResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'po_id' => $this->po_id,
-            'date' => $this->date,
+            'date' => $this->toReadableDateAttribute($this->date),
             'ncpo_no' => $this->ncpo_no,
+            'po_number' => $this->purchaseOrder->po_number,
+            'po_date' => $this->toReadableDateAttribute($this->purchaseOrder->transaction_date),
+            'project_code' => $this->purchaseOrder->requisitionSlip->project_department_name,
+            'equipment_number' => $this->purchaseOrder->requisitionSlip->equipment_no,
             'justification' => $this->justification,
             'created_at' => $this->createdAtDateHuman,
         ];

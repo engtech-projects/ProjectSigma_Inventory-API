@@ -44,7 +44,7 @@ class PurchaseOrderService
                 'specification' => $reqItem->specification ?? '',
                 'quantity' => $reqItem->quantity ?? 0,
                 'uom' => $reqItem->uom_name ?? '',
-                'actual_brand_purchase' => $pqItem->actual_brand ?? '',
+                'actual_brand_purchase' => $pqItem?->actual_brand ?? '',
                 'unit_price' => $csItem->unit_price ?? 0,
                 'net_amount' => $csItem->total_amount ?? 0,
                 'net_vat' => $csItem->net_vat ?? 0,

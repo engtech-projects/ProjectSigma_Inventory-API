@@ -65,4 +65,37 @@ class RequestNcpoController extends Controller
                 'success' => true,
             ]);
     }
+    public function myRequests()
+    {
+        $fetchData = RequestNcpo::latest()
+        ->myRequests()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestNcpoListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request Requisition Slips Successfully Fetched.",
+        ]);
+    }
+    public function allRequests()
+    {
+        $fetchData = RequestNcpo::with('purchaseOrder')
+            ->latest()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestNcpoListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request NCPOs Successfully Fetched.",
+        ]);
+    }
+    public function myApprovals()
+    {
+        $fetchData = RequestNcpo::latest()
+        ->myApprovals()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestNcpoListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request Canvass Summaries Successfully Fetched.",
+        ]);
+    }
 }

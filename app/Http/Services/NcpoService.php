@@ -91,9 +91,9 @@ class NcpoService
                 'total_amount' => number_format($item['net_amount'] ?? ($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0), 2),
                 'net_vat' => number_format($item['net_vat'] ?? 0, 2),
                 'input_vat' => number_format($item['input_vat'] ?? 0, 2),
-                'supplier_name' => $originalSupplier['name'],
-                'supplier_address' => $originalSupplier['address'],
-                'supplier_contact_number' => $originalSupplier['contact_number'],
+                'supplier_name' => $this->getSupplierDetails($purchaseOrder, $latestChange)['original']['name'] ?? $originalSupplier['name'],
+                'supplier_address' => $this->getSupplierDetails($purchaseOrder, $latestChange)['original']['address'] ?? $originalSupplier['address'],
+                'supplier_contact_number' => $this->getSupplierDetails($purchaseOrder, $latestChange)['original']['contact_number'] ?? $originalSupplier['contact_number'],
             ];
             $result = [
                 'item_id' => $item['item_id'],

@@ -159,13 +159,13 @@ class RequestPurchaseOrder extends Model
                 'item_id'              => $csItem->item_id,
                 'item_description'     => $reqItem?->item_description,
                 'specification'        => $reqItem?->specification,
-                'quantity'             => $reqItem?->quantity,
+                'quantity'             => number_format($reqItem?->quantity, 2),
                 'uom'                  => $reqItem?->uom_name,
                 'actual_brand_purchase' => $pqItem?->actual_brand,
                 'unit_price'           => $csItem->unit_price,
-                'net_amount'           => $csItem->total_amount,
-                'net_vat'              => $csItem->net_vat,
-                'input_vat'            => $csItem->input_vat,
+                'net_amount'           => number_format($csItem->total_amount, 2),
+                'net_vat'              => number_format($csItem->net_vat, 2),
+                'input_vat'            => number_format($csItem->input_vat, 2),
             ];
         });
     }

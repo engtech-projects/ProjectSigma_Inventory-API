@@ -29,7 +29,11 @@ class RequestCanvassSummaryItems extends Model
      */
     public function priceQuotationItem()
     {
-        return $this->belongsTo(PriceQuotationItem::class);
+        $query = $this->belongsTo(PriceQuotationItem::class, 'item_id', 'item_id');
+        if ($this->request_canvass_summary) {
+            $query->where('price_quotation_id', $this->request_canvass_summary->price_quotation_id);
+        }
+        return $query;
     }
 
     public function requestCanvassSummary()

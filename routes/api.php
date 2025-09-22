@@ -220,6 +220,7 @@ Route::middleware('auth:api')->group(function () {
         });
         Route::prefix('ncpo')->group(function () {
             Route::resource('resource', RequestNcpoController::class)->names("requestNcpo");
+            Route::get('all-request', [RequestNcpoController::class, 'allRequests']);
         });
     });
 
