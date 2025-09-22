@@ -25,18 +25,7 @@ class RequestProcurementDetailedResource extends JsonResource
             'price_quotations' => PriceQuotationListingResource::collection($this->whenLoaded('priceQuotations')),
             'canvass_summaries' => RequestCanvassSummaryListingResource::collection($this->whenLoaded('canvassSummaries')),
             'purchase_orders' => RequestPurchaseOrderListingResource::collection(
-                $this->whenLoaded(
-                    'priceQuotations',
-                    function () {
-                        return $this->priceQuotations
-                            ->flatMap(fn ($pq) => $pq->canvassSummaries)
-                            ->flatMap(fn ($cs) => $cs->purchaseOrder)
-                            ->filter()
-                            ->unique('id')
-                            ->values();
-                    },
-                    collect()
-                )
+                $this->purchaseOrders
             )
         ];
     }

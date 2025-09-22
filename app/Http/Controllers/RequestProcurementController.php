@@ -26,17 +26,16 @@ class RequestProcurementController extends Controller
     public function show(RequestProcurement $resource)
     {
         $resource->load([
-            'priceQuotations' => function ($query) {
-                $query->latest();
-            },
+            'priceQuotations' => [
+                'canvassSummaries.purchaseOrder' => function ($query) {
+                    $query->latest();
+                },
+            ],
             'canvasser',
-            'priceQuotations.canvassSummaries.purchaseOrder',
             'canvassSummaries' => function ($query) {
                 $query->latest();
             },
-            'priceQuotations.canvassSummaries.purchaseOrder' => function ($query) {
-                $query->latest();
-            },
+            'priceQuotations.canvassSummaries.purchaseOrder',
         ]);
         return new JsonResponse([
             'success' => true,

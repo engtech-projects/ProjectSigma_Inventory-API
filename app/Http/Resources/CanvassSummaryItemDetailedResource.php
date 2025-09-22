@@ -16,13 +16,13 @@ class CanvassSummaryItemDetailedResource extends JsonResource
     {
         $requisitionItem = $this->requisitionSlipItem;
         return [
-            'item_id'        => $this->item_id,
-            'quantity'       => $this->quantity,
+            'item_id' => $this->item_id,
+            'quantity' => number_format($this->quantity ?? 0, 2),
             'item_description' => $this->itemProfile?->item_description,
-            'specification'  => $requisitionItem?->specification,
-            'unit'           => $requisitionItem?->uom_name,
-            'unit_price'     => $this->unit_price,
-            'total_amount'   => $this->total_amount,
+            'specification' => $requisitionItem?->specification,
+            'unit' => $requisitionItem?->uom_name,
+            'unit_price' => number_format($this->unit_price ?? 0, 2),
+            'total_amount' => number_format($this->total_amount ?? 0, 2),
         ];
     }
 }
