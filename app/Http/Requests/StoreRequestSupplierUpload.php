@@ -36,7 +36,7 @@ class StoreRequestSupplierUpload extends FormRequest
                 "required",
                 "file",
                 "max:10000",
-                "mimes:pdf,doc,docx,jpg,png,jpeg",
+                "mimes:pdf,doc,docx,jpg,png,jpeg,application/msword",
             ],
         ];
     }
