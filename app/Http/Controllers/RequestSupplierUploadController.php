@@ -52,7 +52,11 @@ class RequestSupplierUploadController extends Controller
             $upload->request_supplier_id = $validated['request_supplier_id'];
             $upload->attachment_name = $validated['attachment_name'];
             $upload->file_location = $fileLocation;
-            return $upload->save();
+            if ($upload->save()) {
+                return $upload;
+            } else {
+                return null;
+            }
         });
         if (!$fileUploaded) {
             return response()->json([
