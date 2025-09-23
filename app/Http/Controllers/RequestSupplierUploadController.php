@@ -44,16 +44,19 @@ class RequestSupplierUploadController extends Controller
     {
         $validated = $request->validated();
         $fileUploaded = DB::transaction(function () use ($validated) {
-            $fileLocation = $this->uploadFileStoragedisk(
+            $fileLocation = $this->uploadFile(
                 $validated['file'],
-                RequestSupplierUpload::SUPPLIER_ATTACHMENTS_DIR,
-                $validated['file']->getClientOriginalName()
+                RequestSupplierUpload::SUPPLIER_ATTACHMENTS_DIR
             );
             $upload = new RequestSupplierUpload();
             $upload->request_supplier_id = $validated['request_supplier_id'];
             $upload->attachment_name = $validated['attachment_name'];
             $upload->file_location = $fileLocation;
-            return $upload->save();
+            if ($upload->save()) {
+                return $upload;
+            } else {
+                return null;
+            }
         });
         if (!$fileUploaded) {
             return response()->json([
