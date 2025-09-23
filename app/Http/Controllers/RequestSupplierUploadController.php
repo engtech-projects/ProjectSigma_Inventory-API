@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreRequestSupplierUpload;
+use App\Http\Resources\RequestSupplierResource;
 use App\Http\Resources\RequestSupplierUploadResource;
 use App\Http\Traits\UploadFileTrait;
 use App\Models\RequestSupplierUpload;
@@ -91,21 +92,19 @@ class RequestSupplierUploadController extends Controller
      */
     public function destroy(RequestSupplierUpload $upload)
     {
+        $supplier = $upload->requestSupplier;
         if (Storage::disk('public')->exists($upload->file_location)) {
             Storage::disk('public')->delete($upload->file_location);
-
             $directoryPath = dirname($upload->file_location);
             if (Storage::disk('public')->directories($directoryPath) == [] && Storage::disk('public')->files($directoryPath) == []) {
                 Storage::disk('public')->deleteDirectory($directoryPath);
             }
         }
-
         $deleted = $upload->delete();
-
         return response()->json([
             'message' => $deleted ? 'Supplier Attachment and file successfully deleted.' : 'Failed to delete Supplier Attachment.',
             'success' => $deleted,
-            'data' => $upload,
+            'data' => RequestSupplierResource::make($supplier)->response()->getData(true)
         ], $deleted ? 200 : 400);
     }
 }
