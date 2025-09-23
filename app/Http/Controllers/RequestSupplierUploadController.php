@@ -104,10 +104,11 @@ class RequestSupplierUploadController extends Controller
             }
         }
         $deleted = $upload->delete();
-        return response()->json([
+        return RequestSupplierResource::make($supplier)->additional([
             'message' => $deleted ? 'Supplier Attachment and file successfully deleted.' : 'Failed to delete Supplier Attachment.',
             'success' => $deleted,
-            'data' => RequestSupplierResource::make($supplier)->response()->getData(true)
-        ], $deleted ? 200 : 400);
+        ])
+        ->response()
+        ->setStatusCode($deleted ? 200 : 500);
     }
 }
