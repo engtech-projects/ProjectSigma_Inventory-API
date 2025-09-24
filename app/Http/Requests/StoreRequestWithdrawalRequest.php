@@ -57,20 +57,15 @@ class StoreRequestWithdrawalRequest extends FormRequest
                     $index = explode('.', $attribute)[1];
                     $itemId = $this->items[$index]['item_id'] ?? null;
                     $warehouseId = $this->warehouse_id;
-                    $uom_id = $this->uom_id;
                     // STOCKIN
                     $stockIns = WarehouseStockTransactions::where('warehouse_id', $warehouseId)
                         ->where('item_id', $itemId)
-                        // ->where('uom_id', $uom_id)
                         ->where('type', StockTransactionTypes::STOCKIN->value)
-                        ->lockForUpdate()
                         ->sum('quantity');
                     // STOCKOUT
                     $stockOuts = WarehouseStockTransactions::where('warehouse_id', $warehouseId)
                         ->where('item_id', $itemId)
-                        // ->where('uom_id', $uom_id)
                         ->where('type', StockTransactionTypes::STOCKOUT->value)
-                        ->lockForUpdate()
                         ->sum('quantity');
                     // Requested Withdrawal (already pending, from RequestWithdrawalItem)
                     $requestedWithdrawal = RequestWithdrawalItem::whereHas('requestWithdrawal', function ($q) use ($warehouseId) {
@@ -78,8 +73,6 @@ class StoreRequestWithdrawalRequest extends FormRequest
                         $q->where('warehouse_id', $warehouseId);
                     })
                     ->where('item_id', $itemId)
-                    // ->where('uom_id', $uom_id)
-                    ->lockForUpdate()
                     ->sum('quantity');
                     // Totals
                     $availableStocks = $stockIns - $stockOuts; // total physically available

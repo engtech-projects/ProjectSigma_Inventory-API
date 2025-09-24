@@ -77,9 +77,9 @@ class WarehouseStockTransactions extends Model
 
     public function getRemainingStockAttribute()
     {
-        $this->loadMissing('children');
-        $totalStockout = $this->children->where('type', StockTransactionTypes::STOCKOUT->value)->sum('quantity');
-        $remainingStock = $this->quantity - $totalStockout;
-        return $remainingStock;
+        $totalStockout = $this->children()
+            ->where('type', StockTransactionTypes::STOCKOUT->value)
+            ->sum('quantity');
+        return $this->quantity - $totalStockout;
     }
 }

@@ -19,7 +19,7 @@ class WithdrawalService
      * Withdraw items from warehouse using FIFO logic.
      *
      */
-    public function withdrawItemsFromWarehouse($requestWithdrawalItems)
+    public function withdrawItemsFromWarehouse($requestWithdrawalItems): void
     {
         DB::transaction(function () use ($requestWithdrawalItems) {
             // Group items by item_id (sum quantity)
@@ -35,7 +35,7 @@ class WithdrawalService
             // Process FIFO per unique item_id
             foreach ($groupedItems as $item) {
                 $remainingQty = $item->quantity;
-                [$deductions, $totalDeducted] = $this->deductStockFIFO($item->item_id, $remainingQty);
+                [$deductions] = $this->deductStockFIFO($item->item_id, $remainingQty);
                 // Creates StockOut per deduction (FIFO batches)
                 foreach ($deductions as $deduction) {
                     $this->model->warehouseStockTransactions()->create([
@@ -79,6 +79,7 @@ class WithdrawalService
             // Computes remaining stock for this stock-in
             $alreadyOut = $stockIn->children()
                 ->where('type', StockTransactionTypes::STOCKOUT->value)
+                ->lockForUpdate()
                 ->sum('quantity');
             $availableFromThisStockIn = $stockIn->quantity - $alreadyOut;
             if ($availableFromThisStockIn <= 0) {
