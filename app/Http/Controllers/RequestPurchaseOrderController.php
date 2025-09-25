@@ -69,7 +69,8 @@ class RequestPurchaseOrderController extends Controller
             'requestCanvassSummary.items.itemProfile',
             'requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip.items',
             'ncpos.items',
-            'supplier'
+            'supplier',
+            'ncpos'
         ]);
         return RequestPurchaseOrderItemsDetailedResource::make($resource)
             ->additional([

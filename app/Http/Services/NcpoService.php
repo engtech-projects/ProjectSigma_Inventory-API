@@ -82,10 +82,13 @@ class NcpoService
             $approvedChange = $approvedChanges->get($item['item_id']);
             $latestChange = $allChanges->get($item['item_id']);
             $original = [
+                'item_id' => $item['item_id'],
                 'item_description' => $item['item_description'] ?? null,
                 'specification' => $item['specification'] ?? null,
                 'quantity' => $item['quantity'] ?? null,
                 'uom' => $item['uom'] ?? null,
+                'uom_id' => $item['uom_id'] ?? null,
+                'convertable_units' => $item['convertable_units'] ?? [],
                 'actual_brand' => $item['actual_brand_purchase'] ?? null,
                 'unit_price' => number_format($item['unit_price'] ?? 0, 2),
                 'total_amount' => number_format($item['net_amount'] ?? ($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0), 2),
@@ -96,7 +99,6 @@ class NcpoService
                 'supplier_contact_number' => $this->getSupplierDetails($purchaseOrder, $latestChange)['original']['contact_number'] ?? $originalSupplier['contact_number'],
             ];
             $result = [
-                'item_id' => $item['item_id'],
                 'original' => $original,
             ];
             if ($latestChange) {
@@ -107,6 +109,7 @@ class NcpoService
                         'specification' => $this->fallback($change->changed_specification, $original['specification']),
                         'quantity' => $this->fallback($change->changed_qty, $original['quantity']),
                         'uom' => $change->changed_uom ? $change->changed_uom->name : $original['uom'],
+                        'uom_id' => $change->changed_uom ? $change->changed_uom->id : $original['uom_id'],
                         'actual_brand' => $this->fallback($change->changed_brand, $original['actual_brand']),
                         'unit_price' => number_format($this->fallback($change->changed_unit_price, $original['unit_price']), 2),
                         'total_amount' => number_format($this->fallback($change->changed_qty, $original['quantity'] ?? 0)
@@ -118,7 +121,7 @@ class NcpoService
                         'supplier_contact_number' => $this->getSupplierDetails($purchaseOrder, $change)['changed']['contact_number'] ?? $originalSupplier['contact_number'],
                     ];
                 } else {
-                    $result['changed'] = 'Pending Approval';
+                    $result['changed'] = [];
                 }
             }
             return $result;

@@ -95,7 +95,7 @@ class RequestNcpoController extends Controller
         return RequestNcpoListingResource::collection($fetchData)
         ->additional([
             "success" => true,
-            "message" => "Request Canvass Summaries Successfully Fetched.",
+            "message" => "Request NCPO Approvals Successfully Fetched.",
         ]);
     }
 }

@@ -37,6 +37,7 @@ class PurchaseOrderService
         $items = $canvassSummary->items->map(function ($csItem) {
             $reqItem = $csItem->requisitionSlipItem;
             $pqItem = $csItem->priceQuotationItem;
+            $convertableUnits = $reqItem->itemProfile->convertable_units ?? [];
             return [
                 'id' => $reqItem->id ?? null,
                 'item_id' => $csItem->item_id,
@@ -44,6 +45,8 @@ class PurchaseOrderService
                 'specification' => $reqItem->specification ?? '',
                 'quantity' => $reqItem->quantity ?? 0,
                 'uom' => $reqItem->uom_name ?? '',
+                'uom_id' => $reqItem->unit ?? null,
+                'convertable_units' => $convertableUnits,
                 'actual_brand_purchase' => $pqItem?->actual_brand ?? '',
                 'unit_price' => $csItem->unit_price ?? 0,
                 'net_amount' => $csItem->total_amount ?? 0,
