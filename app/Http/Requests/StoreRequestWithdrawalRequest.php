@@ -57,14 +57,17 @@ class StoreRequestWithdrawalRequest extends FormRequest
                     $index = explode('.', $attribute)[1];
                     $itemId = $this->items[$index]['item_id'] ?? null;
                     $warehouseId = $this->warehouse_id;
+                    $uom_id = $this->uom_id;
                     // STOCKIN
                     $stockIns = WarehouseStockTransactions::where('warehouse_id', $warehouseId)
                         ->where('item_id', $itemId)
+                        ->where('uom_id', $uom_id)
                         ->where('type', StockTransactionTypes::STOCKIN->value)
                         ->sum('quantity');
                     // STOCKOUT
                     $stockOuts = WarehouseStockTransactions::where('warehouse_id', $warehouseId)
                         ->where('item_id', $itemId)
+                        ->where('uom_id', $uom_id)
                         ->where('type', StockTransactionTypes::STOCKOUT->value)
                         ->sum('quantity');
                     // Requested Withdrawal (already pending, from RequestWithdrawalItem)
@@ -79,7 +82,7 @@ class StoreRequestWithdrawalRequest extends FormRequest
                     $availableStocksForRequest = $availableStocks - $requestedWithdrawal; // left after pending withdrawals
                     // Validation
                     if($availableStocks <= 0) {
-                        $fail("The Item has no stock at the moment.");
+                        $fail("The item has no available stock at the moment.");
                     } elseif($value > $availableStocksForRequest) {
                         $fail("Quantity exceeds maximum withdrawal requests.");
                     } elseif($value > $availableStocks) {
