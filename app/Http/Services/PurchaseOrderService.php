@@ -23,7 +23,8 @@ class PurchaseOrderService
             'priceQuotation.supplier',
             'priceQuotation.requestProcurement.requisitionSlip',
             'items.requisitionSlipItem.itemProfile',
-            'items.priceQuotationItem'
+            'items.priceQuotationItem',
+            'items.matchingPriceQuotationItem',
         ]);
         $priceQuotation = $canvassSummary->priceQuotation;
         $requisitionSlip = $priceQuotation->requestProcurement->requisitionSlip;

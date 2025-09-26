@@ -51,6 +51,10 @@ class RequestNcpoItems extends Model
     {
         return $this->belongsTo(RequestSupplier::class, 'changed_supplier_id');
     }
+    public function requisitionSlip()
+    {
+        return $this->belongsTo(RequestNcpo::class, 'request_ncpo_id');
+    }
     /**
      * ==================================================
      * MODEL METHODS

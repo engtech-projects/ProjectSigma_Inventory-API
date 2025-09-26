@@ -39,8 +39,11 @@ trait ModelHelpers
         return Carbon::parse($this->created_at)->format("h:i A");
     }
 
-    public function toReadableDateAttribute($date)
+    public function formatReadableDateAttribute($date)
     {
+        if (!$date) {
+            return null;
+        }
         return Carbon::parse($date)->format("F j, Y");
     }
     /**

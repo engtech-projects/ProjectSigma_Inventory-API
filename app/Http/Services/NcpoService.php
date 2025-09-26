@@ -94,9 +94,7 @@ class NcpoService
                 'total_amount' => number_format($item['net_amount'] ?? ($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0), 2),
                 'net_vat' => number_format($item['net_vat'] ?? 0, 2),
                 'input_vat' => number_format($item['input_vat'] ?? 0, 2),
-                'supplier_name' => $this->getSupplierDetails($purchaseOrder, $latestChange)['original']['name'] ?? $originalSupplier['name'],
-                'supplier_address' => $this->getSupplierDetails($purchaseOrder, $latestChange)['original']['address'] ?? $originalSupplier['address'],
-                'supplier_contact_number' => $this->getSupplierDetails($purchaseOrder, $latestChange)['original']['contact_number'] ?? $originalSupplier['contact_number'],
+                'originalSupplierDetails' => $this->getSupplierDetails($purchaseOrder, $latestChange),
             ];
             $result = [
                 'original' => $original,
@@ -116,9 +114,7 @@ class NcpoService
                             * $this->fallback($change->changed_unit_price, $original['unit_price'] ?? 0), 2),
                         'net_vat' => number_format($this->fallback($change->net_vat, $original['net_vat']), 2),
                         'input_vat' => number_format($this->fallback($change->input_vat, $original['input_vat']), 2),
-                        'supplier_name' => $this->getSupplierDetails($purchaseOrder, $change)['changed']['name'] ?? $originalSupplier['name'],
-                        'supplier_address' => $this->getSupplierDetails($purchaseOrder, $change)['changed']['address'] ?? $originalSupplier['address'],
-                        'supplier_contact_number' => $this->getSupplierDetails($purchaseOrder, $change)['changed']['contact_number'] ?? $originalSupplier['contact_number'],
+                        'changedSupplierDetails' => $this->getSupplierDetails($purchaseOrder, $change),
                     ];
                 } else {
                     $result['changed'] = [
@@ -133,10 +129,7 @@ class NcpoService
                             * $this->fallback($latestChange->changed_unit_price, $original['unit_price'] ?? 0), 2),
                         'net_vat' => number_format($this->fallback($latestChange->net_vat, $original['net_vat']), 2),
                         'input_vat' => number_format($this->fallback($latestChange->input_vat, $original['input_vat']), 2),
-                        'supplier_name' => $this->getSupplierDetails($purchaseOrder, $latestChange)['changed']['name'] ?? $originalSupplier['name'],
-                        'supplier_address' => $this->getSupplierDetails($purchaseOrder, $latestChange)['changed']['address'] ?? $originalSupplier['address'],
-                        'supplier_contact_number' => $this->getSupplierDetails($purchaseOrder, $latestChange)['changed']['contact_number'] ?? $originalSupplier['contact_number'],
-                        
+                        'changedSupplierDetails' => $this->getSupplierDetails($purchaseOrder, $latestChange),
                     ];
                 }
             }
