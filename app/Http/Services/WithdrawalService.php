@@ -36,7 +36,7 @@ class WithdrawalService
             // Process FIFO per unique item_id
             foreach ($groupedItems as $item) {
                 $remainingQty = $item->quantity;
-                [$deductions] = $this->deductStockFIFO($item, $remainingQty);
+                [$deductions, $totalDeducted] = $this->deductStockFIFO($item, $remainingQty);
                 // Creates StockOut per deduction (FIFO batches)
                 foreach ($deductions as $deduction) {
                     $this->model->warehouseStockTransactions()->create([
@@ -51,6 +51,7 @@ class WithdrawalService
                             'reason'                => 'Withdrawal',
                             'request_withdrawal_id' => $item->request_withdrawal_id,
                             'remaining_balance'     => $deduction['remaining_balance'],
+                            'total_deducted'        => $totalDeducted,
                         ],
                     ]);
                 }
