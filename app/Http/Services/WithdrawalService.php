@@ -28,6 +28,7 @@ class WithdrawalService
                 ->map(function ($items) {
                     return (object)[
                         'item_id' => $items->first()->item_id,
+                        'uom_id' => $items->first()->uom_id,
                         'quantity' => $items->sum('quantity'),
                         'request_withdrawal_id' => $items->first()->request_withdrawal_id,
                     ];
@@ -35,7 +36,7 @@ class WithdrawalService
             // Process FIFO per unique item_id
             foreach ($groupedItems as $item) {
                 $remainingQty = $item->quantity;
-                [$deductions] = $this->deductStockFIFO($item->item_id, $remainingQty);
+                [$deductions] = $this->deductStockFIFO($item, $remainingQty);
                 // Creates StockOut per deduction (FIFO batches)
                 foreach ($deductions as $deduction) {
                     $this->model->warehouseStockTransactions()->create([
@@ -61,11 +62,12 @@ class WithdrawalService
      *
      * @return array{array<int, array>, int} [deductions, totalDeducted]
      */
-    private function deductStockFIFO(int $itemId, int $remainingQty): array
+    private function deductStockFIFO($item, int $remainingQty): array
     {
         // Get all STOCKIN transactions (FIFO order)
         $stockIns = WarehouseStockTransactions::where('warehouse_id', $this->model->warehouse_id)
-            ->where('item_id', $itemId)
+            ->where('item_id', $item->item_id)
+            ->where('uom_id', $item->uom_id)
             ->where('type', StockTransactionTypes::STOCKIN->value)
             ->orderBy('created_at', 'asc')
             ->lockForUpdate()
@@ -76,12 +78,8 @@ class WithdrawalService
             if ($remainingQty <= 0) {
                 break;
             }
-            // Computes remaining stock for this stock-in
-            $alreadyOut = $stockIn->children()
-                ->where('type', StockTransactionTypes::STOCKOUT->value)
-                ->lockForUpdate()
-                ->sum('quantity');
-            $availableFromThisStockIn = $stockIn->quantity - $alreadyOut;
+            // Getting the remaining/available stocks in the warehouse
+            $availableFromThisStockIn = $stockIn->remaining_stock;
             if ($availableFromThisStockIn <= 0) {
                 continue; // skipping the empty
             }
@@ -99,7 +97,7 @@ class WithdrawalService
         }
         // If not enough stock, throw error
         if ($remainingQty > 0) {
-            throw new Exception("Not enough stock available for Item ID: {$itemId}");
+            throw new Exception("Not enough stock available for Item ID: {$item->item_id}");
         }
         return [$deductions, $totalDeducted];
     }
