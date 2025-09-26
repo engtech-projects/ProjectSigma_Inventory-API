@@ -29,7 +29,7 @@ class RequestCanvassSummaryItems extends Model
      */
     public function priceQuotationItem()
     {
-        return $this->belongsTo(PriceQuotationItem::class);
+        return $this->belongsTo(PriceQuotationItem::class, 'item_id', 'item_id');
     }
 
     public function requestCanvassSummary()
@@ -99,5 +99,26 @@ class RequestCanvassSummaryItems extends Model
 
         $total = $qty * $price;
         return $total > 0 ? round($total - ($total / 1.12), 2) : 0;
+    }
+    public function getMatchingPriceQuotationItemAttribute()
+    {
+        if (!$this->request_canvass_summary) {
+            return null;
+        }
+        return $this->priceQuotationItem()
+            ->where('price_quotation_id', $this->request_canvass_summary->price_quotation_id)
+        ->first();
+}
+
+    /**
+     * ==================================================
+     * MODEL SCOPES
+     * ==================================================
+     */
+    public function scopeWithMatchingPriceQuotation($query)
+    {
+        return $query->whereHas('priceQuotationItem', function ($q) {
+            $q->where('price_quotation_id', $this->request_canvass_summary->price_quotation_id);
+        });
     }
 }
