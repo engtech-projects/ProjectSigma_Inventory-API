@@ -56,6 +56,10 @@ class WarehouseStockTransactions extends Model
     {
         return $this->belongsTo(WarehouseStockTransactions::class, 'parent_item_id');
     }
+    public function children()
+    {
+        return $this->hasMany(WarehouseStockTransactions::class, 'parent_item_id');
+    }
     public function referenceable()
     {
         return $this->morphTo();
@@ -69,5 +73,13 @@ class WarehouseStockTransactions extends Model
     {
         $movementIcon = $this->type == StockTransactionTypes::STOCKIN->value ? '+' : '-';
         return $movementIcon." ".$this->quantity." ". $this->item->uom_full_name;
+    }
+
+    public function getRemainingStockAttribute()
+    {
+        $totalStockout = $this->children()
+            ->where('type', StockTransactionTypes::STOCKOUT->value)
+            ->sum('quantity');
+        return $this->quantity - $totalStockout;
     }
 }
