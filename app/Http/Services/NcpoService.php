@@ -121,7 +121,23 @@ class NcpoService
                         'supplier_contact_number' => $this->getSupplierDetails($purchaseOrder, $change)['changed']['contact_number'] ?? $originalSupplier['contact_number'],
                     ];
                 } else {
-                    $result['changed'] = [];
+                    $result['changed'] = [
+                        'item_description' => $this->fallback($latestChange->changed_item_description, $original['item_description']),
+                        'specification' => $this->fallback($latestChange->changed_specification, $original['specification']),
+                        'quantity' => $this->fallback($latestChange->changed_qty, $original['quantity']),
+                        'uom' => $latestChange->changed_uom ? $latestChange->changed_uom->name : $original['uom'],
+                        'uom_id' => $latestChange->changed_uom ? $latestChange->changed_uom->id : $original['uom_id'],
+                        'actual_brand' => $this->fallback($latestChange->changed_brand, $original['actual_brand']),
+                        'unit_price' => number_format($this->fallback($latestChange->changed_unit_price, $original['unit_price']), 2),
+                        'total_amount' => number_format($this->fallback($latestChange->changed_qty, $original['quantity'] ?? 0)
+                            * $this->fallback($latestChange->changed_unit_price, $original['unit_price'] ?? 0), 2),
+                        'net_vat' => number_format($this->fallback($latestChange->net_vat, $original['net_vat']), 2),
+                        'input_vat' => number_format($this->fallback($latestChange->input_vat, $original['input_vat']), 2),
+                        'supplier_name' => $this->getSupplierDetails($purchaseOrder, $latestChange)['changed']['name'] ?? $originalSupplier['name'],
+                        'supplier_address' => $this->getSupplierDetails($purchaseOrder, $latestChange)['changed']['address'] ?? $originalSupplier['address'],
+                        'supplier_contact_number' => $this->getSupplierDetails($purchaseOrder, $latestChange)['changed']['contact_number'] ?? $originalSupplier['contact_number'],
+                        
+                    ];
                 }
             }
             return $result;
