@@ -5,9 +5,13 @@ namespace App\Http\Requests;
 use App\Http\Traits\HasApprovalValidation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
+use App\Enums\StockTransactionTypes;
 use Illuminate\Support\Facades\DB;
 use App\Enums\FuelWithdrawal;
 use App\Enums\OwnerType;
+use App\Enums\RequestStatuses;
+use App\Models\WarehouseStockTransactions;
+use App\Models\RequestWithdrawalItem;
 
 class StoreRequestWithdrawalRequest extends FormRequest
 {
@@ -53,11 +57,36 @@ class StoreRequestWithdrawalRequest extends FormRequest
                     $index = explode('.', $attribute)[1];
                     $itemId = $this->items[$index]['item_id'] ?? null;
                     $warehouseId = $this->warehouse_id;
-                    $stock = DB::table('warehouse_stock_transactions')
-                        ->where('warehouse_id', $warehouseId)
+                    $uom_id = $this->uom_id;
+                    // STOCKIN
+                    $stockIns = WarehouseStockTransactions::where('warehouse_id', $warehouseId)
                         ->where('item_id', $itemId)
-                        ->value('quantity');
-                    if ($stock !== null && $value > $stock) {
+                        ->where('uom_id', $uom_id)
+                        ->where('type', StockTransactionTypes::STOCKIN->value)
+                        ->sum('quantity');
+                    // STOCKOUT
+                    $stockOuts = WarehouseStockTransactions::where('warehouse_id', $warehouseId)
+                        ->where('item_id', $itemId)
+                        ->where('uom_id', $uom_id)
+                        ->where('type', StockTransactionTypes::STOCKOUT->value)
+                        ->sum('quantity');
+                    // Requested Withdrawal (already pending, from RequestWithdrawalItem)
+                    $requestedWithdrawal = RequestWithdrawalItem::whereHas('requestWithdrawal', function ($q) use ($warehouseId) {
+                        $q->where('request_status', RequestStatuses::PENDING->value);
+                        $q->where('warehouse_id', $warehouseId);
+                    })
+                    ->where('item_id', $itemId)
+                    ->where('uom_id', $uom_id)
+                    ->sum('quantity');
+                    // Totals
+                    $availableStocks = $stockIns - $stockOuts; // total physically available
+                    $availableStocksForRequest = $availableStocks - $requestedWithdrawal; // left after pending withdrawals
+                    // Validation
+                    if($availableStocks <= 0) {
+                        $fail("The item has no available stock at the moment.");
+                    } elseif($value > $availableStocksForRequest) {
+                        $fail("Quantity exceeds maximum withdrawal requests.");
+                    } elseif($value > $availableStocks) {
                         $fail("Quantity exceeds available stock.");
                     }
                 }
