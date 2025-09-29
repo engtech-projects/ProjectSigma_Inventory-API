@@ -76,6 +76,7 @@ class StoreRequestWithdrawalRequest extends FormRequest
                         $q->where('warehouse_id', $warehouseId);
                     })
                     ->where('item_id', $itemId)
+                    ->where('uom_id', $uom_id)
                     ->sum('quantity');
                     // Totals
                     $availableStocks = $stockIns - $stockOuts; // total physically available
