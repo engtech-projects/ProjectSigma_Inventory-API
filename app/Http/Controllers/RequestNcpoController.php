@@ -55,7 +55,7 @@ class RequestNcpoController extends Controller
     }
     public function show(RequestNcpo $resource)
     {
-        $resource->load(['items.item','items.supplier','purchaseOrder']);
+        $resource->load(['items.item','items.supplier','items.changedUom','purchaseOrder']);
         return RequestNcpoDetailedResource::make($resource)
             ->additional([
                 'message' => 'Request NCPO retrieved successfully.',
@@ -64,7 +64,7 @@ class RequestNcpoController extends Controller
     }
     public function myRequests()
     {
-        $fetchData = RequestNcpo::with('purchaseOrder')
+        $fetchData = RequestNcpo::with('purchaseOrder.requisitionSlip')
         ->latest()
         ->myRequests()
         ->paginate(config('app.pagination.per_page', 10));
@@ -76,7 +76,7 @@ class RequestNcpoController extends Controller
     }
     public function allRequests()
     {
-        $fetchData = RequestNcpo::with('purchaseOrder')
+        $fetchData = RequestNcpo::with('purchaseOrder.requisitionSlip')
             ->latest()
         ->paginate(config('app.pagination.per_page', 10));
         return RequestNcpoListingResource::collection($fetchData)
@@ -87,7 +87,7 @@ class RequestNcpoController extends Controller
     }
     public function myApprovals()
     {
-        $fetchData = RequestNcpo::with('purchaseOrder')
+        $fetchData = RequestNcpo::with('purchaseOrder.requisitionSlip')
         ->latest()
         ->myApprovals()
         ->paginate(config('app.pagination.per_page', 10));

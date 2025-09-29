@@ -90,10 +90,10 @@ class NcpoService
                 'uom_id' => $item['uom_id'] ?? null,
                 'convertable_units' => $item['convertable_units'] ?? [],
                 'actual_brand' => $item['actual_brand_purchase'] ?? null,
-                'unit_price' => number_format($item['unit_price'] ?? 0, 2),
-                'total_amount' => number_format($item['net_amount'] ?? ($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0), 2),
-                'net_vat' => number_format($item['net_vat'] ?? 0, 2),
-                'input_vat' => number_format($item['input_vat'] ?? 0, 2),
+                'unit_price' => round((float)($item['unit_price'] ?? 0), 2),
+                'total_amount' => round((float)($item['net_amount'] ?? (($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0))), 2),
+                'net_vat' => round((float)($item['net_vat'] ?? 0), 2),
+                'input_vat' => round((float)($item['input_vat'] ?? 0), 2),
                 'originalSupplierDetails' => $this->getSupplierDetails($purchaseOrder, $latestChange),
             ];
             $result = [
@@ -109,11 +109,11 @@ class NcpoService
                         'uom' => $change->changed_uom ? $change->changed_uom->name : $original['uom'],
                         'uom_id' => $change->changed_uom ? $change->changed_uom->id : $original['uom_id'],
                         'actual_brand' => $this->fallback($change->changed_brand, $original['actual_brand']),
-                        'unit_price' => number_format($this->fallback($change->changed_unit_price, $original['unit_price']), 2),
-                        'total_amount' => number_format($this->fallback($change->changed_qty, $original['quantity'] ?? 0)
-                            * $this->fallback($change->changed_unit_price, $original['unit_price'] ?? 0), 2),
-                        'net_vat' => number_format($this->fallback($change->net_vat, $original['net_vat']), 2),
-                        'input_vat' => number_format($this->fallback($change->input_vat, $original['input_vat']), 2),
+                        'unit_price' => round((float)($this->fallback($change->changed_unit_price, $original['unit_price']) ?? 0), 2),
+                        'total_amount' => round((float)($this->fallback($change->changed_qty, $original['quantity'] ?? 0)
+                            * $this->fallback($change->changed_unit_price, $original['unit_price'] ?? 0)), 2),
+                        'net_vat' => round((float)($this->fallback($change->net_vat, $original['net_vat']) ?? 0), 2),
+                        'input_vat' => round((float)($this->fallback($change->input_vat, $original['input_vat']) ?? 0), 2),
                         'changedSupplierDetails' => $this->getSupplierDetails($purchaseOrder, $change),
                     ];
                 } else {
@@ -124,11 +124,11 @@ class NcpoService
                         'uom' => $latestChange->changed_uom ? $latestChange->changed_uom->name : $original['uom'],
                         'uom_id' => $latestChange->changed_uom ? $latestChange->changed_uom->id : $original['uom_id'],
                         'actual_brand' => $this->fallback($latestChange->changed_brand, $original['actual_brand']),
-                        'unit_price' => number_format($this->fallback($latestChange->changed_unit_price, $original['unit_price']), 2),
-                        'total_amount' => number_format($this->fallback($latestChange->changed_qty, $original['quantity'] ?? 0)
-                            * $this->fallback($latestChange->changed_unit_price, $original['unit_price'] ?? 0), 2),
-                        'net_vat' => number_format($this->fallback($latestChange->net_vat, $original['net_vat']), 2),
-                        'input_vat' => number_format($this->fallback($latestChange->input_vat, $original['input_vat']), 2),
+                        'unit_price' => round((float)($this->fallback($latestChange->changed_unit_price, $original['unit_price']) ?? 0), 2),
+                        'total_amount' => round((float)($this->fallback($latestChange->changed_qty, $original['quantity'] ?? 0)
+                            * $this->fallback($latestChange->changed_unit_price, $original['unit_price'] ?? 0)), 2),
+                        'net_vat' => round((float)($this->fallback($latestChange->net_vat, $original['net_vat']) ?? 0), 2),
+                        'input_vat' => round((float)($this->fallback($latestChange->input_vat, $original['input_vat']) ?? 0), 2),
                         'changedSupplierDetails' => $this->getSupplierDetails($purchaseOrder, $latestChange),
                     ];
                 }

@@ -47,12 +47,12 @@ class PurchaseOrderService
                 'quantity' => $reqItem->quantity ?? 0,
                 'uom' => $reqItem->uom_name ?? '',
                 'uom_id' => $reqItem->unit ?? null,
-                'convertable_units' => $convertableUnits,
+                $convertableUnits = $reqItem->itemProfile?->convertable_units ?? [];
                 'actual_brand_purchase' => $pqItem?->actual_brand ?? '',
-                'unit_price' => $csItem->unit_price ?? 0,
-                'net_amount' => $csItem->total_amount ?? 0,
-                'net_vat' => $csItem->net_vat ?? 0,
-                'input_vat' => $csItem->input_vat ?? 0,
+                'unit_price' => round((float)($csItem->unit_price ?? 0), 2),
+                'net_amount' => round((float)($csItem->total_amount ?? 0), 2),
+                'net_vat' => round((float)($csItem->net_vat ?? 0), 2),
+                'input_vat' => round((float)($csItem->input_vat ?? 0), 2),
             ];
         })->toArray();
         $metadata = [

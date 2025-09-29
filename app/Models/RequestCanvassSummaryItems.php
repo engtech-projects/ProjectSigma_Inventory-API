@@ -107,18 +107,18 @@ class RequestCanvassSummaryItems extends Model
         }
         return $this->priceQuotationItem()
             ->where('price_quotation_id', $this->request_canvass_summary->price_quotation_id)
-        ->first();
-}
+            ->first();
+    }
 
     /**
      * ==================================================
      * MODEL SCOPES
      * ==================================================
      */
-    public function scopeWithMatchingPriceQuotation($query)
+    public function scopeWithMatchingPriceQuotation($query, $priceQuotationId)
     {
-        return $query->whereHas('priceQuotationItem', function ($q) {
-            $q->where('price_quotation_id', $this->request_canvass_summary->price_quotation_id);
+        return $query->whereHas('priceQuotationItem', function ($q) use ($priceQuotationId) {
+            $q->where('price_quotation_id', $priceQuotationId);
         });
     }
 }
