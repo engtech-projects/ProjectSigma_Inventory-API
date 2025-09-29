@@ -24,13 +24,14 @@ class WithdrawalService
         DB::transaction(function () use ($requestWithdrawalItems) {
             // Group items by item_id (sum quantity)
             $groupedItems = collect($requestWithdrawalItems)
-                ->groupBy('item_id')
+                ->groupBy(fn ($i) => $i->item_id.'|'.$i->uom_id)
                 ->map(function ($items) {
+                    $first = $items->first();
                     return (object)[
-                        'item_id' => $items->first()->item_id,
-                        'uom_id' => $items->first()->uom_id,
-                        'quantity' => $items->sum('quantity'),
-                        'request_withdrawal_id' => $items->first()->request_withdrawal_id,
+                        'item_id'   => $first->item_id,
+                        'uom_id'    => $first->uom_id,
+                        'quantity'  => $first->sum('quantity'),
+                        'request_withdrawal_id' => $first->request_withdrawal_id,
                     ];
                 });
             // Process FIFO per unique item_id
