@@ -39,7 +39,7 @@ class PurchaseOrderService
         $items = $canvassSummary->items->map(function ($csItem) {
             $reqItem = $csItem->requisitionSlipItem;
             $pqItem = $csItem->priceQuotationItem;
-            $convertableUnits = $reqItem->itemProfile->convertable_units ?? [];
+            $convertableUnits = $reqItem->itemProfile?->convertable_units ?? [];
             return [
                 'id' => $reqItem->id ?? null,
                 'item_id' => $csItem->item_id,
