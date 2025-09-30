@@ -55,14 +55,46 @@ class RequestNcpoController extends Controller
     }
     public function show(RequestNcpo $resource)
     {
-        $resource->load([
-            'items.item',
-            'purchaseOrder',
-        ]);
+        $resource->load(['items.item','items.supplier','items.changedUom','purchaseOrder']);
         return RequestNcpoDetailedResource::make($resource)
             ->additional([
                 'message' => 'Request NCPO retrieved successfully.',
                 'success' => true,
             ]);
+    }
+    public function myRequests()
+    {
+        $fetchData = RequestNcpo::with('purchaseOrder.requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip')
+        ->latest()
+        ->myRequests()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestNcpoListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request NCPOs Successfully Fetched.",
+        ]);
+    }
+    public function allRequests()
+    {
+        $fetchData = RequestNcpo::with('purchaseOrder.requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip')
+            ->latest()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestNcpoListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request NCPOs Successfully Fetched.",
+        ]);
+    }
+    public function myApprovals()
+    {
+        $fetchData = RequestNcpo::with('purchaseOrder.requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip')
+        ->latest()
+        ->myApprovals()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestNcpoListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request NCPO Approvals Successfully Fetched.",
+        ]);
     }
 }
