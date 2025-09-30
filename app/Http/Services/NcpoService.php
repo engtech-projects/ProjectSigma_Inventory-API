@@ -94,10 +94,10 @@ class NcpoService
                 'total_amount' => round((float)($item['net_amount'] ?? (($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0))), 2),
                 'net_vat' => round((float)($item['net_vat'] ?? 0), 2),
                 'input_vat' => round((float)($item['input_vat'] ?? 0), 2),
-                'originalSupplierDetails' => $this->getSupplierDetails($purchaseOrder, $latestChange),
             ];
             $result = [
                 'original' => $original,
+                'supplier_details' => $this->getSupplierDetails($purchaseOrder, $latestChange),
             ];
             if ($latestChange) {
                 if ($approvedChange) {
@@ -114,7 +114,6 @@ class NcpoService
                             * $this->fallback($change->changed_unit_price, $original['unit_price'] ?? 0)), 2),
                         'net_vat' => round((float)($this->fallback($change->net_vat, $original['net_vat']) ?? 0), 2),
                         'input_vat' => round((float)($this->fallback($change->input_vat, $original['input_vat']) ?? 0), 2),
-                        'changedSupplierDetails' => $this->getSupplierDetails($purchaseOrder, $change),
                     ];
                 } else {
                     $result['changed'] = [
@@ -129,7 +128,6 @@ class NcpoService
                             * $this->fallback($latestChange->changed_unit_price, $original['unit_price'] ?? 0)), 2),
                         'net_vat' => round((float)($this->fallback($latestChange->net_vat, $original['net_vat']) ?? 0), 2),
                         'input_vat' => round((float)($this->fallback($latestChange->input_vat, $original['input_vat']) ?? 0), 2),
-                        'changedSupplierDetails' => $this->getSupplierDetails($purchaseOrder, $latestChange),
                     ];
                 }
             }
