@@ -24,7 +24,7 @@ class RequestNcpoDetailedResource extends JsonResource
             'equipment_number' => $this->purchaseOrder?->requisitionSlip?->equipment_no,
             'justification' => $this->justification,
             'created_by' => $this->created_by,
-            'total' => $this->purchaseOrder?->requestCanvassSummary?->grand_total_amount
+            'total_amount' => $this->purchaseOrder?->requestCanvassSummary?->grand_total_amount
                 ? number_format($this->purchaseOrder->requestCanvassSummary->grand_total_amount, 2)
                 : '0.00',
             'new_po_total' => number_format($this->new_po_total, 2),
