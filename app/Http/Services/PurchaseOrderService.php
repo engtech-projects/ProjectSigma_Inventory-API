@@ -6,10 +6,8 @@ use App\Enums\PurchaseOrderProcessingStatus;
 use App\Enums\ServeStatus;
 use App\Models\RequestCanvassSummary;
 use App\Models\RequestPurchaseOrder;
-use App\Models\RequestSupplier;
 use App\Models\TransactionMaterialReceiving;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Collection;
 
 class PurchaseOrderService
 {
