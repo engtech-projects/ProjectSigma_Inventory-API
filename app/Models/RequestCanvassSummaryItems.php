@@ -102,11 +102,11 @@ class RequestCanvassSummaryItems extends Model
     }
     public function getMatchingPriceQuotationItemAttribute()
     {
-        if (!$this->request_canvass_summary) {
+        if (!$this->requestCanvassSummary) {
             return null;
         }
         return $this->priceQuotationItem()
-            ->where('price_quotation_id', $this->request_canvass_summary->price_quotation_id)
+            ->where('price_quotation_id', $this->requestCanvassSummary->priceQuotation->id)
             ->first();
     }
 

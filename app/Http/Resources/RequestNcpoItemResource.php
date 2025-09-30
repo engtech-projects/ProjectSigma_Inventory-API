@@ -25,7 +25,7 @@ class RequestNcpoItemResource extends JsonResource
             'original_unit_price' => number_format($this->original_unit_price, 2),
             'changed_qty' => number_format($this->changed_qty, 2),
             'changed_uom_id' => $this->changed_uom_id,
-            'changed_uom' => $this->requisitionSlip?->items?->firstWhere('item_id', $this->item_id)?->uom?->name,
+            'changed_uom_name' => $this->changedUom?->name,
             'changed_unit_price' => number_format($this->changed_unit_price, 2),
             'changed_brand' => $this->changed_brand,
             'cancel_item' => $this->cancel_item,

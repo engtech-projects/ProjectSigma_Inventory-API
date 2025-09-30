@@ -6,8 +6,10 @@ use App\Enums\PurchaseOrderProcessingStatus;
 use App\Enums\ServeStatus;
 use App\Models\RequestCanvassSummary;
 use App\Models\RequestPurchaseOrder;
+use App\Models\RequestSupplier;
 use App\Models\TransactionMaterialReceiving;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 
 class PurchaseOrderService
 {
@@ -24,7 +26,6 @@ class PurchaseOrderService
             'priceQuotation.requestProcurement.requisitionSlip',
             'items.requisitionSlipItem.itemProfile',
             'items.priceQuotationItem',
-            'items.matchingPriceQuotationItem',
         ]);
         $priceQuotation = $canvassSummary->priceQuotation;
         $requisitionSlip = $priceQuotation->requestProcurement->requisitionSlip;
@@ -47,7 +48,7 @@ class PurchaseOrderService
                 'quantity' => $reqItem->quantity ?? 0,
                 'uom' => $reqItem->uom_name ?? '',
                 'uom_id' => $reqItem->unit ?? null,
-                $convertableUnits = $reqItem->itemProfile?->convertable_units ?? [];
+                'convertable_units' => $convertableUnits,
                 'actual_brand_purchase' => $pqItem?->actual_brand ?? '',
                 'unit_price' => round((float)($csItem->unit_price ?? 0), 2),
                 'net_amount' => round((float)($csItem->total_amount ?? 0), 2),
