@@ -34,7 +34,7 @@ class RequestNcpoDetailedResource extends JsonResource
             'changed' => [
                 'items' => RequestNcpoItemResource::collection($this->items),
             ],
-            "approvals" => new ApprovalAttributeResource($this->approvals),
+            "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
         ];
     }

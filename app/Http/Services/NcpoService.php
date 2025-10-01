@@ -28,7 +28,7 @@ class NcpoService
                 'rs_id' => $requestNcpo->purchaseOrder->rs_id,
             ];
             $mrr->save();
-            $mappedItems = $requestNcpo->items->map(fn ($item) => [
+            $mappedItems = $requestNcpo->items->map(fn($item) => [
                 'transaction_material_receiving_id' => $mrr->id,
                 'item_id'              => $item->item_id,
                 'specification'        => $item->changed_specification,
@@ -56,111 +56,97 @@ class NcpoService
 
     public function getItemsWithChanges(RequestPurchaseOrder $purchaseOrder): Collection
     {
-        $purchaseOrder->load([
-            'ncpos.items',
-        ]);
+        $purchaseOrder->load('ncpos.items');
+
         $metadata = $purchaseOrder->metadata ?? [];
         $items = collect($metadata['items'] ?? []);
-        $originalSupplier = $metadata['supplier'] ?? [
-            'id' => null,
-            'name' => null,
-            'address' => null,
-            'contact_number' => null,
-        ];
+
+        // Collect changes
         $allChanges = $purchaseOrder->ncpos
-            ->flatMap(fn ($ncpo) => $ncpo->items ?? collect())
+            ->flatMap(fn($ncpo) => $ncpo->items ?? collect())
             ->sortByDesc('created_at')
             ->groupBy('item_id')
-            ->map(fn ($items) => $items->first());
+            ->map(fn($group) => $group->first());
+
         $approvedChanges = $purchaseOrder->ncpos
-            ->filter(fn ($ncpo) => strtolower($ncpo->request_status) === 'approved')
-            ->flatMap(fn ($ncpo) => $ncpo->items ?? collect())
+            ->filter(fn($ncpo) => strtolower($ncpo->request_status) === 'approved')
+            ->flatMap(fn($ncpo) => $ncpo->items ?? collect())
             ->sortByDesc('created_at')
             ->groupBy('item_id')
-            ->map(fn ($items) => $items->first());
-        return $items->map(function ($item) use ($purchaseOrder, $allChanges, $approvedChanges, $originalSupplier) {
-            $approvedChange = $approvedChanges->get($item['item_id']);
-            $latestChange = $allChanges->get($item['item_id']);
-            $original = [
-                'item_id' => $item['item_id'],
-                'item_description' => $item['item_description'] ?? null,
-                'specification' => $item['specification'] ?? null,
-                'quantity' => $item['quantity'] ?? null,
-                'uom' => $item['uom'] ?? null,
-                'uom_id' => $item['uom_id'] ?? null,
-                'convertable_units' => $item['convertable_units'] ?? [],
-                'actual_brand' => $item['actual_brand_purchase'] ?? null,
-                'unit_price' => round((float)($item['unit_price'] ?? 0), 2),
-                'total_amount' => round((float)($item['net_amount'] ?? (($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0))), 2),
-                'net_vat' => round((float)($item['net_vat'] ?? 0), 2),
-                'input_vat' => round((float)($item['input_vat'] ?? 0), 2),
-            ];
-            $result = [
-                'original' => $original,
-                'supplier_details' => $this->getSupplierDetails($purchaseOrder, $latestChange),
-            ];
-            if ($latestChange) {
-                if ($approvedChange) {
-                    $change = $approvedChange;
-                    $result['changed'] = [
-                        'item_description' => $this->fallback($change->changed_item_description, $original['item_description']),
-                        'specification' => $this->fallback($change->changed_specification, $original['specification']),
-                        'quantity' => $this->fallback($change->changed_qty, $original['quantity']),
-                        'uom' => $change->changed_uom ? $change->changed_uom->name : $original['uom'],
-                        'uom_id' => $change->changed_uom ? $change->changed_uom->id : $original['uom_id'],
-                        'actual_brand' => $this->fallback($change->changed_brand, $original['actual_brand']),
-                        'unit_price' => round((float)($this->fallback($change->changed_unit_price, $original['unit_price']) ?? 0), 2),
-                        'total_amount' => round((float)($this->fallback($change->changed_qty, $original['quantity'] ?? 0)
-                            * $this->fallback($change->changed_unit_price, $original['unit_price'] ?? 0)), 2),
-                        'net_vat' => round((float)($this->fallback($change->net_vat, $original['net_vat']) ?? 0), 2),
-                        'input_vat' => round((float)($this->fallback($change->input_vat, $original['input_vat']) ?? 0), 2),
-                    ];
-                } else {
-                    $result['changed'] = [
-                        'item_description' => $this->fallback($latestChange->changed_item_description, $original['item_description']),
-                        'specification' => $this->fallback($latestChange->changed_specification, $original['specification']),
-                        'quantity' => $this->fallback($latestChange->changed_qty, $original['quantity']),
-                        'uom' => $latestChange->changed_uom ? $latestChange->changed_uom->name : $original['uom'],
-                        'uom_id' => $latestChange->changed_uom ? $latestChange->changed_uom->id : $original['uom_id'],
-                        'actual_brand' => $this->fallback($latestChange->changed_brand, $original['actual_brand']),
-                        'unit_price' => round((float)($this->fallback($latestChange->changed_unit_price, $original['unit_price']) ?? 0), 2),
-                        'total_amount' => round((float)($this->fallback($latestChange->changed_qty, $original['quantity'] ?? 0)
-                            * $this->fallback($latestChange->changed_unit_price, $original['unit_price'] ?? 0)), 2),
-                        'net_vat' => round((float)($this->fallback($latestChange->net_vat, $original['net_vat']) ?? 0), 2),
-                        'input_vat' => round((float)($this->fallback($latestChange->input_vat, $original['input_vat']) ?? 0), 2),
-                    ];
-                }
+            ->map(fn($group) => $group->first());
+
+        return $items->map(function ($item) use ($purchaseOrder, $allChanges, $approvedChanges) {
+            $original = $this->mapOriginalItem($item, $purchaseOrder);
+            $result = ['original' => $original];
+
+            $change = $approvedChanges->get($item['item_id']) ?? $allChanges->get($item['item_id']);
+
+            if ($change) {
+                $result['changed'] = $this->mapChangedItem($original, $change, $purchaseOrder);
             }
+
             return $result;
         });
     }
 
-    public function getSupplierDetails($purchaseOrder, $latestChange = null): array
+    private function mapOriginalItem(array $item, RequestPurchaseOrder $purchaseOrder): array
     {
-        $original = [
-            'id' => $purchaseOrder->supplier_id,
-            'name' => $purchaseOrder->supplier?->company_name,
-            'address' => $purchaseOrder->supplier?->company_address,
-            'contact_number' => $purchaseOrder->supplier?->company_contact_number,
-        ];
-        if (!$latestChange || !$latestChange->changed_supplier_id) {
-            return $original;
-        }
-        $changedSupplier = RequestSupplier::find($latestChange->changed_supplier_id);
-        $changed = [
-            'id' => $changedSupplier?->id,
-            'name' => $changedSupplier?->company_name,
-            'address' => $changedSupplier?->company_address,
-            'contact_number' => $changedSupplier?->company_contact_number,
-        ];
-        if ($changed['id'] === $original['id']) {
-            return [
-                'original' => $original,
-            ];
-        }
         return [
-            'original' => $original,
-            'changed'  => $changed,
+            'item_id'        => $item['item_id'],
+            'item_description' => $item['item_description'] ?? null,
+            'specification'  => $item['specification'] ?? null,
+            'quantity'       => $item['quantity'] ?? null,
+            'uom'            => $item['uom'] ?? null,
+            'uom_id'         => $item['uom_id'] ?? null,
+            'convertable_units' => $item['convertable_units'] ?? [],
+            'actual_brand'   => $item['actual_brand_purchase'] ?? null,
+            'unit_price'     => round((float)($item['unit_price'] ?? 0), 2),
+            'total_amount'   => round((float)($item['net_amount'] ?? (($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0))), 2),
+            'net_vat'        => round((float)($item['net_vat'] ?? 0), 2),
+            'input_vat'      => round((float)($item['input_vat'] ?? 0), 2),
+            'supplier_details' => $this->getSupplierDetails($purchaseOrder),
         ];
     }
+
+    private function mapChangedItem(array $original, $change, RequestPurchaseOrder $purchaseOrder): array
+    {
+        return [
+            'item_description' => $this->fallback($change->changed_item_description, $original['item_description']),
+            'specification'    => $this->fallback($change->changed_specification, $original['specification']),
+            'quantity'         => $this->fallback($change->changed_qty, $original['quantity']),
+            'uom'              => $change->changed_uom?->name ?? $original['uom'],
+            'uom_id'           => $change->changed_uom?->id ?? $original['uom_id'],
+            'actual_brand'     => $this->fallback($change->changed_brand, $original['actual_brand']),
+            'unit_price'       => round((float)($this->fallback($change->changed_unit_price, $original['unit_price']) ?? 0), 2),
+            'total_amount'     => round((float)(
+                $this->fallback($change->changed_qty, $original['quantity'] ?? 0) *
+                $this->fallback($change->changed_unit_price, $original['unit_price'] ?? 0)
+            ), 2),
+            'net_vat'          => round((float)($this->fallback($change->net_vat, $original['net_vat']) ?? 0), 2),
+            'input_vat'        => round((float)($this->fallback($change->input_vat, $original['input_vat']) ?? 0), 2),
+            'supplier_details' => $this->getSupplierDetails($purchaseOrder, $change, true),
+        ];
+    }
+
+    public function getSupplierDetails($purchaseOrder, $latestChange = null, bool $isChanged = false): ?array
+    {
+        if ($isChanged && $latestChange?->changed_supplier_id) {
+            $changedSupplier = RequestSupplier::find($latestChange->changed_supplier_id);
+
+            return [
+                'id'             => $changedSupplier?->id,
+                'name'           => $changedSupplier?->company_name,
+                'address'        => $changedSupplier?->company_address,
+                'contact_number' => $changedSupplier?->company_contact_number,
+            ];
+        }
+
+        return [
+            'id'             => $purchaseOrder->supplier_id,
+            'name'           => $purchaseOrder->supplier?->company_name,
+            'address'        => $purchaseOrder->supplier?->company_address,
+            'contact_number' => $purchaseOrder->supplier?->company_contact_number,
+        ];
+    }
+
 }
