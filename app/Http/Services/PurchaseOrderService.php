@@ -23,7 +23,7 @@ class PurchaseOrderService
             'priceQuotation.supplier',
             'priceQuotation.requestProcurement.requisitionSlip',
             'items.requisitionSlipItem.itemProfile',
-            'items.priceQuotationItem'
+            'items.priceQuotationItem',
         ]);
         $priceQuotation = $canvassSummary->priceQuotation;
         $requisitionSlip = $priceQuotation->requestProcurement->requisitionSlip;
@@ -37,6 +37,7 @@ class PurchaseOrderService
         $items = $canvassSummary->items->map(function ($csItem) {
             $reqItem = $csItem->requisitionSlipItem;
             $pqItem = $csItem->priceQuotationItem;
+            $convertableUnits = $reqItem->itemProfile?->convertable_units ?? [];
             return [
                 'id' => $reqItem->id ?? null,
                 'item_id' => $csItem->item_id,
@@ -44,11 +45,13 @@ class PurchaseOrderService
                 'specification' => $reqItem->specification ?? '',
                 'quantity' => $reqItem->quantity ?? 0,
                 'uom' => $reqItem->uom_name ?? '',
-                'actual_brand_purchase' => $pqItem->actual_brand ?? '',
-                'unit_price' => $csItem->unit_price ?? 0,
-                'net_amount' => $csItem->total_amount ?? 0,
-                'net_vat' => $csItem->net_vat ?? 0,
-                'input_vat' => $csItem->input_vat ?? 0,
+                'uom_id' => $reqItem->unit ?? null,
+                'convertable_units' => $convertableUnits,
+                'actual_brand_purchase' => $pqItem?->actual_brand ?? '',
+                'unit_price' => round((float)($csItem->unit_price ?? 0), 2),
+                'net_amount' => round((float)($csItem->total_amount ?? 0), 2),
+                'net_vat' => round((float)($csItem->net_vat ?? 0), 2),
+                'input_vat' => round((float)($csItem->input_vat ?? 0), 2),
             ];
         })->toArray();
         $metadata = [

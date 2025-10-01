@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RequestStatuses;
 use App\Models\RequestWithdrawal;
 use App\Http\Requests\StoreRequestWithdrawalRequest;
 use App\Http\Resources\RequestWithdrawalListingResource;
@@ -36,6 +37,7 @@ class RequestWithdrawalController extends Controller
             $withdrawal = DB::transaction(function () use ($data) {
                 $data['reference_no'] = $this->generateReferenceNo();
                 $data['created_by'] = auth()->user()->id;
+                $data['request_status'] = RequestStatuses::PENDING->value;
                 $withdrawal = RequestWithdrawal::create($data);
                 $withdrawal->items()->createMany($data['items']);
                 return $withdrawal->fresh(['warehouse', 'chargeable', 'items.item', 'items.uom']);
