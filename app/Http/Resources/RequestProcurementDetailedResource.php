@@ -26,7 +26,10 @@ class RequestProcurementDetailedResource extends JsonResource
             'canvass_summaries' => RequestCanvassSummaryListingResource::collection($this->whenLoaded('canvassSummaries')),
             'purchase_orders' => RequestPurchaseOrderListingResource::collection(
                 $this->purchaseOrders
-            )
+            ),
+            'ncpo' => RequestNcpoListingResource::collection(
+                $this->ncpo
+            ),
         ];
     }
 }
