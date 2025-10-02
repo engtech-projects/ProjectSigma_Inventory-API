@@ -28,7 +28,7 @@ class NcpoService
                 'rs_id' => $requestNcpo->purchaseOrder->rs_id,
             ];
             $mrr->save();
-            $mappedItems = $requestNcpo->items->map(fn($item) => [
+            $mappedItems = $requestNcpo->items->map(fn ($item) => [
                 'transaction_material_receiving_id' => $mrr->id,
                 'item_id'              => $item->item_id,
                 'specification'        => $item->changed_specification,
@@ -63,17 +63,17 @@ class NcpoService
 
         // Collect changes
         $allChanges = $purchaseOrder->ncpos
-            ->flatMap(fn($ncpo) => $ncpo->items ?? collect())
+            ->flatMap(fn ($ncpo) => $ncpo->items ?? collect())
             ->sortByDesc('created_at')
             ->groupBy('item_id')
-            ->map(fn($group) => $group->first());
+            ->map(fn ($group) => $group->first());
 
         $approvedChanges = $purchaseOrder->ncpos
-            ->filter(fn($ncpo) => strtolower($ncpo->request_status) === 'approved')
-            ->flatMap(fn($ncpo) => $ncpo->items ?? collect())
+            ->filter(fn ($ncpo) => strtolower($ncpo->request_status) === 'approved')
+            ->flatMap(fn ($ncpo) => $ncpo->items ?? collect())
             ->sortByDesc('created_at')
             ->groupBy('item_id')
-            ->map(fn($group) => $group->first());
+            ->map(fn ($group) => $group->first());
 
         return $items->map(function ($item) use ($purchaseOrder, $allChanges, $approvedChanges) {
             $original = $this->mapOriginalItem($item, $purchaseOrder);
@@ -148,5 +148,4 @@ class NcpoService
             'contact_number' => $purchaseOrder->supplier?->company_contact_number,
         ];
     }
-
 }

@@ -75,8 +75,8 @@ class RequestProcurement extends Model
     public function getPurchaseOrdersAttribute()
     {
         return $this->priceQuotations
-            ->flatMap(fn($pq) => $pq->canvassSummaries)
-            ->map(fn($cs) => $cs->purchaseOrder)
+            ->flatMap(fn ($pq) => $pq->canvassSummaries)
+            ->map(fn ($cs) => $cs->purchaseOrder)
             ->filter()
             ->unique('id')
             ->sortByDesc('created_at')
@@ -90,10 +90,10 @@ class RequestProcurement extends Model
 
         return $this->priceQuotations
             ->loadMissing(['canvassSummaries.purchaseOrder.ncpos'])
-            ->flatMap(fn($pq) => $pq->canvassSummaries)
-            ->map(fn($cs) => $cs->purchaseOrder)
+            ->flatMap(fn ($pq) => $pq->canvassSummaries)
+            ->map(fn ($cs) => $cs->purchaseOrder)
             ->filter()
-            ->flatMap(fn($po) => $po->ncpos ?? collect())
+            ->flatMap(fn ($po) => $po->ncpos ?? collect())
             ->filter()
             ->unique('id')
             ->sortByDesc('created_at')
