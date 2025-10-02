@@ -28,7 +28,7 @@ class NcpoService
                 'rs_id' => $requestNcpo->purchaseOrder->rs_id,
             ];
             $mrr->save();
-            $mappedItems = $requestNcpo->items->map(fn ($item) => [
+            $mappedItems = $requestNcpo->items->map(fn($item) => [
                 'transaction_material_receiving_id' => $mrr->id,
                 'item_id'              => $item->item_id,
                 'specification'        => $item->changed_specification,
@@ -53,42 +53,32 @@ class NcpoService
     {
         return ($primary !== null && $primary !== '') ? $primary : $fallback;
     }
-
     public function getItemsWithChanges(RequestPurchaseOrder $purchaseOrder): Collection
     {
         $purchaseOrder->load('ncpos.items');
-
         $metadata = $purchaseOrder->metadata ?? [];
         $items = collect($metadata['items'] ?? []);
-
-        // Collect changes
         $allChanges = $purchaseOrder->ncpos
-            ->flatMap(fn ($ncpo) => $ncpo->items ?? collect())
+            ->flatMap(fn($ncpo) => $ncpo->items ?? collect())
             ->sortByDesc('created_at')
             ->groupBy('item_id')
-            ->map(fn ($group) => $group->first());
-
+            ->map(fn($group) => $group->first());
         $approvedChanges = $purchaseOrder->ncpos
-            ->filter(fn ($ncpo) => strtolower($ncpo->request_status) === 'approved')
-            ->flatMap(fn ($ncpo) => $ncpo->items ?? collect())
+            ->filter(fn($ncpo) => strtolower($ncpo->request_status) === 'approved')
+            ->flatMap(fn($ncpo) => $ncpo->items ?? collect())
             ->sortByDesc('created_at')
             ->groupBy('item_id')
-            ->map(fn ($group) => $group->first());
-
+            ->map(fn($group) => $group->first());
         return $items->map(function ($item) use ($purchaseOrder, $allChanges, $approvedChanges) {
             $original = $this->mapOriginalItem($item, $purchaseOrder);
             $result = ['original' => $original];
-
             $change = $approvedChanges->get($item['item_id']) ?? $allChanges->get($item['item_id']);
-
             if ($change) {
                 $result['changed'] = $this->mapChangedItem($original, $change, $purchaseOrder);
             }
-
             return $result;
         });
     }
-
     private function mapOriginalItem(array $item, RequestPurchaseOrder $purchaseOrder): array
     {
         return [
@@ -107,7 +97,6 @@ class NcpoService
             'supplier_details' => $this->getSupplierDetails($purchaseOrder),
         ];
     }
-
     private function mapChangedItem(array $original, $change, RequestPurchaseOrder $purchaseOrder): array
     {
         return [
@@ -123,16 +112,14 @@ class NcpoService
                 $this->fallback($change->changed_unit_price, $original['unit_price'] ?? 0)
             ), 2),
             'net_vat'          => round((float)($this->fallback($change->net_vat, $original['net_vat']) ?? 0), 2),
-            'input_vat'        => round((float)($this->fallback($change->input_vat, $original['input_vat']) ?? 0), 2),
+            'input_vat'        => round((float)($this->fallback($change->input_vat, $original['input_vat']) ?? 0), precision: 2),
             'supplier_details' => $this->getSupplierDetails($purchaseOrder, $change, true),
         ];
     }
-
     public function getSupplierDetails($purchaseOrder, $latestChange = null, bool $isChanged = false): ?array
     {
         if ($isChanged && $latestChange?->changed_supplier_id) {
             $changedSupplier = RequestSupplier::find($latestChange->changed_supplier_id);
-
             return [
                 'id'             => $changedSupplier?->id,
                 'name'           => $changedSupplier?->company_name,
@@ -140,7 +127,6 @@ class NcpoService
                 'contact_number' => $changedSupplier?->company_contact_number,
             ];
         }
-
         return [
             'id'             => $purchaseOrder->supplier_id,
             'name'           => $purchaseOrder->supplier?->company_name,

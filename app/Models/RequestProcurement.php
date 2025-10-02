@@ -87,7 +87,6 @@ class RequestProcurement extends Model
         if (!$this->relationLoaded('priceQuotations')) {
             return collect();
         }
-
         return $this->priceQuotations
             ->loadMissing(['canvassSummaries.purchaseOrder.ncpos'])
             ->flatMap(fn ($pq) => $pq->canvassSummaries)
