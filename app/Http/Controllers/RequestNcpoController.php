@@ -7,7 +7,7 @@ use App\Http\Resources\RequestNcpoDetailedResource;
 use App\Http\Resources\RequestNcpoListingResource;
 use App\Http\Resources\RequestNcpoResource;
 use App\Models\RequestNcpo;
-use App\Notifications\RequestNcpoForApprovalNotification;
+use App\Notifications\RequestNCPOForApprovalNotification;
 use Illuminate\Support\Facades\DB;
 
 class RequestNcpoController extends Controller
@@ -47,7 +47,7 @@ class RequestNcpoController extends Controller
             );
             return $ncpo->load('items');
         });
-        $ncpo->notifyNextApprover(RequestNcpoForApprovalNotification::class);
+        $ncpo->notifyNextApprover(RequestNCPOForApprovalNotification::class);
         return RequestNcpoResource::make($ncpo)->additional([
             'message' => 'Request NCPO created successfully.',
             'success' => true,

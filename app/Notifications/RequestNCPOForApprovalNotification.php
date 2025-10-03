@@ -9,7 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Notification;
 
-class RequestNcpoForApprovalNotification extends Notification
+class RequestNCPOForApprovalNotification extends Notification
 {
     use Queueable;
 
