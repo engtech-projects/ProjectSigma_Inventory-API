@@ -45,7 +45,7 @@ class ApproveApproval extends Controller
                 ApprovalModels::RequestSupplier->name => RequestSupplierForApprovalNotification::class,
                 ApprovalModels::RequestBOM->name => RequestBOMForApprovalNotification::class,
                 ApprovalModels::RequestCanvassSummary->name => RequestCanvassSummaryApprovalNotification::class,
-                ApprovalModels::RequestNcpo->name => RequestNcpoForApprovalNotification::class,
+                ApprovalModels::RequestNcpo->name => RequestNCPOForApprovalNotification::class,
                 ApprovalModels::RequestWithdrawal->name => RequestWithdrawalForApprovalNotification::class,
             ];
             if (isset($notificationMap[$modelType])) {
@@ -56,7 +56,7 @@ class ApproveApproval extends Controller
                 ApprovalModels::RequestSupplier->name => RequestSupplierApprovedNotification::class,
                 ApprovalModels::RequestBOM->name => RequestBOMApprovedNotification::class,
                 ApprovalModels::RequestCanvassSummary->name => RequestCanvassSummaryApprovedNotification::class,
-                ApprovalModels::RequestNcpo->name => RequestNcpoApprovedNotification::class,
+                ApprovalModels::RequestNcpo->name => RequestNCPOApprovedNotification::class,
                 ApprovalModels::RequestWithdrawal->name => RequestWithdrawalApprovedNotification::class,
             ];
             if (isset($notificationMap[$modelType])) {
