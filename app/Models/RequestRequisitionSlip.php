@@ -86,10 +86,6 @@ class RequestRequisitionSlip extends Model
             default => null,
         };
     }
-    public function getCreatedByNameAttribute()
-    {
-        return $this->created_by_user->employee?->fullname_first ?? ($this->created_by_user?->name ?? 'USER NOT FOUND');
-    }
     /**
      * ==================================================
      * MODEL RELATIONSHIPS
