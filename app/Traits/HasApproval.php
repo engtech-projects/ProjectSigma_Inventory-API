@@ -5,6 +5,7 @@ namespace App\Traits;
 use App\Enums\AccessibilitySigma;
 use Illuminate\Support\Carbon;
 use App\Enums\RequestStatuses;
+use App\Http\Services\ApiServices\HrmsService;
 use App\Http\Traits\CheckAccessibility;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -54,6 +55,21 @@ trait HasApproval
             $employee = $user?->employee?->fullname_first ?? "SYSTEM ADMINISTRATOR";
             return  $employee . ' - ' . $approval['status'] . ' - ' . ($approval['no_of_days_approved_from_the_date_filled'] ?? '0');
         })->implode(", ");
+    }
+
+    public function getEmployeeDetailsAttribute()
+    {
+        if (!$this->created_by) {
+            return null;
+        }
+
+        $token = request()->bearerToken();
+        if (!$token) {
+            return null;
+        }
+
+        $employeeDetails = HrmsService::getEmployeeDetails($token, [$this->created_by]);
+        return $employeeDetails[0] ?? null;
     }
 
     /**
@@ -125,9 +141,7 @@ trait HasApproval
         $this->save();
         $this->refresh();
     }
-    public function setRequestStatus(?string $newStatus)
-    {
-    }
+    public function setRequestStatus(?string $newStatus) {}
     public function requestStatusCompleted(): bool
     {
         // DEFAULT IDENTIFIER IF REQUEST STATUS HAS ALREADY ENDED
