@@ -57,7 +57,7 @@ class StoreRequestWithdrawalRequest extends FormRequest
                     $index = explode('.', $attribute)[1];
                     $itemId = $this->items[$index]['item_id'] ?? null;
                     $warehouseId = $this->warehouse_id;
-                    $uom_id = $this->uom_id;
+                    $uom_id = $this->items[$index]['uom_id'];
                     // STOCKIN
                     $stockIns = WarehouseStockTransactions::where('warehouse_id', $warehouseId)
                         ->where('item_id', $itemId)
