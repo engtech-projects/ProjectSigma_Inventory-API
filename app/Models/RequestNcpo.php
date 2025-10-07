@@ -27,6 +27,7 @@ class RequestNcpo extends Model
         'justification',
         'created_by',
         'approvals',
+        'request_status',
         'metadata',
     ];
     protected $casts = [

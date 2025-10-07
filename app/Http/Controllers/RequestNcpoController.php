@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RequestStatuses;
 use App\Http\Requests\StoreNcpoRequest;
 use App\Http\Resources\RequestNcpoDetailedResource;
 use App\Http\Resources\RequestNcpoListingResource;
@@ -38,6 +39,7 @@ class RequestNcpoController extends Controller
                 'po_id' => $validated['po_id'],
                 'created_by' => auth()->user()->id,
                 'approvals' => $validated['approvals'],
+                'request_status' => RequestStatuses::PENDING->value,
             ]);
             $ncpo->items()->createMany(
                 collect($validated['items'])->map(fn ($item) => [
