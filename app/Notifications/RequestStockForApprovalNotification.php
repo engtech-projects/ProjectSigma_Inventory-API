@@ -62,7 +62,7 @@ class RequestStockForApprovalNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => "A new BOM request needs your approval.",
+            'message' => "A new requisition slip request needs your approval.",
             'module' => "Inventory",
             'request_type' => ApprovalModels::RequestRequisitionSlip->name,
             'request_id' => $this->model->id,
