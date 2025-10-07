@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RequestStatuses;
 use App\Http\Requests\StoreNcpoRequest;
 use App\Http\Resources\RequestNcpoDetailedResource;
 use App\Http\Resources\RequestNcpoListingResource;
 use App\Http\Resources\RequestNcpoResource;
 use App\Models\RequestNcpo;
-use App\Notifications\RequestNcpoForApprovalNotification;
+use App\Notifications\RequestNCPOForApprovalNotification;
 use Illuminate\Support\Facades\DB;
 
 class RequestNcpoController extends Controller
@@ -38,6 +39,7 @@ class RequestNcpoController extends Controller
                 'po_id' => $validated['po_id'],
                 'created_by' => auth()->user()->id,
                 'approvals' => $validated['approvals'],
+                'request_status' => RequestStatuses::PENDING->value,
             ]);
             $ncpo->items()->createMany(
                 collect($validated['items'])->map(fn ($item) => [
@@ -47,7 +49,7 @@ class RequestNcpoController extends Controller
             );
             return $ncpo->load('items');
         });
-        $ncpo->notifyNextApprover(RequestNcpoForApprovalNotification::class);
+        $ncpo->notifyNextApprover(RequestNCPOForApprovalNotification::class);
         return RequestNcpoResource::make($ncpo)->additional([
             'message' => 'Request NCPO created successfully.',
             'success' => true,
@@ -55,14 +57,46 @@ class RequestNcpoController extends Controller
     }
     public function show(RequestNcpo $resource)
     {
-        $resource->load([
-            'items.item',
-            'purchaseOrder',
-        ]);
+        $resource->load(['items.item','items.supplier','items.changedUom','purchaseOrder']);
         return RequestNcpoDetailedResource::make($resource)
             ->additional([
                 'message' => 'Request NCPO retrieved successfully.',
                 'success' => true,
             ]);
+    }
+    public function myRequests()
+    {
+        $fetchData = RequestNcpo::with('purchaseOrder.requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip')
+        ->latest()
+        ->myRequests()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestNcpoListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request NCPOs Successfully Fetched.",
+        ]);
+    }
+    public function allRequests()
+    {
+        $fetchData = RequestNcpo::with('purchaseOrder.requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip')
+            ->latest()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestNcpoListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request NCPOs Successfully Fetched.",
+        ]);
+    }
+    public function myApprovals()
+    {
+        $fetchData = RequestNcpo::with('purchaseOrder.requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip')
+        ->latest()
+        ->myApprovals()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestNcpoListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request NCPO Approvals Successfully Fetched.",
+        ]);
     }
 }

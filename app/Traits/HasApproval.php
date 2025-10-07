@@ -125,9 +125,6 @@ trait HasApproval
         $this->save();
         $this->refresh();
     }
-    public function setRequestStatus(?string $newStatus)
-    {
-    }
     public function requestStatusCompleted(): bool
     {
         // DEFAULT IDENTIFIER IF REQUEST STATUS HAS ALREADY ENDED

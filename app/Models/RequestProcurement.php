@@ -82,4 +82,20 @@ class RequestProcurement extends Model
             ->sortByDesc('created_at')
             ->values();
     }
+    public function getNcpoAttribute()
+    {
+        if (!$this->relationLoaded('priceQuotations')) {
+            return collect();
+        }
+        return $this->priceQuotations
+            ->loadMissing(['canvassSummaries.purchaseOrder.ncpos'])
+            ->flatMap(fn ($pq) => $pq->canvassSummaries)
+            ->map(fn ($cs) => $cs->purchaseOrder)
+            ->filter()
+            ->flatMap(fn ($po) => $po->ncpos ?? collect())
+            ->filter()
+            ->unique('id')
+            ->sortByDesc('created_at')
+            ->values();
+    }
 }

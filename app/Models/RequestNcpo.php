@@ -27,6 +27,7 @@ class RequestNcpo extends Model
         'justification',
         'created_by',
         'approvals',
+        'request_status',
         'metadata',
     ];
     protected $casts = [
@@ -63,7 +64,6 @@ class RequestNcpo extends Model
     {
         return $this->purchaseOrder?->requestCanvassSummary?->grand_total_amount ?? 0;
     }
-
     /**
      * ==================================================
      * MODEL FUNCTIONS

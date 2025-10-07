@@ -21,6 +21,11 @@ class StoreNcpoRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        if (gettype($this->approvals) == "string") {
+            $this->merge([
+                "approvals" => json_decode($this->approvals, true)
+            ]);
+        }
         if ($poId = $this->input('po_id')) {
             $canvassSummaryId = RequestPurchaseOrder::where('id', $poId)->value('request_canvass_summary_id');
             $this->validItems = $canvassSummaryId
@@ -35,7 +40,6 @@ class StoreNcpoRequest extends FormRequest
             'date' => 'required|date',
             'po_id' => 'required|exists:request_purchase_orders,id',
             'justification' => 'required|string',
-            'approvals' => 'nullable|array',
             'items' => 'required|array',
             'items.*.item_id' => [
                 'required',
