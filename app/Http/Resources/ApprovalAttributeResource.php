@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Services\ApiServices\HrmsService;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -35,12 +36,14 @@ class ApprovalAttributeResource extends JsonResource
         $user = User::with('employee')->find($approval['user_id'] ?? null);
         return [
             'type' => $approval['type'] ?? null,
-            'user_id' => $approval['user_id'] ?? null,
-            'user_name' => $user?->employee?->fullname_first ?? $user?->name ?? 'Unknown User',
             'status' => $approval['status'] ?? null,
+            'user_id' => $approval['user_id'] ?? null,
+            'remarks' => $approval['remarks'] ?? null,
             'date_approved' => $approval['date_approved'] ?? null,
             'date_denied' => $approval['date_denied'] ?? null,
-            'remarks' => $approval['remarks'] ?? null,
+            'employee_name' => $user?->employee?->fullname_first ?? $user?->name ?? 'Unknown User',
+            'employee_position' => $approval['employee_position'] ?? null,
+            'user_name' => $user?->name ?? 'Unknown User',
         ];
     }
 }
