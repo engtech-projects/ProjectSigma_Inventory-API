@@ -19,6 +19,7 @@ class RequestPurchaseOrderDetailedResource extends JsonResource
         $itemsWithChanges = $ncpoService->getItemsWithChanges($this->resource);
         return [
             'id' => $this->id,
+            'is_prepayment' => $this->is_prepayment,
             'transaction_date' => $this->createdAtDateHuman,
             'po_number' => $this->po_number,
             'rs_number' => $this->requisition_slip?->reference_no,
