@@ -144,31 +144,6 @@ class RequestPurchaseOrder extends Model
     {
         return $this->requisitionSlip?->id;
     }
-
-    // public function getItemsAttribute()
-    // {
-    //     $requisitionItems = $this->requisitionSlip?->items ?? collect();
-    //     $pqItems          = $this->priceQuotation?->items ?? collect();
-    //     $csItems          = $this->requestCanvassSummary?->items ?? collect();
-    //     return $csItems->map(function ($csItem) use ($requisitionItems, $pqItems) {
-    //         $reqItem = $requisitionItems->firstWhere('item_id', $csItem->item_id);
-    //         $pqItem  = $pqItems->firstWhere('item_id', $csItem->item_id);
-
-    //         return (object) [
-    //             'id'                   => $reqItem?->id,
-    //             'item_id'              => $csItem->item_id,
-    //             'item_description'     => $reqItem?->item_description,
-    //             'specification'        => $reqItem?->specification,
-    //             'quantity'             => round($reqItem?->quantity ?? 0, 2),
-    //             'uom'                  => $reqItem?->uom_name,
-    //             'actual_brand_purchase' => $pqItem?->actual_brand,
-    //             'unit_price'           => $csItem->unit_price,
-    //             'net_amount'           => round($csItem->total_amount ?? 0, 2),
-    //             'net_vat'              => round($csItem->net_vat ?? 0, 2),
-    //             'input_vat'            => round($csItem->input_vat ?? 0, 2),
-    //         ];
-    //     });
-    // }
     public function getItemsAttribute()
     {
         $requisitionItems = $this->requisitionSlip?->items ?? collect();

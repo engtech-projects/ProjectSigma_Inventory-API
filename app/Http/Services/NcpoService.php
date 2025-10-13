@@ -28,7 +28,6 @@ class NcpoService
                 'rs_id' => $requestNcpo->purchaseOrder->rs_id,
             ];
             $mrr->save();
-
             $poMetadata = $requestNcpo->purchaseOrder->metadata ?? [];
             $poItems = $poMetadata['items'] ?? [];
 
