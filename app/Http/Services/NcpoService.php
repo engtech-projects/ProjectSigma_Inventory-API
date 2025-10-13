@@ -28,23 +28,31 @@ class NcpoService
                 'rs_id' => $requestNcpo->purchaseOrder->rs_id,
             ];
             $mrr->save();
-            $mappedItems = $requestNcpo->items->map(fn ($item) => [
-                'transaction_material_receiving_id' => $mrr->id,
-                'item_id'              => $item->item_id,
-                'specification'        => $item->changed_specification,
-                'actual_brand_purchase' => $item->changed_brand,
-                'requested_quantity'   => $item->changed_qty,
-                'quantity'             => $item->changed_qty,
-                'uom_id'               => $item->changed_uom_id,
-                'unit_price'           => $item->changed_unit_price,
-                'serve_status'         => ServeStatus::UNSERVED,
-                'remarks'              => $item->remarks,
-                'metadata'             => [
-                    'cancel_item' => $item->cancel_item ?? false,
-                    'ncpo_id' => $requestNcpo->id,
-                    'ncpo_item_ids' => $requestNcpo->items->pluck('id')->toArray(),
-                ],
-            ]);
+            $poMetadata = $requestNcpo->purchaseOrder->metadata ?? [];
+            $poItems = $poMetadata['items'] ?? [];
+            $mappedItems = $requestNcpo->items->map(function ($item) use ($mrr, $requestNcpo, $poItems) {
+                // Find matching item in PO metadata by item_id
+                $poItem = collect($poItems)->firstWhere('item_id', $item->item_id);
+                $remarksFromPo = $poItem['remarks'] ?? null;
+                $originalQuantity = $poItem['quantity'] ?? $item->changed_qty;
+                return [
+                    'transaction_material_receiving_id' => $mrr->id,
+                    'item_id'              => $item->item_id,
+                    'specification'        => $item->changed_specification,
+                    'actual_brand_purchase' => $item->changed_brand,
+                    'requested_quantity'   => $originalQuantity,
+                    'quantity'             => $item->changed_qty,
+                    'uom_id'               => $item->changed_uom_id,
+                    'unit_price'           => $item->changed_unit_price,
+                    'serve_status'         => ServeStatus::UNSERVED,
+                    'remarks'              => $remarksFromPo,
+                    'metadata'             => [
+                        'cancel_item' => $item->cancel_item ?? false,
+                        'ncpo_id' => $requestNcpo->id,
+                        'ncpo_item_ids' => $requestNcpo->items->pluck('id')->toArray(),
+                    ],
+                ];
+            });
             $mrr->items()->createMany($mappedItems->toArray());
             return $mrr;
         });

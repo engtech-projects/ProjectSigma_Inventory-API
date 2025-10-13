@@ -58,6 +58,13 @@ class UpdatePurchaseProcessingStatusRequest extends FormRequest
                     "Invalid status transition. Valid next states are: $validNext"
                 );
             }
+            if ($po->processing_status === PurchaseOrderProcessingStatus::TURNED_OVER) {
+                $validator->errors()->add(
+                    'processing_status',
+                    'MRR has already been issued for this PO.'
+                );
+                return;
+            }
         });
     }
 }
