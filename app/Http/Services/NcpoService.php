@@ -30,13 +30,11 @@ class NcpoService
             $mrr->save();
             $poMetadata = $requestNcpo->purchaseOrder->metadata ?? [];
             $poItems = $poMetadata['items'] ?? [];
-
             $mappedItems = $requestNcpo->items->map(function ($item) use ($mrr, $requestNcpo, $poItems) {
                 // Find matching item in PO metadata by item_id
                 $poItem = collect($poItems)->firstWhere('item_id', $item->item_id);
                 $remarksFromPo = $poItem['remarks'] ?? null;
                 $originalQuantity = $poItem['quantity'] ?? $item->changed_qty;
-
                 return [
                     'transaction_material_receiving_id' => $mrr->id,
                     'item_id'              => $item->item_id,
@@ -69,16 +67,16 @@ class NcpoService
         $metadata = $purchaseOrder->metadata ?? [];
         $items = collect($metadata['items'] ?? []);
         $allChanges = $purchaseOrder->ncpos
-            ->flatMap(fn($ncpo) => $ncpo->items ?? collect())
+            ->flatMap(fn ($ncpo) => $ncpo->items ?? collect())
             ->sortByDesc('created_at')
             ->groupBy('item_id')
-            ->map(fn($group) => $group->first());
+            ->map(fn ($group) => $group->first());
         $approvedChanges = $purchaseOrder->ncpos
-            ->filter(fn($ncpo) => strtolower($ncpo->request_status) === 'approved')
-            ->flatMap(fn($ncpo) => $ncpo->items ?? collect())
+            ->filter(fn ($ncpo) => strtolower($ncpo->request_status) === 'approved')
+            ->flatMap(fn ($ncpo) => $ncpo->items ?? collect())
             ->sortByDesc('created_at')
             ->groupBy('item_id')
-            ->map(fn($group) => $group->first());
+            ->map(fn ($group) => $group->first());
         return $items->map(function ($item) use ($purchaseOrder, $allChanges, $approvedChanges) {
             $original = $this->mapOriginalItem($item, $purchaseOrder);
             $result = ['original' => $original];
