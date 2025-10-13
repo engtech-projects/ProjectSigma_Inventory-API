@@ -144,28 +144,29 @@ class RequestPurchaseOrder extends Model
     {
         return $this->requisitionSlip?->id;
     }
-
     public function getItemsAttribute()
     {
         $requisitionItems = $this->requisitionSlip?->items ?? collect();
-        $pqItems          = $this->priceQuotation?->items ?? collect();
         $csItems          = $this->requestCanvassSummary?->items ?? collect();
-        return $csItems->map(function ($csItem) use ($requisitionItems, $pqItems) {
-            $reqItem = $requisitionItems->firstWhere('item_id', $csItem->item_id);
-            $pqItem  = $pqItems->firstWhere('item_id', $csItem->item_id);
 
+        return collect($this->metadata['items'] ?? [])->map(function ($item) use ($requisitionItems, $csItems) {
+            $reqItem = $requisitionItems->firstWhere('item_id', $item['item_id']);
+            $csItem  = $csItems->firstWhere('item_id', $item['item_id']);
             return (object) [
-                'id'                   => $reqItem?->id,
-                'item_id'              => $csItem->item_id,
-                'item_description'     => $reqItem?->item_description,
-                'specification'        => $reqItem?->specification,
-                'quantity'             => round($reqItem?->quantity ?? 0, 2),
-                'uom'                  => $reqItem?->uom_name,
-                'actual_brand_purchase' => $pqItem?->actual_brand,
-                'unit_price'           => $csItem->unit_price,
-                'net_amount'           => round($csItem->total_amount ?? 0, 2),
-                'net_vat'              => round($csItem->net_vat ?? 0, 2),
-                'input_vat'            => round($csItem->input_vat ?? 0, 2),
+                'id'                   => $item['id'] ?? null,
+                'item_id'              => $item['item_id'],
+                'item_description'     => $item['item_description'],
+                'specification'        => $item['specification'],
+                'requested_quantity'   => $reqItem?->quantity,
+                'quantity'             => round($item['quantity'], 2),
+                'uom'                  => $item['uom'],
+                'uom_id'               => $item['uom_id'],
+                'actual_brand_purchase' => $item['actual_brand_purchase'],
+                'unit_price'           => $item['unit_price'],
+                'remarks'              => $csItem?->remarks,
+                'net_amount'           => round($item['net_amount'], 2),
+                'net_vat'              => round($item['net_vat'], 2),
+                'input_vat'            => round($item['input_vat'], 2),
             ];
         });
     }
