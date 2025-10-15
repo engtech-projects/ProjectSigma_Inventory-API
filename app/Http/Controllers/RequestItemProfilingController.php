@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\ItemProfileActiveStatus;
 use App\Enums\RequestStatuses;
+use App\Http\Requests\ApprovedItemProfilesFilter;
 use App\Http\Requests\StoreRequestItemProfilingRequest;
 use App\Models\RequestItemProfiling;
 use App\Http\Requests\UpdateRequestItemProfilingRequest;
@@ -43,16 +44,17 @@ class RequestItemProfilingController extends Controller
         ], JsonResponse::HTTP_OK);
     }
 
-    public function get()
+    public function get(ApprovedItemProfilesFilter $request)
     {
-        $main = ItemProfile::IsApproved()->paginate(10);
-        $collection = ItemProfileResource::collection($main)->response()->getData(true);
-
-        return new JsonResponse([
-            "success" => true,
+        $filters = $request->validated();
+        $main = ItemProfile::IsApproved()
+        ->simpleSearch($filters['key'] ?? null)
+        ->paginate(10);
+        return ItemProfileResource::collection($main)
+        ->additional([
             "message" => "Successfully fetched.",
-            "data" => $collection,
-        ], JsonResponse::HTTP_OK);
+            "success" => true,
+        ]);
     }
 
     /**
