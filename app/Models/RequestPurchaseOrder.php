@@ -55,6 +55,12 @@ class RequestPurchaseOrder extends Model
     {
         return $this->belongsTo(RequestSupplier::class, 'supplier_id');
     }
+    public function mrrNcpoItems()
+    {
+        return TransactionMaterialReceivingItem::whereHas('transactionMaterialReceiving', function ($query) {
+            $query->where('metadata->ncpo_id', $this->id);
+        });
+    }
     /**
      * ==================================================
      * MODEL scopes

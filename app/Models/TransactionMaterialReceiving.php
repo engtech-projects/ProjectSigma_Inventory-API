@@ -43,6 +43,10 @@ class TransactionMaterialReceiving extends Model
     {
         return $this->belongsTo(RequestSupplier::class);
     }
+    public function requisitionSlip()
+    {
+        return $this->belongsTo(RequestRequisitionSlip::class);
+    }
     public function evaluatedBy()
     {
         return $this->belongsTo(User::class, 'evaluated_by_id');
@@ -64,6 +68,10 @@ class TransactionMaterialReceiving extends Model
     {
         return $this->metadata['is_petty_cash'] ?? false;
     }
+    public function getIsNcpoAttribute()
+    {
+        return $this->metadata['is_ncpo'] ?? false;
+    }
     public function getWarehouseNameAttribute()
     {
         return $this->warehouse->name;
@@ -71,6 +79,11 @@ class TransactionMaterialReceiving extends Model
     public function getServeStatusAttribute()
     {
         return $this->items->where('acceptance_status', '=', ReceivingAcceptanceStatus::PENDING->value)->isEmpty() ? ServeStatus::SERVED->value : ServeStatus::UNSERVED->value;
+    }
+    public function getRequisitionSlipAttribute()
+    {
+        $rsId = $this->metadata['rs_id'] ?? null;
+        return $rsId ? RequestRequisitionSlip::find($rsId) : null;
     }
     public static function generateNewMrrReferenceNumber()
     {
@@ -80,5 +93,17 @@ class TransactionMaterialReceiving extends Model
         $lastRefNo = $lastMRR ? collect(explode('-', $lastMRR->reference_no))->last() : 0;
         $newNumber = str_pad($lastRefNo + 1, 6, '0', STR_PAD_LEFT);
         return "MRR-{$year}-{$newNumber}";
+    }
+    public function getNetVatAttribute()
+    {
+        return ($this->unit_price * $this->quantity) ?? 0;
+    }
+    public function getInputVatAttribute()
+    {
+        return ($this->unit_price * $this->quantity) ?? 0;
+    }
+    public function getGrandTotalAttribute()
+    {
+        return $this->items->sum('grand_total');
     }
 }
