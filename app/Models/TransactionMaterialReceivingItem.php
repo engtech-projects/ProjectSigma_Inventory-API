@@ -68,4 +68,18 @@ class TransactionMaterialReceivingItem extends Model
     {
         return $this->item->item_description;
     }
+    public function getNetVatAttribute(): float
+    {
+        $total = $this->quantity * $this->unit_price;
+        return $total > 0 ? round($total / 1.12, 2) : 0;
+    }
+    public function getInputVatAttribute(): float
+    {
+        $total = $this->quantity * $this->unit_price;
+        return $total > 0 ? round($total - ($total / 1.12), 2) : 0;
+    }
+    public function getGrandTotalAttribute()
+    {
+        return $this->net_vat + $this->input_vat;
+    }
 }
