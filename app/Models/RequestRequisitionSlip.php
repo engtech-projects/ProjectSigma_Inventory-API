@@ -86,6 +86,13 @@ class RequestRequisitionSlip extends Model
             default => null,
         };
     }
+    public function getServeStatusAttribute()
+    {
+        return $this->requestProcurement?->loadMissing([
+            'priceQuotations.supplier',
+            'priceQuotations.canvassSummaries.purchaseOrder.ncpos',
+        ])->serve_status;
+    }
     /**
      * ==================================================
      * MODEL RELATIONSHIPS

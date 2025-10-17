@@ -71,4 +71,56 @@ class RequestRequisitionSlipItems extends Model
             'item_id'            // Local key on price_quotation_items
         );
     }
+    public function getProcessingDetailsAttribute()
+    {
+        $requestProcurement = $this->requisitionSlip->requestProcurement;
+        if (!$requestProcurement) {
+            return null;
+        }
+        $requestProcurement->loadMissing([
+            'priceQuotations.supplier',
+            'priceQuotations.canvassSummaries.purchaseOrder.ncpos',
+        ]);
+        $priceQuotations = $requestProcurement->priceQuotations;
+        $relatedPQs = $priceQuotations->filter(
+            fn ($pq) =>
+            $pq->items->where('item_id', $this->item_id)->isNotEmpty()
+        );
+        return [
+            'price_quotations_count' => $relatedPQs->count(),
+            'canvass_summaries' => $relatedPQs->flatMap(
+                fn ($pq) =>
+                $pq->canvassSummaries->map(fn ($cs) => [
+                    'id' => $cs->id,
+                    'suppliers' => $pq->supplier?->company_name,
+                    'status' => $cs->request_status,
+                ])
+            )->values(),
+            'purchase_orders' => $relatedPQs->flatMap(
+                fn ($pq) =>
+                $pq->canvassSummaries
+                    ->pluck('purchaseOrder')
+                    ->filter()
+                    ->sortByDesc('created_at')
+                    ->map(fn ($po) => [
+                        'id' => $po->id,
+                        'request_status' => $po->request_status,
+                        'processing_status' => $po->processing_status,
+                    ])
+            )->values(),
+            'ncpos' => $relatedPQs->flatMap(
+                fn ($pq) =>
+                $pq->canvassSummaries->flatMap(
+                    fn ($cs) =>
+                    $cs->purchaseOrder?->ncpos?->map(fn ($ncpo) => [
+                        'id' => $ncpo->id,
+                        'request_status' => $ncpo->request_status,
+                        'justification' => $ncpo->justification,
+                        'new_po_total' => $ncpo->new_po_total,
+                        'original_total' => $ncpo->original_total,
+                    ]) ?? collect()
+                )
+            )->values(),
+        ];
+    }
 }
