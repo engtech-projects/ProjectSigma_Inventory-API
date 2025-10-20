@@ -14,6 +14,9 @@ class RequisitionSlipListingResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            ...parent::toArray($request),
+            "serve_status" => $this->serve_status,
+        ];
     }
 }

@@ -31,7 +31,7 @@ class RequisitionSlipItemsResource extends JsonResource
             "item_description" => $this->item_description,
             "uom" => $this->uom_name,
             "is_approved" => $this->is_approved,
-            "processing_details" => $this->processingDetails,
+            "processing_details" => $this->processing_details,
         ];
     }
 }

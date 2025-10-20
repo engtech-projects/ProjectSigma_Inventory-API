@@ -79,48 +79,55 @@ class RequestRequisitionSlipItems extends Model
         }
         $requestProcurement->loadMissing([
             'priceQuotations.supplier',
+            'priceQuotations.items' => fn($query) => $query->where('item_id', $this->item_id),
             'priceQuotations.canvassSummaries.purchaseOrder.ncpos',
         ]);
-        $priceQuotations = $requestProcurement->priceQuotations;
-        $relatedPQs = $priceQuotations->filter(
-            fn ($pq) =>
-            $pq->items->where('item_id', $this->item_id)->isNotEmpty()
-        );
-        return [
-            'price_quotations_count' => $relatedPQs->count(),
-            'canvass_summaries' => $relatedPQs->flatMap(
-                fn ($pq) =>
-                $pq->canvassSummaries->map(fn ($cs) => [
-                    'id' => $cs->id,
-                    'suppliers' => $pq->supplier?->company_name,
-                    'status' => $cs->request_status,
-                ])
-            )->values(),
-            'purchase_orders' => $relatedPQs->flatMap(
-                fn ($pq) =>
-                $pq->canvassSummaries
-                    ->pluck('purchaseOrder')
-                    ->filter()
-                    ->sortByDesc('created_at')
-                    ->map(fn ($po) => [
-                        'id' => $po->id,
-                        'request_status' => $po->request_status,
-                        'processing_status' => $po->processing_status,
-                    ])
-            )->values(),
-            'ncpos' => $relatedPQs->flatMap(
-                fn ($pq) =>
-                $pq->canvassSummaries->flatMap(
-                    fn ($cs) =>
-                    $cs->purchaseOrder?->ncpos?->map(fn ($ncpo) => [
-                        'id' => $ncpo->id,
-                        'request_status' => $ncpo->request_status,
-                        'justification' => $ncpo->justification,
-                        'new_po_total' => $ncpo->new_po_total,
-                        'original_total' => $ncpo->original_total,
-                    ]) ?? collect()
-                )
-            )->values(),
-        ];
+        $relatedPQs = $requestProcurement->priceQuotations
+            ->filter(fn($pq) => $pq->items->isNotEmpty());
+        $details = ['price_quotations_count' => $relatedPQs->count()];
+        if ($relatedPQs->isEmpty()) {
+            return $details;
+        }
+        $canvassSummaries = $relatedPQs
+            ->flatMap(fn($pq) => $pq->canvassSummaries->map(fn($cs) => [
+                'id' => $cs->id,
+                'suppliers' => $pq->supplier?->company_name,
+                'status' => $cs->request_status,
+            ]))
+            ->values();
+        if ($canvassSummaries->isNotEmpty()) {
+            $details['canvass_summaries'] = $canvassSummaries;
+        }
+        $purchaseOrders = $relatedPQs
+            ->flatMap(fn($pq) => $pq->canvassSummaries->pluck('purchaseOrder'))
+            ->filter()
+            ->unique('id')
+            ->sortByDesc('created_at')
+            ->map(fn($po) => [
+                'id' => $po->id,
+                'request_status' => $po->request_status,
+                'processing_status' => $po->processing_status,
+            ])
+            ->values();
+        if ($purchaseOrders->isNotEmpty()) {
+            $details['purchase_orders'] = $purchaseOrders;
+        }
+        $ncpos = $relatedPQs
+            ->flatMap(fn($pq) => $pq->canvassSummaries)
+            ->pluck('purchaseOrder')
+            ->filter()
+            ->flatMap(fn($po) => $po->ncpos ?? collect())
+            ->map(fn($ncpo) => [
+                'id' => $ncpo->id,
+                'request_status' => $ncpo->request_status,
+                'justification' => $ncpo->justification,
+                'new_po_total' => $ncpo->new_po_total,
+                'original_total' => $ncpo->original_total,
+            ])
+            ->values();
+        if ($ncpos->isNotEmpty()) {
+            $details['ncpos'] = $ncpos;
+        }
+        return $details;
     }
 }
