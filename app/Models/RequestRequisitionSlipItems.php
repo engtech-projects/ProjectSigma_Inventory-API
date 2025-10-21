@@ -79,17 +79,17 @@ class RequestRequisitionSlipItems extends Model
         }
         $requestProcurement->loadMissing([
             'priceQuotations.supplier',
-            'priceQuotations.items' => fn($query) => $query->where('item_id', $this->item_id),
+            'priceQuotations.items' => fn ($query) => $query->where('item_id', $this->item_id),
             'priceQuotations.canvassSummaries.purchaseOrder.ncpos',
         ]);
         $relatedPQs = $requestProcurement->priceQuotations
-            ->filter(fn($pq) => $pq->items->isNotEmpty());
+            ->filter(fn ($pq) => $pq->items->isNotEmpty());
         $details = ['price_quotations_count' => $relatedPQs->count()];
         if ($relatedPQs->isEmpty()) {
             return $details;
         }
         $canvassSummaries = $relatedPQs
-            ->flatMap(fn($pq) => $pq->canvassSummaries->map(fn($cs) => [
+            ->flatMap(fn ($pq) => $pq->canvassSummaries->map(fn ($cs) => [
                 'id' => $cs->id,
                 'suppliers' => $pq->supplier?->company_name,
                 'status' => $cs->request_status,
@@ -99,11 +99,11 @@ class RequestRequisitionSlipItems extends Model
             $details['canvass_summaries'] = $canvassSummaries;
         }
         $purchaseOrders = $relatedPQs
-            ->flatMap(fn($pq) => $pq->canvassSummaries->pluck('purchaseOrder'))
+            ->flatMap(fn ($pq) => $pq->canvassSummaries->pluck('purchaseOrder'))
             ->filter()
             ->unique('id')
             ->sortByDesc('created_at')
-            ->map(fn($po) => [
+            ->map(fn ($po) => [
                 'id' => $po->id,
                 'request_status' => $po->request_status,
                 'processing_status' => $po->processing_status,
@@ -113,11 +113,11 @@ class RequestRequisitionSlipItems extends Model
             $details['purchase_orders'] = $purchaseOrders;
         }
         $ncpos = $relatedPQs
-            ->flatMap(fn($pq) => $pq->canvassSummaries)
+            ->flatMap(fn ($pq) => $pq->canvassSummaries)
             ->pluck('purchaseOrder')
             ->filter()
-            ->flatMap(fn($po) => $po->ncpos ?? collect())
-            ->map(fn($ncpo) => [
+            ->flatMap(fn ($po) => $po->ncpos ?? collect())
+            ->map(fn ($ncpo) => [
                 'id' => $ncpo->id,
                 'request_status' => $ncpo->request_status,
                 'justification' => $ncpo->justification,
