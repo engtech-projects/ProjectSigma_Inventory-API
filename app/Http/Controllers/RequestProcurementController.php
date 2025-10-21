@@ -16,7 +16,11 @@ class RequestProcurementController extends Controller
     use CheckAccessibility;
     public function index()
     {
-        $procurements = RequestProcurement::with('requisitionSlip')->paginate(10);
+        $procurements = RequestProcurement::query()
+            ->isServed()
+            ->with('requisitionSlip')
+            ->latest()
+            ->paginate(10);
         return RequestProcurementListingResource::collection($procurements)
             ->additional([
                 'success' => true,
@@ -49,16 +53,20 @@ class RequestProcurementController extends Controller
         $user = Auth::user();
         $userAccessibilitiesNames = $user->accessibilities_name;
         $isUserSetCanvasser = $this->checkUserAccessManual($userAccessibilitiesNames, [AccessibilityInventory::INVENTORY_PROCUREMENT_PROCUREMENTREQUESTS_SETCANVASSER->value]) || Auth::user()->type == UserTypes::ADMINISTRATOR->value;
-        $procurements = RequestProcurement::with('requisitionSlip')
-        ->isUnserved()
-        ->when($isUserSetCanvasser, function ($query) use ($userId) {
-            return $query->isCanvasser($userId);
-        })
-        ->paginate(10);
+
+        $procurements = RequestProcurement::query()
+            ->isUnserved()
+            ->when(!$isUserSetCanvasser, function ($query) use ($userId) {
+                return $query->isCanvasser($userId);
+            })
+            ->latest()
+            ->with('requisitionSlip')
+            ->paginate(10);
+
         return RequestProcurementListingResource::collection($procurements)
-        ->additional([
-            'success' => true,
-            'message' => 'Unserved request procurements fetched successfully.',
-        ]);
+            ->additional([
+                'success' => true,
+                'message' => 'Unserved request procurements fetched successfully.',
+            ]);
     }
 }

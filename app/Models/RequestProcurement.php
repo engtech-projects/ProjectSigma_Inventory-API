@@ -48,6 +48,10 @@ class RequestProcurement extends Model
     {
         return $query->where('serve_status', 'unserved');
     }
+    public function scopeIsServed($query)
+    {
+        return $query->where('serve_status', 'served');
+    }
 
     public function scopeIsCanvasser($query, $userId)
     {
