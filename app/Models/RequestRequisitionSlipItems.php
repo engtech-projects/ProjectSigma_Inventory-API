@@ -77,7 +77,7 @@ class RequestRequisitionSlipItems extends Model
         $details = [];
         $pettyCash = TransactionMaterialReceiving::where('metadata->rs_id', $this->requisitionSlip->id)
         ->where('metadata->is_petty_cash', true)
-        ->with(['items' => fn($query) => $query->where('item_id', $this->item_id)])
+        ->with(['items' => fn ($query) => $query->where('item_id', $this->item_id)])
         ->get();
         $pettyCash = $pettyCash->filter(fn ($mrr) => $mrr->items->where('item_id', $this->item_id)->isNotEmpty());
 
