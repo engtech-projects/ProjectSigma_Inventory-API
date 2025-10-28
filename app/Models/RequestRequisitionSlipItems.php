@@ -74,8 +74,22 @@ class RequestRequisitionSlipItems extends Model
     public function getProcessingDetailsAttribute()
     {
         $requestProcurement = $this->requisitionSlip->requestProcurement;
+        $details = [];
+        $pettyCash = TransactionMaterialReceiving::where('metadata->rs_id', $this->requisitionSlip->id)
+        ->where('metadata->is_petty_cash', true)
+        ->with(['items' => fn($query) => $query->where('item_id', $this->item_id)])
+        ->get();
+        $pettyCash = $pettyCash->filter(fn ($mrr) => $mrr->items->where('item_id', $this->item_id)->isNotEmpty());
+
+        if (!$pettyCash->isEmpty()) {
+            $details['petty_cash'] = $pettyCash->flatMap(fn ($mrr) => $mrr->items->where('item_id', $this->item_id)->map(fn ($item) => [
+                        'acceptance_status' => $item->acceptance_status,
+                        'serve_status' => $item->serve_status,
+                        'remarks' => $item->remarks,
+                    ]))->values()->toArray();
+        }
         if (!$requestProcurement) {
-            return null;
+            return !empty($details) ? $details : null;
         }
         $requestProcurement->loadMissing([
             'priceQuotations.supplier',
@@ -84,7 +98,7 @@ class RequestRequisitionSlipItems extends Model
         ]);
         $relatedPQs = $requestProcurement->priceQuotations
             ->filter(fn ($pq) => $pq->items->isNotEmpty());
-        $details = ['price_quotations_count' => $relatedPQs->count()];
+        $details['price_quotations_count'] = $relatedPQs->count();
         if ($relatedPQs->isEmpty()) {
             return $details;
         }
