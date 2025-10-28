@@ -226,6 +226,6 @@ class ItemProfile extends Model
     public function scopeSimpleSearch(Builder $query, $key)
     {
         // TEMPORARY: Simple search across multiple fields
-        $query->where(DB::raw("CONCAT_WS(' ', item_code, item_description, specification)"), 'LIKE', "%{$key}%");
+        $query->whereRaw("CONCAT_WS(' ', item_code, item_description, specification) LIKE ?", ["%{$key}%"]);
     }
 }
