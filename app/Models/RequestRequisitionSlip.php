@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\RequestStatuses;
 use App\Enums\RSRemarksEnums;
+use App\Enums\ServeStatus;
 use App\Http\Services\MrrService;
 use App\Traits\HasApproval;
 use App\Traits\HasReferenceNumber;
@@ -88,11 +89,18 @@ class RequestRequisitionSlip extends Model
     }
     public function getServeStatusAttribute()
     {
-        return $this->requestProcurement?->loadMissing([
-            'priceQuotations.supplier',
-            'priceQuotations.canvassSummaries.purchaseOrder.ncpos',
-        ])->serve_status;
+        $relatedItems = TransactionMaterialReceivingItem::whereHas('transactionMaterialReceiving', function ($query) {
+            $query->where('metadata->rs_id', $this->id);
+        })->pluck('serve_status');
+
+        if ($relatedItems->isEmpty()) {
+            return null;
+        }
+        return $relatedItems->contains(ServeStatus::UNSERVED->value)
+            ? ServeStatus::UNSERVED->value
+            : ServeStatus::SERVED->value;
     }
+
     /**
      * ==================================================
      * MODEL RELATIONSHIPS
@@ -143,6 +151,10 @@ class RequestRequisitionSlip extends Model
     {
         return $this->belongsTo(SetupWarehouses::class, 'warehouse_id');
     }
+    public function transactionMaterialReceiving()
+    {
+        return $this->hasMany(TransactionMaterialReceiving::class, 'request_requisition_slip_id');
+    }
 
     /**
      * ==================================================
@@ -170,7 +182,7 @@ class RequestRequisitionSlip extends Model
     public function createProcurementRequest()
     {
         return $this->requestProcurement()->create([
-            'serve_status' => 'unserved'
+            'serve_status' => ServeStatus::UNSERVED->value
         ]);
     }
 }
