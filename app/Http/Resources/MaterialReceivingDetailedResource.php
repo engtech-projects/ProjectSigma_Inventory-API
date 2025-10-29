@@ -17,6 +17,8 @@ class MaterialReceivingDetailedResource extends JsonResource
         return [
             'id' => $this->id,
             'reference_no' => $this->reference_no,
+            'project_code' => $this->requisition_slip->project_department_name,
+            'equipment_no' => $this->requisition_slip->equipment_no,
             'supplier_id' => $this->supplier_id,
             'supplier' => $this->supplier,
             'supplier_name' => $this->supplier?->code_name,
@@ -26,7 +28,9 @@ class MaterialReceivingDetailedResource extends JsonResource
             'transaction_date' => $this->transaction_date,
             'evaluated_by' => $this->evaluated_by,
             'items' => MaterialReceivingItemDetailedResource::collection($this->items),
-            'grand_total' => $this->grand_total,
+            'net_vat' => number_format($this->items->sum('net_vat'), 2),
+            'input_vat' => number_format($this->items->sum('input_vat'), 2),
+            'grand_total' => number_format($this->items->sum('grand_total'), 2),
             'warehouse_name' => $this->warehouse_name,
         ];
     }

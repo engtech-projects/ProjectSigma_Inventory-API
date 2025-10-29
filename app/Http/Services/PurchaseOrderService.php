@@ -4,6 +4,7 @@ namespace App\Http\Services;
 
 use App\Enums\PurchaseOrderProcessingStatus;
 use App\Enums\ServeStatus;
+use App\Enums\ReceivingAcceptanceStatus;
 use App\Models\RequestCanvassSummary;
 use App\Models\RequestPurchaseOrder;
 use App\Models\TransactionMaterialReceiving;
@@ -127,5 +128,22 @@ class PurchaseOrderService
         $lastRefNo = $lastPO ? collect(explode('-', $lastPO->po_number))->last() : 0;
         $newNumber = str_pad($lastRefNo + 1, 6, '0', STR_PAD_LEFT);
         return "PO-{$year}-{$newNumber}";
+    }
+    public static function setServed(RequestPurchaseOrder $requestPurchaseOrder)
+    {
+        $mrrItemsQuery = $requestPurchaseOrder->mrrNcpoItems();
+        $allItemsAccepted = $mrrItemsQuery->get()->every(function ($item) {
+            return $item->acceptance_status === ReceivingAcceptanceStatus::ACCEPTED->value;
+        });
+        if (!$allItemsAccepted) {
+            throw new \Exception('Cannot mark Purchase Order as SERVED. Some items are still pending acceptance.');
+        }
+        $mrrItemsQuery->where('acceptance_status', ReceivingAcceptanceStatus::ACCEPTED->value)
+            ->update([
+                'serve_status' => ServeStatus::SERVED->value,
+            ]);
+        $requestPurchaseOrder->update([
+            'processing_status' => PurchaseOrderProcessingStatus::SERVED->value,
+        ]);
     }
 }

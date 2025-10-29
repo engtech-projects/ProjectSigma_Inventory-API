@@ -33,6 +33,7 @@ class RequisitionSlipDetailedResource extends JsonResource
             "next_smr" => $this->next_smr ?? "",
             "items" => $this->items,
             "request_stock_items" => RequisitionSlipItemsResource::collection($this->items),
+            "serve_status" => $this->serve_status,
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
         ];

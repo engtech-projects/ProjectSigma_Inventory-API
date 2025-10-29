@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class ItemProfile extends Model
 {
@@ -222,4 +223,9 @@ class ItemProfile extends Model
      * DYNAMIC SCOPES
      * ==================================================
      */
+    public function scopeSimpleSearch(Builder $query, $key)
+    {
+        // TEMPORARY: Simple search across multiple fields
+        $query->whereRaw("CONCAT_WS(' ', item_code, item_description, specification) LIKE ?", ["%{$key}%"]);
+    }
 }

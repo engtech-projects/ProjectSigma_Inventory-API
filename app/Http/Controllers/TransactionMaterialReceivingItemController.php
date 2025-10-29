@@ -48,7 +48,11 @@ class TransactionMaterialReceivingItemController extends Controller
         DB::transaction(function () use ($resource) {
             $resource->quantity = $resource->requested_quantity;
             $resource->acceptance_status = ReceivingAcceptanceStatus::ACCEPTED->value;
-            $resource->serve_status = ServeStatus::SERVED->value;
+            if ($resource->transactionMaterialReceiving->is_ncpo) {
+                $resource->serve_status = ServeStatus::UNSERVED->value;
+            } else {
+                $resource->serve_status = ServeStatus::SERVED->value;
+            }
             $resource->save();
             $resource->transactionMaterialReceiving->warehouseStockTransactions()->create([
                 'warehouse_id' => $resource->transactionMaterialReceiving->warehouse_id,
@@ -86,7 +90,11 @@ class TransactionMaterialReceivingItemController extends Controller
             $resource->quantity = $validatedData['quantity'];
             $resource->remarks = $validatedData['remarks'];
             $resource->acceptance_status = ReceivingAcceptanceStatus::ACCEPTED->value;
-            $resource->serve_status = ServeStatus::SERVED->value;
+            if ($resource->transactionMaterialReceiving->is_ncpo) {
+                $resource->serve_status = ServeStatus::UNSERVED->value;
+            } else {
+                $resource->serve_status = ServeStatus::SERVED->value;
+            }
             $resource->save();
             $resource->transactionMaterialReceiving->warehouseStockTransactions()->create([
                 'warehouse_id' => $resource->transactionMaterialReceiving->warehouse_id,
@@ -119,7 +127,7 @@ class TransactionMaterialReceivingItemController extends Controller
         $resource->quantity = 0;
         $resource->remarks = $validatedData['remarks'];
         $resource->acceptance_status = ReceivingAcceptanceStatus::REJECTED->value;
-        $resource->serve_status = ServeStatus::SERVED->value;
+        $resource->serve_status = ServeStatus::UNSERVED->value;
         $resource->save();
         // TO BE UPDATED LATER FOR TRANSFER TO RETURN ITEMS
         return response()->json([
