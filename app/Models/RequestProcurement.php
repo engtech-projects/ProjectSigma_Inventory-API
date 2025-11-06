@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ServeStatus;
 use App\Http\Traits\CheckAccessibility;
 use App\Traits\ModelHelpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,6 +31,10 @@ class RequestProcurement extends Model
     public function requisitionSlip()
     {
         return $this->belongsTo(RequestRequisitionSlip::class, 'request_requisition_slip_id');
+    }
+    public function requisitionSlipItems()
+    {
+        return $this->hasMany(RequestRequisitionSlipItems::class, 'request_requisition_slip_id');
     }
 
     public function canvasser()
@@ -102,4 +107,9 @@ class RequestProcurement extends Model
             ->sortByDesc('created_at')
             ->values();
     }
+    public function getIsUnservedAttribute()
+    {
+        return $this->serve_status === 'unserved';
+    }
+
 }
