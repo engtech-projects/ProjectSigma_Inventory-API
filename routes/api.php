@@ -33,6 +33,7 @@ use App\Http\Controllers\TransactionMaterialReceivingController;
 use App\Http\Controllers\TransactionMaterialReceivingItemController;
 use App\Http\Controllers\RequestWithdrawalController;
 use App\Http\Controllers\Actions\Approvals\RequestWithdrawalMyApprovals;
+use App\Http\Controllers\ConsolidatedRequestController;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -223,6 +224,12 @@ Route::middleware('auth:api')->group(function () {
             Route::get('all-request', [RequestNcpoController::class, 'allRequests']);
             Route::get('my-approvals', [RequestNcpoController::class, 'myApprovals']);
         });
+    });
+    Route::prefix('consolidated-request')->group(function () {
+        Route::resource('resource', ConsolidatedRequestController::class)->names("consolidatedRequest");
+        Route::get('unserved', [ConsolidatedRequestController::class, 'unserved']);
+        Route::post('generate-consolidated-request', [ConsolidatedRequestController::class, 'generateDraft']);
+        Route::post('create-consolidated-request', [ConsolidatedRequestController::class, 'store']);
     });
 
     if (config()->get('app.artisan') == 'true') {
