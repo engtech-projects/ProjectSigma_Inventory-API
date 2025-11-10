@@ -8,4 +8,5 @@ enum RSRemarksEnums: string
     case CANCELLED = "Cancelled";
     case PURCHASEORDERMR = "Purchase Order for MR";
     case PETTYCASH = "Petty Cash";
+    case CONSOLIDATEDREQUEST = "Consolidated Request";
 }
