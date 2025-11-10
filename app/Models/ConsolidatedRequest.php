@@ -25,7 +25,6 @@ class ConsolidatedRequest extends Model
         'metadata'
     ];
 
-
     protected $casts = [
         'metadata' => 'array',
         'date_consolidated' => 'date',
@@ -52,5 +51,4 @@ class ConsolidatedRequest extends Model
             'requisition_slip_id'
         );
     }
-
 }

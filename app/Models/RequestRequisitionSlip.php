@@ -170,12 +170,12 @@ class RequestRequisitionSlip extends Model
     public function completeRequestStatus()
     {
         $this->request_status = RequestStatuses::APPROVED;
-        if ($this->remarks == RSRemarksEnums::PETTYCASH->value) {
-            $mrrService = new MrrService(new TransactionMaterialReceiving());
-            $mrrService->createPettyCashMrrFromRequestRequisitionSlip($this);
-        } elseif ($this->remarks == RSRemarksEnums::PURCHASEORDER->value) {
-            $this->createProcurementRequest();
-        }
+        match ($this->remarks) {
+            RSRemarksEnums::PETTYCASH->value => (new MrrService(new TransactionMaterialReceiving()))
+                ->createPettyCashMrrFromRequestRequisitionSlip($this),
+            RSRemarksEnums::PURCHASEORDER->value,
+            RSRemarksEnums::CONSOLIDATEDREQUEST->value => $this->createProcurementRequest(),
+        };
         $this->save();
         $this->refresh();
     }

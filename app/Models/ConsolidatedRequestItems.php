@@ -17,7 +17,6 @@ class ConsolidatedRequestItems extends Model
         'remarks',
     ];
 
-
     protected $casts = [
         'metadata' => 'array',
         'quantity_consolidated' => 'decimal:2'
@@ -63,5 +62,4 @@ class ConsolidatedRequestItems extends Model
     {
         return $this->requisitionSlip->reference_no ?? null;
     }
-
 }

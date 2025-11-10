@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\ServeStatus;
 use App\Http\Traits\CheckAccessibility;
 use App\Traits\ModelHelpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -111,5 +110,4 @@ class RequestProcurement extends Model
     {
         return $this->serve_status === 'unserved';
     }
-
 }

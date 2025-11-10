@@ -18,7 +18,7 @@ class GenerateConsolidatedRequest extends FormRequest
     {
         if (is_string($this->slip_ids)) {
             $this->merge([
-                'slip_ids' => json_decode($this->slip_ids, true),
+                'rs_ids' => json_decode($this->slip_ids, true),
             ]);
         }
     }
@@ -30,17 +30,16 @@ class GenerateConsolidatedRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'slip_ids' => ['required', 'array', 'min:1'],
-            'slip_ids.*' => ['required', 'integer', 'distinct', 'exists:request_requisition_slips,id'],
+            'rs_ids' => ['required', 'array', 'min:1'],
+            'rs_ids.*' => ['required', 'integer', 'distinct', 'exists:request_requisition_slips,id'],
         ];
     }
     public function messages(): array
     {
         return [
-            'slip_ids.required' => 'Please select at least one requisition slip.',
-            'slip_ids.array' => 'Slip IDs must be provided as an array.',
-            'slip_ids.*.exists' => 'One or more selected slips do not exist.',
+            'rs_ids.required' => 'Please select at least one requisition slip.',
+            'rs_ids.array' => 'Slip IDs must be provided as an array.',
+            'rs_ids.*.exists' => 'One or more selected slips do not exist.',
         ];
     }
-
 }

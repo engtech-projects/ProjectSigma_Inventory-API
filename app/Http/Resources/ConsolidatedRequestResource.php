@@ -14,6 +14,14 @@ class ConsolidatedRequestResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            "id" => $this->id,
+            "reference_no" => $this->reference_no,
+            "purpose" => $this->purpose,
+            "consolidated_by" => $this->consolidated_by,
+            "date_consolidated" => $this->formatReadableDate($this->date_consolidated),
+            "status" => $this->status,
+            "remarks" => $this->remarks,
+        ];
     }
 }
