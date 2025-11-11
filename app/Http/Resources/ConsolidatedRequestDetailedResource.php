@@ -19,22 +19,11 @@ class ConsolidatedRequestDetailedResource extends JsonResource
             'reference_no' => $this->reference_no,
             'purpose' => $this->purpose,
             'consolidated_by' => $this->consolidated_by,
-            'date_consolidated' => $this->date_consolidated,
+            'date_consolidated' => $this->formatReadableDate($this->date_consolidated),
             'status' => $this->status,
             'remarks' => $this->remarks,
             'metadata' => $this->metadata,
-            'items' => $this->items->load(['requisitionSlipItem.itemProfile' => function ($query) {
-                $query->select('id', 'item_description', 'item_code');
-            }])->map(function ($item) {
-                return [
-                    'id' => $item->requisitionSlipItem->itemProfile->id,
-                    'item_description' => $item->requisitionSlipItem->itemProfile->item_description,
-                    'quantity' => $item->quantity_consolidated,
-                    'uom_name' => $item->requisitionSlipItem->uom_name,
-                    'remarks' => $item->remarks,
-                    'status' => $item->status,
-                ];
-            }),
-        ];
+            'items' => $this->detailedItems,
+            ];
     }
 }
