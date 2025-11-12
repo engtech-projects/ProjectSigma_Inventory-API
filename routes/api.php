@@ -34,6 +34,7 @@ use App\Http\Controllers\TransactionMaterialReceivingItemController;
 use App\Http\Controllers\RequestWithdrawalController;
 use App\Http\Controllers\Actions\Approvals\RequestWithdrawalMyApprovals;
 use App\Http\Controllers\ConsolidatedRequestController;
+use App\Http\Controllers\RequestTurnoverController;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -112,6 +113,15 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('request-withdrawal')->group(function () {
             Route::apiResource('resource', RequestWithdrawalController::class);
             Route::get('my-approvals', RequestWithdrawalMyApprovals::class);
+        });
+        // request turnovers
+        Route::prefix('request-turnovers')->group(function () {
+            Route::resource('resource', RequestTurnoverController::class)->names("requestTurnoverresource");
+            Route::post('/update', [RequestTurnoverController::class, 'update']);
+            Route::post('/items/{item}/accept', [RequestTurnoverController::class, 'acceptItem']);
+            Route::post('/items/{item}/deny', [RequestTurnoverController::class, 'denyItem']);
+            Route::get('/incoming', [RequestTurnoverController::class, 'incoming']);
+            Route::get('/outgoing', [RequestTurnoverController::class, 'outgoing']);
         });
     });
 
