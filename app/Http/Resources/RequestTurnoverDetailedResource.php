@@ -28,19 +28,6 @@ class RequestTurnoverDetailedResource extends JsonResource
             'remarks' => $this->remarks,
             'metadata' => $this->metadata,
             'items' => RequestTurnoverItemResource::collection($this->whenLoaded('items')),
-            'statistics' => [
-                'total_items' => $this->getTotalItemsCount(),
-                'accepted_items' => $this->getAcceptedItemsCount(),
-                'denied_items' => $this->getDeniedItemsCount(),
-                'pending_items' => $this->getPendingItemsCount(),
-            ],
-            'status_flags' => [
-                'is_pending' => $this->isPending(),
-                'is_approved' => $this->isApproved(),
-                'is_rejected' => $this->isRejected(),
-                'has_been_received' => $this->hasBeenReceived(),
-                'can_be_updated' => $this->canBeUpdated(),
-            ],
             'created_at' => $this->formatReadableDate($this->created_at),
             'updated_at' => $this->formatReadableDate($this->updated_at),
         ];

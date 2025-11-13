@@ -120,8 +120,8 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/update', [RequestTurnoverController::class, 'update']);
             Route::post('/items/{item}/accept', [RequestTurnoverController::class, 'acceptItem']);
             Route::post('/items/{item}/deny', [RequestTurnoverController::class, 'denyItem']);
-            Route::get('/incoming', [RequestTurnoverController::class, 'incoming']);
-            Route::get('/outgoing', [RequestTurnoverController::class, 'outgoing']);
+            Route::get('/incoming/{warehouse}', [RequestTurnoverController::class, 'incoming']);
+            Route::get('/outgoing/{warehouse}', [RequestTurnoverController::class, 'outgoing']);
         });
     });
 

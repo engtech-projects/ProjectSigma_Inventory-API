@@ -25,13 +25,6 @@ class RequestTurnoverItemResource extends JsonResource
             'condition' => $this->condition,
             'remarks' => $this->remarks,
             'accept_status' => $this->accept_status,
-            'status_flags' => [
-                'is_pending' => $this->isPending(),
-                'is_accepted' => $this->isAccepted(),
-                'is_denied' => $this->isDenied(),
-                'can_be_accepted' => $this->canBeAccepted(),
-                'can_be_denied' => $this->canBeDenied(),
-            ],
         ];
     }
 }

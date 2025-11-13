@@ -43,7 +43,7 @@ class RequestTurnoverController extends Controller
         ]);
     }
 
-    public function incoming(Request $request, int $warehouseId)
+    public function incoming(Request $request, int $warehouse)
     {
         $query = RequestTurnover::with([
             'fromWarehouse',
@@ -52,21 +52,21 @@ class RequestTurnoverController extends Controller
             'approvedBy',
             'items.item'
         ])
-        ->incoming($warehouseId)
-        ->recent();
+        ->where('to_warehouse_id', $warehouse)
+        ->latest();
         if ($request->has('approval_status')) {
             $query->where('approval_status', $request->approval_status);
         }
 
         $turnovers = $query->paginate($request->get('per_page', 15));
 
-        return RequestTurnoverListingResource::collection($turnovers)
+        return RequestTurnoverDetailedResource::collection($turnovers)
         ->additional([
             "success" => true,
             "message" => "Request Turnovers Successfully Fetched.",
         ]);
     }
-    public function outgoing(Request $request, int $warehouseId)
+    public function outgoing(Request $request, int $warehouse)
     {
         $query = RequestTurnover::with([
             'fromWarehouse',
@@ -75,13 +75,13 @@ class RequestTurnoverController extends Controller
             'approvedBy',
             'items.item'
         ])
-        ->outgoing($warehouseId)
-        ->recent();
+        ->where('from_warehouse_id', $warehouse)
+        ->latest();
         if ($request->has('approval_status')) {
             $query->where('approval_status', $request->approval_status);
         }
         $turnovers = $query->paginate($request->get('per_page', 15));
-        return RequestTurnoverListingResource::collection($turnovers)
+        return RequestTurnoverDetailedResource::collection($turnovers)
         ->additional([
             "success" => true,
             "message" => "Request Turnovers Successfully Fetched.",
@@ -94,7 +94,7 @@ class RequestTurnoverController extends Controller
     public function store(StoreRequestTurnoverRequest $request)
     {
         $validated = $request->validated();
-        $request = DB::transaction(function() use ($validated){
+        $request = DB::transaction(function () use ($validated) {
             $requestTurnover = RequestTurnover::create([
                 'date' => $validated['date'],
                 'from_warehouse_id' => $validated['from_warehouse_id'],
