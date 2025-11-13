@@ -63,7 +63,7 @@ class RequestTurnoverController extends Controller
         return RequestTurnoverDetailedResource::collection($turnovers)
         ->additional([
             "success" => true,
-            "message" => "Request Turnovers Successfully Fetched.",
+            "message" => "Incoming Request Turnovers Successfully Fetched.",
         ]);
     }
     public function outgoing(Request $request, int $warehouse)
@@ -84,7 +84,7 @@ class RequestTurnoverController extends Controller
         return RequestTurnoverDetailedResource::collection($turnovers)
         ->additional([
             "success" => true,
-            "message" => "Request Turnovers Successfully Fetched.",
+            "message" => "Outgoing Request Turnovers Successfully Fetched.",
         ]);
     }
 
