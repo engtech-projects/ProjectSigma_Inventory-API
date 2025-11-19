@@ -122,6 +122,7 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/items/{item}/deny', [RequestTurnoverController::class, 'denyItem']);
             Route::get('/incoming/{warehouse}', [RequestTurnoverController::class, 'incoming']);
             Route::get('/outgoing/{warehouse}', [RequestTurnoverController::class, 'outgoing']);
+            Route::get('items/{warehouse}', [RequestTurnoverController::class, 'getItemsByWarehouse']);
         });
     });
 

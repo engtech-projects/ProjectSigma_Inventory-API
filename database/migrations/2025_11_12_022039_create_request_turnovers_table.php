@@ -31,7 +31,6 @@ return new class () extends Migration {
                 'Approved',
                 'Rejected'
             ])->default('Pending');
-            $table->text('remarks')->nullable();
             $table->json('metadata')->nullable();
             $table->timestamps();
             $table->softDeletes();

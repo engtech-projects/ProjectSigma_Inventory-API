@@ -25,7 +25,6 @@ class StoreRequestTurnoverRequest extends FormRequest
             'date' => ['required', 'date'],
             'from_warehouse_id' => ['required', 'exists:setup_warehouses,id'],
             'to_warehouse_id' => ['required', 'exists:setup_warehouses,id', 'different:from_warehouse_id'],
-            'remarks' => ['nullable', 'string', 'max:1000'],
             'metadata' => ['nullable', 'array'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.item_id' => ['required', 'exists:item_profile,id'],

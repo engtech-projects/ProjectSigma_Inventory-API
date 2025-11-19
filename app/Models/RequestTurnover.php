@@ -25,7 +25,6 @@ class RequestTurnover extends Model
         'received_date',
         'received_name',
         'approval_status',
-        'remarks',
         'metadata',
     ];
     protected $casts = [

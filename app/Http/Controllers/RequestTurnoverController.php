@@ -8,6 +8,7 @@ use App\Http\Resources\RequestTurnoverDetailedResource;
 use App\Http\Resources\RequestTurnoverListingResource;
 use App\Http\Resources\RequestTurnoverResource;
 use App\Models\RequestTurnover;
+use App\Models\SetupWarehouses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -100,7 +101,7 @@ class RequestTurnoverController extends Controller
                 'from_warehouse_id' => $validated['from_warehouse_id'],
                 'to_warehouse_id' => $validated['to_warehouse_id'],
                 'requested_by' => auth()->user()->id,
-                'remarks' => $validated['remarks'],
+                'reference_no' => $this->generateTurnoverReferenceNumber(),
                 'metadata' => $validated['metadata'],
             ]);
             foreach ($validated['items'] as $item) {
@@ -109,7 +110,7 @@ class RequestTurnoverController extends Controller
                     'quantity' => $item['quantity'],
                     'uom' => $item['uom'],
                     'condition' => $item['condition'] ?? null,
-                    'remarks' => $item['remarks'] ?? null,
+                    'remarks' => $item['remarks'] ?? null
                 ]);
             }
             return $requestTurnover;
@@ -152,7 +153,6 @@ class RequestTurnoverController extends Controller
         $requestTurnover->update([
             'received_date' => $request->received_date,
             'received_name' => $request->received_name,
-            'remarks' => $request->remarks ?? $requestTurnover->remarks,
         ]);
 
         return new RequestTurnoverResource($requestTurnover->fresh([
@@ -163,112 +163,43 @@ class RequestTurnoverController extends Controller
             'items.item'
         ]));
     }
+    public function getItemsByWarehouse($warehouseId)
+    {
+        $warehouse = SetupWarehouses::with([
+            'stockSummary' => function ($q) {
+                $q->where('quantity', '>', 0);
+            },
+            'stockSummary.item',
+            'stockSummary.uom'
+        ])->findOrFail($warehouseId);
 
-    // public function acceptItem(AcceptItemRequest $request, RequestTurnoverItem $item)
-    // {
-    //     if (!$item->canBeAccepted()) {
-    //         return response()->json(['message' => 'Cannot accept this item'], 422);
-    //     }
+        $items = $warehouse->stockSummary->map(function ($summary) {
+            $item = $summary->item;
+            return [
+                'id' => $summary->id,
+                'item_id' => $item->id,
+                'item_description' => $item->item_description,
+                'current_quantity' => $summary->quantity,
+                'uom' => $summary->uom->name,
+                'uom_id' => $summary->uom_id,
+                'condition' => $summary->condition,
+                'remarks' => $summary->remarks,
+                'metadata' => $summary->metadata,
+            ];
+        });
 
-    //     DB::beginTransaction();
-
-    //     try {
-    //         // Update item status
-    //         $item->update([
-    //             'accept_status' => 'accepted',
-    //             'remarks' => $request->remarks ?? $item->remarks,
-    //         ]);
-
-    //         $turnover = $item->requestTurnover;
-
-    //         // Create stock out transaction for from_warehouse
-    //         $this->createStockTransaction(
-    //             $turnover->from_warehouse_id,
-    //             $item->item_id,
-    //             -abs($item->quantity),
-    //             'stock_out',
-    //             "Request Turnover: {$turnover->reference_no}",
-    //             $item->id
-    //         );
-
-    //         // Create stock in transaction for to_warehouse (Material Receipt)
-    //         $this->createStockTransaction(
-    //             $turnover->to_warehouse_id,
-    //             $item->item_id,
-    //             abs($item->quantity),
-    //             'stock_in',
-    //             "Material Receipt from {$turnover->fromWarehouse->name} - RT: {$turnover->reference_no}",
-    //             $item->id
-    //         );
-
-    //         // Check if all items are processed and update turnover status
-    //         if ($turnover->getPendingItemsCount() === 0) {
-    //             $turnover->update([
-    //                 'approval_status' => 'approved',
-    //                 'approved_by' => Auth::id(),
-    //             ]);
-    //         }
-
-    //         DB::commit();
-
-    //         return response()->json([
-    //             'message' => 'Item accepted successfully',
-    //             'item' => $item->fresh('item'),
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         return response()->json(['message' => 'Failed to accept item', 'error' => $e->getMessage()], 500);
-    //     }
-    // }
-
-    // /**
-    //  * Deny a request turnover item
-    //  */
-    // public function denyItem(DenyItemRequest $request, RequestTurnoverItem $item)
-    // {
-    //     if (!$item->canBeDenied()) {
-    //         return response()->json(['message' => 'Cannot deny this item'], 422);
-    //     }
-
-    //     $item->update([
-    //         'accept_status' => 'denied',
-    //         'remarks' => $request->remarks ?? $item->remarks,
-    //     ]);
-
-    //     // Check if all items are processed and update turnover status
-    //     $turnover = $item->requestTurnover;
-    //     if ($turnover->getPendingItemsCount() === 0) {
-    //         $hasAccepted = $turnover->getAcceptedItemsCount() > 0;
-    //         $turnover->update([
-    //             'approval_status' => $hasAccepted ? 'approved' : 'rejected',
-    //             'approved_by' => Auth::id(),
-    //         ]);
-    //     }
-
-    //     return response()->json([
-    //         'message' => 'Item denied successfully',
-    //         'item' => $item->fresh('item'),
-    //     ]);
-    // }
-    // private function createStockTransaction(
-    //     int $warehouseId,
-    //     int $itemId,
-    //     float $quantity,
-    //     string $type,
-    //     string $reference,
-    //     int $relatedId
-    // ) {
-    //     // Assuming you have a StockTransaction model
-    //     \App\Models\StockTransaction::create([
-    //         'warehouse_id' => $warehouseId,
-    //         'item_id' => $itemId,
-    //         'quantity' => $quantity,
-    //         'type' => $type,
-    //         'reference' => $reference,
-    //         'reference_type' => 'request_turnover_item',
-    //         'reference_id' => $relatedId,
-    //         'transaction_date' => now(),
-    //         'created_by' => Auth::id(),
-    //     ]);
-    // }
+        return response()->json([
+            'success' => true,
+            'warehouse' => $warehouse->name,
+            'items' => $items
+        ]);
+    }
+    private function generateTurnoverReferenceNumber()
+    {
+        $baseRef = "TS-CW-IMS";
+        $latestRs = RequestTurnover::orderByRaw('CAST(SUBSTRING_INDEX(reference_no, "-", -1) AS UNSIGNED) DESC')
+            ->first();
+        $lastRefNo = $latestRs ? (int) last(explode('-', $latestRs->reference_no)) : 0;
+        return $baseRef . '-' . str_pad($lastRefNo + 1, 4, '0', STR_PAD_LEFT);
+    }
 }
