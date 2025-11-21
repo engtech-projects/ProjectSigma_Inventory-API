@@ -23,6 +23,17 @@ class RequestPurchaseOrderController extends Controller
                 'success' => true,
             ]);
     }
+    public function allDetails(RequestPurchaseOrder $requestPurchaseOrder)
+    {
+        $requestPurchaseOrder->load([
+            'requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip',
+        ]);
+        return RequestPurchaseOrderDetailedResource::make($requestPurchaseOrder)
+            ->additional([
+                'message' => 'Request Purchase Order retrieved successfully.',
+                'success' => true,
+            ]);
+    }
 
     public function show(RequestPurchaseOrder $resource)
     {

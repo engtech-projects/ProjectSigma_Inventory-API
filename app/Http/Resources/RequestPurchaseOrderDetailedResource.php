@@ -34,6 +34,7 @@ class RequestPurchaseOrderDetailedResource extends JsonResource
             'name_on_receipt' => $this->name_on_receipt,
             'delivered_to' => $this->delivered_to,
             'items_count' => $this->requestCanvassSummary?->items?->count() ?? 0,
+            'requestCanvassSummary' => $this->requestCanvassSummary,
             'items' => $itemsWithChanges->toArray(),
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),

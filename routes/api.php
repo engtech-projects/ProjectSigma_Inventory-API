@@ -229,6 +229,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get('{resource}/detailed', [RequestPurchaseOrderController::class, 'showDetailed'])
                 ->name('purchase-orders.detailed');
             Route::get('all-request', [RequestPurchaseOrderController::class, 'allRequests']);
+            Route::get('all-details/{id}', action: [RequestPurchaseOrderController::class, 'allDetails']);
         });
         Route::prefix('ncpo')->group(function () {
             Route::resource('resource', RequestNcpoController::class)->names("requestNcpo");
