@@ -29,6 +29,8 @@ enum AccessibilityInventory: string
     case INVENTORY_WAREHOUSE_MATERIALSRECEIVING_ALLREQUESTS = "inventory:warehouse_materials receiving_all requests";
     case INVENTORY_WAREHOUSE_STOCKTRANSFER_REQUESTPROCESSING = "inventory:warehouse_stock transfer_request processing";
     case INVENTORY_WAREHOUSE_STOCKTRANSFER_ALLREQUESTS = "inventory:warehouse_stock transfer_all requests";
+    case INVENTORY_WAREHOUSE_TURNOVER_FORM = "inventory:warehouse_turnover_form and my requests";
+    case INVENTORY_WAREHOUSE_TURNOVER_ALLREQUESTS = "inventory:warehouse_turnover_all requests";
     case INVENTORY_BOM_FORM = "inventory:bom_form and my requests";
     case INVENTORY_BOM_ALLREQUESTS = "inventory:bom_all requests";
     case INVENTORY_BOM_MYAPPROVALS = "inventory:bom_my approvals";
@@ -60,6 +62,8 @@ enum AccessibilityInventory: string
     case INVENTORY_PROCUREMENT_PROCUREMENTREQUESTS_PURCHASEORDER_ALLLIST = "inventory:procurement_purchase order_all list";
 
     case INVENTORY_PROCUREMENT_PROCUREMENTREQUESTS_PURCHASEORDER_CREATENCPO = "inventory:procurement_purchase order_create ncpo";
+    case INVENTORY_CONSOLIDATEDREQUEST_FORM = "inventory:consolidated request_form";
+    case INVENTORY_CONSOLIDATEDREQUEST_LISTS = "inventory:consolidated request_lists";
 
     public static function toArray(): array
     {

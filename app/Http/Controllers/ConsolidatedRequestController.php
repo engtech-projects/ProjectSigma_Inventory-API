@@ -6,6 +6,7 @@ use App\Http\Requests\GenerateConsolidatedRequest;
 use App\Http\Requests\StoreGeneratedConsolidatedRequest;
 use App\Http\Resources\ConsolidatedRequestDetailedResource;
 use App\Http\Resources\ConsolidatedRequestItemsResource;
+use App\Http\Resources\ConsolidatedRequestListingResource;
 use App\Http\Resources\ConsolidatedRequestResource;
 use App\Models\ConsolidatedRequest;
 use App\Models\ConsolidatedRequestItems;
@@ -21,7 +22,7 @@ class ConsolidatedRequestController extends Controller
         $main = ConsolidatedRequest::with('items.requisitionSlipItem', 'items.requisitionSlip')
         ->latest()
         ->paginate(config('app.pagination.per_page', 10));
-        return ConsolidatedRequestResource::collection($main)
+        return ConsolidatedRequestListingResource::collection($main)
         ->additional([
             "success" => true,
             "message" => "Consolidated Request Successfully Fetched.",
