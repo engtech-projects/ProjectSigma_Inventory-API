@@ -17,11 +17,14 @@ class RequestTurnoverListingResource extends JsonResource
         return [
             'id' => $this->id,
             'reference_no' => $this->reference_no,
-            'date' => $this->date,
-            'approval_status' => $this->approval_status,
-            'received_date' => $this->received_date,
+            'date' => $this->formatReadableDate($this->date),
+            'from_warehouse_id' => $this->fromWarehouse->name,
+            'to_warehouse_id' => $this->toWarehouse->name,
+            'request_status' => $this->request_status,
             'received_name' => $this->received_name,
-            'created_at_human' => $this->createdAtDateHuman,
+            'received_date' => $this->formatReadableDate($this->received_date),
+            'metadata' => $this->metadata,
+            'created_at' => $this->formatReadableDate($this->created_at),
         ];
     }
 }

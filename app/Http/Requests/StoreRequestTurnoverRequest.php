@@ -3,9 +3,11 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Traits\HasApprovalValidation;
 
 class StoreRequestTurnoverRequest extends FormRequest
 {
+    use HasApprovalValidation;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -13,7 +15,6 @@ class StoreRequestTurnoverRequest extends FormRequest
     {
         return true;
     }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -32,6 +33,7 @@ class StoreRequestTurnoverRequest extends FormRequest
             'items.*.uom' => ['required', 'exists:setup_uom,id'],
             'items.*.condition' => ['nullable', 'string', 'max:100'],
             'items.*.remarks' => ['nullable', 'string', 'max:500'],
+            ...$this->storeApprovals(),
         ];
     }
 
