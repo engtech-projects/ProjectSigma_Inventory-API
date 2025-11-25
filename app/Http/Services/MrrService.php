@@ -4,6 +4,7 @@ namespace App\Http\Services;
 
 use App\Enums\ServeStatus;
 use App\Models\RequestRequisitionSlip;
+use App\Models\RequestTurnover;
 use App\Models\TransactionMaterialReceiving;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -52,6 +53,52 @@ class MrrService
             });
             $this->model->items()->createMany($mappedItems->toArray());
         });
+    }
+    public function createMrrFromRequestTurnover(RequestTurnover $requestTurnover)
+    {
+        DB::transaction(function () use ($requestTurnover) {
+            $this->model->warehouse_id = $requestTurnover->to_warehouse_id;
+            $this->model->reference_no = $this->generateNewMrrReferenceNumber();
+            $this->model->supplier_id = null;
+            $this->model->reference = $requestTurnover->reference_no;
+            $this->model->terms_of_payment = null;
+            $this->model->particulars = "Turnover from {$requestTurnover->fromWarehouse->name}" . " to {$requestTurnover->toWarehouse->name}";
+            $this->model->transaction_date = now();
+            $this->model->evaluated_by_id = null;
+            $this->model->metadata = [
+                'is_turnover' => true,
+                'rt_id' => $requestTurnover->id,
+                'from_warehouse_id' => $requestTurnover->from_warehouse_id,
+                'to_warehouse_id' => $requestTurnover->to_warehouse_id,
+                'turnover_date' => $requestTurnover->date,
+            ];
+            $this->model->save();
+
+            $mappedItems = $requestTurnover->items->map(function ($item) use ($requestTurnover) {
+                return [
+                    'transaction_material_receiving_id' => $this->model->id,
+                    'item_id' => $item->item_id,
+                    'specification' => $item->condition ?? null,
+                    'actual_brand_purchase' => null,
+                    'requested_quantity' => $item->quantity,
+                    'quantity' => $item->quantity,
+                    'uom_id' => $item->uom,
+                    'unit_price' => null,
+                    'serve_status' => ServeStatus::UNSERVED,
+                    'remarks' => $item->remarks ?? null,
+                    'metadata' => [
+                        'rt_id' => $requestTurnover->id,
+                        'rt_item_id' => $item->id,
+                        'original_condition' => $item->condition,
+                        'from_warehouse_id' => $requestTurnover->from_warehouse_id,
+                    ],
+                ];
+            });
+
+            $this->model->items()->createMany($mappedItems->toArray());
+        });
+
+        return $this->model;
     }
     private function generateNewMrrReferenceNumber()
     {

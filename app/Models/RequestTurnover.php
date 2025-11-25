@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\RequestStatuses;
+use App\Traits\HasApproval;
 use App\Traits\ModelHelpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,28 +11,32 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Http\Services\MrrService;
 
 class RequestTurnover extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use ModelHelpers;
+    use HasApproval;
+
     protected $fillable = [
         'reference_no',
         'date',
         'from_warehouse_id',
         'to_warehouse_id',
-        'requested_by',
-        'approved_by',
+        'created_by',
         'received_date',
         'received_name',
-        'approval_status',
         'metadata',
+        'approvals',
+        'request_status',
     ];
     protected $casts = [
         'date' => 'date',
         'received_date' => 'date',
         'metadata' => 'array',
+        'approvals' => 'array',
     ];
     // Relationships
     public function fromWarehouse(): BelongsTo
@@ -43,9 +49,9 @@ class RequestTurnover extends Model
         return $this->belongsTo(SetupWarehouses::class, 'to_warehouse_id');
     }
 
-    public function requestedBy(): BelongsTo
+    public function createdBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'requested_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function approvedBy(): BelongsTo
@@ -71,17 +77,17 @@ class RequestTurnover extends Model
 
     public function scopePending(Builder $query): Builder
     {
-        return $query->where('approval_status', 'pending');
+        return $query->where('request_status', 'Pending');
     }
 
     public function scopeApproved(Builder $query): Builder
     {
-        return $query->where('approval_status', 'approved');
+        return $query->where('request_status', 'Approved');
     }
 
     public function scopeRejected(Builder $query): Builder
     {
-        return $query->where('approval_status', 'rejected');
+        return $query->where('request_status', 'Rejected');
     }
 
     public function scopeRecent(Builder $query): Builder
@@ -92,17 +98,17 @@ class RequestTurnover extends Model
     // Helpers
     public function isPending(): bool
     {
-        return $this->approval_status === 'pending';
+        return $this->request_status === 'Pending';
     }
 
     public function isApproved(): bool
     {
-        return $this->approval_status === 'approved';
+        return $this->request_status === 'Approved';
     }
 
     public function isRejected(): bool
     {
-        return $this->approval_status === 'rejected';
+        return $this->request_status === 'Rejected';
     }
 
     public function hasBeenReceived(): bool
@@ -117,17 +123,17 @@ class RequestTurnover extends Model
 
     public function getAcceptedItemsCount(): int
     {
-        return $this->items()->where('accept_status', 'accepted')->count();
+        return $this->items()->where('accept_status', 'Accepted')->count();
     }
 
     public function getDeniedItemsCount(): int
     {
-        return $this->items()->where('accept_status', 'denied')->count();
+        return $this->items()->where('accept_status', 'Denied')->count();
     }
 
     public function getPendingItemsCount(): int
     {
-        return $this->items()->where('accept_status', 'pending')->count();
+        return $this->items()->where('accept_status', 'Pending')->count();
     }
 
     public function canBeUpdated(): bool
@@ -146,6 +152,16 @@ class RequestTurnover extends Model
         $sequence = $lastRequest ? (int) substr($lastRequest->reference_no, -4) + 1 : 1;
 
         return sprintf('%s-%s-%04d', $prefix, $date, $sequence);
+    }
+
+    public function completeRequestStatus()
+    {
+        $this->request_status = RequestStatuses::APPROVED->value;
+        $this->save();
+        (new MrrService(new TransactionMaterialReceiving()))
+            ->createMrrFromRequestTurnover($this);
+
+        $this->refresh();
     }
 
     protected static function boot()

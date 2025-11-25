@@ -118,11 +118,11 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('request-turnovers')->group(function () {
             Route::resource('resource', RequestTurnoverController::class)->names("requestTurnoverresource");
             Route::post('/update', [RequestTurnoverController::class, 'update']);
-            Route::post('/items/{item}/accept', [RequestTurnoverController::class, 'acceptItem']);
-            Route::post('/items/{item}/deny', [RequestTurnoverController::class, 'denyItem']);
             Route::get('/incoming/{warehouse}', [RequestTurnoverController::class, 'incoming']);
             Route::get('/outgoing/{warehouse}', [RequestTurnoverController::class, 'outgoing']);
             Route::get('items/{warehouse}', [RequestTurnoverController::class, 'getItemsByWarehouse']);
+            Route::get('all-request', [RequestTurnoverController::class, 'allRequests']);
+            Route::get('my-approvals', [RequestTurnoverController::class, 'myApprovals']);
         });
     });
 

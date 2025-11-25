@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Actions\Approvals;
 
 use App\Enums\ApprovalModels;
+use App\Notifications\RequestTurnoverForApprovalNotification;
 use Illuminate\Http\JsonResponse;
 use App\Enums\RequestApprovalStatus;
 use App\Http\Controllers\Controller;
@@ -14,6 +15,7 @@ use App\Notifications\RequestNCPOApprovedNotification;
 use App\Notifications\RequestNCPOForApprovalNotification;
 use App\Notifications\RequestSupplierApprovedNotification;
 use App\Notifications\RequestSupplierForApprovalNotification;
+use App\Notifications\RequestTurnoverApprovedNotification;
 use App\Notifications\RequestWithdrawalApprovedNotification;
 use App\Notifications\RequestWithdrawalForApprovalNotification;
 use Carbon\Carbon;
@@ -24,7 +26,7 @@ use Illuminate\Support\Facades\Cache;
 class ApproveApproval extends Controller
 {
     /**
-     * Handle the incoming request.
+     * Handle the incheck for errors ing request.
      */
     public function __invoke($modelType, $model, Request $request)
     {
@@ -47,6 +49,7 @@ class ApproveApproval extends Controller
                 ApprovalModels::RequestCanvassSummary->name => RequestCanvassSummaryApprovalNotification::class,
                 ApprovalModels::RequestNcpo->name => RequestNCPOForApprovalNotification::class,
                 ApprovalModels::RequestWithdrawal->name => RequestWithdrawalForApprovalNotification::class,
+                ApprovalModels::RequestTurnover->name => RequestTurnoverForApprovalNotification::class,
             ];
             if (isset($notificationMap[$modelType])) {
                 $model->notifyNextApprover($notificationMap[$modelType]);
@@ -58,6 +61,7 @@ class ApproveApproval extends Controller
                 ApprovalModels::RequestCanvassSummary->name => RequestCanvassSummaryApprovedNotification::class,
                 ApprovalModels::RequestNcpo->name => RequestNCPOApprovedNotification::class,
                 ApprovalModels::RequestWithdrawal->name => RequestWithdrawalApprovedNotification::class,
+                ApprovalModels::RequestTurnover->name => RequestTurnoverApprovedNotification::class,
             ];
             if (isset($notificationMap[$modelType])) {
                 $model->notifyCreator($notificationMap[$modelType]);
