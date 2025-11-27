@@ -128,6 +128,9 @@ Route::middleware('auth:api')->group(function () {
 
     Route::prefix('request-requisition-slip')->group(function () {
         Route::resource('resource', RequestRequisitionSlipController::class)->names("requisitionSlipRouteResource");
+        Route::post('{requisitionSlip}/items/{item}/allocate-stock', [
+            RequestRequisitionSlipController::class, 'allocateStock'
+        ])->name('requisitionSlip.allocateStock');
         Route::get('all-request', [RequestRequisitionSlipController::class, 'allRequests']);
         Route::get('my-request', [RequestRequisitionSlipController::class, 'myRequests']);
         Route::get('my-approvals', [RequestRequisitionSlipController::class, 'myApprovals']);
