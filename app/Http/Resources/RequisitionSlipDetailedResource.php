@@ -15,27 +15,30 @@ class RequisitionSlipDetailedResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "id" => $this->id,
-            "created_by" => $this->created_by_user_name,
-            "request_for" => $this->request_for,
-            "office_project" => $this->projectDepartmentName ?? "",
-            "office_project_address" => $this->office_project_address ?? "",
-            "reference_no" => $this->reference_no ?? "",
-            "date_prepared" => $this->date_prepared_human ?? "",
-            "date_needed" => $this->date_needed_human ?? "",
-            "equipment_no" => $this->equipment_no ?? "",
-            "type_of_request" => $this->type_of_request ?? "",
-            "contact_number" => $this->contact_no ?? "",
-            "remarks" => $this->remarks ?? "",
-            "current_smr" => $this->current_smr ?? "",
-            "previous_smr" => $this->previous_smr ?? "",
-            "unused_smr" => $this->unused_smr ?? "",
-            "next_smr" => $this->next_smr ?? "",
-            "items" => $this->items,
-            "request_stock_items" => RequisitionSlipItemsResource::collection($this->items),
-            "serve_status" => $this->serve_status,
-            "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
-            "next_approval" => $this->getNextPendingApproval(),
+            'id'                   => $this->id,
+            'reference_no'         => $this->reference_no,
+            'created_by'           => $this->created_by_user_name,
+            'request_for'          => $this->request_for,
+            'office_project'       => $this->projectDepartmentName ?? '',
+            'office_project_address' => $this->office_project_address ?? '',
+            'date_prepared'        => $this->date_prepared_human,
+            'date_needed'          => $this->date_needed_human,
+            'equipment_no'         => $this->equipment_no,
+            'type_of_request'      => $this->type_of_request,
+            'contact_number'       => $this->contact_no,
+            'remarks'              => $this->remarks,
+            // SMR Fields
+            'current_smr'          => $this->current_smr,
+            'previous_smr'         => $this->previous_smr,
+            'unused_smr'           => $this->unused_smr,
+            'next_smr'             => $this->next_smr,
+            // Items
+            'items'                => RequisitionSlipItemsResource::collection($this->items),
+            // Approvals
+            'serve_status'    => $this->serve_status,
+            'approvals'            => new ApprovalAttributeResource(['approvals' => $this->approvals]),
+            'next_approval'        => $this->getNextPendingApproval(),
+            'created_at' => $this->created_at->format('M d, Y')
         ];
     }
 }

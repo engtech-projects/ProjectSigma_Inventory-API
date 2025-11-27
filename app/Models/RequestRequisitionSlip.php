@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Builder;
 
 class RequestRequisitionSlip extends Model
 {
@@ -99,6 +100,10 @@ class RequestRequisitionSlip extends Model
         return $relatedItems->contains(ServeStatus::UNSERVED->value)
             ? ServeStatus::UNSERVED->value
             : ServeStatus::SERVED->value;
+    }
+    public function scopeIsApproved(Builder $query): void
+    {
+        $query->where('request_status', RequestStatuses::APPROVED);
     }
 
     /**

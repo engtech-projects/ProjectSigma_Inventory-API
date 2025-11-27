@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 class RequestRequisitionSlipItems extends Model
 {
@@ -20,14 +22,19 @@ class RequestRequisitionSlipItems extends Model
         'location',
         'location_qty',
         'is_approved',
+        'metadata',
     ];
 
+    protected $appends = ['item_description', 'uom_name'];
+    protected $casts = [
+        'metadata' => 'array',
+        'is_approved' => 'boolean',
+    ];
     /**
      * ==================================================
      * MODEL ATTRIBUTES
      * ==================================================
      */
-    protected $appends = ['item_description', 'uom_name'];
 
     public function getUomNameAttribute()
     {
@@ -54,6 +61,10 @@ class RequestRequisitionSlipItems extends Model
     public function itemProfile()
     {
         return $this->belongsTo(ItemProfile::class, 'item_id', 'id');
+    }
+    public function warehouseStocks(): HasMany
+    {
+        return $this->hasMany(WarehouseStocksSummary::class, 'item_id', 'item_id');
     }
 
     public function section()
@@ -143,5 +154,36 @@ class RequestRequisitionSlipItems extends Model
             $details['ncpos'] = $ncpos;
         }
         return $details;
+    }
+    public function getAvailableInWarehousesAttribute(): Collection
+    {
+        return $this->warehouseStocks()
+            ->with(['warehouse:id,name,location', 'uom:id,name'])
+            ->where('quantity', '>', 0)
+            ->get()
+            ->map(function ($stock) {
+                return [
+                    'warehouse_id'   => $stock->warehouse_id,
+                    'warehouse'      => $stock->warehouse?->name ?? 'Unknown',
+                    'location'       => $stock->warehouse?->location ?? '—',
+                    'available'      => $stock->quantity,
+                    'uom'            => $stock->uom?->name ?? '—',
+                    'uom_id'         => $stock->uom_id,
+                    'total'          => $stock->quantity,
+                    'updated_at'     => $stock->updated_at?->format('M d, Y h:i A'),
+                ];
+            })
+        ->sortByDesc('available')
+        ->values();
+    }
+
+    public function getIsAvailableInAnyWarehouseAttribute(): bool
+    {
+        return $this->warehouseStocks()->where('quantity', '>', 0)->exists();
+    }
+
+    public function getTotalAvailableInWarehousesAttribute(): int
+    {
+        return (int) $this->warehouseStocks()->sum('quantity');
     }
 }
