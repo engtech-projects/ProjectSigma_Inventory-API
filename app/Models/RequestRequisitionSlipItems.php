@@ -162,17 +162,17 @@ class RequestRequisitionSlipItems extends Model
             ->where('quantity', '>', 0)
             ->get()
             ->map(function ($stock) {
-            return [
-                'warehouse_id'   => $stock->warehouse_id,
-                'warehouse'      => $stock->warehouse?->name ?? 'Unknown',
-                'location'       => $stock->warehouse?->location ?? '—',
-                'available'      => $stock->quantity,
-                'uom'            => $stock->uom?->name ?? '—',
-                'uom_id'         => $stock->uom_id,
-                'total'          => $stock->quantity,
-                'updated_at'     => $stock->updated_at?->format('M d, Y h:i A'),
-            ];
-        })
+                return [
+                    'warehouse_id'   => $stock->warehouse_id,
+                    'warehouse'      => $stock->warehouse?->name ?? 'Unknown',
+                    'location'       => $stock->warehouse?->location ?? '—',
+                    'available'      => $stock->quantity,
+                    'uom'            => $stock->uom?->name ?? '—',
+                    'uom_id'         => $stock->uom_id,
+                    'total'          => $stock->quantity,
+                    'updated_at'     => $stock->updated_at?->format('M d, Y h:i A'),
+                ];
+            })
         ->sortByDesc('available')
         ->values();
     }

@@ -191,7 +191,11 @@ class RequestRequisitionSlipController extends Controller
         ];
 
         DB::transaction(function () use (
-            $rsItem, $request, $toWarehouseId, $requisitionSlip, $metadata
+            $rsItem,
+            $request,
+            $toWarehouseId,
+            $requisitionSlip,
+            $metadata
         ) {
             // 1. Save allocation suggestion in RS item
             $rsItem->update([
@@ -206,13 +210,15 @@ class RequestRequisitionSlipController extends Controller
                 $qty = $alloc['quantity'];
                 $uom = $alloc['uom'];
 
-                if ($qty <= 0) continue;
+                if ($qty <= 0) {
+                    continue;
+                }
 
                 // Prevent duplicate turnover for same RS + item + from/to warehouse
                 $existingTurnover = RequestTurnover::where('from_warehouse_id', $fromWarehouseId)
                     ->where('to_warehouse_id', $toWarehouseId)
                     ->whereJsonContains('metadata->requisition_slip_id', $requisitionSlip->id)
-                    ->whereHas('items', fn($q) => $q->where('item_id', $rsItem->item_id))
+                    ->whereHas('items', fn ($q) => $q->where('item_id', $rsItem->item_id))
                     ->first();
 
                 if ($existingTurnover) {
