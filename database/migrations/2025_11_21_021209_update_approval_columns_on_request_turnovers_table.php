@@ -8,10 +8,23 @@ use Illuminate\Support\Facades\DB;
 return new class () extends Migration {
     public function up(): void
     {
+        // Drop columns individually (MySQL 5.7 safer)
         Schema::table('request_turnovers', function (Blueprint $table) {
-            $table->dropColumn(['approved_by', 'approval_status']);
+            if (Schema::hasColumn('request_turnovers', 'approved_by')) {
+                $table->dropColumn('approved_by');
+            }
+            if (Schema::hasColumn('request_turnovers', 'approval_status')) {
+                $table->dropColumn('approval_status');
+            }
         });
-        DB::statement('ALTER TABLE request_turnovers CHANGE `requested_by` `created_by` bigint unsigned NOT NULL');
+
+        // Rename requested_by → created_by
+        DB::statement(
+            "ALTER TABLE request_turnovers
+             CHANGE COLUMN `requested_by` `created_by` BIGINT UNSIGNED NOT NULL"
+        );
+
+        // Add new fields
         Schema::table('request_turnovers', function (Blueprint $table) {
             $table->json('approvals')->nullable()->after('created_by');
             $table->string('request_status')->nullable()->after('approvals');
@@ -21,14 +34,25 @@ return new class () extends Migration {
     public function down(): void
     {
         Schema::table('request_turnovers', function (Blueprint $table) {
-            $table->dropColumn(['approvals', 'request_status']);
+            if (Schema::hasColumn('request_turnovers', 'approvals')) {
+                $table->dropColumn('approvals');
+            }
+            if (Schema::hasColumn('request_turnovers', 'request_status')) {
+                $table->dropColumn('request_status');
+            }
         });
-        DB::statement('ALTER TABLE request_turnovers CHANGE `created_by` `requested_by` bigint unsigned NOT NULL');
+
+        // Rename created_by → requested_by
+        DB::statement(
+            "ALTER TABLE request_turnovers
+             CHANGE COLUMN `created_by` `requested_by` BIGINT UNSIGNED NOT NULL"
+        );
+
         Schema::table('request_turnovers', function (Blueprint $table) {
             $table->bigInteger('approved_by')->unsigned()->nullable()->after('requested_by');
             $table->enum('approval_status', ['Pending', 'Approved', 'Rejected'])
-                  ->default('Pending')
-                  ->after('approved_by');
+                ->default('Pending')
+                ->after('approved_by');
         });
     }
 };
