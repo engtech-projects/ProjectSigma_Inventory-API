@@ -10,6 +10,8 @@ use App\Http\Requests\TransactionMaterialReceivingItemAcceptSomeRequest;
 use App\Http\Requests\TransactionMaterialReceivingItemRejectRequest;
 use App\Models\TransactionMaterialReceivingItem;
 use App\Http\Requests\UpdateTransactionMaterialReceivingItemRequest;
+use App\Models\RequestTurnover;
+use App\Models\RequestTurnoverItems;
 use Illuminate\Support\Facades\DB;
 
 class TransactionMaterialReceivingItemController extends Controller
@@ -64,6 +66,7 @@ class TransactionMaterialReceivingItemController extends Controller
                     'is_petty_cash' => $resource->transactionMaterialReceiving->isPettyCash
                 ]
             ]);
+            $this->syncRequestTurnoverFromMrrItem($resource);
         });
         return response()->json([
             'message' => 'Successfully accepted.',
@@ -106,6 +109,7 @@ class TransactionMaterialReceivingItemController extends Controller
                     'is_petty_cash' => $resource->transactionMaterialReceiving->isPettyCash
                 ]
             ]);
+            $this->syncRequestTurnoverFromMrrItem($resource);
         });
         // TO BE UPDATED LATER FOR TRANSFER TO RETURN ITEMS FOR THE NOT ACCEPTED ITEMS
         return response()->json([
@@ -129,6 +133,7 @@ class TransactionMaterialReceivingItemController extends Controller
         $resource->acceptance_status = ReceivingAcceptanceStatus::REJECTED->value;
         $resource->serve_status = ServeStatus::UNSERVED->value;
         $resource->save();
+        $this->syncRequestTurnoverFromMrrItem($resource);
         // TO BE UPDATED LATER FOR TRANSFER TO RETURN ITEMS
         return response()->json([
             'message' => 'Successfully Rejected.',
@@ -154,5 +159,42 @@ class TransactionMaterialReceivingItemController extends Controller
             }
         }
         return null;
+    }
+    private function syncRequestTurnoverFromMrrItem(TransactionMaterialReceivingItem $mrrItem)
+    {
+        $mrr = $mrrItem->transactionMaterialReceiving;
+        $metadata = $mrr->metadata;
+        if (!($metadata['is_turnover'] ?? false)) {
+            return;
+        }
+        $rtId = $metadata['rt_id'] ?? null;
+        if (!$rtId) {
+            return;
+        }
+        $requestTurnover = RequestTurnover::find($rtId);
+        if (!$requestTurnover) {
+            return;
+        }
+        $rtItemId = data_get($mrrItem->metadata, 'rt_item_id');
+        if (!$rtItemId) {
+            return;
+        }
+        $rtItem = RequestTurnoverItems::find($rtItemId);
+        if (!$rtItem) {
+            return;
+        }
+        $newStatus = $mrrItem->acceptance_status === ReceivingAcceptanceStatus::ACCEPTED->value
+            ? 'Accepted'
+            : 'Denied';
+        $rtItem->updateQuietly(['accept_status' => $newStatus]);
+        $hasPending = $requestTurnover->items()
+            ->where('accept_status', 'Pending')
+            ->exists();
+        if (!$hasPending) {
+            $requestTurnover->update([
+                'received_date' => now(),
+                'received_name' => auth()->user()?->name,
+            ]);
+        }
     }
 }

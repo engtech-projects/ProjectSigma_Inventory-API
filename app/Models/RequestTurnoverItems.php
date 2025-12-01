@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Traits\ModelHelpers;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -42,37 +41,20 @@ class RequestTurnoverItems extends Model
     {
         return $this->belongsTo(UOM::class);
     }
-
-    // Scopes
-    // public function scopePending(Builder $query): Builder
-    // {
-    //     return $query->where('accept_status', 'pending');
-    // }
-
-    // public function scopeAccepted(Builder $query): Builder
-    // {
-    //     return $query->where('accept_status', 'accepted');
-    // }
-
-    // public function scopeDenied(Builder $query): Builder
-    // {
-    //     return $query->where('accept_status', 'denied');
-    // }
-
     // Helpers
     public function isPending(): bool
     {
-        return $this->accept_status === 'pending';
+        return $this->accept_status === 'Pending';
     }
 
     public function isAccepted(): bool
     {
-        return $this->accept_status === 'accepted';
+        return $this->accept_status === 'Accepted';
     }
 
     public function isDenied(): bool
     {
-        return $this->accept_status === 'denied';
+        return $this->accept_status === 'Denied';
     }
 
     public function canBeAccepted(): bool

@@ -14,15 +14,21 @@ class MaterialReceivingDetailedResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        $data = [
             'id' => $this->id,
             'reference_no' => $this->reference_no,
-            'project_code' => $this->requisition_slip->project_department_name,
-            'equipment_no' => $this->requisition_slip->equipment_no,
+        ];
+        if ($this->requisition_slip && isset($this->requisition_slip->project_department_name)) {
+            $data['project_code'] = $this->requisition_slip->project_department_name;
+        }
+        if ($this->requisition_slip && isset($this->requisition_slip->equipment_no)) {
+            $data['equipment_no'] = $this->requisition_slip->equipment_no;
+        }
+        $data = array_merge($data, [
             'supplier_id' => $this->supplier_id,
             'supplier' => $this->supplier,
             'supplier_name' => $this->supplier?->code_name,
-            'reference' => $this->reference,
+            'reference' => $this->reference_no,
             'terms_of_payment' => $this->terms_of_payment,
             'particulars' => $this->particulars,
             'transaction_date' => $this->transaction_date,
@@ -32,6 +38,8 @@ class MaterialReceivingDetailedResource extends JsonResource
             'input_vat' => number_format($this->items->sum('input_vat'), 2),
             'grand_total' => number_format($this->items->sum('grand_total'), 2),
             'warehouse_name' => $this->warehouse_name,
-        ];
+        ]);
+
+        return $data;
     }
 }

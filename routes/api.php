@@ -118,16 +118,19 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('request-turnovers')->group(function () {
             Route::resource('resource', RequestTurnoverController::class)->names("requestTurnoverresource");
             Route::post('/update', [RequestTurnoverController::class, 'update']);
-            Route::post('/items/{item}/accept', [RequestTurnoverController::class, 'acceptItem']);
-            Route::post('/items/{item}/deny', [RequestTurnoverController::class, 'denyItem']);
             Route::get('/incoming/{warehouse}', [RequestTurnoverController::class, 'incoming']);
             Route::get('/outgoing/{warehouse}', [RequestTurnoverController::class, 'outgoing']);
             Route::get('items/{warehouse}', [RequestTurnoverController::class, 'getItemsByWarehouse']);
+            Route::get('all-request', [RequestTurnoverController::class, 'allRequests']);
+            Route::get('my-approvals', [RequestTurnoverController::class, 'myApprovals']);
         });
     });
 
     Route::prefix('request-requisition-slip')->group(function () {
         Route::resource('resource', RequestRequisitionSlipController::class)->names("requisitionSlipRouteResource");
+        Route::post('{requisitionSlip}/items/{item}/allocate-stock', [
+            RequestRequisitionSlipController::class, 'allocateStock'
+        ])->name('requisitionSlip.allocateStock');
         Route::get('all-request', [RequestRequisitionSlipController::class, 'allRequests']);
         Route::get('my-request', [RequestRequisitionSlipController::class, 'myRequests']);
         Route::get('my-approvals', [RequestRequisitionSlipController::class, 'myApprovals']);

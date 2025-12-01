@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RequestStatuses;
 use App\Http\Requests\StoreRequestTurnoverRequest;
 use App\Http\Requests\UpdateRequestTurnoverRequest;
 use App\Http\Resources\RequestTurnoverDetailedResource;
@@ -9,6 +10,7 @@ use App\Http\Resources\RequestTurnoverListingResource;
 use App\Http\Resources\RequestTurnoverResource;
 use App\Models\RequestTurnover;
 use App\Models\SetupWarehouses;
+use App\Notifications\RequestTurnoverForApprovalNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +25,7 @@ class RequestTurnoverController extends Controller
         $query = RequestTurnover::with([
             'fromWarehouse',
             'toWarehouse',
-            'requestedBy',
+            'creadtedBy',
             'approvedBy',
             'items.item'
         ])->latest();
@@ -49,7 +51,7 @@ class RequestTurnoverController extends Controller
         $query = RequestTurnover::with([
             'fromWarehouse',
             'toWarehouse',
-            'requestedBy',
+            'createdBy',
             'approvedBy',
             'items.item'
         ])
@@ -72,7 +74,7 @@ class RequestTurnoverController extends Controller
         $query = RequestTurnover::with([
             'fromWarehouse',
             'toWarehouse',
-            'requestedBy',
+            'createdBy',
             'approvedBy',
             'items.item'
         ])
@@ -95,14 +97,16 @@ class RequestTurnoverController extends Controller
     public function store(StoreRequestTurnoverRequest $request)
     {
         $validated = $request->validated();
-        $request = DB::transaction(function () use ($validated) {
+        $slip = DB::transaction(function () use ($validated) {
             $requestTurnover = RequestTurnover::create([
                 'date' => $validated['date'],
                 'from_warehouse_id' => $validated['from_warehouse_id'],
                 'to_warehouse_id' => $validated['to_warehouse_id'],
-                'requested_by' => auth()->user()->id,
                 'reference_no' => $this->generateTurnoverReferenceNumber(),
                 'metadata' => $validated['metadata'],
+                'created_by' => auth()->user()->id,
+                'approvals' => $validated['approvals'],
+                'request_status' => RequestStatuses::PENDING,
             ]);
             foreach ($validated['items'] as $item) {
                 $requestTurnover->items()->create([
@@ -115,10 +119,11 @@ class RequestTurnoverController extends Controller
             }
             return $requestTurnover;
         });
+        $slip->notifyNextApprover(RequestTurnoverForApprovalNotification::class);
         return new JsonResponse([
             'success' => true,
             'message' => 'Request Turnover created successfully.',
-            'data' => new RequestTurnoverResource($request),
+            'data' => new RequestTurnoverResource($slip)
         ], JsonResponse::HTTP_CREATED);
     }
 
@@ -130,7 +135,7 @@ class RequestTurnoverController extends Controller
         $resource->load([
             'fromWarehouse',
             'toWarehouse',
-            'requestedBy',
+            'createdBy',
             'approvedBy',
             'items.item'
         ]);
@@ -158,10 +163,31 @@ class RequestTurnoverController extends Controller
         return new RequestTurnoverResource($requestTurnover->fresh([
             'fromWarehouse',
             'toWarehouse',
-            'requestedBy',
+            'createdBy',
             'approvedBy',
             'items.item'
         ]));
+    }
+    public function allRequests()
+    {
+        $fetchData = RequestTurnover::latest()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestTurnoverListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request Turnovers Successfully Fetched.",
+        ]);
+    }
+    public function myApprovals()
+    {
+        $fetchData = RequestTurnover::latest()
+        ->myApprovals()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestTurnoverListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request Requisition Slips Successfully Fetched.",
+        ]);
     }
     public function getItemsByWarehouse($warehouseId)
     {
