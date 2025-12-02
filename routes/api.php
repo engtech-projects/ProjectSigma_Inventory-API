@@ -61,6 +61,11 @@ Route::middleware("secret_api")->group(function () {
 });
 
 Route::middleware('auth:api')->group(function () {
+    Route::prefix('accounting')->group(function () {
+    Route::prefix('purchase-order')->group(function () {
+        Route::get('display-details/{id}', [RequestPurchaseOrderController::class, 'displayDetails']);
+    });
+});
     Route::prefix('auth')->group(function () {
         Route::get('/user', [AuthController::class, 'show']);
     });
@@ -206,7 +211,6 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('export')->group(function () {
         Route::get('item-list', [ExportController::class, 'itemListGenerate'])->middleware('throttle:exports');
     });
-
     Route::prefix('procurement-request')->group(function () {
         Route::resource('resource', RequestProcurementController::class)->names("requestProcurement");
         Route::post('set-canvasser/{requestProcurement}', [RequestProcurementCanvasserController::class, 'setCanvasser']);
@@ -229,7 +233,6 @@ Route::middleware('auth:api')->group(function () {
             Route::get('{resource}/detailed', [RequestPurchaseOrderController::class, 'showDetailed'])
                 ->name('purchase-orders.detailed');
             Route::get('all-request', [RequestPurchaseOrderController::class, 'allRequests']);
-            Route::get('all-details/{id}', action: [RequestPurchaseOrderController::class, 'allDetails']);
         });
         Route::prefix('ncpo')->group(function () {
             Route::resource('resource', RequestNcpoController::class)->names("requestNcpo");

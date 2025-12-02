@@ -109,15 +109,4 @@ class RequestCanvassSummaryController extends Controller
             "message" => "Request Canvass Summaries Successfully Fetched.",
         ]);
     }
-    public function allDetails(RequestCanvassSummary $requestCanvassSummary)
-    {
-        $allDetails = $requestCanvassSummary->load([
-            'priceQuotation',
-        ]);
-        return new JsonResponse([
-            "success" => true,
-            "message" => "Request Canvass Summaries Successfully Fetched.",
-            "data" => new RequestCanvassSummaryDetailedResource($allDetails)
-        ]);
-    }
 }

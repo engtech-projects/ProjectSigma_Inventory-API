@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\PurchaseOrderProcessingStatus;
 use App\Http\Requests\SearchPurchaseOrderRequest;
 use App\Http\Requests\UpdatePurchaseProcessingStatusRequest;
+use App\Http\Resources\RequestAccountingPurchaseOrderResource;
 use App\Models\RequestPurchaseOrder;
 use App\Http\Requests\UpdateRequestPurchaseOrderRequest;
 use App\Http\Resources\RequestPurchaseOrderDetailedResource;
@@ -23,12 +24,13 @@ class RequestPurchaseOrderController extends Controller
                 'success' => true,
             ]);
     }
-    public function allDetails(RequestPurchaseOrder $requestPurchaseOrder)
+    public function displayDetails($id)
     {
+        $requestPurchaseOrder = RequestPurchaseOrder::findOrFail($id);
         $requestPurchaseOrder->load([
             'requestCanvassSummary.priceQuotation.requestProcurement.requisitionSlip',
         ]);
-        return RequestPurchaseOrderDetailedResource::make($requestPurchaseOrder)
+        return RequestAccountingPurchaseOrderResource::make($requestPurchaseOrder)
             ->additional([
                 'message' => 'Request Purchase Order retrieved successfully.',
                 'success' => true,
