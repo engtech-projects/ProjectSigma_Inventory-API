@@ -6,7 +6,6 @@ use App\Enums\StockTransactionTypes;
 use App\Models\UOM;
 use App\Models\WarehouseStocksSummary;
 use App\Models\WarehouseStockTransactions;
-use Illuminate\Support\Facades\DB;
 
 class WarehouseStockTransactionsObserver
 {
