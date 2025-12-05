@@ -67,6 +67,16 @@ class SetupWarehouses extends Model
     * LOCAL SCOPES
     * ==================================================
     */
+    public function pssUsers()
+    {
+        return $this->belongsToMany(User::class, 'warehouse_pss', 'warehouse_id', 'user_id')
+                    ->withTimestamps();
+    }
+
+    public function managers()
+    {
+        return $this->pssUsers();
+    }
 
     /**
     * ==================================================

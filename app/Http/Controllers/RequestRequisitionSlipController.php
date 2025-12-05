@@ -11,8 +11,10 @@ use App\Http\Resources\RequisitionSlipListingResource;
 use App\Models\RequestTurnover;
 use App\Models\SetupDepartments;
 use App\Models\SetupProjects;
+use App\Models\SetupWarehouses;
 use App\Notifications\RequestStockForApprovalNotification;
 use App\Notifications\RequestTurnoverForApprovalNotification;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -183,7 +185,7 @@ class RequestRequisitionSlipController extends Controller
                 'reason' => $rsItem->reason,
             ],
             'suggested_allocation' => $request->allocations,
-            'allocated_by' => auth()->user()->name,
+            'allocated_by' => auth()->user()->id,
             'allocated_at' => now()->format('M d, Y h:i A'),
             'total_allocated' => $totalAllocated,
             'requisition_slip_id' => $requisitionSlip->id,
@@ -228,7 +230,19 @@ class RequestRequisitionSlipController extends Controller
                         ->increment('quantity', $qty);
                     continue;
                 }
+                $fromWarehouse = SetupWarehouses::with('managers')->find($fromWarehouseId);
 
+                if ($fromWarehouse->managers->isEmpty()) {
+                    throw new \Exception("No PSS Manager assigned to warehouse: {$fromWarehouse->name}");
+                }
+
+                $approvals = $fromWarehouse->managers->map(function ($manager) {
+                    return [
+                        'status'      => 'Pending',
+                        'user_id'     => $manager->id,
+                        'remarks'     => null,
+                    ];
+                })->toArray();
                 // Create new RequestTurnover (follows your store() logic exactly)
                 $turnover = RequestTurnover::create([
                     'date' => now()->toDateString(),
@@ -242,7 +256,8 @@ class RequestRequisitionSlipController extends Controller
                         'requisition_slip_reference' => $requisitionSlip->reference_no,
                         'allocated_by' => auth()->user()->name,
                         'allocated_at' => now()->toDateTimeString(),
-                    ]
+                    ],
+                    'approvals' => $approvals,
                 ]);
 
                 // Create item in pivot table — correct place!
@@ -251,7 +266,7 @@ class RequestRequisitionSlipController extends Controller
                     'quantity' => $qty,
                     'uom' => $alloc['uom_id'],
                     'condition' => 'Good',
-                    'remarks' => "Auto-generated from Requisition Slip #{$requisitionSlip->reference_no}",
+                    'remarks' => "Request to Transfer",
                     'accept_status' => 'Pending',
                 ]);
 
