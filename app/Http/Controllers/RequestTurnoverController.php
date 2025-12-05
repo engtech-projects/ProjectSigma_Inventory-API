@@ -25,7 +25,7 @@ class RequestTurnoverController extends Controller
         $query = RequestTurnover::with([
             'fromWarehouse',
             'toWarehouse',
-            'creadtedBy',
+            'createdBy',
             'approvedBy',
             'items.item'
         ])->latest();
@@ -91,39 +91,67 @@ class RequestTurnoverController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreRequestTurnoverRequest $request)
     {
         $validated = $request->validated();
+
         $slip = DB::transaction(function () use ($validated) {
-            $requestTurnover = RequestTurnover::create([
-                'date' => $validated['date'],
-                'from_warehouse_id' => $validated['from_warehouse_id'],
-                'to_warehouse_id' => $validated['to_warehouse_id'],
-                'reference_no' => $this->generateTurnoverReferenceNumber(),
-                'metadata' => $validated['metadata'],
-                'created_by' => auth()->user()->id,
-                'approvals' => $validated['approvals'],
-                'request_status' => RequestStatuses::PENDING,
-            ]);
-            foreach ($validated['items'] as $item) {
-                $requestTurnover->items()->create([
-                    'item_id' => $item['item_id'],
-                    'quantity' => $item['quantity'],
-                    'uom' => $item['uom'],
-                    'condition' => $item['condition'] ?? null,
-                    'remarks' => $item['remarks'] ?? null
-                ]);
+            $items = collect($validated['items']);
+
+            $hasTransfer = false;
+            $hasReturn   = false;
+
+            $processedItems = $items->map(function ($item) use (&$hasTransfer, &$hasReturn) {
+                $remarks = $item['remarks'] ?? '';
+                if ($remarks === 'Request to Transfer') {
+                    $hasTransfer = true;
+                    $finalRemarks = 'Request to Transfer';
+                } elseif ($remarks === 'Request to Return') {
+                    $hasReturn = true;
+                    $finalRemarks = 'Request to Return';
+                } elseif ($remarks === 'Others') {
+                    $finalRemarks = $item['remarks_other'];
+                } else {
+                    $finalRemarks = $remarks ?: null;
+                }
+                return [
+                    'item_id'    => $item['item_id'],
+                    'quantity'   => $item['quantity'],
+                    'uom'        => $item['uom'],
+                    'condition'  => $item['condition'] ?? null,
+                    'remarks'    => $finalRemarks,
+                ];
+            });
+            $metadataFlags = [];
+            if ($hasTransfer) {
+                $metadataFlags['request_transfer'] = true;
             }
+            if ($hasReturn) {
+                $metadataFlags['request_return'] = true;
+            }
+            $metadata = array_merge(
+                $validated['metadata'] ?? [],
+                $metadataFlags
+            );
+            $requestTurnover = RequestTurnover::create([
+                'date'               => $validated['date'],
+                'from_warehouse_id'  => $validated['from_warehouse_id'],
+                'to_warehouse_id'    => $validated['to_warehouse_id'],
+                'reference_no'       => $this->generateTurnoverReferenceNumber(),
+                'metadata'           => $metadata,
+                'created_by'         => auth()->user()->id,
+                'approvals'          => $validated['approvals'],
+                'request_status'     => RequestStatuses::PENDING,
+            ]);
+            $requestTurnover->items()->createMany($processedItems->toArray());
+
             return $requestTurnover;
         });
         $slip->notifyNextApprover(RequestTurnoverForApprovalNotification::class);
         return new JsonResponse([
             'success' => true,
             'message' => 'Request Turnover created successfully.',
-            'data' => new RequestTurnoverResource($slip)
+            'data'    => new RequestTurnoverResource($slip)
         ], JsonResponse::HTTP_CREATED);
     }
 

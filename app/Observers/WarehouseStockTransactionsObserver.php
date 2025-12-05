@@ -6,6 +6,7 @@ use App\Enums\StockTransactionTypes;
 use App\Models\UOM;
 use App\Models\WarehouseStocksSummary;
 use App\Models\WarehouseStockTransactions;
+use Illuminate\Support\Facades\DB;
 
 class WarehouseStockTransactionsObserver
 {
@@ -45,7 +46,12 @@ class WarehouseStockTransactionsObserver
         if($warehouseStockTransactions->type == StockTransactionTypes::STOCKIN->value) {
             $warehouseSummary->quantity += $quantity;
         } else {
-            $warehouseSummary->quantity -= $quantity;
+            // $warehouseSummary->quantity -= $quantity;
+            $newQty = $warehouseSummary->quantity - $quantity;
+            if ($newQty < 0) {
+                $newQty = 0;
+            }
+            $warehouseSummary->quantity = $newQty;
         }
         $warehouseSummary->metadata = [
             ...$warehouseSummary->metadata,
