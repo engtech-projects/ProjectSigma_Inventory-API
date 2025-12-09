@@ -12,6 +12,7 @@ use App\Models\TransactionMaterialReceivingItem;
 use App\Http\Requests\UpdateTransactionMaterialReceivingItemRequest;
 use App\Models\RequestTurnover;
 use App\Models\RequestTurnoverItems;
+use App\Models\WarehouseStockTransactions;
 use Illuminate\Support\Facades\DB;
 
 class TransactionMaterialReceivingItemController extends Controller
@@ -35,87 +36,166 @@ class TransactionMaterialReceivingItemController extends Controller
     public function acceptAll(TransactionMaterialReceivingItem $resource, TransactionMaterialReceivingItemAcceptAllRequest $request)
     {
         $request->validated();
-        if($resource->is_processed) {
-            return response()->json([
-                'message' => 'Item has already been processed.',
-                'success' => false,
-                'data' => $resource
-            ], 400);
+
+        if ($resource->is_processed) {
+            return response()->json(['message' => 'Item has already been processed.', 'success' => false], 400);
         }
-        if($resource->transactionMaterialReceiving->isPettyCash) {
+
+        if ($resource->transactionMaterialReceiving->isPettyCash) {
             if ($resp = $this->ensurePettyCashHeadersComplete($resource)) {
                 return $resp;
             }
         }
-        DB::transaction(function () use ($resource) {
-            $resource->quantity = $resource->requested_quantity;
+
+        $mrr = $resource->transactionMaterialReceiving;
+        $fromWarehouseId = $mrr->metadata['from_warehouse_id'] ?? null;
+
+        $qtyToAccept = $resource->requested_quantity
+            - $mrr->warehouseStockTransactions()
+                ->where('item_id', $resource->item_id)
+                ->where('type', StockTransactionTypes::STOCKIN->value)
+                ->sum('quantity');
+
+        if ($qtyToAccept <= 0) {
+            return response()->json(['message' => 'No quantity left to accept.', 'success' => false], 400);
+        }
+
+        DB::transaction(function () use ($resource, $mrr, $qtyToAccept, $fromWarehouseId) {
+            // Update MRR Item status
             $resource->acceptance_status = ReceivingAcceptanceStatus::ACCEPTED->value;
-            if ($resource->transactionMaterialReceiving->is_ncpo) {
-                $resource->serve_status = ServeStatus::UNSERVED->value;
-            } else {
-                $resource->serve_status = ServeStatus::SERVED->value;
-            }
+            $resource->serve_status = $mrr->is_ncpo ? ServeStatus::UNSERVED->value : ServeStatus::SERVED->value;
             $resource->save();
-            $resource->transactionMaterialReceiving->warehouseStockTransactions()->create([
-                'warehouse_id' => $resource->transactionMaterialReceiving->warehouse_id,
-                'type' => StockTransactionTypes::STOCKIN->value,
-                'item_id' => $resource->item_id,
-                'quantity' => $resource->quantity,
-                'uom_id' => $resource->uom_id,
-                'metadata' => [
-                    'is_petty_cash' => $resource->transactionMaterialReceiving->isPettyCash
-                ]
+
+            // 1. STOCK IN → Destination Warehouse
+            $mrr->warehouseStockTransactions()->create([
+                'warehouse_id' => $mrr->warehouse_id,
+                'type'         => StockTransactionTypes::STOCKIN->value,
+                'item_id'      => $resource->item_id,
+                'quantity'     => $qtyToAccept,
+                'uom_id'       => $resource->uom_id,
+                'referenceable_type' => get_class($mrr),
+                'referenceable_id'   => $mrr->id,
+                'metadata'     => [
+                    'is_turnover'       => true,
+                    'from_warehouse_id' => $fromWarehouseId,
+                    'rt_id'             => $mrr->metadata['rt_id'] ?? null,
+                    'full_acceptance'   => true,
+                    'accepted_qty'      => $qtyToAccept,
+                ],
             ]);
+
+            // 2. STOCK OUT → Source Warehouse (only if turnover)
+            if ($fromWarehouseId) {
+                WarehouseStockTransactions::create([
+                    'warehouse_id'       => $fromWarehouseId,
+                    'type'               => StockTransactionTypes::STOCKOUT->value,
+                    'item_id'            => $resource->item_id,
+                    'quantity'           => $qtyToAccept,
+                    'uom_id'             => $resource->uom_id,
+                    'referenceable_type' => get_class($mrr),
+                    'referenceable_id'   => $mrr->id,
+                    'metadata'           => [
+                        'is_turnover'           => true,
+                        'to_warehouse_id'       => $mrr->warehouse_id,
+                        'rt_id'                 => $mrr->metadata['rt_id'] ?? null,
+                        'full_acceptance'       => true,
+                        'accepted_qty'          => $qtyToAccept,
+                        'notes'                 => 'Turnover items accepted at destination',
+                        'time'                  => now()->toDateTimeString(),
+                    ],
+                ]);
+            }
+
             $this->syncRequestTurnoverFromMrrItem($resource);
         });
+
         return response()->json([
-            'message' => 'Successfully accepted.',
+            'message' => "Successfully accepted {$qtyToAccept} items.",
             'success' => true,
-            'data' => $resource->refresh(),
+            'data'    => $resource->refresh(),
         ]);
     }
+
     public function acceptSome(TransactionMaterialReceivingItem $resource, TransactionMaterialReceivingItemAcceptSomeRequest $request)
     {
         $validatedData = $request->validated();
-        if($resource->is_processed) {
-            return response()->json([
-                'message' => 'Item has already been processed.',
-                'success' => false,
-                'data' => $resource
-            ], 400);
+
+        if ($resource->is_processed) {
+            return response()->json(['message' => 'Item has already been processed.', 'success' => false], 400);
         }
-        if($resource->transactionMaterialReceiving->isPettyCash) {
-            if ($resp = $this->ensurePettyCashHeadersComplete($resource)) {
-                return $resp;
-            }
+
+        $qtyToAccept = $validatedData['quantity'];
+        $mrr = $resource->transactionMaterialReceiving;
+        $fromWarehouseId = $mrr->metadata['from_warehouse_id'] ?? null;
+
+        $totalAcceptedSoFar = $mrr->warehouseStockTransactions()
+            ->where('item_id', $resource->item_id)
+            ->where('type', StockTransactionTypes::STOCKIN->value)
+            ->sum('quantity');
+
+        if (($totalAcceptedSoFar + $qtyToAccept) > $resource->requested_quantity) {
+            return response()->json(['message' => 'Cannot accept more than requested quantity.', 'success' => false], 400);
         }
-        DB::transaction(function () use ($resource, $validatedData) {
-            $resource->quantity = $validatedData['quantity'];
-            $resource->remarks = $validatedData['remarks'];
+
+        if ($qtyToAccept <= 0) {
+            return response()->json(['message' => 'Quantity must be greater than zero.', 'success' => false], 400);
+        }
+
+        DB::transaction(function () use ($resource, $mrr, $qtyToAccept, $validatedData, $fromWarehouseId) {
+            // Update status
             $resource->acceptance_status = ReceivingAcceptanceStatus::ACCEPTED->value;
-            if ($resource->transactionMaterialReceiving->is_ncpo) {
-                $resource->serve_status = ServeStatus::UNSERVED->value;
-            } else {
-                $resource->serve_status = ServeStatus::SERVED->value;
-            }
+            $resource->serve_status = $mrr->is_ncpo ? ServeStatus::UNSERVED->value : ServeStatus::SERVED->value;
+            $resource->remarks = $validatedData['remarks'] ?? $resource->remarks;
             $resource->save();
-            $resource->transactionMaterialReceiving->warehouseStockTransactions()->create([
-                'warehouse_id' => $resource->transactionMaterialReceiving->warehouse_id,
-                'type' => StockTransactionTypes::STOCKIN->value,
-                'item_id' => $resource->item_id,
-                'quantity' => $resource->quantity,
-                'uom_id' => $resource->uom_id,
-                'metadata' => [
-                    'is_petty_cash' => $resource->transactionMaterialReceiving->isPettyCash
-                ]
+
+            // 1. STOCK IN → Destination
+            $mrr->warehouseStockTransactions()->create([
+                'warehouse_id' => $mrr->warehouse_id,
+                'type'         => StockTransactionTypes::STOCKIN->value,
+                'item_id'      => $resource->item_id,
+                'quantity'     => $qtyToAccept,
+                'uom_id'       => $resource->uom_id,
+                'referenceable_type' => get_class($mrr),
+                'referenceable_id'   => $mrr->id,
+                'metadata'     => [
+                    'is_turnover'        => true,
+                    'from_warehouse_id'  => $fromWarehouseId,
+                    'rt_id'              => $mrr->metadata['rt_id'] ?? null,
+                    'partial_acceptance' => true,
+                    'accepted_qty'       => $qtyToAccept,
+                    'mrr_item_id'        => $resource->id,
+                ],
             ]);
+
+            // 2. STOCK OUT → Source Warehouse
+            if ($fromWarehouseId) {
+                WarehouseStockTransactions::create([
+                    'warehouse_id'       => $fromWarehouseId,
+                    'type'               => StockTransactionTypes::STOCKOUT->value,
+                    'item_id'            => $resource->item_id,
+                    'quantity'           => $qtyToAccept,
+                    'uom_id'             => $resource->uom_id,
+                    'referenceable_type' => get_class($mrr),
+                    'referenceable_id'   => $mrr->id,
+                    'metadata'           => [
+                        'is_turnover'           => true,
+                        'to_warehouse_id'       => $mrr->warehouse_id,
+                        'rt_id'                 => $mrr->metadata['rt_id'] ?? null,
+                        'partial_acceptance'    => true,
+                        'accepted_qty'          => $qtyToAccept,
+                        'mrr_item_id'           => $resource->id,
+                        'notes'                 => 'Partial turnover accepted',
+                    ],
+                ]);
+            }
+
             $this->syncRequestTurnoverFromMrrItem($resource);
         });
-        // TO BE UPDATED LATER FOR TRANSFER TO RETURN ITEMS FOR THE NOT ACCEPTED ITEMS
+
         return response()->json([
-            'message' => 'Successfully accepted.',
+            'message' => "Successfully accepted {$qtyToAccept} items.",
             'success' => true,
-            'data' => $resource->refresh(),
+            'data'    => $resource->refresh(),
         ]);
     }
     public function reject(TransactionMaterialReceivingItem $resource, TransactionMaterialReceivingItemRejectRequest $request)

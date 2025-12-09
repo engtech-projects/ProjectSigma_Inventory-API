@@ -148,7 +148,10 @@ class WarehouseController extends Controller
 
     public function getStocks(SetupWarehouses $warehouse)
     {
-        $transactionItems = $warehouse->stockSummary()->with('item')->paginate(10);
+        $transactionItems = $warehouse->stockSummary()
+            ->where('quantity', '>', 0)
+            ->with('item')
+            ->paginate(10);
         return response()->json([
             'message' => '' . $warehouse->name . ' Warehouse Stocks Successfully fetched.',
             'success' => true,

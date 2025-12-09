@@ -45,7 +45,12 @@ class WarehouseStockTransactionsObserver
         if($warehouseStockTransactions->type == StockTransactionTypes::STOCKIN->value) {
             $warehouseSummary->quantity += $quantity;
         } else {
-            $warehouseSummary->quantity -= $quantity;
+            // $warehouseSummary->quantity -= $quantity;
+            $newQty = $warehouseSummary->quantity - $quantity;
+            if ($newQty < 0) {
+                $newQty = 0;
+            }
+            $warehouseSummary->quantity = $newQty;
         }
         $warehouseSummary->metadata = [
             ...$warehouseSummary->metadata,
