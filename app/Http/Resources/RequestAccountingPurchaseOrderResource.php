@@ -2,11 +2,10 @@
 
 namespace App\Http\Resources;
 
-use App\Http\Services\NcpoService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RequestPurchaseOrderDetailedResource extends JsonResource
+class RequestAccountingPurchaseOrderResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,8 +14,6 @@ class RequestPurchaseOrderDetailedResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $ncpoService = app(NcpoService::class);
-        $itemsWithChanges = $ncpoService->getItemsWithChanges($this->resource);
         return [
             'id' => $this->id,
             'is_prepayment' => $this->is_prepayment,
@@ -35,7 +32,6 @@ class RequestPurchaseOrderDetailedResource extends JsonResource
             'delivered_to' => $this->delivered_to,
             'items_count' => $this->requestCanvassSummary?->items?->count() ?? 0,
             'requestCanvassSummary' => $this->requestCanvassSummary,
-            'items' => $itemsWithChanges->toArray(),
             "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
             "next_approval" => $this->getNextPendingApproval(),
         ];
