@@ -62,10 +62,10 @@ Route::middleware("secret_api")->group(function () {
 
 Route::middleware('auth:api')->group(function () {
     Route::prefix('accounting')->group(function () {
-    Route::prefix('purchase-order')->group(function () {
-        Route::get('display-details/{id}', [RequestPurchaseOrderController::class, 'displayDetails']);
+        Route::prefix('purchase-order')->group(function () {
+            Route::get('display-details/{id}', [RequestPurchaseOrderController::class, 'displayDetails']);
+        });
     });
-});
     Route::prefix('auth')->group(function () {
         Route::get('/user', [AuthController::class, 'show']);
     });
