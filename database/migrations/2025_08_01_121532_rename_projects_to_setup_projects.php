@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+return new class () extends Migration {
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::rename('projects', 'setup_projects');
+        Schema::table('setup_projects', function (Blueprint $table) {
+            $table->dropColumn('project_monitoring_id');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::rename('setup_projects', 'projects');
+        Schema::table('projects', function (Blueprint $table) {
+            $table->unsignedBigInteger('project_monitoring_id')->nullable();
+        });
+        DB::table('projects')->update(['project_monitoring_id' => DB::raw('id')]);
+    }
+};
