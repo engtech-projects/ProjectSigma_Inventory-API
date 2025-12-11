@@ -63,6 +63,12 @@ class RequestProcurement extends Model
             $q->where('users.id', $userId);
         });
     }
+    public function scopeIsConsolidated($query)
+    {
+        return $query->whereHas('requisitionSlip', function ($q) {
+            $q->where('remarks', 'Consolidated Request');
+        });
+    }
 
     public function priceQuotations()
     {

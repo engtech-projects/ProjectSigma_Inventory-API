@@ -51,28 +51,35 @@ class ConsolidatedRequest extends Model
             'requisition_slip_id'
         );
     }
-    /**
-     * ==================================================
-     * ACCESSORS & SCOPES
-     * ==================================================
-     */
     public function getDetailedItemsAttribute()
     {
-        $this->loadMissing('items.requisitionSlipItem.itemProfile');
-
-        return $this->items->map(function ($item) {
-            $requisitionItem = $item->requisitionSlipItem;
-            $itemProfile = $requisitionItem?->itemProfile;
-            return [
-                'id' => $itemProfile?->id,
-                'item_description' => $itemProfile?->item_description,
-                'specification' => $requisitionItem?->specification,
-                'preferred_brand' => $requisitionItem?->preferred_brand,
-                'quantity' => $item->quantity_consolidated,
-                'uom' => $requisitionItem?->uom_name,
-                // to be used in getting the number of project departments requested
-                // 'noOfProjectDepartmentsRequested' => $item->noOfProjectDepartments,
-            ];
+        $this->loadMissing([
+            'items.requisitionSlipItem.itemProfile',
+            'items.requisitionSlip',
+        ]);
+        $grouped = $this->items->groupBy(function ($consItem) {
+            $rsi = $consItem->requisitionSlipItem;
+            return $rsi->item_id
+                . '|' . ($rsi->specification ?? '')
+                . '|' . ($rsi->preferred_brand ?? '');
         });
+        return $grouped->map(function ($group) {
+            $first = $group->first();
+            $requisitionItem = $first->requisitionSlipItem;
+            $itemProfile = $requisitionItem?->itemProfile;
+            $totalQuantity = $group->sum('quantity_consolidated');
+            $uniqueDepartmentsCount = $group->pluck('requisition_slip_id')->unique()->count();
+            $sourceRsRefs = $group->pluck('requisitionSlip.reference_no')->unique()->values();
+            return [
+                'id'                          => $itemProfile?->id,
+                'item_description'            => $itemProfile?->item_description,
+                'specification'               => $requisitionItem?->specification,
+                'preferred_brand'             => $requisitionItem?->preferred_brand,
+                'quantity'                    => $totalQuantity,
+                'uom'                         => $requisitionItem?->uom_name,
+                'no_of_project_departments_requested' => $uniqueDepartmentsCount,
+                'source_requisition_slips'    => $sourceRsRefs->toArray(),
+            ];
+        })->values();
     }
 }
