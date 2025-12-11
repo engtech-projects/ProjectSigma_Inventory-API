@@ -13,6 +13,7 @@ class RequestRequisitionSlipItems extends Model
 
     protected $fillable = [
         'request_requisition_slip_id',
+        'consolidated_request_id',
         'quantity',
         'unit',
         'item_id',
@@ -39,6 +40,10 @@ class RequestRequisitionSlipItems extends Model
     public function getUomNameAttribute()
     {
         return UOM::find($this->unit)?->name;
+    }
+    public function getUomSymbolAttribute()
+    {
+        return UOM::find($this->unit)?->symbol;
     }
     public function getItemDescriptionAttribute()
     {
