@@ -105,7 +105,7 @@ class ConsolidatedRequestController extends Controller
                     'rs_item_ids'      => $group->map(function ($item) {
                         return [
                             'rs_id'     => $item['rs_id'],
-                            'rs_item_id'=> $item['rs_item_id'],
+                            'rs_item_id' => $item['rs_item_id'],
                             'quantity'  => $item['quantity'],
                         ];
                     })->values(),
@@ -123,50 +123,6 @@ class ConsolidatedRequestController extends Controller
             ],
         ]);
     }
-    // public function store(StoreGeneratedConsolidatedRequest $request): JsonResponse
-    // {
-    //     return DB::transaction(function () use ($request) {
-    //         $consolidated = ConsolidatedRequest::create([
-    //             'reference_no'       => $this->generateReferenceNo(),
-    //             'purpose'            => $request->purpose,
-    //             'consolidated_by'    => auth()->user()->id,
-    //             'date_consolidated'  => now(),
-    //             'status'             => 'draft',
-    //             'metadata'           => [
-    //                 'selected_rs' => $request->rs_ids,
-    //             ],
-    //         ]);
-    //         $itemsToInsert = [];
-    //         foreach ($request->items as $item) {
-    //             foreach ($item['rs_item_ids'] as $source) {
-    //                 $itemsToInsert[] = [
-    //                     'consolidated_request_id'   => $consolidated->id,
-    //                     'requisition_slip_id'       => $source['rs_id'],
-    //                     'requisition_slip_item_id'  => $source['rs_item_id'],
-    //                     'quantity_consolidated'     => $source['quantity'],
-    //                     'status'                    => 'Pending',
-    //                     'remarks'                   => $item['remarks'] ?? null,
-    //                     'created_at'                => now(),
-    //                     'updated_at'                => now(),
-    //                 ];
-    //             }
-    //         }
-    //         if (empty($itemsToInsert)) {
-    //             throw new \Exception("No items to consolidate.");
-    //         }
-    //         ConsolidatedRequestItems::insert($itemsToInsert);
-    //         return new JsonResponse([
-    //             'success' => true,
-    //             'message' => 'Consolidated request created successfully.',
-    //             'data' => new ConsolidatedRequestResource(
-    //                 $consolidated->load([
-    //                     'items.requisitionSlip',
-    //                     'items.requisitionSlipItem',
-    //                 ])
-    //             ),
-    //         ], JsonResponse::HTTP_OK);
-    //     });
-    // }
     public function store(StoreGeneratedConsolidatedRequest $request): JsonResponse
     {
         return DB::transaction(function () use ($request) {
@@ -184,7 +140,6 @@ class ConsolidatedRequestController extends Controller
             $rsItemIdsToUpdate = [];
             foreach ($request->items as $item) {
                 foreach ($item['rs_item_ids'] as $source) {
-
                     $itemsToInsert[] = [
                         'consolidated_request_id'   => $consolidated->id,
                         'requisition_slip_id'       => $source['rs_id'],
