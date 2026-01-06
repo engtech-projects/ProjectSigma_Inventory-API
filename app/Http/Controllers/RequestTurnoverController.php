@@ -192,8 +192,12 @@ class RequestTurnoverController extends Controller
             });
 
             $metadataFlags = [];
-            if ($hasTransfer) $metadataFlags['request_transfer'] = true;
-            if ($hasReturn)   $metadataFlags['request_return']   = true;
+            if ($hasTransfer) {
+                $metadataFlags['request_transfer'] = true;
+            }
+            if ($hasReturn) {
+                $metadataFlags['request_return']   = true;
+            }
 
             $requestTurnover = RequestTurnover::create([
                 'date'          => $validated['date'],
