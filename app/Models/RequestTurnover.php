@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Http\Services\MrrService;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class RequestTurnover extends Model
 {
@@ -23,8 +24,8 @@ class RequestTurnover extends Model
     protected $fillable = [
         'reference_no',
         'date',
-        'from_warehouse_id',
-        'to_warehouse_id',
+        'from_type', 'from_id',
+        'to_type', 'to_id',
         'created_by',
         'received_date',
         'received_name',
@@ -39,14 +40,14 @@ class RequestTurnover extends Model
         'approvals' => 'array',
     ];
     // Relationships
-    public function fromWarehouse(): BelongsTo
+    public function from(): MorphTo
     {
-        return $this->belongsTo(SetupWarehouses::class, 'from_warehouse_id');
+        return $this->morphTo();
     }
 
-    public function toWarehouse(): BelongsTo
+    public function to(): MorphTo
     {
-        return $this->belongsTo(SetupWarehouses::class, 'to_warehouse_id');
+        return $this->morphTo();
     }
 
     public function createdBy(): BelongsTo
@@ -67,12 +68,12 @@ class RequestTurnover extends Model
     // Scopes
     public function scopeIncoming(Builder $query, int $warehouseId): Builder
     {
-        return $query->where('to_warehouse_id', $warehouseId);
+        return $query->where('to_id', $warehouseId);
     }
 
     public function scopeOutgoing(Builder $query, int $warehouseId): Builder
     {
-        return $query->where('from_warehouse_id', $warehouseId);
+        return $query->where('from_id', $warehouseId);
     }
 
     public function scopePending(Builder $query): Builder
@@ -93,6 +94,12 @@ class RequestTurnover extends Model
     public function scopeRecent(Builder $query): Builder
     {
         return $query->orderBy('date', 'desc')->orderBy('created_at', 'desc');
+    }
+    public function scopeTransferRequests(Builder $query): Builder
+    {
+        return $query->whereHas('items', function ($q) {
+            $q->where('remarks', 'Request to Transfer');
+        });
     }
 
     // Helpers

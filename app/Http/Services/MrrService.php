@@ -57,12 +57,12 @@ class MrrService
     public function createMrrFromRequestTurnover(RequestTurnover $requestTurnover)
     {
         DB::transaction(function () use ($requestTurnover) {
-            $this->model->warehouse_id = $requestTurnover->to_warehouse_id;
+            $this->model->warehouse_id = $requestTurnover->to_id;
             $this->model->reference_no = $this->generateNewMrrReferenceNumber();
             $this->model->supplier_id = null;
             $this->model->reference = $requestTurnover->reference_no;
             $this->model->terms_of_payment = null;
-            $this->model->particulars = "Turnover from {$requestTurnover->fromWarehouse->name}" . " to {$requestTurnover->toWarehouse->name}";
+            $this->model->particulars = "Turnover from {$requestTurnover->from->name} to {$requestTurnover->to->name}";
             $this->model->transaction_date = now();
             $this->model->evaluated_by_id = null;
             $this->model->metadata = [
