@@ -71,4 +71,8 @@ class RequestTurnoverItems extends Model
     {
         return UOM::find($this->uom)?->name;
     }
+    public function scopeTransfer(Builder $query): Builder
+    {
+        return $query->where('from_warehouse_id', '!=', 'to_warehouse_id');
+    }
 }

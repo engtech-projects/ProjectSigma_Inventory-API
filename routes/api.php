@@ -125,7 +125,11 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/update', [RequestTurnoverController::class, 'update']);
             Route::get('/incoming/{warehouse}', [RequestTurnoverController::class, 'incoming']);
             Route::get('/outgoing/{warehouse}', [RequestTurnoverController::class, 'outgoing']);
+            Route::get('transfer', [RequestTurnoverController::class, 'transferRequests']);
+            Route::get('transfer/my-approvals', [RequestTurnoverController::class, 'myApprovalsTransferRequests']);
             Route::get('items/{warehouse}', [RequestTurnoverController::class, 'getItemsByWarehouse']);
+            Route::get('/items/filter', [RequestTurnoverController::class, 'getItemsByFilter'])
+            ->name('stock.items.filter');
             Route::get('all-request', [RequestTurnoverController::class, 'allRequests']);
             Route::get('my-approvals', [RequestTurnoverController::class, 'myApprovals']);
         });
