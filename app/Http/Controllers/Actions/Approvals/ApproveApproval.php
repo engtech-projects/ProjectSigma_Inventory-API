@@ -7,6 +7,8 @@ use App\Notifications\RequestTurnoverForApprovalNotification;
 use Illuminate\Http\JsonResponse;
 use App\Enums\RequestApprovalStatus;
 use App\Http\Controllers\Controller;
+use App\Notifications\ConsolidatedRequestApprovedNotification;
+use App\Notifications\ConsolidatedRequestForApprovalNotification;
 use App\Notifications\RequestBOMApprovedNotification;
 use App\Notifications\RequestBOMForApprovalNotification;
 use App\Notifications\RequestCanvassSummaryApprovalNotification;
@@ -50,6 +52,7 @@ class ApproveApproval extends Controller
                 ApprovalModels::RequestNcpo->name => RequestNCPOForApprovalNotification::class,
                 ApprovalModels::RequestWithdrawal->name => RequestWithdrawalForApprovalNotification::class,
                 ApprovalModels::RequestTurnover->name => RequestTurnoverForApprovalNotification::class,
+                ApprovalModels::ConsolidatedRequest->name => ConsolidatedRequestForApprovalNotification::class,
             ];
             if (isset($notificationMap[$modelType])) {
                 $model->notifyNextApprover($notificationMap[$modelType]);
@@ -62,6 +65,7 @@ class ApproveApproval extends Controller
                 ApprovalModels::RequestNcpo->name => RequestNCPOApprovedNotification::class,
                 ApprovalModels::RequestWithdrawal->name => RequestWithdrawalApprovedNotification::class,
                 ApprovalModels::RequestTurnover->name => RequestTurnoverApprovedNotification::class,
+                ApprovalModels::ConsolidatedRequest->name => ConsolidatedRequestApprovedNotification::class,
             ];
             if (isset($notificationMap[$modelType])) {
                 $model->notifyCreator($notificationMap[$modelType]);

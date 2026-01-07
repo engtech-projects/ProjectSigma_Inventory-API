@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RequestStatuses;
 use App\Http\Requests\GenerateConsolidatedRequest;
 use App\Http\Requests\StoreGeneratedConsolidatedRequest;
 use App\Http\Resources\ConsolidatedRequestDetailedResource;
@@ -13,6 +14,7 @@ use App\Models\ConsolidatedRequestItems;
 use App\Models\RequestProcurement;
 use App\Models\RequestRequisitionSlip;
 use App\Models\RequestRequisitionSlipItems;
+use App\Notifications\ConsolidatedRequestForApprovalNotification;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -125,20 +127,26 @@ class ConsolidatedRequestController extends Controller
     }
     public function store(StoreGeneratedConsolidatedRequest $request): JsonResponse
     {
-        return DB::transaction(function () use ($request) {
+        $validated = $request->validated();
+        $consolidated = DB::transaction(function () use ($validated) {
             $consolidated = ConsolidatedRequest::create([
                 'reference_no'       => $this->generateReferenceNo(),
-                'purpose'            => $request->purpose,
-                'consolidated_by'    => auth()->user()->id,
+                'purpose'            => $validated['purpose'],
+                'remarks'            => $validated['remarks'],
                 'date_consolidated'  => now(),
-                'status'             => 'draft',
+                'status'             => RequestStatuses::PENDING,
                 'metadata'           => [
-                    'selected_rs' => $request->rs_ids,
+                    'selected_rs' => $validated['rs_ids'],
                 ],
+                'created_by'    => auth()->user()->id,
+                'approvals'          => $validated['approvals'] ?? [],
+                'request_status'     => RequestStatuses::PENDING,
             ]);
+
             $itemsToInsert = [];
             $rsItemIdsToUpdate = [];
-            foreach ($request->items as $item) {
+
+            foreach ($validated['items'] as $item) {
                 foreach ($item['rs_item_ids'] as $source) {
                     $itemsToInsert[] = [
                         'consolidated_request_id'   => $consolidated->id,
@@ -156,28 +164,34 @@ class ConsolidatedRequestController extends Controller
             ConsolidatedRequestItems::insert($itemsToInsert);
             RequestRequisitionSlipItems::whereIn('id', $rsItemIdsToUpdate)
                 ->update(['consolidated_request_id' => $consolidated->id]);
-            return new JsonResponse([
-                'success' => true,
-                'message' => 'Consolidated request created successfully.',
-                'data' => new ConsolidatedRequestResource(
-                    $consolidated->load([
-                        'items.requisitionSlip',
-                        'items.requisitionSlipItem',
-                    ])
-                ),
-            ], JsonResponse::HTTP_OK);
+
+            return $consolidated;
         });
-    }
-    private function generateReferenceNo(): string
-    {
-        $baseRef = "CR-SP-IMS";
-        $latest = ConsolidatedRequest::orderByRaw('CAST(SUBSTRING_INDEX(reference_no, "-", -1) AS UNSIGNED) DESC')
-            ->first();
-        $lastNumber = $latest ? (int) last(explode('-', $latest->reference_no)) : 0;
-        $nextNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
-        return "{$baseRef}-{$nextNumber}";
+        $consolidated->notifyNextApprover(ConsolidatedRequestForApprovalNotification::class);
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Consolidated request created successfully.',
+            'data' => new ConsolidatedRequestResource(
+                $consolidated->load([
+                    'items.requisitionSlip',
+                    'items.requisitionSlipItem',
+                ])
+            ),
+        ], JsonResponse::HTTP_CREATED);
     }
 
+    private function generateReferenceNo(): string
+    {
+        $prefix = 'CR';
+        $year = now()->year;
+        $month = now()->format('m');
+        $lastRequest = ConsolidatedRequest::whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)
+            ->orderBy('id', 'desc')
+            ->first();
+        $sequence = $lastRequest ? (int) substr($lastRequest->reference_no, -4) + 1 : 1;
+        return sprintf('%s-%s%s-%04d', $prefix, $year, $month, $sequence);
+    }
     public function show(ConsolidatedRequest $resource)
     {
         $resource->load(['items.requisitionSlipItem', 'items.requisitionSlip']);
@@ -186,6 +200,28 @@ class ConsolidatedRequestController extends Controller
             "success" => true,
             "message" => "Successfully fetched.",
             "data" => new ConsolidatedRequestDetailedResource($resource),
+        ]);
+    }
+    public function allRequests()
+    {
+        $fetchData = ConsolidatedRequest::latest()
+        ->paginate(config('app.pagination.per_page', 10));
+        return ConsolidatedRequestListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Consolidated Request Successfully Fetched.",
+        ]);
+    }
+
+    public function myApprovals()
+    {
+        $fetchData = ConsolidatedRequest::latest()
+        ->myApprovals()
+        ->paginate(config('app.pagination.per_page', 10));
+        return ConsolidatedRequestListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Consolidated Request Successfully Fetched.",
         ]);
     }
 }

@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Traits\HasApprovalValidation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreGeneratedConsolidatedRequest extends FormRequest
 {
+    use HasApprovalValidation;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -42,6 +44,7 @@ class StoreGeneratedConsolidatedRequest extends FormRequest
             'items.*.rs_item_ids.*.rs_id' => 'required|integer',
             'items.*.rs_item_ids.*.rs_item_id' => 'required|integer',
             'items.*.rs_item_ids.*.quantity' => 'required|numeric|min:0',
+            ...$this->storeApprovals(),
         ];
     }
     public function messages(): array

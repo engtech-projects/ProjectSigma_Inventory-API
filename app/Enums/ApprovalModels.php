@@ -2,6 +2,7 @@
 
 namespace App\Enums;
 
+use App\Models\ConsolidatedRequest;
 use App\Models\RequestItemProfiling;
 use App\Models\RequestSupplier;
 use App\Models\RequestBOM;
@@ -21,6 +22,7 @@ enum ApprovalModels: string
     case RequestNcpo = RequestNcpo::class;
     case RequestWithdrawal = RequestWithdrawal::class;
     case RequestTurnover = RequestTurnover::class;
+    case ConsolidatedRequest = ConsolidatedRequest::class;
 
     public static function toArray(): array
     {
