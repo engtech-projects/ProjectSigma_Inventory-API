@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\RequestStatuses;
+use App\Traits\HasApproval;
 use App\Traits\HasReferenceNumber;
 use App\Traits\ModelHelpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,19 +16,23 @@ class ConsolidatedRequest extends Model
     use SoftDeletes;
     use ModelHelpers;
     use HasReferenceNumber;
+    use HasApproval;
 
     protected $fillable = [
         'reference_no',
         'purpose',
-        'consolidated_by',
         'date_consolidated',
         'status',
         'remarks',
-        'metadata'
+        'metadata',
+        'approvals',
+        'request_status',
+        'created_by',
     ];
 
     protected $casts = [
         'metadata' => 'array',
+        'approvals' => 'array',
         'date_consolidated' => 'date',
     ];
 
@@ -81,5 +87,11 @@ class ConsolidatedRequest extends Model
                 'source_requisition_slips'    => $sourceRsRefs->toArray(),
             ];
         })->values();
+    }
+    public function completeRequestStatus()
+    {
+        $this->request_status = RequestStatuses::APPROVED->value;
+        $this->save();
+        $this->refresh();
     }
 }

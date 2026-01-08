@@ -252,6 +252,8 @@ Route::middleware('auth:api')->group(function () {
         Route::get('unserved', [ConsolidatedRequestController::class, 'unserved']);
         Route::post('generate-consolidated-request', [ConsolidatedRequestController::class, 'generateDraft']);
         Route::post('create-consolidated-request', [ConsolidatedRequestController::class, 'store']);
+        Route::get('all-request', [ConsolidatedRequestController::class, 'allRequests']);
+        Route::get('my-approvals', [ConsolidatedRequestController::class, 'myApprovals']);
     });
 
     if (config()->get('app.artisan') == 'true') {
