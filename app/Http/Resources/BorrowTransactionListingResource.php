@@ -21,7 +21,7 @@ class BorrowTransactionListingResource extends JsonResource
             'borrowed_by' => $this->borrowed_by,
             'returned_by' => $this->returned_by,
             'date_time_returned' => $this->date_time_returned,
-            // 'created_at_human' => $this->createdAtDateHuman,
+            'created_at_human' => $this->createdAtDateHuman,
         ];
     }
 }

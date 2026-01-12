@@ -24,6 +24,7 @@ return new class () extends Migration {
             $table->json('metadata')->nullable();
             $table->json('approvals')->nullable();
             $table->enum('request_status', RequestStatuses::toArray())->default('pending');
+            $table->string('created_by');
             $table->timestamps();
             $table->softDeletes();
         });
