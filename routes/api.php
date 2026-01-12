@@ -139,6 +139,7 @@ Route::middleware('auth:api')->group(function () {
             Route::resource('resource', BorrowTransactionController::class)->names("borrowTransactionResource");
             Route::get('all-request', [BorrowTransactionController::class, 'allRequests']);
             Route::get('my-approvals', [BorrowTransactionController::class, 'myApprovals']);
+            Route::get('my-requests', [BorrowTransactionController::class, 'myRequests']);
         });
     });
 
