@@ -8,7 +8,6 @@ use App\Http\Resources\BorrowTransactionDetailedResource;
 use App\Http\Resources\BorrowTransactionListingResource;
 use App\Models\BorrowTransaction;
 use App\Models\BorrowTransactionItems;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
