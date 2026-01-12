@@ -33,6 +33,7 @@ use App\Http\Controllers\TransactionMaterialReceivingController;
 use App\Http\Controllers\TransactionMaterialReceivingItemController;
 use App\Http\Controllers\RequestWithdrawalController;
 use App\Http\Controllers\Actions\Approvals\RequestWithdrawalMyApprovals;
+use App\Http\Controllers\BorrowTransactionController;
 use App\Http\Controllers\ConsolidatedRequestController;
 use App\Http\Controllers\RequestTurnoverController;
 use Illuminate\Support\Facades\Artisan;
@@ -132,6 +133,12 @@ Route::middleware('auth:api')->group(function () {
             ->name('stock.items.filter');
             Route::get('all-request', [RequestTurnoverController::class, 'allRequests']);
             Route::get('my-approvals', [RequestTurnoverController::class, 'myApprovals']);
+            Route::get('my-requests', [RequestTurnoverController::class, 'myRequests']);
+        });
+        Route::prefix('borrow')->group(function () {
+            Route::resource('resource', BorrowTransactionController::class)->names("borrowTransactionResource");
+            Route::get('all-request', [BorrowTransactionController::class, 'allRequests']);
+            Route::get('my-approvals', [BorrowTransactionController::class, 'myApprovals']);
         });
     });
 
