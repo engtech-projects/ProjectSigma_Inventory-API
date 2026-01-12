@@ -24,6 +24,8 @@ class ConsolidatedRequestDetailedResource extends JsonResource
             'remarks' => $this->remarks,
             'metadata' => $this->metadata,
             'items' => $this->detailedItems,
+            "approvals" => new ApprovalAttributeResource(["approvals" => $this->approvals]),
+            "next_approval" => $this->getNextPendingApproval(),
             ];
     }
 }

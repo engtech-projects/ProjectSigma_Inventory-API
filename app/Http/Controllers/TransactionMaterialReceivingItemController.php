@@ -48,7 +48,7 @@ class TransactionMaterialReceivingItemController extends Controller
         }
 
         $mrr = $resource->transactionMaterialReceiving;
-        $fromWarehouseId = $mrr->metadata['from_warehouse_id'] ?? null;
+        $fromWarehouseId = $mrr->metadata['from_id'] ?? null;
 
         $qtyToAccept = $resource->requested_quantity
             - $mrr->warehouseStockTransactions()
@@ -77,7 +77,7 @@ class TransactionMaterialReceivingItemController extends Controller
                 'referenceable_id'   => $mrr->id,
                 'metadata'     => [
                     'is_turnover'       => true,
-                    'from_warehouse_id' => $fromWarehouseId,
+                    'from_id' => $fromWarehouseId,
                     'rt_id'             => $mrr->metadata['rt_id'] ?? null,
                     'full_acceptance'   => true,
                     'accepted_qty'      => $qtyToAccept,
@@ -96,7 +96,7 @@ class TransactionMaterialReceivingItemController extends Controller
                     'referenceable_id'   => $mrr->id,
                     'metadata'           => [
                         'is_turnover'           => true,
-                        'to_warehouse_id'       => $mrr->warehouse_id,
+                        'to_id'       => $mrr->warehouse_id,
                         'rt_id'                 => $mrr->metadata['rt_id'] ?? null,
                         'full_acceptance'       => true,
                         'accepted_qty'          => $qtyToAccept,
@@ -126,7 +126,7 @@ class TransactionMaterialReceivingItemController extends Controller
 
         $qtyToAccept = $validatedData['quantity'];
         $mrr = $resource->transactionMaterialReceiving;
-        $fromWarehouseId = $mrr->metadata['from_warehouse_id'] ?? null;
+        $fromWarehouseId = $mrr->metadata['from_id'] ?? null;
 
         $totalAcceptedSoFar = $mrr->warehouseStockTransactions()
             ->where('item_id', $resource->item_id)
@@ -159,7 +159,7 @@ class TransactionMaterialReceivingItemController extends Controller
                 'referenceable_id'   => $mrr->id,
                 'metadata'     => [
                     'is_turnover'        => true,
-                    'from_warehouse_id'  => $fromWarehouseId,
+                    'from_id'  => $fromWarehouseId,
                     'rt_id'              => $mrr->metadata['rt_id'] ?? null,
                     'partial_acceptance' => true,
                     'accepted_qty'       => $qtyToAccept,
@@ -179,7 +179,7 @@ class TransactionMaterialReceivingItemController extends Controller
                     'referenceable_id'   => $mrr->id,
                     'metadata'           => [
                         'is_turnover'           => true,
-                        'to_warehouse_id'       => $mrr->warehouse_id,
+                        'to_id'       => $mrr->warehouse_id,
                         'rt_id'                 => $mrr->metadata['rt_id'] ?? null,
                         'partial_acceptance'    => true,
                         'accepted_qty'          => $qtyToAccept,

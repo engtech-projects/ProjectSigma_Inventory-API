@@ -33,6 +33,7 @@ use App\Http\Controllers\TransactionMaterialReceivingController;
 use App\Http\Controllers\TransactionMaterialReceivingItemController;
 use App\Http\Controllers\RequestWithdrawalController;
 use App\Http\Controllers\Actions\Approvals\RequestWithdrawalMyApprovals;
+use App\Http\Controllers\BorrowTransactionController;
 use App\Http\Controllers\ConsolidatedRequestController;
 use App\Http\Controllers\RequestTurnoverController;
 use Illuminate\Support\Facades\Artisan;
@@ -125,9 +126,20 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/update', [RequestTurnoverController::class, 'update']);
             Route::get('/incoming/{warehouse}', [RequestTurnoverController::class, 'incoming']);
             Route::get('/outgoing/{warehouse}', [RequestTurnoverController::class, 'outgoing']);
+            Route::get('transfer', [RequestTurnoverController::class, 'transferRequests']);
+            Route::get('transfer/my-approvals', [RequestTurnoverController::class, 'myApprovalsTransferRequests']);
             Route::get('items/{warehouse}', [RequestTurnoverController::class, 'getItemsByWarehouse']);
+            Route::get('/items/filter', [RequestTurnoverController::class, 'getItemsByFilter'])
+            ->name('stock.items.filter');
             Route::get('all-request', [RequestTurnoverController::class, 'allRequests']);
             Route::get('my-approvals', [RequestTurnoverController::class, 'myApprovals']);
+            Route::get('my-requests', [RequestTurnoverController::class, 'myRequests']);
+        });
+        Route::prefix('borrow')->group(function () {
+            Route::resource('resource', BorrowTransactionController::class)->names("borrowTransactionResource");
+            Route::get('all-request', [BorrowTransactionController::class, 'allRequests']);
+            Route::get('my-approvals', [BorrowTransactionController::class, 'myApprovals']);
+            Route::get('my-requests', [BorrowTransactionController::class, 'myRequests']);
         });
     });
 
@@ -248,6 +260,8 @@ Route::middleware('auth:api')->group(function () {
         Route::get('unserved', [ConsolidatedRequestController::class, 'unserved']);
         Route::post('generate-consolidated-request', [ConsolidatedRequestController::class, 'generateDraft']);
         Route::post('create-consolidated-request', [ConsolidatedRequestController::class, 'store']);
+        Route::get('all-request', [ConsolidatedRequestController::class, 'allRequests']);
+        Route::get('my-approvals', [ConsolidatedRequestController::class, 'myApprovals']);
     });
 
     if (config()->get('app.artisan') == 'true') {
