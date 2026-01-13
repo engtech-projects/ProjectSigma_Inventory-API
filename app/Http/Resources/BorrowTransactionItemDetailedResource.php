@@ -19,6 +19,8 @@ class BorrowTransactionItemDetailedResource extends JsonResource
             'item_id' => $this->item_id,
             'description' => $this->item->item_description,
             'quantity' => $this->quantity,
+            'metadata' => $this->metadata,
+            'remarks' => $this->remarks,
         ];
     }
 }

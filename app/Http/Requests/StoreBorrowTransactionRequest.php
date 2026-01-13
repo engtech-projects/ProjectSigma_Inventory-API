@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Traits\HasApprovalValidation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreBorrowTransactionRequest extends FormRequest
 {
+    use HasApprovalValidation;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -38,6 +40,7 @@ class StoreBorrowTransactionRequest extends FormRequest
             'items' => ['required', 'array', 'min:1'],
             'items.*.item_id' => ['required', 'exists:item_profile,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
+            ...$this->storeApprovals(),
         ];
     }
 
