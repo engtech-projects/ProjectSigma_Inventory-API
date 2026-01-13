@@ -10,6 +10,7 @@ use App\Http\Resources\BorrowTransactionListingResource;
 use App\Http\Resources\BorrowTransactionResource;
 use App\Models\BorrowTransaction;
 use App\Models\BorrowTransactionItems;
+use App\Notifications\BorrowTransactionForApprovalNotification;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
