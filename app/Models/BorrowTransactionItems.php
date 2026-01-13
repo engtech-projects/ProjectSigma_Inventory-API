@@ -13,6 +13,7 @@ class BorrowTransactionItems extends Model
         'item_id',
         'quantity',
         'metadata',
+        'remarks',
     ];
     protected $casts = [
         'metadata' => 'array',

@@ -29,6 +29,7 @@ class BorrowTransaction extends Model
         'metadata',
         'approvals',
         'request_status',
+        'created_by',
     ];
 
     protected $casts = [
