@@ -2,6 +2,7 @@
 
 namespace App\Enums;
 
+use App\Models\BorrowTransaction;
 use App\Models\ConsolidatedRequest;
 use App\Models\RequestItemProfiling;
 use App\Models\RequestSupplier;
@@ -23,6 +24,7 @@ enum ApprovalModels: string
     case RequestWithdrawal = RequestWithdrawal::class;
     case RequestTurnover = RequestTurnover::class;
     case ConsolidatedRequest = ConsolidatedRequest::class;
+    case BorrowTransaction = BorrowTransaction::class;
 
     public static function toArray(): array
     {

@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Traits\HasApprovalValidation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreBorrowTransactionRequest extends FormRequest
 {
+    use HasApprovalValidation;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -26,6 +28,7 @@ class StoreBorrowTransactionRequest extends FormRequest
     {
         return [
             'reference_no' => ['nullable', 'string', 'max:255', 'unique:borrow_transactions,reference_no'],
+            'warehouse_id' => ['required', 'exists:setup_warehouses,id'],
             'date_time_borrowed' => ['required', 'date'],
             'borrowed_by' => ['required', 'string', 'max:255'],
             'borrowed_contact_no' => ['required', 'string', 'max:255'],
@@ -38,12 +41,15 @@ class StoreBorrowTransactionRequest extends FormRequest
             'items' => ['required', 'array', 'min:1'],
             'items.*.item_id' => ['required', 'exists:item_profile,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
+            ...$this->storeApprovals(),
         ];
     }
 
     public function messages(): array
     {
         return [
+            'warehouse_id.required' => 'Warehouse is required.',
+            'warehouse_id.exists' => 'The selected warehouse does not exist.',
             'items.required' => 'At least one item must be added to the borrow transaction.',
             'items.*.item_id.required' => 'Each item must have a valid item selected.',
             'items.*.item_id.exists' => 'The selected item does not exist.',

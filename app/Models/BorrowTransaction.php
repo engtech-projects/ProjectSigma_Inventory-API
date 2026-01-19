@@ -19,6 +19,7 @@ class BorrowTransaction extends Model
 
     protected $fillable = [
         'reference_no',
+        'warehouse_id',
         'date_time_borrowed',
         'borrowed_by',
         'borrowed_contact_no',
@@ -29,15 +30,24 @@ class BorrowTransaction extends Model
         'metadata',
         'approvals',
         'request_status',
+        'created_by',
     ];
 
     protected $casts = [
         'approvals' => 'array',
         'metadata' => 'array'
     ];
-
+    /**
+    * ==================================================
+    * MODEL RELATIONSHIPS
+    * ==================================================
+    */
     public function items()
     {
         return $this->hasMany(BorrowTransactionItems::class, 'borrow_transaction_id');
+    }
+    public function warehouse()
+    {
+        return $this->belongsTo(SetupWarehouses::class);
     }
 }

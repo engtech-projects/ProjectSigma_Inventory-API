@@ -53,6 +53,7 @@ class ApproveApproval extends Controller
                 ApprovalModels::RequestWithdrawal->name => RequestWithdrawalForApprovalNotification::class,
                 ApprovalModels::RequestTurnover->name => RequestTurnoverForApprovalNotification::class,
                 ApprovalModels::ConsolidatedRequest->name => ConsolidatedRequestForApprovalNotification::class,
+                // ApprovalModels::BorrowTransaction->name => BorrowTransactionForApprovalNotification::class,
             ];
             if (isset($notificationMap[$modelType])) {
                 $model->notifyNextApprover($notificationMap[$modelType]);

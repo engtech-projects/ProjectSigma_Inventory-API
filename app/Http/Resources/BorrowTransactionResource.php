@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class BorrowTransactionListingResource extends JsonResource
+class BorrowTransactionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,13 +17,17 @@ class BorrowTransactionListingResource extends JsonResource
         return [
             'id' => $this->id,
             'reference_no' => $this->reference_no,
-            'warehouse' => $this->warehouse->name,
             'date_time_borrowed' => $this->date_time_borrowed,
             'borrowed_by' => $this->borrowed_by,
+            'borrowed_contact_no' => $this->borrowed_contact_no,
             'returned_by' => $this->returned_by,
             'date_time_returned' => $this->date_time_returned,
+            'received_by' => $this->received_by,
             'remarks' => $this->remarks,
-            'created_at_human' => $this->createdAtDateHuman,
+            'items' => $this->whenLoaded(
+                'items',
+                fn () => BorrowTransactionItemDetailedResource::collection($this->items)
+            ),
         ];
     }
 }
