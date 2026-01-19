@@ -138,6 +138,7 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('borrow')->group(function () {
             Route::resource('resource', BorrowTransactionController::class)->names("borrowTransactionResource");
             Route::patch('{borrowTransaction}/return-items', [BorrowTransactionController::class, 'returnItems']);
+            Route::get('items/{warehouseId}', [BorrowTransactionController::class, 'getItemsByWarehouse']);
             Route::get('all-request', [BorrowTransactionController::class, 'allRequests']);
             Route::get('my-approvals', [BorrowTransactionController::class, 'myApprovals']);
             Route::get('my-requests', [BorrowTransactionController::class, 'myRequests']);

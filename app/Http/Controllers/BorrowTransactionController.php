@@ -10,6 +10,7 @@ use App\Http\Resources\BorrowTransactionListingResource;
 use App\Http\Resources\BorrowTransactionResource;
 use App\Models\BorrowTransaction;
 use App\Models\BorrowTransactionItems;
+use App\Models\SetupWarehouses;
 use App\Notifications\BorrowTransactionForApprovalNotification;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,6 +36,7 @@ class BorrowTransactionController extends Controller
         $transaction = DB::transaction(function () use ($validated) {
             $transaction = BorrowTransaction::create([
                 'reference_no' => $validated['reference_no'] ?? $this->generateReferenceNumber(),
+                'warehouse_id' => $validated['warehouse_id'],
                 'date_time_borrowed' => $validated['date_time_borrowed'],
                 'borrowed_by' => $validated['borrowed_by'],
                 'borrowed_contact_no' => $validated['borrowed_contact_no'],
@@ -57,6 +59,7 @@ class BorrowTransactionController extends Controller
         });
         $transaction->load([
             'items.item',
+            'warehouse',
         ]);
         $transaction->notifyNextApprover(BorrowTransactionForApprovalNotification::class);
         return new JsonResponse([
@@ -79,7 +82,8 @@ class BorrowTransactionController extends Controller
     public function show(BorrowTransaction $resource)
     {
         $resource->load([
-            'items.item'
+            'items.item',
+            'warehouse',
         ]);
         return response()->json([
             "message" => "Successfully fetched.",
@@ -149,9 +153,51 @@ class BorrowTransactionController extends Controller
             'data' => new BorrowTransactionResource($transaction),
         ]);
     }
+    public function getItemsByWarehouse($warehouseId)
+    {
+        $warehouse = SetupWarehouses::with([
+            'borrowTransactions.items.item'
+        ])->findOrFail($warehouseId);
+
+        $items = $warehouse->borrowTransactions->map(function ($borrowTransaction) {
+            return [
+                'id' => $borrowTransaction->id,
+                'reference_no' => $borrowTransaction->reference_no,
+                'warehouse_id' => $borrowTransaction->warehouse_id,
+                'warehouse' => $borrowTransaction->warehouse->name,
+                'date_time_borrowed' => $borrowTransaction->date_time_borrowed,
+                'borrowed_by' => $borrowTransaction->borrowed_by,
+                'borrowed_contact_no' => $borrowTransaction->borrowed_contact_no,
+                'returned_by' => $borrowTransaction->returned_by,
+                'date_time_returned' => $borrowTransaction->date_time_returned,
+                'received_by' => $borrowTransaction->received_by,
+                'remarks' => $borrowTransaction->remarks,
+                'items' => $borrowTransaction->items->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'borrow_transaction_id' => $item->borrow_transaction_id,
+                        'item_id' => $item->item_id,
+                        'item_description' => $item->item->item_description ?? null,
+                        'current_quantity' => $item->quantity,
+                        'quantity_returned' => $item->metadata['quantity_returned'] ?? 0,
+                        'remaining_quantity' => $item->quantity - ($item->metadata['quantity_returned'] ?? 0),
+                        'remarks' => $item->remarks,
+                        'metadata' => $item->metadata,
+                    ];
+                }),
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'warehouse' => $warehouse->name,
+            'items' => $items,
+        ]);
+    }
     public function allRequests()
     {
-        $fetchData = BorrowTransaction::latest()
+        $fetchData = BorrowTransaction::with('warehouse')
+        ->latest()
         ->paginate(config('app.pagination.per_page', 10));
         return BorrowTransactionListingResource::collection($fetchData)
         ->additional([
@@ -162,7 +208,8 @@ class BorrowTransactionController extends Controller
 
     public function myApprovals()
     {
-        $fetchData = BorrowTransaction::latest()
+        $fetchData = BorrowTransaction::with('warehouse')
+        ->latest()
         ->myApprovals()
         ->paginate(config('app.pagination.per_page', 10));
         return BorrowTransactionListingResource::collection($fetchData)
@@ -173,8 +220,9 @@ class BorrowTransactionController extends Controller
     }
     public function myRequests()
     {
-        $fetchData = BorrowTransaction::latest()
-        ->myApprovals()
+        $fetchData = BorrowTransaction::with('warehouse')
+        ->latest()
+        ->myRequests()
         ->paginate(config('app.pagination.per_page', 10));
         return BorrowTransactionListingResource::collection($fetchData)
         ->additional([
