@@ -61,6 +61,10 @@ class SetupWarehouses extends Model
     {
         return $this->hasMany(WarehouseStocksSummary::class, 'warehouse_id');
     }
+    public function borrowTransactions()
+    {
+        return $this->hasMany(BorrowTransaction::class, 'warehouse_id');
+    }
 
     /**
     * ==================================================
