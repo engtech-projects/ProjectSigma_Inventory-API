@@ -30,11 +30,11 @@ class StoreBorrowTransactionRequest extends FormRequest
             'reference_no' => ['nullable', 'string', 'max:255', 'unique:borrow_transactions,reference_no'],
             'warehouse_id' => ['required', 'exists:setup_warehouses,id'],
             'date_time_borrowed' => ['required', 'date'],
-            'borrowed_by' => ['required', 'string', 'max:255'],
+            'borrowed_by' => ['required', 'integer', 'exists:setup_employees,id'],
             'borrowed_contact_no' => ['required', 'string', 'max:255'],
-            'returned_by' => ['nullable', 'string', 'max:255'],
+            'returned_by' => ['nullable', 'integer', 'exists:setup_employees,id'],
             'date_time_returned' => ['nullable', 'date', 'after:date_time_borrowed'],
-            'received_by' => ['nullable', 'string', 'max:255'],
+            'received_by' => ['nullable', 'integer', 'exists:setup_employees,id'],
             'remarks' => ['nullable', 'string'],
 
             // Items validation

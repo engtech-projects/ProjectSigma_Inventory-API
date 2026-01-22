@@ -15,8 +15,8 @@ class ReturnBorrowTransactionRequest extends FormRequest
     {
         return [
             'date_time_returned' => ['required', 'date'],
-            'returned_by' => ['required', 'string', 'max:255'],
-            'received_by' => ['required', 'string', 'max:255'],
+            'returned_by' => ['required', 'integer'],
+            'received_by' => ['required', 'integer'],
             'remarks' => ['nullable', 'string'],
             'items' => ['required', 'array'],
             'items.*.id' => ['required', 'exists:borrow_transaction_items,id'],
