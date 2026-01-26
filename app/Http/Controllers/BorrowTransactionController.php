@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\RequestStatuses;
 use App\Http\Requests\ReturnBorrowTransactionRequest;
 use App\Http\Requests\StoreBorrowTransactionRequest;
+use App\Http\Resources\BorrowingItemsByWarehouseResource;
 use App\Http\Resources\BorrowTransactionDetailedResource;
 use App\Http\Resources\BorrowTransactionListingResource;
 use App\Http\Resources\BorrowTransactionResource;
@@ -96,13 +97,14 @@ class BorrowTransactionController extends Controller
         BorrowTransaction $borrowTransaction
     ) {
         $validated = $request->validated();
-
         [$transaction, $allReturned] = DB::transaction(function () use ($borrowTransaction, $validated) {
+            $allReturned = true;
             foreach ($validated['items'] as $item) {
                 $borrowItem = $borrowTransaction->items()
                     ->where('id', $item['id'])
                     ->lockForUpdate()
                     ->firstOrFail();
+
                 $metadata = $borrowItem->metadata ?? [];
                 $returnedSoFar = $metadata['quantity_returned'] ?? 0;
                 if ($returnedSoFar >= $borrowItem->quantity) {
@@ -119,8 +121,13 @@ class BorrowTransactionController extends Controller
                     'returned_at' => now()->toDateTimeString(),
                     'returned_by' => $validated['returned_by'],
                     'received_by' => $validated['received_by'],
+                    'remarks'     => $item['remarks'] ?? null,
                 ];
+
                 $remaining = max(0, $borrowItem->quantity - $metadata['quantity_returned']);
+                if ($remaining > 0) {
+                    $allReturned = false;
+                }
                 $borrowItem->update([
                     'metadata' => $metadata,
                     'remarks'  => $remaining === 0
@@ -128,72 +135,43 @@ class BorrowTransactionController extends Controller
                         : "Partially returned with {$remaining} remaining",
                 ]);
             }
-            $borrowTransaction->load('items');
-            $allReturned = $borrowTransaction->items->every(function ($item) {
-                return ($item->metadata['quantity_returned'] ?? 0) >= $item->quantity;
-            });
             $borrowTransaction->update([
                 'date_time_returned' => $allReturned ? $validated['date_time_returned'] : null,
                 'returned_by'        => $validated['returned_by'],
                 'received_by'        => $validated['received_by'],
-                'remarks'            => $validated['remarks']
-                    ?? ($allReturned ? 'All items returned' : 'Partially returned'),
+                'remarks'            => $allReturned
+                    ? ($validated['remarks'] ?? 'All items returned')
+                    : ($validated['remarks'] ?? 'Partially returned'),
             ]);
 
-            return [$borrowTransaction, $allReturned];
+            return [$borrowTransaction->load('items.item'), $allReturned];
         });
-
-        $transaction->load('items.item');
 
         return response()->json([
             'success' => true,
-            'message' => $allReturned
-                ? 'All items returned'
-                : 'Items partially returned',
-            'data' => new BorrowTransactionResource($transaction),
+            'message' => $allReturned ? 'All items returned' : 'Items partially returned',
+            'data'    => new BorrowTransactionResource($transaction),
         ]);
     }
+
     public function getItemsByWarehouse($warehouseId)
     {
         $warehouse = SetupWarehouses::with([
-            'borrowTransactions.items.item'
+            'borrowTransactions' => function ($query) {
+                $query->latest('date_time_borrowed')
+                    ->with(['items.item', 'borrowedBy', 'returnedBy', 'receivedBy']);
+            },
         ])->findOrFail($warehouseId);
-
-        $items = $warehouse->borrowTransactions->map(function ($borrowTransaction) {
-            return [
-                'id' => $borrowTransaction->id,
-                'reference_no' => $borrowTransaction->reference_no,
-                'warehouse_id' => $borrowTransaction->warehouse_id,
-                'warehouse' => $borrowTransaction->warehouse->name,
-                'date_time_borrowed' => $borrowTransaction->date_time_borrowed,
-                'borrowed_by' => $borrowTransaction->borrowed_by,
-                'borrowed_contact_no' => $borrowTransaction->borrowed_contact_no,
-                'returned_by' => $borrowTransaction->returned_by,
-                'date_time_returned' => $borrowTransaction->date_time_returned,
-                'received_by' => $borrowTransaction->received_by,
-                'remarks' => $borrowTransaction->remarks,
-                'items' => $borrowTransaction->items->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'borrow_transaction_id' => $item->borrow_transaction_id,
-                        'item_id' => $item->item_id,
-                        'item_description' => $item->item->item_description ?? null,
-                        'current_quantity' => $item->quantity,
-                        'quantity_returned' => $item->metadata['quantity_returned'] ?? 0,
-                        'remaining_quantity' => $item->quantity - ($item->metadata['quantity_returned'] ?? 0),
-                        'remarks' => $item->remarks,
-                        'metadata' => $item->metadata,
-                    ];
-                }),
-            ];
-        });
 
         return response()->json([
             'success' => true,
             'warehouse' => $warehouse->name,
-            'items' => $items,
+            'items' => BorrowingItemsByWarehouseResource::collection(
+                $warehouse->borrowTransactions
+            ),
         ]);
     }
+
     public function allRequests()
     {
         $fetchData = BorrowTransaction::with('warehouse')
