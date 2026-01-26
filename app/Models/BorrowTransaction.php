@@ -50,4 +50,16 @@ class BorrowTransaction extends Model
     {
         return $this->belongsTo(SetupWarehouses::class);
     }
+    public function borrowedBy()
+    {
+        return $this->belongsTo(SetupEmployees::class, 'borrowed_by');
+    }
+    public function returnedBy()
+    {
+        return $this->belongsTo(SetupEmployees::class, 'returned_by');
+    }
+    public function receivedBy()
+    {
+        return $this->belongsTo(SetupEmployees::class, 'received_by');
+    }
 }
