@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use App\Enums\ServeStatus;
+use App\Models\BorrowTransaction;
 use App\Models\RequestRequisitionSlip;
 use App\Models\RequestTurnover;
 use App\Models\TransactionMaterialReceiving;
@@ -96,6 +97,58 @@ class MrrService
             });
 
             $this->model->items()->createMany($mappedItems->toArray());
+        });
+
+        return $this->model;
+    }
+    public function createMrrFromBorrowTransaction(BorrowTransaction $borrowTransaction)
+    {
+        DB::transaction(function () use ($borrowTransaction) {
+            $this->model->warehouse_id   = $borrowTransaction->warehouse_id;
+            $this->model->reference_no   = $this->generateNewMrrReferenceNumber();
+            $this->model->supplier_id    = null;
+            $this->model->reference      = $borrowTransaction->reference_no;
+            $this->model->terms_of_payment = null;
+            $this->model->particulars    = "Borrow transaction {$borrowTransaction->reference_no}";
+            $this->model->transaction_date = now();
+            $this->model->evaluated_by_id = null;
+            $this->model->metadata = [
+                'is_borrow_transaction' => true,
+                'borrow_transaction_id' => $borrowTransaction->id,
+                'borrowed_by' => $borrowTransaction->borrowed_by,
+                'borrowed_contact_no' => $borrowTransaction->borrowed_contact_no,
+                'date_time_borrowed' => $borrowTransaction->date_time_borrowed,
+            ];
+
+            $this->model->save();
+
+            $items = $borrowTransaction->items->map(function ($item) use ($borrowTransaction) {
+                $itemProfile = $item->item;
+
+                if (!$itemProfile || !$itemProfile->uom) {
+                    throw new \Exception(
+                        "Item {$item->item_id} has no base UOM defined"
+                    );
+                }
+                return [
+                    'transaction_material_receiving_id' => $this->model->id,
+                    'item_id' => $item->item_id,
+                    'specification' => $itemProfile->item_description,
+                    'actual_brand_purchase' => null,
+                    'requested_quantity' => $item->quantity,
+                    'quantity' => $item->quantity,
+                    'uom_id' => $itemProfile->uom,
+                    'unit_price' => null,
+                    'serve_status' => ServeStatus::UNSERVED,
+                    'remarks' => $item->remarks,
+                    'metadata' => [
+                        'borrow_transaction_id' => $borrowTransaction->id,
+                        'borrow_transaction_item_id' => $item->id,
+                    ],
+                ];
+            });
+
+            $this->model->items()->createMany($items->toArray());
         });
 
         return $this->model;

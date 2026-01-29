@@ -22,8 +22,8 @@ class BorrowingItemsByWarehouseResource extends JsonResource
             'returned_by' => optional($this->returnedBy)->fullname_first,
             'date_time_returned' => $this->date_time_returned,
             'received_by' => optional($this->receivedBy)->fullname_first,
-
             'remarks' => $this->remarks,
+            'request_status' => $this->request_status,
 
             'items' => $this->items->map(function ($item) {
                 $returned = $item->metadata['quantity_returned'] ?? 0;

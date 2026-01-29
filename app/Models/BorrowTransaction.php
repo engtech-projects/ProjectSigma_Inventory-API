@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\RequestStatuses;
+use App\Http\Services\MrrService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -61,5 +63,13 @@ class BorrowTransaction extends Model
     public function receivedBy()
     {
         return $this->belongsTo(SetupEmployees::class, 'received_by');
+    }
+    public function completeRequestStatus()
+    {
+        $this->request_status = RequestStatuses::APPROVED->value;
+        $this->save();
+        (new MrrService(new TransactionMaterialReceiving()))
+            ->createMrrFromBorrowTransaction($this);
+        $this->refresh();
     }
 }
