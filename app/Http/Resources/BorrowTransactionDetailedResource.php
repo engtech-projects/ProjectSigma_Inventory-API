@@ -25,6 +25,7 @@ class BorrowTransactionDetailedResource extends JsonResource
             'date_time_returned' => $this->date_time_returned,
             'received_by' => optional($this->receivedBy)->fullname_first,
             'remarks' => $this->remarks,
+            'request_status' => $this->request_status,
             'created_at_human' => $this->createdAtDateHuman,
             'items' => $this->whenLoaded(
                 'items',

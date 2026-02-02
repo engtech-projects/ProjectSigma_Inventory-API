@@ -37,6 +37,7 @@ class BorrowTransactionResource extends JsonResource
                     'remaining_quantity' => $item->quantity - $returned,
                     'remarks' => $item->remarks,
                     'metadata' => $item->metadata,
+                    'approval_status' => $item->approval_status,
                 ];
             }),
         ];
