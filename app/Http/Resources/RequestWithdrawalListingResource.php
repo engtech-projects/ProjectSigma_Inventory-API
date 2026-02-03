@@ -17,8 +17,13 @@ class RequestWithdrawalListingResource extends JsonResource
         return [
             'id' => $this->id,
             'date_time' => $this->date_time,
+            'warehouse_id' => $this->warehouse_id,
+            'warehouse' => $this->warehouse->name,
             'charging_name' => $this->chargeable_name,
-            'item_codes_summary' => $this->whenLoaded('items', fn () => $this->items->pluck('item.item_code')->implode(',')),
+            'equipment_no' => $this->equipment_no,
+            'created_by' => $this->createdBy->fullname_first,
+            'updated_at' => $this->updated_at,
+            'request_status' => $this->request_status,
         ];
     }
 }

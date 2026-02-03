@@ -118,7 +118,9 @@ Route::middleware('auth:api')->group(function () {
         Route::get('material-receivings/{warehouse}', [TransactionMaterialReceivingController::class, 'materialReceivingByWarehouse']);
         Route::prefix('request-withdrawal')->group(function () {
             Route::apiResource('resource', RequestWithdrawalController::class);
-            Route::get('my-approvals', RequestWithdrawalMyApprovals::class);
+            Route::get('my-approvals', [RequestWithdrawalController::class, 'myApprovals']);
+            Route::get('my-requests', [RequestWithdrawalController::class, 'myRequests']);
+            Route::get('all-requests', [RequestWithdrawalController::class, 'allRequests']);
         });
         // request turnovers
         Route::prefix('request-turnovers')->group(function () {
