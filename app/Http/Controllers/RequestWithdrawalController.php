@@ -86,4 +86,35 @@ class RequestWithdrawalController extends Controller
 
         return sprintf("RW-%s-%05d", now()->year, $nextId);
     }
+    public function allRequests()
+    {
+        $fetchData = RequestWithdrawal::latest()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestWithdrawalListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request Withdrawals Successfully Fetched.",
+        ]);
+    }
+
+    public function myApprovals()
+    {
+        $fetchData = RequestWithdrawal::latest()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestWithdrawalListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request Withdrawals Successfully Fetched.",
+        ]);
+    }
+    public function myRequests()
+    {
+        $fetchData = RequestWithdrawal::latest()
+        ->paginate(config('app.pagination.per_page', 10));
+        return RequestWithdrawalListingResource::collection($fetchData)
+        ->additional([
+            "success" => true,
+            "message" => "Request Withdrawals Successfully Fetched.",
+        ]);
+    }
 }

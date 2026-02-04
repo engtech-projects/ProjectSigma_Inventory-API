@@ -60,6 +60,10 @@ class RequestWithdrawal extends Model
     {
         return $this->morphMany(WarehouseStockTransactions::class, 'referenceable');
     }
+    public function createdBy()
+    {
+        return $this->belongsTo(SetupEmployees::class, 'created_by');
+    }
 
     /**
      * Accessors

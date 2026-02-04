@@ -32,7 +32,6 @@ use App\Http\Controllers\RequestRequisitionSlipController;
 use App\Http\Controllers\TransactionMaterialReceivingController;
 use App\Http\Controllers\TransactionMaterialReceivingItemController;
 use App\Http\Controllers\RequestWithdrawalController;
-use App\Http\Controllers\Actions\Approvals\RequestWithdrawalMyApprovals;
 use App\Http\Controllers\BorrowTransactionController;
 use App\Http\Controllers\ConsolidatedRequestController;
 use App\Http\Controllers\RequestTurnoverController;
@@ -118,7 +117,9 @@ Route::middleware('auth:api')->group(function () {
         Route::get('material-receivings/{warehouse}', [TransactionMaterialReceivingController::class, 'materialReceivingByWarehouse']);
         Route::prefix('request-withdrawal')->group(function () {
             Route::apiResource('resource', RequestWithdrawalController::class);
-            Route::get('my-approvals', RequestWithdrawalMyApprovals::class);
+            Route::get('my-approvals', [RequestWithdrawalController::class, 'myApprovals']);
+            Route::get('my-requests', [RequestWithdrawalController::class, 'myRequests']);
+            Route::get('all-requests', [RequestWithdrawalController::class, 'allRequests']);
         });
         // request turnovers
         Route::prefix('request-turnovers')->group(function () {
